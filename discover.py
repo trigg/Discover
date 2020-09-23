@@ -763,7 +763,7 @@ class OverlayWindow(Gtk.Window):
 
     def draw_avatar(self, context, user,y):
         # Ensure pixbuf for avatar
-        if user["id"] not in self.avatars:
+        if user["id"] not in self.avatars and user["avatar"]:
             url= "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (user["id"], user["avatar"])
             req = urllib.request.Request(url)
             req.add_header('Referer','https://streamkit.discord.com/overlay/voice')
@@ -788,14 +788,17 @@ class OverlayWindow(Gtk.Window):
             mute=True
         if "deaf" in user and user["deaf"]:
             alpha=0.5
+        pix = None
+        if user["id"] in self.avatars:
+            pix = self.avatars[user["id"]]
         if self.align_right:
             self.draw_text(context, user["username"],w-self.avatar_size,y)
-            self.draw_avatar_pix(context, self.avatars[user["id"]],w-self.avatar_size,y,c,alpha)
+            self.draw_avatar_pix(context, pix,w-self.avatar_size,y,c,alpha)
             if mute:
                 self.draw_mute(context, w-self.avatar_size, y,alpha)
         else:
             self.draw_text(context, user["username"],self.avatar_size,y)
-            self.draw_avatar_pix(context, self.avatars[user["id"]],0,y,c,alpha)
+            self.draw_avatar_pix(context, pix,0,y,c,alpha)
             if mute:
                 self.draw_mute(context, 0,y,alpha)
 
@@ -828,16 +831,17 @@ class OverlayWindow(Gtk.Window):
         context.move_to(x,y)
         context.save()
         #context.set_source_pixbuf(pixbuf, 0.0, 0.0)
-        if self.round_avatar:
-            context.arc(x+(self.avatar_size/2), y+(self.avatar_size/2), self.avatar_size/2,0,2*math.pi)
-            context.clip()
-        self.set_wind_col()
-        context.set_operator(cairo.OPERATOR_SOURCE)
-        context.rectangle(x,y,self.avatar_size,self.avatar_size)
-        context.fill()
-        context.set_operator(cairo.OPERATOR_OVER)
-        Gdk.cairo_set_source_pixbuf(context,pixbuf,x,y)
-        context.paint_with_alpha(alpha)
+        if pixbuf:
+            if self.round_avatar:
+                context.arc(x+(self.avatar_size/2), y+(self.avatar_size/2), self.avatar_size/2,0,2*math.pi)
+                context.clip()
+            self.set_wind_col()
+            context.set_operator(cairo.OPERATOR_SOURCE)
+            context.rectangle(x,y,self.avatar_size,self.avatar_size)
+            context.fill()
+            context.set_operator(cairo.OPERATOR_OVER)
+            Gdk.cairo_set_source_pixbuf(context,pixbuf,x,y)
+            context.paint_with_alpha(alpha)
         context.restore()
         if c:
             if self.round_avatar:
