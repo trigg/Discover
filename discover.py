@@ -266,6 +266,16 @@ class SettingsWindow(Gtk.Window):
 
         self.create_gui()
 
+    def get_monitor_index(self, name):
+        display = Gdk.Display.get_default()
+        for i in range(0, display.get_n_monitors()):
+            if display.get_monitor(i).get_model() == name:
+                return i
+        print("Could not find monitor : %s" % (name))
+        return 0
+
+
+
     def read_config(self):
         self.align_x = self.config.getboolean("main", "rightalign", fallback=True)
         self.align_y = self.config.getint("main", "topalign", fallback=1)
@@ -278,6 +288,7 @@ class SettingsWindow(Gtk.Window):
         self.text_padding = self.config.getint("main","text_padding", fallback=6)
         self.font = self.config.get("main","font",fallback=None)
         self.square_avatar = self.config.getboolean("main","square_avatar", fallback=False)
+        self.monitor = self.config.get("main", "monitor", fallback="None")
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -290,6 +301,7 @@ class SettingsWindow(Gtk.Window):
         self.overlay.set_icon_spacing(self.icon_spacing)
         self.overlay.set_text_padding(self.text_padding)
         self.overlay.set_square_avatar(self.square_avatar)
+        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
 
         if self.font:
             desc = Pango.FontDescription.from_string(self.font)
@@ -315,6 +327,7 @@ class SettingsWindow(Gtk.Window):
         if self.font:
             self.config.set("main","font",self.font)
         self.config.set("main","square_avatar","%d"%(int(self.square_avatar)))
+        self.config.set("main","monitor",self.monitor)
         
         with open(self.configFile, 'w') as file:
             self.config.write(file)
@@ -353,8 +366,20 @@ class SettingsWindow(Gtk.Window):
         avatar_size = Gtk.SpinButton.new(avatar_adjustment,0,0)
         avatar_size.connect("value-changed", self.change_avatar_size)
 
-        # Alignment
+        # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
+
+        monitor_store = Gtk.ListStore(str)
+        display = Gdk.Display.get_default()
+        for i in range(0, display.get_n_monitors()):
+            monitor_store.append([display.get_monitor(i).get_model()])
+        monitor = Gtk.ComboBox.new_with_model(monitor_store)
+        monitor.set_active(self.get_monitor_index(self.monitor))
+        monitor.connect("changed", self.change_monitor)
+        rt = Gtk.CellRendererText()
+        monitor.pack_start(rt,True)
+        monitor.add_attribute(rt, "text", 0)
+
         align_x_store = Gtk.ListStore(str)
         align_x_store.append(["Left"])
         align_x_store.append(["Right"])
@@ -406,15 +431,16 @@ class SettingsWindow(Gtk.Window):
         box.attach(mt_col,1,4,1,1)
         box.attach(avatar_size_label,0,5,1,1)
         box.attach(avatar_size,1,5,1,1)
-        box.attach(align_label,0,6,1,2)
-        box.attach(align_x,1,6,1,1)
-        box.attach(align_y,1,7,1,1)
-        box.attach(icon_spacing_label,0,8,1,1)
-        box.attach(icon_spacing,1,8,1,1)
-        box.attach(text_padding_label,0,9,1,1)
-        box.attach(text_padding,1,9,1,1)
-        box.attach(square_avatar_label,0,10,1,1)
-        box.attach(square_avatar,1,10,1,1)
+        box.attach(align_label,0,6,1,3)
+        box.attach(monitor,1,6,1,1)
+        box.attach(align_x,1,7,1,1)
+        box.attach(align_y,1,8,1,1)
+        box.attach(icon_spacing_label,0,9,1,1)
+        box.attach(icon_spacing,1,9,1,1)
+        box.attach(text_padding_label,0,10,1,1)
+        box.attach(text_padding,1,10,1,1)
+        box.attach(square_avatar_label,0,11,1,1)
+        box.attach(square_avatar,1,11,1,1)
 
         self.add(box)
 
@@ -467,6 +493,15 @@ class SettingsWindow(Gtk.Window):
         self.overlay.set_avatar_size(button.get_value())
 
         self.avatar_size = button.get_value()
+        self.save_config()
+
+    def change_monitor(self, button):
+        display = Gdk.Display.get_default()
+        mon = display.get_monitor(button.get_active())
+        m_s = mon.get_model()
+        self.overlay.set_monitor(button.get_active())
+
+        self.monitor = m_s
         self.save_config()
 
     def change_align_x(self, button):
@@ -524,6 +559,7 @@ class OverlayWindow(Gtk.Window):
         self.avatars = {}
 
         self.avatar_size=48
+        self.monitor = 0
         self.align_right=True
         self.align_vert=1
         self.text_pad=6
@@ -569,6 +605,10 @@ class OverlayWindow(Gtk.Window):
         self.reset_avatar()
         self.queue_draw()
 
+    def set_monitor(self, idx):
+        self.monitor = idx
+        self.force_location()
+
     def set_align_x(self, b):
         self.align_right = b
         self.force_location()
@@ -603,17 +643,18 @@ class OverlayWindow(Gtk.Window):
         self.set_decorated(False)
         self.set_keep_above(True)
         display = Gdk.Display.get_default()
-        # TODO care about mulitmonitor
-        monitor = display.get_primary_monitor()
+        monitor = display.get_monitor(self.monitor)
         geometry = monitor.get_geometry()
         scale_factor = monitor.get_scale_factor()
         w = scale_factor * geometry.width
         h = scale_factor * geometry.height
+        x = geometry.x
+        y = geometry.y
         self.resize(400, h)
         if self.align_right:
-            self.move(w-400, 0)
+            self.move(x+w-400,y+0)
         else:
-            self.move(0,0)
+            self.move(x,y)
         self.queue_draw()
 
     def col(self,c,a=1.0):

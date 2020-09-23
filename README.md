@@ -24,7 +24,6 @@ Not all features are at the level I would like.
 To do list:
 
 - Bash install script
-- Multimonitor
 - Text channels
 - Text notifications (different from above)
 - Open to suggestions
