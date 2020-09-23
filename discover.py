@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 
-import websocket
-import json
-import requests
-import time
-import sys
 import gi
+import os
+import sys
+import json
+import math
+import time
+import cairo
+import base64
 import select
 import urllib
-import cairo
-import math
-import base64
-import os
+import requests
+import websocket
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
@@ -232,12 +232,12 @@ def sub_server(ws):
     # Experimental
     sub_raw(ws,"VOICE_CHANNEL_SELECT", "", "VOICE_CHANNEL_SELECT")
     sub_raw(ws,"VOICE_CONNECTION_STATUS", "", "VOICE_CONNECTION_STATUS")
-    sub_raw(ws,"ACTIVITY_JOIN", "","ACTIVITY_JOIN")
-    sub_raw(ws,"ACTIVITY_JOIN_REQUEST", "","ACTIVITY_JOIN_REQUEST")
-    sub_raw(ws,"ACTIVITY_SPECTATE", "", "ACTIVITY_SPECTATE")
-    sub_raw(ws,"ACTIVITY_INVITE","","ACTIVITY_INVITE")
-    sub_raw(ws,"GAME_JOIN", "", "GAME_JOIN")
-    sub_raw(ws,"GAME_SPECTATE", "", "GAME_SPECTATE")
+    #sub_raw(ws,"ACTIVITY_JOIN", "","ACTIVITY_JOIN")
+    #sub_raw(ws,"ACTIVITY_JOIN_REQUEST", "","ACTIVITY_JOIN_REQUEST")
+    #sub_raw(ws,"ACTIVITY_SPECTATE", "", "ACTIVITY_SPECTATE")
+    #sub_raw(ws,"ACTIVITY_INVITE","","ACTIVITY_INVITE")
+    #sub_raw(ws,"GAME_JOIN", "", "GAME_JOIN")
+    #sub_raw(ws,"GAME_SPECTATE", "", "GAME_SPECTATE")
     sub_raw(ws,"VOICE_SETTINGS_UPDATE", "", "VOICE_SETTINGS_UPDATE")
     #sub_raw(ws,"GUILD_STATUS", "\"guild_id\":\"147073008450666496\"", "GUILD_STATUS")
 
