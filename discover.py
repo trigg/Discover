@@ -31,6 +31,7 @@ userlist = {}
 in_room= []
 current_voice = "0"
 list_altered = False
+last_connection=""
 
 def get_access_token_stage1(ws):
     global oauth_token
@@ -57,6 +58,9 @@ def get_access_token_stage2(ws, code1):
 
 def set_channel(ws,channel):
     global current_voice, channels
+    if not channel:
+        current_voice="0"
+        return
     if channel != current_voice:
         cn = channels[channel]['name']
         current_voice = channel
@@ -83,7 +87,7 @@ def update_user(user):
     userlist[user["id"]]=user
 
 def on_message(ws, message):
-    global guilds, user, access_delay, channels, userlist, current_voice,list_altered,in_room
+    global guilds, user, access_delay, channels, userlist, current_voice,list_altered,in_room, last_connection
     j = json.loads(message)
     if j["cmd"] == "AUTHORIZE":
         get_access_token_stage2(ws,j["data"]["code"])
@@ -124,8 +128,16 @@ def on_message(ws, message):
             list_altered=True
             # It's only possible to get alerts for the room you're in
             set_channel(ws,j["data"]["channel_id"])
-            userlist[j["data"]["user_id"]]["speaking"] = False
+            if j["data"]["user_id"] in userlist:
+                userlist[j["data"]["user_id"]]["speaking"] = False
             set_in_room(j["data"]["user_id"],True)
+        elif j["evt"] == "VOICE_CHANNEL_SELECT":
+            set_channel(ws, j["data"]["channel_id"])
+        elif j["evt"] == "VOICE_CONNECTION_STATUS":
+            # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
+            last_connection = j["data"]["state"]
+        else:
+            print(j)
         return
     elif j["cmd"] == "AUTHENTICATE":
         if j["evt"] == "ERROR":
@@ -151,7 +163,9 @@ def on_message(ws, message):
         sub_all_voice_guild(ws,j["nonce"])
         return
     elif j["cmd"] == "SUBSCRIBE":
-
+        if j["data"]["evt"] == "SPEAKING_STOP" or j["data"]["evt"] == "SPEAKING_START" or j["data"]["evt"] == "VOICE_STATE_CREATE" or j["data"]["evt"] == "VOICE_STATE_UPDATE" or j["data"]["evt"] == "VOICE_STATE_DELETE" or j["data"]["evt"]=="VOICE_CHANNEL_SELECT" or j["data"]["evt"]=="VOICE_CONNECTION_STATUS" or j["data"]["evt"] == "VOICE_SETTINGS_UPDATE":
+            return
+        print(j)
         return
     elif j["cmd"] == "GET_CHANNEL":
         if j["evt"] == "ERROR":
@@ -184,6 +198,7 @@ def on_connected():
             if channel["type"] == 2:
                 channels = channels+" "+channel["name"]
         print("%s: %s" % (guild["name"], channels))
+    sub_server(ws)
 
 def on_error(ws, error):
     print("ERROR : %s" % (error))
@@ -211,14 +226,30 @@ def find_user(ws):
         req_channel_details(ws, channel)
 
 def sub_raw(ws, cmd, channel, nonce):
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (channel, cmd, nonce))
+    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{%s},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (channel, cmd, nonce))
+
+def sub_server(ws):
+    # Experimental
+    sub_raw(ws,"VOICE_CHANNEL_SELECT", "", "VOICE_CHANNEL_SELECT")
+    sub_raw(ws,"VOICE_CONNECTION_STATUS", "", "VOICE_CONNECTION_STATUS")
+    sub_raw(ws,"ACTIVITY_JOIN", "","ACTIVITY_JOIN")
+    sub_raw(ws,"ACTIVITY_JOIN_REQUEST", "","ACTIVITY_JOIN_REQUEST")
+    sub_raw(ws,"ACTIVITY_SPECTATE", "", "ACTIVITY_SPECTATE")
+    sub_raw(ws,"ACTIVITY_INVITE","","ACTIVITY_INVITE")
+    sub_raw(ws,"GAME_JOIN", "", "GAME_JOIN")
+    sub_raw(ws,"GAME_SPECTATE", "", "GAME_SPECTATE")
+    sub_raw(ws,"VOICE_SETTINGS_UPDATE", "", "VOICE_SETTINGS_UPDATE")
+    #sub_raw(ws,"GUILD_STATUS", "\"guild_id\":\"147073008450666496\"", "GUILD_STATUS")
+
+def sub_channel(ws, cmd, channel):
+    sub_raw(ws,cmd,"\"channel_id\":\"%s\""%(channel),channel)
 
 def sub_voice_channel(ws, channel):
-    sub_raw(ws,"VOICE_STATE_CREATE", channel, channel)
-    sub_raw(ws,"VOICE_STATE_UPDATE", channel, channel)
-    sub_raw(ws,"VOICE_STATE_DELETE", channel, channel)
-    sub_raw(ws,"SPEAKING_START", channel, channel)
-    sub_raw(ws,"SPEAKING_STOP", channel, channel)
+    sub_channel(ws,"VOICE_STATE_CREATE", channel)
+    sub_channel(ws,"VOICE_STATE_UPDATE", channel)
+    sub_channel(ws,"VOICE_STATE_DELETE", channel)
+    sub_channel(ws,"SPEAKING_START", channel)
+    sub_channel(ws,"SPEAKING_STOP", channel)
 
 def sub_all_voice_guild(ws, gid):
     global guilds
@@ -240,6 +271,7 @@ def do_read():
     for userid in in_room:
         newlist.append(userlist[userid])
     win.set_user_list(newlist, list_altered)
+    win.set_connection(last_connection)
     list_altered=False
 
     # Poll socket for new information
@@ -580,6 +612,7 @@ class OverlayWindow(Gtk.Window):
         self.wind_col = [0.0,0.0,0.0,0.0]
         self.mute_col = [0.7,0.0,0.0,1.0]
         self.userlist=[]
+        self.connected=False
         self.set_untouchable()
         self.force_location()
         self.set_skip_pager_hint(True)
@@ -690,6 +723,12 @@ class OverlayWindow(Gtk.Window):
         if alt:
             self.queue_draw()
 
+    def set_connection(self, connection):
+        is_connected = connection == "VOICE_CONNECTED"
+        if self.connected != is_connected:
+            self.connected = is_connected
+            self.queue_draw()
+
     def draw(self, widget, context):
         self.context = context
         
@@ -699,6 +738,8 @@ class OverlayWindow(Gtk.Window):
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.paint()
         context.set_operator(cairo.OPERATOR_OVER)
+        if not self.connected:
+            return
 
         # Get size of window
         (w,h) = self.get_size()
