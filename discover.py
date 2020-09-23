@@ -151,6 +151,7 @@ def on_message(ws, message):
         sub_all_voice_guild(ws,j["nonce"])
         return
     elif j["cmd"] == "SUBSCRIBE":
+
         return
     elif j["cmd"] == "GET_CHANNEL":
         if j["evt"] == "ERROR":
@@ -163,6 +164,8 @@ def on_message(ws, message):
                 set_in_room(voice["user"]["id"], True)
                 if voice["user"]["id"] == user["id"]:
                     current_channel = j["data"]["id"]
+        return
+    print(j)
 
 def check_guilds():
     global guilds
@@ -174,7 +177,7 @@ def check_guilds():
     on_connected()
 
 def on_connected():
-    global guilds
+    global guilds, ws
     for guild in guilds.values():
         channels = ""
         for channel in guild["channels"]:
@@ -207,12 +210,15 @@ def find_user(ws):
     for channel in channels:
         req_channel_details(ws, channel)
 
+def sub_raw(ws, cmd, channel, nonce):
+    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (channel, cmd, nonce))
+
 def sub_voice_channel(ws, channel):
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"VOICE_STATE_CREATE\",\"nonce\":\"deadbeef\"}" % (channel))
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"VOICE_STATE_UPDATE\",\"nonce\":\"deadbeef\"}" % (channel))
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"VOICE_STATE_DELETE\",\"nonce\":\"deadbeef\"}" % (channel))
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"SPEAKING_START\",\"nonce\":\"deadbeef\"}" % (channel))
-    ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{\"channel_id\":\"%s\"},\"evt\":\"SPEAKING_STOP\",\"nonce\":\"deadbeef\"}" % (channel))
+    sub_raw(ws,"VOICE_STATE_CREATE", channel, channel)
+    sub_raw(ws,"VOICE_STATE_UPDATE", channel, channel)
+    sub_raw(ws,"VOICE_STATE_DELETE", channel, channel)
+    sub_raw(ws,"SPEAKING_START", channel, channel)
+    sub_raw(ws,"SPEAKING_STOP", channel, channel)
 
 def sub_all_voice_guild(ws, gid):
     global guilds
@@ -913,7 +919,11 @@ def main():
 
     GLib.timeout_add((1000/60), do_read)
 
-    Gtk.main()
+    try:
+        Gtk.main()
+    except:
+        pass
+
 
 if __name__ == "__main__":
     ws=None
