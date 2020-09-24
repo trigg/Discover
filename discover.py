@@ -625,6 +625,7 @@ class OverlayWindow(Gtk.Window):
         self.force_location()
         self.set_skip_pager_hint(True)
         self.set_skip_taskbar_hint(True)
+        self.def_avatar = self.get_img("https://cdn.discordapp.com/embed/avatars/3.png")
 
     def set_font(self, name, size):
         self.text_font=name
@@ -724,6 +725,7 @@ class OverlayWindow(Gtk.Window):
 
     def reset_avatar(self):
         self.avatars = {}
+        self.def_avatar = self.get_img("https://cdn.discordapp.com/embed/avatars/3.png")
 
     def set_user_list(self, userlist,alt):
         self.userlist = userlist
@@ -769,24 +771,30 @@ class OverlayWindow(Gtk.Window):
         # Don't hold a ref
         self.context=None
 
+    def get_img(self, url):
+        req = urllib.request.Request(url)
+        req.add_header('Referer','https://streamkit.discord.com/overlay/voice')
+        req.add_header('User-Agent', 'Mozilla/5.0')
+        try:
+            response = urllib.request.urlopen(req)
+            input_stream = Gio.MemoryInputStream.new_from_data(response.read(), None)
+            pixbuf = Pixbuf.new_from_stream(input_stream, None)
+            pixbuf = pixbuf.scale_simple(self.avatar_size, self.avatar_size,
+                      GdkPixbuf.InterpType.BILINEAR)
+            return pixbuf
+        except:
+            print("Could not access : %s"%(url))
+        return none
+
+
     def draw_avatar(self, context, user,y):
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
-            # https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png
             url= "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (user["id"], user["avatar"])
             print(url)
-            req = urllib.request.Request(url)
-            req.add_header('Referer','https://streamkit.discord.com/overlay/voice')
-            req.add_header('User-Agent', 'Mozilla/5.0')
-            try:
-                response = urllib.request.urlopen(req)
-                input_stream = Gio.MemoryInputStream.new_from_data(response.read(), None)
-                pixbuf = Pixbuf.new_from_stream(input_stream, None)
-                pixbuf = pixbuf.scale_simple(self.avatar_size, self.avatar_size,
-                          GdkPixbuf.InterpType.BILINEAR)
-                self.avatars[user["id"]] = pixbuf
-            except:
-                print("Could not access : %s"%(url))
+            p = self.get_img(url)
+            if p:
+                self.avatars[user["id"]] = p
 
         (w,h)=self.get_size()
         c = None
@@ -841,17 +849,18 @@ class OverlayWindow(Gtk.Window):
         context.move_to(x,y)
         context.save()
         #context.set_source_pixbuf(pixbuf, 0.0, 0.0)
-        if pixbuf:
-            if self.round_avatar:
-                context.arc(x+(self.avatar_size/2), y+(self.avatar_size/2), self.avatar_size/2,0,2*math.pi)
-                context.clip()
-            self.set_wind_col()
-            context.set_operator(cairo.OPERATOR_SOURCE)
-            context.rectangle(x,y,self.avatar_size,self.avatar_size)
-            context.fill()
-            context.set_operator(cairo.OPERATOR_OVER)
-            Gdk.cairo_set_source_pixbuf(context,pixbuf,x,y)
-            context.paint_with_alpha(alpha)
+        if self.round_avatar:
+            context.arc(x+(self.avatar_size/2), y+(self.avatar_size/2), self.avatar_size/2,0,2*math.pi)
+            context.clip()
+        if not pixbuf:
+            pixbuf = self.def_avatar
+        self.set_wind_col()
+        context.set_operator(cairo.OPERATOR_SOURCE)
+        context.rectangle(x,y,self.avatar_size,self.avatar_size)
+        context.fill()
+        context.set_operator(cairo.OPERATOR_OVER)
+        Gdk.cairo_set_source_pixbuf(context,pixbuf,x,y)
+        context.paint_with_alpha(alpha)
         context.restore()
         if c:
             if self.round_avatar:
@@ -879,7 +888,7 @@ class OverlayWindow(Gtk.Window):
         context.line_to(0.0,1.0)
         context.line_to(0.0,0.0)
         context.close_path()
-        context.move_to(0.9 - 0.035, 0.1 - 0.035)
+        context.new_sub_path()
         context.arc(0.9,0.1,0.05,1.25*math.pi, 2.25*math.pi)
         context.arc(0.1,0.9,0.05,.25*math.pi,1.25*math.pi)
         context.close_path()
