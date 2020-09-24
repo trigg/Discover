@@ -14,8 +14,7 @@ import requests
 import websocket
 
 gi.require_version("Gtk", "3.0")
-gi.require_version("AppIndicator3", "0.1")
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, AppIndicator3
+from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
 from gi.repository.GdkPixbuf import Pixbuf
 from configparser import ConfigParser
 from xdg.BaseDirectory import xdg_config_home
@@ -967,12 +966,19 @@ def create_gui():
     menu.show_all()
 
     # Create AppIndicator
-    ind = AppIndicator3.Indicator.new(
-            "discover",
-            "discover",
-            AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
-    ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-    ind.set_menu(menu)
+    try:
+        from gi.repository import AppIndicator3
+        ind = AppIndicator3.Indicator.new(
+                "discover",
+                "discover",
+                AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
+        ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+        ind.set_menu(menu)
+    except:
+
+        # Create System Tray
+        tray = Gtk.StatusIcon.new_from_icon_name("discover")
+        tray.connect('popup-menu', show_menu)
 
     settings = SettingsWindow(win)
 
