@@ -14,7 +14,8 @@ import requests
 import websocket
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
+gi.require_version("AppIndicator3", "0.1")
+from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, AppIndicator3
 from gi.repository.GdkPixbuf import Pixbuf
 from configparser import ConfigParser
 from xdg.BaseDirectory import xdg_config_home
@@ -950,11 +951,8 @@ class OverlayWindow(Gtk.Window):
         context.restore()
 
 def create_gui():
-    global win, box, tray, settings, menu
+    global win, box, tray, settings, menu, ind
     win = OverlayWindow()
-
-    # Ol' reliable
-    trayImgBase64 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH5AUEDxsTIFcmagAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAN+SURBVFjDzZcxaCJpGIafmTuyisVgsDCJiyApR3FAokmjsT5juuC0l2BzjVyfwv5Ic43EW0ijWCb2JtMEZxFGximDMKzhLIaYKcK4zeaKM8ux5A5vN8Pmbef/53t4v3/+eT+B5fUGSAKbwAawCgQXzzzgDrgFboAR8HGZlwpLrFkD8sBWo9EQ0+k0sViMcDhMIBAAYD6fM5vNmEwmDIdDqtXqJ+A9oAF/fgvAXqFQKB4fH5PL5ZhOp1iWhWmaGIaBYRgAKIqCoiikUilkWSYajdLv96nX61xdXfWAi/8LsAao7Xb7bblcxrIsWq0WkiSRz+dJJBJEIhGCwb874HkejuMwHo/RNA3XdVFVFVmWOT8/p1KpfABaz7nxHEAC+FnX9VA8HqfZbCJJEqVSiXg8vtRhsW2bbreL67ocHh5i2zbZbPYB+AMY/xfAGvDLaDQKCYLA3t4enU6HTCbD12gwGHBwcMDFxQWPj48kk8kH4Pd/OiF+sUfVdT0kCAK1Wo1er/fVxQEymQy9Xo9arYYgCOi6HgLUf3Ngr91uF3d3d9nZ2aHX6y1t+TItKRaLXF9fc3l5SaVS+XwwnxxYKxQKxXK5TLPZpNPpvFhxgHg8TqfTodlsUi6XKRQKxUW7+WGx5qd3797F7u/vcRyH/f19Xlrr6+uYpsnKygrb29ucnZ39CFji4obbyuVytFotSqUSfqlUKtFqtcjlcgBbwBsRSDYaDXE6nSJJ0ota/1wrJEliOp3SaDREICkCm+l0GsuyyOfz+K18Po9lWaTTaYBNEdiIxWKYpkkikfAdIJFIYJomsVgMYEMEVsPhMIZhEIlEfAeIRCIYhkE4HAZYFYFgIBDAMIzPd7ufCgaDGIbx9CcNinxniYA3n89RFAXP83wv6HkeiqIwn88BPBG4m81mKIqC4zi+AziOg6IozGYzgDsRuJ1MJqRSKcbjse8A4/GYVCrFZDIBuBWBm+FwiCzLaJrmO4CmaciyzHA4BLgRgVG1Wv0UjUZxXRfbtn0rbts2rusSjUafcuNIXKTX9/1+H1VV6Xa7vgF0u11UVaXf77MIrR+fPkOtXq8jyzKu6zIYDF68+GAwwHVdZFmmXq+zSMzfP5B8mQl/1XX9bSgUolarcXp6+s0Qtm1zdHTEyckJDw8PZLPZD8BvryaUvrpY/ioGk1cxmr2a4dT38fwv9cLeiMwLuMsAAAAASUVORK5CYII="
 
     # Create System Menu
     menu = Gtk.Menu()
@@ -966,14 +964,15 @@ def create_gui():
 
     settings_opt.connect("activate", show_settings)
     close_opt.connect("activate", close)
+    menu.show_all()
 
-    # Create System Tray
-    pbl = GdkPixbuf.PixbufLoader.new()
-    pbl.write(base64.b64decode(trayImgBase64))
-    pbl.close()
-    image = pbl.get_pixbuf()
-    tray = Gtk.StatusIcon.new_from_pixbuf(image)
-    tray.connect('popup-menu', show_menu)
+    # Create AppIndicator
+    ind = AppIndicator3.Indicator.new(
+            "discover",
+            "discord",
+            AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
+    ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+    ind.set_menu(menu)
 
     settings = SettingsWindow(win)
 
@@ -1018,4 +1017,6 @@ if __name__ == "__main__":
     box=None
     tray=None
     settings=None
+    ind=None
+    menu=None
     main()
