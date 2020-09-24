@@ -247,7 +247,7 @@ def sub_server(ws):
     #sub_raw(ws,"ACTIVITY_INVITE","","ACTIVITY_INVITE")
     #sub_raw(ws,"GAME_JOIN", "", "GAME_JOIN")
     #sub_raw(ws,"GAME_SPECTATE", "", "GAME_SPECTATE")
-    sub_raw(ws,"VOICE_SETTINGS_UPDATE", "", "VOICE_SETTINGS_UPDATE")
+    #sub_raw(ws,"VOICE_SETTINGS_UPDATE", "", "VOICE_SETTINGS_UPDATE")
     #sub_raw(ws,"GUILD_STATUS", "\"guild_id\":\"147073008450666496\"", "GUILD_STATUS")
 
 def sub_channel(ws, cmd, channel):
@@ -969,7 +969,7 @@ def create_gui():
     # Create AppIndicator
     ind = AppIndicator3.Indicator.new(
             "discover",
-            "discord",
+            "discover",
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
     ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
     ind.set_menu(menu)
