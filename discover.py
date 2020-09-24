@@ -335,6 +335,7 @@ class SettingsWindow(Gtk.Window):
         self.font = self.config.get("main","font",fallback=None)
         self.square_avatar = self.config.getboolean("main","square_avatar", fallback=False)
         self.monitor = self.config.get("main", "monitor", fallback="None")
+        self.edge_padding = self.config.getint("main","edge_padding", fallback=0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -348,6 +349,7 @@ class SettingsWindow(Gtk.Window):
         self.overlay.set_text_padding(self.text_padding)
         self.overlay.set_square_avatar(self.square_avatar)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_edge_padding(self.edge_padding)
 
         if self.font:
             desc = Pango.FontDescription.from_string(self.font)
@@ -374,6 +376,7 @@ class SettingsWindow(Gtk.Window):
             self.config.set("main","font",self.font)
         self.config.set("main","square_avatar","%d"%(int(self.square_avatar)))
         self.config.set("main","monitor",self.monitor)
+        self.config.set("main","edge_padding","%d"%(self.edge_padding))
         
         with open(self.configFile, 'w') as file:
             self.config.write(file)
@@ -408,7 +411,7 @@ class SettingsWindow(Gtk.Window):
 
         # Avatar size
         avatar_size_label = Gtk.Label.new("Avatar size")
-        avatar_adjustment = Gtk.Adjustment.new(self.avatar_size,8,128,2,8,8)
+        avatar_adjustment = Gtk.Adjustment.new(self.avatar_size,8,128,1,1,8)
         avatar_size = Gtk.SpinButton.new(avatar_adjustment,0,0)
         avatar_size.connect("value-changed", self.change_avatar_size)
 
@@ -449,15 +452,21 @@ class SettingsWindow(Gtk.Window):
 
         # Icon spacing
         icon_spacing_label = Gtk.Label.new("Icon Spacing")
-        icon_spacing_adjustment = Gtk.Adjustment.new(self.icon_spacing,0,64,2,8,8)
+        icon_spacing_adjustment = Gtk.Adjustment.new(self.icon_spacing,0,64,1,1,0)
         icon_spacing = Gtk.SpinButton.new(icon_spacing_adjustment,0,0)
         icon_spacing.connect("value-changed", self.change_icon_spacing)
 
         # Text padding
         text_padding_label = Gtk.Label.new("Text Padding")
-        text_padding_adjustment = Gtk.Adjustment.new(self.text_padding,0,64,1,8,8)
+        text_padding_adjustment = Gtk.Adjustment.new(self.text_padding,0,64,1,1,0)
         text_padding = Gtk.SpinButton.new(text_padding_adjustment,0,0)
         text_padding.connect("value-changed", self.change_text_padding)
+
+        # Edge padding
+        edge_padding_label = Gtk.Label.new("Edge Padding")
+        edge_padding_adjustment = Gtk.Adjustment.new(self.edge_padding,0,1000,1,1,0)
+        edge_padding = Gtk.SpinButton.new(edge_padding_adjustment,0,0)
+        edge_padding.connect("value-changed", self.change_edge_padding)
 
         # Avatar shape
         square_avatar_label = Gtk.Label.new("Square Avatar")
@@ -485,8 +494,10 @@ class SettingsWindow(Gtk.Window):
         box.attach(icon_spacing,1,9,1,1)
         box.attach(text_padding_label,0,10,1,1)
         box.attach(text_padding,1,10,1,1)
-        box.attach(square_avatar_label,0,11,1,1)
-        box.attach(square_avatar,1,11,1,1)
+        box.attach(edge_padding_label,0,11,1,1)
+        box.attach(edge_padding,1,11,1,1)
+        box.attach(square_avatar_label,0,12,1,1)
+        box.attach(square_avatar,1,12,1,1)
 
         self.add(box)
 
@@ -574,6 +585,12 @@ class SettingsWindow(Gtk.Window):
         self.text_padding = button.get_value()
         self.save_config()
 
+    def change_edge_padding(self,button):
+        self.overlay.set_edge_padding(button.get_value())
+        
+        self.edge_padding = button.get_value()
+        self.save_config()
+
     def change_square_avatar(self, button):
         self.overlay.set_square_avatar(button.get_active())
 
@@ -612,6 +629,7 @@ class OverlayWindow(Gtk.Window):
         self.text_font=None
         self.text_size=13
         self.icon_spacing=8
+        self.edge_padding=0
 
         self.round_avatar=True
         self.talk_col = [0.0,0.6,0.0,0.1]
@@ -671,6 +689,10 @@ class OverlayWindow(Gtk.Window):
 
     def set_text_padding(self, i):
         self.text_pad = i
+        self.queue_draw()
+
+    def set_edge_padding(self, i):
+        self.edge_padding=i
         self.queue_draw()
 
     def set_square_avatar(self, i):
@@ -757,11 +779,12 @@ class OverlayWindow(Gtk.Window):
         height = (len(self.userlist) * self.avatar_size) + (len(self.userlist)+1)*self.icon_spacing
 
         # Choose where to start drawing
-        rh = 0
+        rh = 0 + self.edge_padding
         if self.align_vert==1:
+            # Ignore padding?
             rh = (h/2) - (height/2)
         elif self.align_vert==2:
-            rh = h-height
+            rh = h-height - self.edge_padding
         # Iterate users in room.
         for user in self.userlist:
             self.draw_avatar(context, user, rh)
