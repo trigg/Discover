@@ -56,15 +56,17 @@ def get_access_token_stage2(ws, code1):
     else:
         sys.exit(1)
 
-def set_channel(ws,channel):
+def set_channel(ws,channel,need_req=True):
     global current_voice, channels
     if not channel:
         current_voice="0"
         return
     if channel != current_voice:
         cn = channels[channel]['name']
+        print("Joined room: %s" % (cn))
         current_voice = channel
-        req_channel_details(ws, channel)
+        if need_req:
+             req_channel_details(ws, channel)
 
 def set_in_room(userid, present):
     global in_room
@@ -110,6 +112,8 @@ def on_message(ws, message):
             # If someone joins any voice room grab it fresh from server
             req_channel_details(ws,current_voice)
             un=j["data"]["user"]["username"]
+            if j["data"]["user"]["id"] == user["id"]:
+                find_user(ws)
         elif j["evt"] == "VOICE_STATE_DELETE":
             list_altered=True
             set_in_room(j["data"]["user"]["id"], False)
@@ -146,6 +150,7 @@ def on_message(ws, message):
         else:
             req_guilds(ws)
             user=j["data"]["user"]
+            print("ID is %s" %(user["id"]))
             print("Logged in as %s" % (user["username"]))
             return
     elif j["cmd"] == "GET_GUILDS":
@@ -170,14 +175,16 @@ def on_message(ws, message):
     elif j["cmd"] == "GET_CHANNEL":
         if j["evt"] == "ERROR":
             print("Could not get room")
-        elif j["data"]["id"] == current_voice:
-            list_altered=True
-            in_room=[]
-            for voice in j["data"]["voice_states"]:
-                update_user(voice["user"])
-                set_in_room(voice["user"]["id"], True)
-                if voice["user"]["id"] == user["id"]:
-                    current_channel = j["data"]["id"]
+            return
+        for voice in j["data"]["voice_states"]:
+            if voice["user"]["id"] == user["id"]:
+                set_channel(ws, j["data"]["id"], False)
+        if j["data"]["id"] == current_voice:
+          list_altered=True
+          in_room=[]
+          for voice in j["data"]["voice_states"]:
+              update_user(voice["user"])
+              set_in_room(voice["user"]["id"], True)
         return
     print(j)
 
@@ -199,6 +206,7 @@ def on_connected():
                 channels = channels+" "+channel["name"]
         print("%s: %s" % (guild["name"], channels))
     sub_server(ws)
+    find_user(ws)
 
 def on_error(ws, error):
     print("ERROR : %s" % (error))
@@ -764,7 +772,9 @@ class OverlayWindow(Gtk.Window):
     def draw_avatar(self, context, user,y):
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
+            # https://discordapp.com/assets/6debd47ed13483642cf09e832ed0bc1b.png
             url= "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (user["id"], user["avatar"])
+            print(url)
             req = urllib.request.Request(url)
             req.add_header('Referer','https://streamkit.discord.com/overlay/voice')
             req.add_header('User-Agent', 'Mozilla/5.0')
