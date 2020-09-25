@@ -300,6 +300,8 @@ class SettingsWindow(Gtk.Window):
         Gtk.Window.__init__(self)
         self.overlay = overlay
         self.set_size_request(400,200)
+        self.connect("destroy", self.close_window)
+        self.connect("delete-event", self.close_window)
 
         # Find config file
         self.configDir = os.path.join(xdg_config_home, "discover")
@@ -311,6 +313,10 @@ class SettingsWindow(Gtk.Window):
         self.read_config()
 
         self.create_gui()
+
+    def close_window(self, a=None,b=None):
+        self.hide()
+        return True
 
     def get_monitor_index(self, name):
         display = Gdk.Display.get_default()
