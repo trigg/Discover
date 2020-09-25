@@ -620,8 +620,7 @@ class OverlayWindow(Gtk.Window):
             self.set_visual(visual)
             self.compositing=True
         else:
-            print("REQUIRES COMPOSITING")
-            sys.exit(1)
+            print("Using XShape instead of composite")
 
         self.set_app_paintable(True)
 
