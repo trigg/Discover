@@ -12,7 +12,9 @@ cd Discover
 ```
 
 ## Dependencies
+
 Requires PyGTK3, websocket_client
+A compositor is also required for this to work correctly.
 
 ```
 python3 -m pip install websocket_client
