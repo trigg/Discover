@@ -612,11 +612,13 @@ class OverlayWindow(Gtk.Window):
 
         self.connect('draw', self.draw)
 
+        self.compositing = False
         # Set RGBA
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
         if visual and screen.is_composited():
             self.set_visual(visual)
+            self.compositing=True
         else:
             print("REQUIRES COMPOSITING")
             sys.exit(1)
@@ -651,31 +653,33 @@ class OverlayWindow(Gtk.Window):
         self.set_skip_taskbar_hint(True)
         self.def_avatar = self.get_img("https://cdn.discordapp.com/embed/avatars/3.png")
 
+        self.first_draw=True
+
     def set_font(self, name, size):
         self.text_font=name
         self.text_size=size
-        self.queue_draw()
+        self.redraw()
 
     def set_bg(self, bg):
         self.norm_col = bg
-        self.queue_draw()
+        self.redraw()
 
     def set_fg(self, fg):
         self.text_col = fg
-        self.queue_draw()
+        self.redraw()
 
     def set_tk(self, tk):
         self.talk_col = tk
-        self.queue_draw()
+        self.redraw()
 
     def set_mt(self, mt):
         self.mute_col = mt
-        self.queue_draw()
+        self.redraw()
 
     def set_avatar_size(self, size):
         self.avatar_size=size
         self.reset_avatar()
-        self.queue_draw()
+        self.redraw()
 
     def set_monitor(self, idx):
         self.monitor = idx
@@ -691,19 +695,19 @@ class OverlayWindow(Gtk.Window):
 
     def set_icon_spacing(self, i):
         self.icon_spacing = i
-        self.queue_draw()
+        self.redraw()
 
     def set_text_padding(self, i):
         self.text_pad = i
-        self.queue_draw()
+        self.redraw()
 
     def set_edge_padding(self, i):
         self.edge_padding=i
-        self.queue_draw()
+        self.redraw()
 
     def set_square_avatar(self, i):
         self.round_avatar = not i
-        self.queue_draw()
+        self.redraw()
 
     def set_untouchable(self):
         (w, h) = self.get_size()
@@ -714,6 +718,11 @@ class OverlayWindow(Gtk.Window):
         surface_ctx.paint()
         reg = Gdk.cairo_region_create_from_surface(surface)
         self.input_shape_combine_region(reg)
+        #self.shape_combine_region(reg)
+
+    def unset_shape(self):
+        if "window" in self and self.window:
+            self.window.shape_combine_region(None,0,0)
 
     def force_location(self):
         self.set_decorated(False)
@@ -731,7 +740,7 @@ class OverlayWindow(Gtk.Window):
             self.move(x+w-400,y+0)
         else:
             self.move(x,y)
-        self.queue_draw()
+        self.redraw()
 
     def col(self,c,a=1.0):
         self.context.set_source_rgba(c[0],c[1],c[2],c[3]*a)
@@ -759,16 +768,32 @@ class OverlayWindow(Gtk.Window):
         self.userlist = userlist
         self.userlist.sort(key=lambda x: x["username"])
         if alt:
-            self.queue_draw()
+            self.redraw()
 
     def set_connection(self, connection):
         is_connected = connection == "VOICE_CONNECTED"
         if self.connected != is_connected:
             self.connected = is_connected
-            self.queue_draw()
+            self.redraw()
+
+    def redraw(self):
+        gdkwin = self.get_window()
+        if not self.compositing and gdkwin:
+            (w, h) = self.get_size()
+            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+            surface_ctx = cairo.Context(surface)
+            self.do_draw(surface_ctx)
+            reg = Gdk.cairo_region_create_from_surface(surface)
+            gdkwin.shape_combine_region(reg,0,0)
+        self.queue_draw()
 
     def draw(self, widget, context):
+        # Draw
+        self.do_draw(context)
+
+    def do_draw(self,context):
         self.context = context
+        context.set_antialias(self.compositing)
         
         # Make background transparent
         self.set_wind_col()
