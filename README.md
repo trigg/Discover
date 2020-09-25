@@ -9,13 +9,14 @@ Considerably lighter on system resources and less hack-and-slash included than d
 ```
 git clone https://github.com/trigg/Discover.git
 cd Discover
+sudo bash install.sh
 ```
 
 ## Dependencies
 
 Requires PyGTK3, websocket_client
 
-A compositor is also required for this to work correctly.
+A compositor is strongly advised but there is a non-compositor mode optionally
 
 ```
 python3 -m pip install websocket_client
@@ -23,7 +24,7 @@ python3 -m pip install websocket_client
 
 ## Usage
 
-run `discover.py`
+run `discover-overlay`
 
 Comes with sane-enough defaults but has a system tray icon & settings window if needed.
 
@@ -32,6 +33,7 @@ Comes with sane-enough defaults but has a system tray icon & settings window if 
 Navigate to location of installation
 ```
 git pull
+sudo bash install.sh
 ```
 
 ## Still in progress
@@ -40,7 +42,6 @@ Not all features are at the level I would like.
 
 To do list:
 
-- Bash install script
 - Text channels
 - Text notifications (different from above)
 - Open to suggestions
