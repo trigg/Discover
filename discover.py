@@ -269,10 +269,13 @@ def sub_all_voice(ws):
         sub_all_voice_guild(ws, guild)
 
 def do_read():
-    global ws, win, userlist, list_altered
+    global ws, win, userlist, list_altered, warn_connection
     if not ws:
         # Reconnect if needed
         connect()
+        if warn_connection:
+            print("Unable to connect to Discord client")
+            warn_connection=False
         return True
     # Recreate a list of users in current room
     newlist = []
@@ -1055,4 +1058,5 @@ if __name__ == "__main__":
     settings=None
     ind=None
     menu=None
+    warn_connection=True
     main()
