@@ -7,34 +7,23 @@ Considerably lighter on system resources and less hack-and-slash included than d
 ## Installing
 
 ```
-git clone https://github.com/trigg/Discover.git
-cd Discover
-sudo bash install.sh
+python3 -m pip install discover-overlay
 ```
 
 ## Dependencies
+
+Requirements should be handled by pip.
 
 Requires PyGTK3, websocket_client
 
 A compositor is strongly advised but there is a non-compositor mode optionally
 
-```
-python3 -m pip install websocket_client
-```
 
 ## Usage
 
-run `discover-overlay`
+run `discover-overlay` if this fails it is most likely in `~/.local/bin/discord-overlay`
 
 Comes with sane-enough defaults but has a system tray icon & settings window if needed.
-
-## Updating
-
-Navigate to location of installation
-```
-git pull
-sudo bash install.sh
-```
 
 ## Still in progress
 
