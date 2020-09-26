@@ -1027,13 +1027,16 @@ def close(a=None, b=None, c=None):
     Gtk.main_quit()
 
 def connect():
-    global ws, oauth_token
+    global ws, oauth_token, error_connection
     if ws:
         return
     try:
         ws = websocket.create_connection("ws://127.0.0.1:6463/?v=1&client_id=%s" % (oauth_token),
                 origin="https://streamkit.discord.com")
-    except:
+    except Exception as e:
+        if error_connection:
+            print(e)
+            error_connection=False
         pass
 
 def main():
@@ -1059,4 +1062,5 @@ if __name__ == "__main__":
     ind=None
     menu=None
     warn_connection=True
+    error_connection=True
     main()
