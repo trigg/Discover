@@ -457,8 +457,6 @@ class TextSettingsWindow(SettingsWindow):
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
 
-        self.monitor=0
-
         self.init_config()
 
         self.create_gui()
@@ -466,21 +464,39 @@ class TextSettingsWindow(SettingsWindow):
     def read_config(self):
         config = ConfigParser(interpolation=None)
         config.read(self.configFile)
-        self.align_x = config.getboolean("main", "rightalign", fallback=True)
-        self.align_y = config.getint("main", "topalign", fallback=1)
-        self.monitor = config.get("main", "monitor", fallback="None")
+        self.enabled = config.getboolean("text", "enabled", fallback = False)
+        self.align_x = config.getboolean("text", "rightalign", fallback=True)
+        self.align_y = config.getint("text", "topalign", fallback=2)
+        self.monitor = config.get("text", "monitor", fallback="None")
 
         # Pass all of our config over to the overlay
+        self.overlay.set_enabled(self.enabled)
         self.overlay.set_align_x(self.align_x)
         self.overlay.set_align_y(self.align_y)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
     
     def save_config(self):
-        pass
+        config = ConfigParser(interpolation=None)
+        config.read(self.configFile)
+        if not config.has_section("text"):
+            config.add_section("text")
+
+        config.set("text","rightalign", "%d" % (int(self.align_x)))
+        config.set("text","topalign", "%d" % (self.align_y))
+        config.set("text","monitor",self.monitor)
+        config.set("text","enabled","%d"%(int(self.enabled)))
+        
+        with open(self.configFile, 'w') as file:
+            config.write(file)
 
     def create_gui(self):
         box = Gtk.Grid()
 
+        # Enabled
+        enabled_label = Gtk.Label.new("Enable")
+        enabled = Gtk.CheckButton.new()
+        enabled.set_active(self.enabled)
+        enabled.connect("toggled", self.change_enabled)
 
          # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
@@ -517,6 +533,8 @@ class TextSettingsWindow(SettingsWindow):
         align_y.pack_start(rt, True)
         align_y.add_attribute(rt,"text",0)
 
+        box.attach(enabled_label,0,0,1,1)
+        box.attach(enabled,1,0,1,1)
         box.attach(align_label,0,6,1,3)
         box.attach(monitor,1,6,1,1)
         box.attach(align_x,1,7,1,1)
@@ -544,6 +562,12 @@ class TextSettingsWindow(SettingsWindow):
 
         self.align_y = button.get_active()
         self.save_config()
+
+    def change_enabled(self, button):
+        self.overlay.set_enabled(button.get_active())
+
+        self.enabled = button.get_active()
+        self.save_config()        
 
         
 class VoiceSettingsWindow(SettingsWindow):
@@ -855,6 +879,9 @@ class OverlayWindow(Gtk.Window):
             self.compositing=True
 
         self.set_app_paintable(True)
+        self.set_untouchable()
+        self.set_skip_pager_hint(True)
+        self.set_skip_taskbar_hint(True)
 
         self.show_all()
         self.monitor = 0
@@ -939,6 +966,12 @@ class TextOverlayWindow(OverlayWindow):
         self.content = []
         self.connected = True
 
+    def set_enabled(self, en):
+        if en:
+            self.show_all()
+        else:
+            self.hide()
+
     def do_draw(self,context):
         self.context = context
         context.set_antialias(self.compositing)
@@ -984,10 +1017,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.mute_col = [0.7,0.0,0.0,1.0]
         self.userlist=[]
         self.connected=False
-        self.set_untouchable()
         self.force_location()
-        self.set_skip_pager_hint(True)
-        self.set_skip_taskbar_hint(True)
         self.def_avatar = self.get_img("https://cdn.discordapp.com/embed/avatars/3.png")
 
         self.first_draw=True
