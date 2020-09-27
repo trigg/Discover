@@ -23,7 +23,7 @@ import urllib
 import requests
 import websocket
 
-gi.require_version("Gtk", "3.22")
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
 from gi.repository.GdkPixbuf import Pixbuf
 from configparser import ConfigParser
