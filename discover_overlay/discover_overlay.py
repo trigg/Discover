@@ -468,12 +468,18 @@ class TextSettingsWindow(SettingsWindow):
         self.align_x = config.getboolean("text", "rightalign", fallback=True)
         self.align_y = config.getint("text", "topalign", fallback=2)
         self.monitor = config.get("text", "monitor", fallback="None")
+        self.floating = config.getboolean("text", "floating", fallback=True)
+        self.floating_x = config.getint("text","floating_x", fallback=0)
+        self.floating_y = config.getint("text","floating_y", fallback=0)
+        self.floating_w = config.getint("text","floating_w", fallback=400)
+        self.floating_h = config.getint("text","floating_h", fallback=400)
 
         # Pass all of our config over to the overlay
         self.overlay.set_enabled(self.enabled)
         self.overlay.set_align_x(self.align_x)
         self.overlay.set_align_y(self.align_y)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_floating(self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
     
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -485,6 +491,11 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text","topalign", "%d" % (self.align_y))
         config.set("text","monitor",self.monitor)
         config.set("text","enabled","%d"%(int(self.enabled)))
+        config.set("text","floating","%s"%(int(self.floating)))
+        config.set("text","floating_x","%s"%(self.floating_x))
+        config.set("text","floating_y","%s"%(self.floating_y))
+        config.set("text","floating_w","%s"%(self.floating_w))
+        config.set("text","floating_h","%s"%(self.floating_h))
         
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -567,9 +578,8 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_enabled(button.get_active())
 
         self.enabled = button.get_active()
-        self.save_config()        
+        self.save_config()
 
-        
 class VoiceSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
         Gtk.Window.__init__(self)
@@ -598,6 +608,11 @@ class VoiceSettingsWindow(SettingsWindow):
         self.square_avatar = config.getboolean("main","square_avatar", fallback=False)
         self.monitor = config.get("main", "monitor", fallback="None")
         self.edge_padding = config.getint("main","edge_padding", fallback=0)
+        self.floating = config.getboolean("main", "floating", fallback=False)
+        self.floating_x = config.getint("main","floating_x", fallback=0)
+        self.floating_y = config.getint("main","floating_y", fallback=0)
+        self.floating_w = config.getint("main","floating_w", fallback=400)
+        self.floating_h = config.getint("main","floating_h", fallback=400)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -612,6 +627,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_square_avatar(self.square_avatar)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
         self.overlay.set_edge_padding(self.edge_padding)
+
+        self.overlay.set_floating(self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
+
 
         if self.font:
             desc = Pango.FontDescription.from_string(self.font)
@@ -641,6 +659,11 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main","square_avatar","%d"%(int(self.square_avatar)))
         config.set("main","monitor",self.monitor)
         config.set("main","edge_padding","%d"%(self.edge_padding))
+        config.set("main","floating","%s"%(int(self.floating)))
+        config.set("main","floating_x","%s"%(self.floating_x))
+        config.set("main","floating_y","%s"%(self.floating_y))
+        config.set("main","floating_w","%s"%(self.floating_w))
+        config.set("main","floating_h","%s"%(self.floating_h))
         
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -887,6 +910,7 @@ class OverlayWindow(Gtk.Window):
         self.monitor = 0
         self.align_right=True
         self.align_vert=1
+        self.floating=False
 
     def draw(self,widget,context):
         pass
@@ -898,6 +922,14 @@ class OverlayWindow(Gtk.Window):
         self.text_font=name
         self.text_size=size
         self.redraw()
+
+    def set_floating(self, floating, x, y, w, h):
+        self.floating = floating
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.force_location()
 
     def set_untouchable(self):
         (w, h) = self.get_size()
@@ -920,15 +952,20 @@ class OverlayWindow(Gtk.Window):
         monitor = display.get_monitor(self.monitor)
         geometry = monitor.get_geometry()
         scale_factor = monitor.get_scale_factor()
-        w = scale_factor * geometry.width
-        h = scale_factor * geometry.height
-        x = geometry.x
-        y = geometry.y
-        self.resize(400, h)
-        if self.align_right:
-            self.move(x+w-400,y+0)
+        if not self.floating:
+            w = scale_factor * geometry.width
+            h = scale_factor * geometry.height
+            x = geometry.x
+            y = geometry.y
+            self.resize(400, h)
+            if self.align_right:
+                self.move(x+w-400,y+0)
+            else:
+                self.move(x,y)
         else:
-            self.move(x,y)
+            print("Floating %s %s %s %s " %(self.x,self.y,self.w,self.h))
+            self.move(self.x,self.y)
+            self.resize(self.w,self.h)
         self.redraw()
 
     def redraw(self):
