@@ -629,11 +629,11 @@ class OverlayWindow(Gtk.Window):
         # Set RGBA
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
-        if visual and screen.is_composited():
+        if visual:
+            # Set the visual even if we can't use it right now
             self.set_visual(visual)
+        if screen.is_composited():
             self.compositing=True
-        else:
-            print("Using XShape instead of composite")
 
         self.set_app_paintable(True)
 
@@ -779,6 +779,11 @@ class OverlayWindow(Gtk.Window):
     def set_user_list(self, userlist,alt):
         self.userlist = userlist
         self.userlist.sort(key=lambda x: x["username"])
+        screen = self.get_screen()
+        c = screen.is_composited()
+        if not self.compositing == c:
+            alt = True
+            self.compositing = c
         if alt:
             self.redraw()
 
@@ -790,13 +795,17 @@ class OverlayWindow(Gtk.Window):
 
     def redraw(self):
         gdkwin = self.get_window()
-        if not self.compositing and gdkwin:
-            (w, h) = self.get_size()
-            surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-            surface_ctx = cairo.Context(surface)
-            self.do_draw(surface_ctx)
-            reg = Gdk.cairo_region_create_from_surface(surface)
-            gdkwin.shape_combine_region(reg,0,0)
+
+        if gdkwin:
+            if not self.compositing:
+                (w, h) = self.get_size()
+                surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+                surface_ctx = cairo.Context(surface)
+                self.do_draw(surface_ctx)
+                reg = Gdk.cairo_region_create_from_surface(surface)
+                gdkwin.shape_combine_region(reg,0,0)
+            else:
+                gdkwin.shape_combine_region(None,0,0)
         self.queue_draw()
 
     def draw(self, widget, context):
