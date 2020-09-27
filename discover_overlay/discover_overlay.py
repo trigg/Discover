@@ -27,7 +27,12 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
 from gi.repository.GdkPixbuf import Pixbuf
 from configparser import ConfigParser
-from xdg.BaseDirectory import xdg_config_home
+
+try:
+    from xdg.BaseDirectory import xdg_config_home
+except ModuleNotFoundError:
+    from xdg import XDG_CONFIG_HOME as xdg_config_home
+
 
 access_token = "none"
 # TODO Magic number
