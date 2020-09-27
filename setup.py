@@ -18,7 +18,7 @@ setup(
         ('share/icons', ['discover.png'])
         ],
     install_requires = [
-        'PyGObject',
+        'PyGObject>=3.22',
         'websocket-client',
         'pyxdg',
         ],

@@ -14,7 +14,7 @@ python3 -m pip install discover-overlay
 
 Requirements should be handled by pip.
 
-Requires PyGTK3, websocket_client
+Requires PyGTK3 3.22 or newer, websocket_client
 
 A compositor is strongly advised but there is a non-compositor mode optionally
 
