@@ -348,7 +348,7 @@ class DraggableWindow(Gtk.Window):
         self.drag_type = None
         self.drag_x = 0
         self.drag_y = 0
-
+        self.force_location()
         self.show_all()
 
     def force_location(self):
@@ -448,6 +448,8 @@ class SettingsWindow(Gtk.Window):
         print("Could not find monitor : %s" % (name))
         return 0
 
+    def present(self):
+        self.show_all()
 
 class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
@@ -456,10 +458,23 @@ class TextSettingsWindow(SettingsWindow):
         self.set_size_request(400,200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
-
+        self.placement_window = None
         self.init_config()
 
         self.create_gui()
+
+    def present(self):
+        self.show_all()
+        if not self.floating:
+            self.align_x_widget.show()
+            self.align_y_widget.show()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.hide()
+        else:
+            self.align_x_widget.hide()
+            self.align_y_widget.hide()
+            self.align_monitor_widget.hide()
+            self.align_placement_widget.show()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
@@ -512,6 +527,14 @@ class TextSettingsWindow(SettingsWindow):
          # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
 
+        align_type_box = Gtk.HBox()
+        align_type_edge = Gtk.RadioButton.new_with_label(None, "Anchor to edge")
+        align_type_floating = Gtk.RadioButton.new_with_label_from_widget(align_type_edge,"Floating")
+        if self.floating:
+            align_type_floating.set_active(True)
+        align_type_box.add(align_type_edge)
+        align_type_box.add(align_type_floating)
+
         monitor_store = Gtk.ListStore(str)
         display = Gdk.Display.get_default()
         for i in range(0, display.get_n_monitors()):
@@ -544,14 +567,67 @@ class TextSettingsWindow(SettingsWindow):
         align_y.pack_start(rt, True)
         align_y.add_attribute(rt,"text",0)
 
+        align_placement_button = Gtk.Button.new_with_label("Place Window")
+
+        align_type_edge.connect("toggled", self.change_align_type_edge)
+        align_type_floating.connect("toggled", self.change_align_type_floating)
+        align_placement_button.connect("pressed", self.change_placement)
+
+        self.align_x_widget= align_x
+        self.align_y_widget= align_y
+        self.align_monitor_widget= monitor
+        self.align_placement_widget = align_placement_button
+
         box.attach(enabled_label,0,0,1,1)
         box.attach(enabled,1,0,1,1)
-        box.attach(align_label,0,6,1,3)
+        box.attach(align_label,0,5,1,5)
+        box.attach(align_type_box,1,5,1,1)
         box.attach(monitor,1,6,1,1)
         box.attach(align_x,1,7,1,1)
         box.attach(align_y,1,8,1,1)
+        box.attach(align_placement_button,1,9,1,1)
 
         self.add(box)
+
+    def change_placement(self, button):
+        if self.placement_window:
+            (x,y) = self.placement_window.get_position()
+            (w,h) = self.placement_window.get_size()
+            self.floating_x = x
+            self.floating_y = y
+            self.floating_w = w
+            self.floating_h = h
+            self.overlay.set_floating(True, x, y, w, h)
+            self.save_config
+            button.set_label("Place Window")
+
+            self.placement_window.close()
+            self.placement_window=None
+        else:
+            self.placement_window = DraggableWindow(x = self.floating_x,y=self.floating_y,w=self.floating_w, h=self.floating_h, message="Place & resize this window then press Save!")
+            button.set_label("Save this position")
+
+    def change_align_type_edge(self, button):
+        if button.get_active():
+            self.overlay.set_floating(False,self.floating_x,self.floating_y,self.floating_w,self.floating_h)
+            self.floating = False
+            self.save_config()
+
+            # Re-sort the screen
+            self.align_x_widget.show()
+            self.align_y_widget.show()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.hide()
+
+    def change_align_type_floating(self, button):
+        if button.get_active():
+            self.overlay.set_floating(True,self.floating_x,self.floating_y,self.floating_w,self.floating_h)
+            self.floating = True
+            self.save_config()
+            self.align_x_widget.hide()
+            self.align_y_widget.hide()
+            self.align_monitor_widget.hide()
+            self.align_placement_widget.show()
 
     def change_monitor(self, button):
         display = Gdk.Display.get_default()
@@ -587,10 +663,23 @@ class VoiceSettingsWindow(SettingsWindow):
         self.set_size_request(400,200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
-
+        self.placement_window = None
         self.init_config()
 
         self.create_gui()
+
+    def present(self):
+        self.show_all()
+        if not self.floating:
+            self.align_x_widget.show()
+            self.align_y_widget.show()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.hide()
+        else:
+            self.align_x_widget.hide()
+            self.align_y_widget.hide()
+            self.align_monitor_widget.hide()
+            self.align_placement_widget.show()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
@@ -705,6 +794,14 @@ class VoiceSettingsWindow(SettingsWindow):
         # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
 
+        align_type_box = Gtk.HBox()
+        align_type_edge = Gtk.RadioButton.new_with_label(None, "Anchor to edge")
+        align_type_floating = Gtk.RadioButton.new_with_label_from_widget(align_type_edge, "Floating")
+        if self.floating:
+            align_type_floating.set_active(True)
+        align_type_box.add(align_type_edge)
+        align_type_box.add(align_type_floating)
+
         monitor_store = Gtk.ListStore(str)
         display = Gdk.Display.get_default()
         for i in range(0, display.get_n_monitors()):
@@ -736,6 +833,17 @@ class VoiceSettingsWindow(SettingsWindow):
         rt = Gtk.CellRendererText()
         align_y.pack_start(rt, True)
         align_y.add_attribute(rt,"text",0)
+
+        align_placement_button = Gtk.Button.new_with_label("Place Window")
+
+        align_type_edge.connect("toggled", self.change_align_type_edge)
+        align_type_floating.connect("toggled", self.change_align_type_floating)
+        align_placement_button.connect("pressed", self.change_placement)
+
+        self.align_x_widget = align_x
+        self.align_y_widget = align_y
+        self.align_monitor_widget= monitor
+        self.aligm_placement_widget = align_placement_button
 
         # Icon spacing
         icon_spacing_label = Gtk.Label.new("Icon Spacing")
@@ -773,22 +881,64 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(mt_col,1,4,1,1)
         box.attach(avatar_size_label,0,5,1,1)
         box.attach(avatar_size,1,5,1,1)
-        box.attach(align_label,0,6,1,3)
-        box.attach(monitor,1,6,1,1)
-        box.attach(align_x,1,7,1,1)
-        box.attach(align_y,1,8,1,1)
-        box.attach(icon_spacing_label,0,9,1,1)
-        box.attach(icon_spacing,1,9,1,1)
-        box.attach(text_padding_label,0,10,1,1)
-        box.attach(text_padding,1,10,1,1)
-        box.attach(edge_padding_label,0,11,1,1)
-        box.attach(edge_padding,1,11,1,1)
-        box.attach(square_avatar_label,0,12,1,1)
-        box.attach(square_avatar,1,12,1,1)
+        box.attach(align_label,0,6,1,5)
+        box.attach(align_type_box,1,6,1,1)
+        box.attach(monitor,1,7,1,1)
+        box.attach(align_x,1,8,1,1)
+        box.attach(align_y,1,9,1,1)
+        box.attach(align_placement_button,1,10,1,1)
+        box.attach(icon_spacing_label,0,11,1,1)
+        box.attach(icon_spacing,1,11,1,1)
+        box.attach(text_padding_label,0,12,1,1)
+        box.attach(text_padding,1,12,1,1)
+        box.attach(edge_padding_label,0,13,1,1)
+        box.attach(edge_padding,1,13,1,1)
+        box.attach(square_avatar_label,0,14,1,1)
+        box.attach(square_avatar,1,14,1,1)
 
         self.add(box)
 
         pass
+
+    def change_placement(self, button):
+        if self.placement_window:
+            (x,y) = self.placement_window.get_position()
+            (w,h) = self.placement_window.get_size()
+            self.floating_x = x
+            self.floating_y = y
+            self.floating_w = w
+            self.floating_h = h
+            self.overlay.set_floating(True, x, y, w, h)
+            self.save_config
+            button.set_label("Place Window")
+
+            self.placement_window.close()
+            self.placement_window=None
+        else:
+            self.placement_window = DraggableWindow(x = self.floating_x,y=self.floating_y,w=self.floating_w, h=self.floating_h, message="Place & resize this window then press Save!")
+            button.set_label("Save this position")
+
+    def change_align_type_edge(self, button):
+        if button.get_active():
+            self.overlay.set_floating(False,self.floating_x,self.floating_y,self.floating_w,self.floating_h)
+            self.floating = False
+            self.save_config()
+
+            # Re-sort the screen
+            self.align_x_widget.show()
+            self.align_y_widget.show()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.hide()
+
+    def change_align_type_floating(self, button):
+        if button.get_active():
+            self.overlay.set_floating(True,self.floating_x,self.floating_y,self.floating_w,self.floating_h)
+            self.floating = True
+            self.save_config()
+            self.align_x_widget.hide()
+            self.align_y_widget.hide()
+            self.align_monitor_widget.hide()
+            self.align_placement_widget.show()
 
     def change_font(self, button):
         font = button.get_font()
@@ -963,7 +1113,6 @@ class OverlayWindow(Gtk.Window):
             else:
                 self.move(x,y)
         else:
-            print("Floating %s %s %s %s " %(self.x,self.y,self.w,self.h))
             self.move(self.x,self.y)
             self.resize(self.w,self.h)
         self.redraw()
@@ -1372,11 +1521,11 @@ def show_menu(obj, button, time):
 
 def show_vsettings(obj=None, data=None):
     global vsettings
-    vsettings.show_all()
+    vsettings.present()
 
 def show_tsettings(obj=None, data=None):
     global tsettings
-    tsettings.show_all()
+    tsettings.present()
 
 def close(a=None, b=None, c=None):
     Gtk.main_quit()
