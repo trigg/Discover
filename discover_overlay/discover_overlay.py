@@ -63,7 +63,7 @@ def get_access_token_stage2(ws, code1):
     x = requests.post(url, json=myobj)
     try:
         j = json.loads(x.text)
-    except JSONDecodeError:
+    except:
         j = {}
     if "access_token" in j:
         access_token = j["access_token"]
@@ -428,31 +428,19 @@ class DraggableWindow(Gtk.Window):
 
         context.rectangle(0,sh-32,sw,32)
         context.fill()
-        
-class SettingsWindow(Gtk.Window):
-    def __init__(self, overlay):
-        Gtk.Window.__init__(self)
-        self.overlay = overlay
-        self.set_size_request(400,200)
-        self.connect("destroy", self.close_window)
-        self.connect("delete-event", self.close_window)
 
-        # Find config file
+class SettingsWindow(Gtk.Window):
+    def init_config(self):
         self.configDir = os.path.join(xdg_config_home, "discover")
         os.makedirs(self.configDir, exist_ok=True)
         self.configFile = os.path.join(self.configDir, "discover.ini")
-        self.config = ConfigParser(interpolation=None)
-        self.config.read(self.configFile)
-
         self.read_config()
 
-        self.create_gui()
-
-    def close_window(self, a=None,b=None):
+    def close_window(self,a=None,b=None):
         self.hide()
         return True
 
-    def get_monitor_index(self, name):
+    def get_monitor_index(self,name):
         display = Gdk.Display.get_default()
         for i in range(0, display.get_n_monitors()):
             if display.get_monitor(i).get_model() == name:
@@ -460,20 +448,132 @@ class SettingsWindow(Gtk.Window):
         print("Could not find monitor : %s" % (name))
         return 0
 
+
+class TextSettingsWindow(SettingsWindow):
+    def __init__(self, overlay):
+        Gtk.Window.__init__(self)
+        self.overlay = overlay
+        self.set_size_request(400,200)
+        self.connect("destroy", self.close_window)
+        self.connect("delete-event", self.close_window)
+
+        self.monitor=0
+
+        self.init_config()
+
+        self.create_gui()
+
     def read_config(self):
-        self.align_x = self.config.getboolean("main", "rightalign", fallback=True)
-        self.align_y = self.config.getint("main", "topalign", fallback=1)
-        self.bg_col = json.loads(self.config.get("main","bg_col",fallback="[0.0,0.0,0.0,0.5]"))
-        self.fg_col = json.loads(self.config.get("main","fg_col",fallback="[1.0,1.0,1.0,1.0]"))
-        self.tk_col = json.loads(self.config.get("main","tk_col",fallback="[0.0,0.7,0.0,1.0]"))
-        self.mt_col = json.loads(self.config.get("main","mt_col",fallback="[0.6,0.0,0.0,1.0]"))
-        self.avatar_size = self.config.getint("main","avatar_size", fallback=48)
-        self.icon_spacing = self.config.getint("main","icon_spacing", fallback=8)
-        self.text_padding = self.config.getint("main","text_padding", fallback=6)
-        self.font = self.config.get("main","font",fallback=None)
-        self.square_avatar = self.config.getboolean("main","square_avatar", fallback=False)
-        self.monitor = self.config.get("main", "monitor", fallback="None")
-        self.edge_padding = self.config.getint("main","edge_padding", fallback=0)
+        config = ConfigParser(interpolation=None)
+        config.read(self.configFile)
+        self.align_x = config.getboolean("main", "rightalign", fallback=True)
+        self.align_y = config.getint("main", "topalign", fallback=1)
+        self.monitor = config.get("main", "monitor", fallback="None")
+
+        # Pass all of our config over to the overlay
+        self.overlay.set_align_x(self.align_x)
+        self.overlay.set_align_y(self.align_y)
+        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+    
+    def save_config(self):
+        pass
+
+    def create_gui(self):
+        box = Gtk.Grid()
+
+
+         # Monitor & Alignment
+        align_label = Gtk.Label.new("Overlay Location")
+
+        monitor_store = Gtk.ListStore(str)
+        display = Gdk.Display.get_default()
+        for i in range(0, display.get_n_monitors()):
+            monitor_store.append([display.get_monitor(i).get_model()])
+        monitor = Gtk.ComboBox.new_with_model(monitor_store)
+        monitor.set_active(self.get_monitor_index(self.monitor))
+        monitor.connect("changed", self.change_monitor)
+        rt = Gtk.CellRendererText()
+        monitor.pack_start(rt,True)
+        monitor.add_attribute(rt, "text", 0)
+
+        align_x_store = Gtk.ListStore(str)
+        align_x_store.append(["Left"])
+        align_x_store.append(["Right"])
+        align_x = Gtk.ComboBox.new_with_model(align_x_store)
+        align_x.set_active(True if self.align_x else False)
+        align_x.connect("changed", self.change_align_x)
+        rt = Gtk.CellRendererText()
+        align_x.pack_start(rt, True)
+        align_x.add_attribute(rt,"text",0)
+
+        align_y_store = Gtk.ListStore(str)
+        align_y_store.append(["Top"])
+        align_y_store.append(["Middle"])
+        align_y_store.append(["Bottom"])
+        align_y = Gtk.ComboBox.new_with_model(align_y_store)
+        align_y.set_active(self.align_y)
+        align_y.connect("changed", self.change_align_y)
+        rt = Gtk.CellRendererText()
+        align_y.pack_start(rt, True)
+        align_y.add_attribute(rt,"text",0)
+
+        box.attach(align_label,0,6,1,3)
+        box.attach(monitor,1,6,1,1)
+        box.attach(align_x,1,7,1,1)
+        box.attach(align_y,1,8,1,1)
+
+        self.add(box)
+
+    def change_monitor(self, button):
+        display = Gdk.Display.get_default()
+        mon = display.get_monitor(button.get_active())
+        m_s = mon.get_model()
+        self.overlay.set_monitor(button.get_active())
+
+        self.monitor = m_s
+        self.save_config()
+
+    def change_align_x(self, button):
+        self.overlay.set_align_x(button.get_active()==1)
+
+        self.align_x = (button.get_active()==1)
+        self.save_config()
+
+    def change_align_y(self, button):
+        self.overlay.set_align_y(button.get_active())
+
+        self.align_y = button.get_active()
+        self.save_config()
+
+        
+class VoiceSettingsWindow(SettingsWindow):
+    def __init__(self, overlay):
+        Gtk.Window.__init__(self)
+        self.overlay = overlay
+        self.set_size_request(400,200)
+        self.connect("destroy", self.close_window)
+        self.connect("delete-event", self.close_window)
+
+        self.init_config()
+
+        self.create_gui()
+
+    def read_config(self):
+        config = ConfigParser(interpolation=None)
+        config.read(self.configFile)
+        self.align_x = config.getboolean("main", "rightalign", fallback=True)
+        self.align_y = config.getint("main", "topalign", fallback=1)
+        self.bg_col = json.loads(config.get("main","bg_col",fallback="[0.0,0.0,0.0,0.5]"))
+        self.fg_col = json.loads(config.get("main","fg_col",fallback="[1.0,1.0,1.0,1.0]"))
+        self.tk_col = json.loads(config.get("main","tk_col",fallback="[0.0,0.7,0.0,1.0]"))
+        self.mt_col = json.loads(config.get("main","mt_col",fallback="[0.6,0.0,0.0,1.0]"))
+        self.avatar_size = config.getint("main","avatar_size", fallback=48)
+        self.icon_spacing = config.getint("main","icon_spacing", fallback=8)
+        self.text_padding = config.getint("main","text_padding", fallback=6)
+        self.font = config.get("main","font",fallback=None)
+        self.square_avatar = config.getboolean("main","square_avatar", fallback=False)
+        self.monitor = config.get("main", "monitor", fallback="None")
+        self.edge_padding = config.getint("main","edge_padding", fallback=0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -498,26 +598,28 @@ class SettingsWindow(Gtk.Window):
 
 
     def save_config(self):
-        if not self.config.has_section("main"):
-            self.config.add_section("main")
+        config = ConfigParser(interpolation=None)
+        config.read(self.configFile)
+        if not config.has_section("main"):
+            config.add_section("main")
 
-        self.config.set("main","rightalign", "%d" % (int(self.align_x)))
-        self.config.set("main","topalign", "%d" % (self.align_y))
-        self.config.set("main","bg_col",json.dumps(self.bg_col))
-        self.config.set("main","fg_col",json.dumps(self.fg_col))
-        self.config.set("main","tk_col",json.dumps(self.tk_col))
-        self.config.set("main","mt_col",json.dumps(self.mt_col))
-        self.config.set("main","avatar_size", "%d" % (self.avatar_size))
-        self.config.set("main","icon_spacing", "%d" % (self.icon_spacing))
-        self.config.set("main","text_padding", "%d" % (self.text_padding))
+        config.set("main","rightalign", "%d" % (int(self.align_x)))
+        config.set("main","topalign", "%d" % (self.align_y))
+        config.set("main","bg_col",json.dumps(self.bg_col))
+        config.set("main","fg_col",json.dumps(self.fg_col))
+        config.set("main","tk_col",json.dumps(self.tk_col))
+        config.set("main","mt_col",json.dumps(self.mt_col))
+        config.set("main","avatar_size", "%d" % (self.avatar_size))
+        config.set("main","icon_spacing", "%d" % (self.icon_spacing))
+        config.set("main","text_padding", "%d" % (self.text_padding))
         if self.font:
-            self.config.set("main","font",self.font)
-        self.config.set("main","square_avatar","%d"%(int(self.square_avatar)))
-        self.config.set("main","monitor",self.monitor)
-        self.config.set("main","edge_padding","%d"%(self.edge_padding))
+            config.set("main","font",self.font)
+        config.set("main","square_avatar","%d"%(int(self.square_avatar)))
+        config.set("main","monitor",self.monitor)
+        config.set("main","edge_padding","%d"%(self.edge_padding))
         
         with open(self.configFile, 'w') as file:
-            self.config.write(file)
+            config.write(file)
 
     def create_gui(self):
         box = Gtk.Grid()
@@ -735,11 +837,9 @@ class SettingsWindow(Gtk.Window):
         self.square_avatar = button.get_active()
         self.save_config()
 
-
 class OverlayWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
-
         self.set_size_request(400, 220)
 
         self.connect('draw', self.draw)
@@ -757,13 +857,119 @@ class OverlayWindow(Gtk.Window):
         self.set_app_paintable(True)
 
         self.show_all()
+        self.monitor = 0
+        self.align_right=True
+        self.align_vert=1
+
+    def draw(self,widget,context):
+        pass
+
+    def do_draw(self, context):
+        pass
+
+    def set_font(self, name, size):
+        self.text_font=name
+        self.text_size=size
+        self.redraw()
+
+    def set_untouchable(self):
+        (w, h) = self.get_size()
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        surface_ctx = cairo.Context(surface)
+        surface_ctx.set_source_rgba(0.0,0.0,0.0,0.0)
+        surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
+        surface_ctx.paint()
+        reg = Gdk.cairo_region_create_from_surface(surface)
+        self.input_shape_combine_region(reg)
+        #self.shape_combine_region(reg)
+
+    def unset_shape(self):
+        self.get_window().shape_combine_region(None,0,0)
+
+    def force_location(self):
+        self.set_decorated(False)
+        self.set_keep_above(True)
+        display = Gdk.Display.get_default()
+        monitor = display.get_monitor(self.monitor)
+        geometry = monitor.get_geometry()
+        scale_factor = monitor.get_scale_factor()
+        w = scale_factor * geometry.width
+        h = scale_factor * geometry.height
+        x = geometry.x
+        y = geometry.y
+        self.resize(400, h)
+        if self.align_right:
+            self.move(x+w-400,y+0)
+        else:
+            self.move(x,y)
+        self.redraw()
+
+    def redraw(self):
+        gdkwin = self.get_window()
+
+        if gdkwin:
+            if not self.compositing:
+                (w, h) = self.get_size()
+                surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+                surface_ctx = cairo.Context(surface)
+                self.do_draw(surface_ctx)
+                reg = Gdk.cairo_region_create_from_surface(surface)
+                gdkwin.shape_combine_region(reg,0,0)
+            else:
+                gdkwin.shape_combine_region(None,0,0)
+        self.queue_draw()
+
+    def set_monitor(self, idx):
+        self.monitor = idx
+        self.force_location()
+    
+    def set_align_x(self, b):
+        self.align_right = b
+        self.force_location()
+
+    def set_align_y(self, i):
+        self.align_vert = i
+        self.force_location()
+
+
+class TextOverlayWindow(OverlayWindow):
+    def __init__(self):
+        OverlayWindow.__init__(self)
+        self.text_spacing = 4
+        self.content = []
+        self.connected = True
+
+    def do_draw(self,context):
+        self.context = context
+        context.set_antialias(self.compositing)
+        (w, h) = self.get_size()
+
+        # Make background transparent
+        context.set_source_rgba(0.0,0.0,0.0,0.4)
+        # Don't layer drawing over each other, always replace
+        context.set_operator(cairo.OPERATOR_SOURCE)
+        context.paint()
+        context.set_operator(cairo.OPERATOR_OVER)
+        context.set_source_rgba(1,1,1,1)
+        
+        if not self.connected:
+            return
+
+        yp = h
+        for line in reversed(self.content):
+            context.move_to(0,yp)
+            context.show_text(line)
+            xb, yb, w, h, dx, dy = context.text_extents(line)
+            yp -= h + self.text_spacing
+
+
+class VoiceOverlayWindow(OverlayWindow):
+    def __init__(self):
+        OverlayWindow.__init__(self)
 
         self.avatars = {}
 
         self.avatar_size=48
-        self.monitor = 0
-        self.align_right=True
-        self.align_vert=1
         self.text_pad=6
         self.text_font=None
         self.text_size=13
@@ -786,11 +992,6 @@ class OverlayWindow(Gtk.Window):
 
         self.first_draw=True
 
-    def set_font(self, name, size):
-        self.text_font=name
-        self.text_size=size
-        self.redraw()
-
     def set_bg(self, bg):
         self.norm_col = bg
         self.redraw()
@@ -812,18 +1013,6 @@ class OverlayWindow(Gtk.Window):
         self.reset_avatar()
         self.redraw()
 
-    def set_monitor(self, idx):
-        self.monitor = idx
-        self.force_location()
-
-    def set_align_x(self, b):
-        self.align_right = b
-        self.force_location()
-
-    def set_align_y(self, i):
-        self.align_vert = i
-        self.force_location()
-
     def set_icon_spacing(self, i):
         self.icon_spacing = i
         self.redraw()
@@ -838,39 +1027,6 @@ class OverlayWindow(Gtk.Window):
 
     def set_square_avatar(self, i):
         self.round_avatar = not i
-        self.redraw()
-
-    def set_untouchable(self):
-        (w, h) = self.get_size()
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-        surface_ctx = cairo.Context(surface)
-        surface_ctx.set_source_rgba(0.0,0.0,0.0,0.0)
-        surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
-        surface_ctx.paint()
-        reg = Gdk.cairo_region_create_from_surface(surface)
-        self.input_shape_combine_region(reg)
-        #self.shape_combine_region(reg)
-
-    def unset_shape(self):
-        if "window" in self and self.window:
-            self.window.shape_combine_region(None,0,0)
-
-    def force_location(self):
-        self.set_decorated(False)
-        self.set_keep_above(True)
-        display = Gdk.Display.get_default()
-        monitor = display.get_monitor(self.monitor)
-        geometry = monitor.get_geometry()
-        scale_factor = monitor.get_scale_factor()
-        w = scale_factor * geometry.width
-        h = scale_factor * geometry.height
-        x = geometry.x
-        y = geometry.y
-        self.resize(400, h)
-        if self.align_right:
-            self.move(x+w-400,y+0)
-        else:
-            self.move(x,y)
         self.redraw()
 
     def col(self,c,a=1.0):
@@ -911,21 +1067,6 @@ class OverlayWindow(Gtk.Window):
         if self.connected != is_connected:
             self.connected = is_connected
             self.redraw()
-
-    def redraw(self):
-        gdkwin = self.get_window()
-
-        if gdkwin:
-            if not self.compositing:
-                (w, h) = self.get_size()
-                surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-                surface_ctx = cairo.Context(surface)
-                self.do_draw(surface_ctx)
-                reg = Gdk.cairo_region_create_from_surface(surface)
-                gdkwin.shape_combine_region(reg,0,0)
-            else:
-                gdkwin.shape_combine_region(None,0,0)
-        self.queue_draw()
 
     def draw(self, widget, context):
         # Draw
@@ -1121,18 +1262,22 @@ class OverlayWindow(Gtk.Window):
         context.restore()
 
 def create_gui():
-    global win, box, tray, settings, menu, ind
-    win = OverlayWindow()
+    global win, box, tray, vsettings, tsettings, menu, ind
+    win = VoiceOverlayWindow()
+    twin= TextOverlayWindow()
 
     # Create System Menu
     menu = Gtk.Menu()
-    settings_opt = Gtk.MenuItem.new_with_label("Settings")
+    vsettings_opt = Gtk.MenuItem.new_with_label("Voice Settings")
+    tsettings_opt = Gtk.MenuItem.new_with_label("Text Settings")
     close_opt = Gtk.MenuItem.new_with_label("Close")
 
-    menu.append(settings_opt)
+    menu.append(vsettings_opt)
+    menu.append(tsettings_opt)
     menu.append(close_opt)
 
-    settings_opt.connect("activate", show_settings)
+    vsettings_opt.connect("activate", show_vsettings)
+    tsettings_opt.connect("activate", show_tsettings)
     close_opt.connect("activate", close)
     menu.show_all()
 
@@ -1151,15 +1296,20 @@ def create_gui():
         tray = Gtk.StatusIcon.new_from_icon_name("discover")
         tray.connect('popup-menu', show_menu)
 
-    settings = SettingsWindow(win)
+    vsettings = VoiceSettingsWindow(win)
+    tsettings = TextSettingsWindow(twin)
 
 def show_menu(obj, button, time):
     menu.show_all()
     menu.popup(None,None,Gtk.StatusIcon.position_menu,obj,button,time)
 
-def show_settings(obj=None, data=None):
-    global settings
-    settings.show_all()
+def show_vsettings(obj=None, data=None):
+    global vsettings
+    vsettings.show_all()
+
+def show_tsettings(obj=None, data=None):
+    global tsettings
+    tsettings.show_all()
 
 def close(a=None, b=None, c=None):
     Gtk.main_quit()
@@ -1192,12 +1342,13 @@ def main():
 
 
 def entrypoint():
-    global ws,win,box,tray,settings,ind,menu,warn_connection,error_connection
+    global ws,win,box,tray,vsettings,tsettings,ind,menu,warn_connection,error_connection
     ws=None
     win=None
     box=None
     tray=None
-    settings=None
+    vsettings=None
+    tsettings=None
     ind=None
     menu=None
     warn_connection=True
