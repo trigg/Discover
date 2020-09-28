@@ -546,6 +546,17 @@ class SettingsWindow(Gtk.Window):
         self.read_config()
 
     def close_window(self,a=None,b=None):
+        if self.placement_window:
+            (x,y) = self.placement_window.get_position()
+            (w,h) = self.placement_window.get_size()
+            self.floating_x = x
+            self.floating_y = y
+            self.floating_w = w
+            self.floating_h = h
+            self.overlay.set_floating(True, x, y, w, h)
+            self.save_config()
+            self.placement_window.close()
+            self.placement_window=None            
         self.hide()
         return True
 
