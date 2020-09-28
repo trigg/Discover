@@ -24,7 +24,7 @@ import requests
 import websocket
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango
+from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
 from gi.repository.GdkPixbuf import Pixbuf
 from configparser import ConfigParser
 
@@ -1327,6 +1327,8 @@ class TextOverlayWindow(OverlayWindow):
                 context.show_text(line["nick"])
             context.show_text(": "+line["content"])
             xb, yb, w, h, dx, dy = context.text_extents(line["content"])
+            xb, yb, w, h2, dx, dy = context.text_extents(line["nick"])
+            h = max(h,h2)
             yp -= h + self.text_spacing
 
 
@@ -1438,7 +1440,7 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def do_draw(self,context):
         self.context = context
-        context.set_antialias(self.compositing)
+        context.set_antialias(cairo.ANTIALIAS_GOOD)
         
         # Make background transparent
         self.set_wind_col()
