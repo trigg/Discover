@@ -21,6 +21,7 @@ setup(
         'PyGObject>=3.22',
         'websocket-client',
         'pyxdg',
+        'requests',
         ],
     entry_points = {
         'console_scripts': [
