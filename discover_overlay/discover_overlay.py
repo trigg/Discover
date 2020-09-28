@@ -431,9 +431,9 @@ class DraggableWindow(Gtk.Window):
 
 class SettingsWindow(Gtk.Window):
     def init_config(self):
-        self.configDir = os.path.join(xdg_config_home, "discover")
+        self.configDir = os.path.join(xdg_config_home, "discover_overlay")
         os.makedirs(self.configDir, exist_ok=True)
-        self.configFile = os.path.join(self.configDir, "discover.ini")
+        self.configFile = os.path.join(self.configDir, "discover_overlay.ini")
         self.read_config()
 
     def close_window(self,a=None,b=None):
@@ -1501,15 +1501,15 @@ def create_gui():
     try:
         from gi.repository import AppIndicator3
         ind = AppIndicator3.Indicator.new(
-                "discover",
-                "discover",
+                "discover_overlay",
+                "discover_overlay",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
         ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         ind.set_menu(menu)
     except:
 
         # Create System Tray
-        tray = Gtk.StatusIcon.new_from_icon_name("discover")
+        tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
         tray.connect('popup-menu', show_menu)
 
     vsettings = VoiceSettingsWindow(win)

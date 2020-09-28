@@ -15,7 +15,7 @@ setup(
     packages = find_packages(),
     include_package_data = True,
     data_files = [
-        ('share/icons', ['discover.png'])
+        ('share/icons', ['discover_overlay.png'])
         ],
     install_requires = [
         'PyGObject>=3.22',
