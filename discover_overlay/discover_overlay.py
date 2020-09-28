@@ -1299,6 +1299,9 @@ class OverlayWindow(Gtk.Window):
         # Set RGBA
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
+        if not self.get_display().supports_input_shapes():
+            print("Input shapes not available. Quitting")
+            sys.exit(1)
         if visual:
             # Set the visual even if we can't use it right now
             self.set_visual(visual)
@@ -1361,11 +1364,8 @@ class OverlayWindow(Gtk.Window):
             h = scale_factor * geometry.height
             x = geometry.x
             y = geometry.y
-            self.resize(400, h)
-            if self.align_right:
-                self.move(x+w-400,y+0)
-            else:
-                self.move(x,y)
+            self.resize(w, h)
+            self.move(x,y)
         else:
             self.move(self.x,self.y)
             self.resize(self.w,self.h)
