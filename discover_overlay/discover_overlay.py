@@ -224,12 +224,15 @@ def on_message(ws, message):
         elif j["evt"] == "VOICE_CONNECTION_STATUS":
             # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
             last_connection = j["data"]["state"]
-        elif j["evt"] == "MESSAGE_CREATE":            
-            add_text(j["data"]["message"])
+        elif j["evt"] == "MESSAGE_CREATE":
+            if current_text == j["data"]["channel_id"]: 
+                add_text(j["data"]["message"])
         elif j["evt"] == "MESSAGE_UPDATE":
-            update_text(j["data"]["message"])
+            if current_text == j["data"]["channel_id"]: 
+                update_text(j["data"]["message"])
         elif j["evt"] == "MESSAGE_DELETE":
-            delete_text(j["data"]["message"])
+            if current_text == j["data"]["channel_id"]: 
+                delete_text(j["data"]["message"])
         else:
             print(j)
         return
@@ -1416,11 +1419,11 @@ class TextOverlayWindow(OverlayWindow):
             col = "#fff"
             if 'nick_col' in line and line['nick_col']:
                 col = line['nick_col']
-            alt_cont = line["content"]
-            alt_cont=alt_cont.replace("<","[")
-            alt_cont=alt_cont.replace(">","]")
-            alt_cont=alt_cont.replace("&", "&amp;")
-            long_string = "%s\n<span foreground='%s'>%s</span>: %s" %( long_string, col,line["nick"], alt_cont)
+            long_string = "%s\n<span foreground='%s'>%s</span>: %s" %(
+                 long_string, 
+                 self.santize_string(col),
+                 self.santize_string(line["nick"]), 
+                 self.santize_string(line["content"]))
         layout = self.create_pango_layout(long_string)
         layout.set_markup(long_string, -1)
         attr = Pango.AttrList()
@@ -1433,6 +1436,10 @@ class TextOverlayWindow(OverlayWindow):
         tw,th =layout.get_pixel_size()
         context.move_to(0,-th+h)
         PangoCairo.show_layout(context, layout)
+    
+    def santize_string(self, string):
+        # I hate that Pango has nothing for this.
+        return string.replace("&", "&amp;").replace("<","&lt;").replace(">","&gt;").replace("'", "&#39;").replace("\"", "&#34;")
 
 class VoiceOverlayWindow(OverlayWindow):
     def __init__(self):
