@@ -45,8 +45,13 @@ user = {}
 userlist = {}
 in_room= []
 current_voice = "0"
+current_text = "0"
 list_altered = False
+text_altered = False
 last_connection=""
+text=[]
+authed=False
+
 
 def get_access_token_stage1(ws):
     global oauth_token
@@ -83,6 +88,17 @@ def set_channel(ws,channel,need_req=True):
         if need_req:
              req_channel_details(ws, channel)
 
+def set_text_channel(ws,channel,need_req=True):
+    global current_text, channels
+    if not channel:
+        current_text="0"
+        return
+    if channel != current_text:
+        current_text = channel
+        print("Changing text room: %s" % (channel))
+        if need_req:
+            req_channel_details(ws, channel)
+
 def set_in_room(userid, present):
     global in_room
     if present:
@@ -91,6 +107,52 @@ def set_in_room(userid, present):
     else:
         if userid in in_room:
             in_room.remove(userid)
+
+def add_text(message):
+    global text, text_altered
+    un = message["author"]["username"]
+    if "nick" in message and message['nick'] and len(message["nick"])>1:
+        un = message["nick"]
+    ac = "#ffffff"
+    if "author_color" in message:
+        ac = message["author_color"]
+    
+    text.append({'id':message["id"],
+                 'content' : get_message_from_message(message),
+                 'nick' : un,
+                 'nick_col' : ac,
+                 })
+    text_altered = True
+
+def update_text(message_in):
+    global text, text_altered
+    for idx in range(0, len(text)):
+        message = text[idx]
+        if message['id'] == message_in['id']:
+            text[idx] = message_in
+            text_altered = True
+
+def delete_text(message_in):
+    global text, text_altered
+    for idx in range(0, len(text)):
+        message = text[idx]
+        if message['id'] == message_in['id']:
+            text[idx] = {"id":message["id"], "content":"-- redacted --", "nick":"-- redacted --","nick_col":"#ffffff"}
+            text_altered = True            
+
+def get_message_from_message(message):
+    if len(message["content"])>0:
+        return message["content"]
+    elif len(message["embeds"]) == 1:
+        if "rawDescription" in message["embeds"][0]:
+            return message["embeds"][0]["rawDescription"]
+        if "author" in message["embeds"][0]:
+            return message["embeds"][0]["author"]["name"]
+    elif len(message["attachments"]) ==1:
+        # Need to care
+        return "-- attachment --"
+    return ""
+
 
 def update_user(user):
     global userlist
@@ -104,7 +166,7 @@ def update_user(user):
     userlist[user["id"]]=user
 
 def on_message(ws, message):
-    global guilds, user, access_delay, channels, userlist, current_voice,list_altered,in_room, last_connection
+    global guilds, user, access_delay, channels, userlist, current_voice, current_text,list_altered,in_room, last_connection, text,authed
     j = json.loads(message)
     if j["cmd"] == "AUTHORIZE":
         get_access_token_stage2(ws,j["data"]["code"])
@@ -155,6 +217,8 @@ def on_message(ws, message):
         elif j["evt"] == "VOICE_CONNECTION_STATUS":
             # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
             last_connection = j["data"]["state"]
+        elif j["evt"] == "MESSAGE_CREATE":
+            add_text(j["data"]["message"])
         else:
             print(j)
         return
@@ -167,6 +231,7 @@ def on_message(ws, message):
             user=j["data"]["user"]
             print("ID is %s" %(user["id"]))
             print("Logged in as %s" % (user["username"]))
+            authed=True
             return
     elif j["cmd"] == "GET_GUILDS":
         for guild in j["data"]["guilds"]:
@@ -181,11 +246,9 @@ def on_message(ws, message):
                 req_channel_details(ws, channel["id"])
         check_guilds()
         sub_all_voice_guild(ws,j["nonce"])
+        #sub_all_text_guild(ws,j["nonce"])
         return
     elif j["cmd"] == "SUBSCRIBE":
-        if j["data"]["evt"] == "SPEAKING_STOP" or j["data"]["evt"] == "SPEAKING_START" or j["data"]["evt"] == "VOICE_STATE_CREATE" or j["data"]["evt"] == "VOICE_STATE_UPDATE" or j["data"]["evt"] == "VOICE_STATE_DELETE" or j["data"]["evt"]=="VOICE_CHANNEL_SELECT" or j["data"]["evt"]=="VOICE_CONNECTION_STATUS" or j["data"]["evt"] == "VOICE_SETTINGS_UPDATE":
-            return
-        print(j)
         return
     elif j["cmd"] == "GET_CHANNEL":
         if j["evt"] == "ERROR":
@@ -200,6 +263,10 @@ def on_message(ws, message):
           for voice in j["data"]["voice_states"]:
               update_user(voice["user"])
               set_in_room(voice["user"]["id"], True)
+        if current_text == j["data"]["id"]:
+            text=[]
+            for message in j["data"]["messages"]:
+                add_text(message)
         return
     print(j)
 
@@ -217,8 +284,7 @@ def on_connected():
     for guild in guilds.values():
         channels = ""
         for channel in guild["channels"]:
-            if channel["type"] == 2:
-                channels = channels+" "+channel["name"]
+            channels = channels+" "+channel["name"]
         print("%s: %s" % (guild["name"], channels))
     sub_server(ws)
     find_user(ws)
@@ -246,7 +312,8 @@ def req_channel_details(ws, channel):
 def find_user(ws):
     global channels
     for channel in channels:
-        req_channel_details(ws, channel)
+        if channels[channel]["type"]==2:
+            req_channel_details(ws, channel)
 
 def sub_raw(ws, cmd, channel, nonce):
     ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{%s},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (channel, cmd, nonce))
@@ -267,6 +334,11 @@ def sub_server(ws):
 def sub_channel(ws, cmd, channel):
     sub_raw(ws,cmd,"\"channel_id\":\"%s\""%(channel),channel)
 
+def sub_text_channel(ws, channel):
+    sub_channel(ws,"MESSAGE_CREATE", channel)
+    sub_channel(ws,"MESSAGE_UPDATE", channel)
+    sub_channel(ws,"MESSAGE_DELETE", channel)
+
 def sub_voice_channel(ws, channel):
     sub_channel(ws,"VOICE_STATE_CREATE", channel)
     sub_channel(ws,"VOICE_STATE_UPDATE", channel)
@@ -277,16 +349,27 @@ def sub_voice_channel(ws, channel):
 def sub_all_voice_guild(ws, gid):
     global guilds
     for channel in guilds[gid]["channels"]:
-        sub_voice_channel(ws, channel["id"])
+        if channel["type"]==2:
+            sub_voice_channel(ws, channel["id"])
+
+def sub_all_text_guild(ws, gid):
+    global guilds
+    for channel in guilds[gid]["channels"]:
+        if channel["type"]==0:
+            sub_text_channel(ws, channel["id"])
 
 def sub_all_voice(ws):
     for guild in guilds:
         sub_all_voice_guild(ws, guild)
 
+def sub_all_text(ws):
+    for guild in guilds:
+        sub_all_text_guild(ws, guild)
+
 def do_read():
-    global ws, win, userlist, list_altered, warn_connection
+    global ws, twin, win, userlist, list_altered, warn_connection, text_altered, tsettings, channels,authed
+    # Ensure connection
     if not ws:
-        # Reconnect if needed
         connect()
         if warn_connection:
             print("Unable to connect to Discord client")
@@ -297,8 +380,18 @@ def do_read():
     for userid in in_room:
         newlist.append(userlist[userid])
     win.set_user_list(newlist, list_altered)
-    win.set_connection(last_connection)
     list_altered=False
+    win.set_connection(last_connection)
+    # Update text list
+    if text_altered:
+        twin.set_text_list(text, text_altered)
+        text_altered = False
+    # Update text channels
+    tsettings.set_channels(channels)
+    # Check for changed channel
+    if authed:
+        set_text_channel(ws,tsettings.get_channel())
+    
 
     # Poll socket for new information
     r,w,e=select.select((ws.sock,),(),(),0)
@@ -460,7 +553,8 @@ class TextSettingsWindow(SettingsWindow):
         self.connect("delete-event", self.close_window)
         self.placement_window = None
         self.init_config()
-
+        self.list_channels_keys = []
+        self.ignore_channel_change = False
         self.create_gui()
 
     def present(self):
@@ -475,6 +569,28 @@ class TextSettingsWindow(SettingsWindow):
             self.align_y_widget.hide()
             self.align_monitor_widget.hide()
             self.align_placement_widget.show()
+        model = monitor_store = Gtk.ListStore(str)
+        for c in self.list_channels_keys:
+            model.append([self.list_channels[c]["name"]])
+        self.channel_widget.set_model(model)
+        self.channel_model = model
+
+        idx = 0
+        for c in self.list_channels_keys:
+            if c == self.channel:
+                self.ignore_channel_change = True
+                self.channel_widget.set_active(idx)
+                self.ignore_channel_change = False
+                break
+            idx+=1
+
+    def set_channels(self, in_list):
+        self.list_channels = in_list
+        self.list_channels_keys = []
+        for key in in_list.keys():
+            if in_list[key]["type"]==0:
+                self.list_channels_keys.append(key)
+        self.list_channels_keys.sort()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
@@ -488,6 +604,9 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_y = config.getint("text","floating_y", fallback=0)
         self.floating_w = config.getint("text","floating_w", fallback=400)
         self.floating_h = config.getint("text","floating_h", fallback=400)
+        self.channel = config.get("text","channel", fallback="0")
+        print("Loading saved channel %s" % (self.channel))
+
 
         # Pass all of our config over to the overlay
         self.overlay.set_enabled(self.enabled)
@@ -511,6 +630,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text","floating_y","%s"%(self.floating_y))
         config.set("text","floating_w","%s"%(self.floating_w))
         config.set("text","floating_h","%s"%(self.floating_h))
+        config.set("text","channel",self.channel)
         
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -573,13 +693,24 @@ class TextSettingsWindow(SettingsWindow):
         align_type_floating.connect("toggled", self.change_align_type_floating)
         align_placement_button.connect("pressed", self.change_placement)
 
+        channel_label = Gtk.Label.new("Channel")
+        channel = Gtk.ComboBox.new()
+
+        channel.connect("changed", self.change_channel)
+        rt = Gtk.CellRendererText()
+        channel.pack_start(rt, True)
+        channel.add_attribute(rt,"text",0)        
+
         self.align_x_widget= align_x
         self.align_y_widget= align_y
         self.align_monitor_widget= monitor
         self.align_placement_widget = align_placement_button
+        self.channel_widget = channel
 
         box.attach(enabled_label,0,0,1,1)
         box.attach(enabled,1,0,1,1)
+        box.attach(channel_label,0,1,1,1)
+        box.attach(channel,1,1,1,1)
         box.attach(align_label,0,5,1,5)
         box.attach(align_type_box,1,5,1,1)
         box.attach(monitor,1,6,1,1)
@@ -588,6 +719,13 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(align_placement_button,1,9,1,1)
 
         self.add(box)
+
+    def change_channel(self, button):
+        if self.ignore_channel_change:
+            return
+        c = self.list_channels_keys[button.get_active()]
+        self.channel = c
+        self.save_config()
 
     def change_placement(self, button):
         if self.placement_window:
@@ -598,7 +736,7 @@ class TextSettingsWindow(SettingsWindow):
             self.floating_w = w
             self.floating_h = h
             self.overlay.set_floating(True, x, y, w, h)
-            self.save_config
+            self.save_config()
             button.set_label("Place Window")
 
             self.placement_window.close()
@@ -655,6 +793,9 @@ class TextSettingsWindow(SettingsWindow):
 
         self.enabled = button.get_active()
         self.save_config()
+
+    def get_channel(self):
+        return self.channel
 
 class VoiceSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
@@ -843,7 +984,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.align_x_widget = align_x
         self.align_y_widget = align_y
         self.align_monitor_widget= monitor
-        self.aligm_placement_widget = align_placement_button
+        self.align_placement_widget = align_placement_button
 
         # Icon spacing
         icon_spacing_label = Gtk.Label.new("Icon Spacing")
@@ -1152,6 +1293,11 @@ class TextOverlayWindow(OverlayWindow):
         self.content = []
         self.connected = True
 
+    def set_text_list(self,tlist, alt):
+        self.content = tlist
+        if alt:
+            self.redraw()
+
     def set_enabled(self, en):
         if en:
             self.show_all()
@@ -1177,8 +1323,10 @@ class TextOverlayWindow(OverlayWindow):
         yp = h
         for line in reversed(self.content):
             context.move_to(0,yp)
-            context.show_text(line)
-            xb, yb, w, h, dx, dy = context.text_extents(line)
+            if line["nick"]:
+                context.show_text(line["nick"])
+            context.show_text(": "+line["content"])
+            xb, yb, w, h, dx, dy = context.text_extents(line["content"])
             yp -= h + self.text_spacing
 
 
@@ -1342,7 +1490,6 @@ class VoiceOverlayWindow(OverlayWindow):
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
             url= "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (user["id"], user["avatar"])
-            print(url)
             p = self.get_img(url)
             if p:
                 self.avatars[user["id"]] = p
@@ -1478,7 +1625,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.restore()
 
 def create_gui():
-    global win, box, tray, vsettings, tsettings, menu, ind
+    global win, box, tray, vsettings, tsettings, menu, ind,twin
     win = VoiceOverlayWindow()
     twin= TextOverlayWindow()
 
