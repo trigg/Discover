@@ -218,6 +218,7 @@ def on_message(ws, message):
             # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
             last_connection = j["data"]["state"]
         elif j["evt"] == "MESSAGE_CREATE":
+            
             add_text(j["data"]["message"])
         else:
             print(j)
@@ -246,7 +247,7 @@ def on_message(ws, message):
                 req_channel_details(ws, channel["id"])
         check_guilds()
         sub_all_voice_guild(ws,j["nonce"])
-        #sub_all_text_guild(ws,j["nonce"])
+        sub_all_text_guild(ws,j["nonce"])
         return
     elif j["cmd"] == "SUBSCRIBE":
         return
