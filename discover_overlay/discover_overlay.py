@@ -429,7 +429,7 @@ class DraggableWindow(Gtk.Window):
         self.w = w
         self.h = h
         self.message = message
-        self.set_size_request(w,h)
+        self.set_size_request(50,50)
 
         self.connect('draw', self.draw)
         self.connect('motion-notify-event', self.drag)
@@ -617,6 +617,8 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_h = config.getint("text","floating_h", fallback=400)
         self.channel = config.get("text","channel", fallback="0")
         self.font = config.get("text","font",fallback=None)
+        self.bg_col = json.loads(config.get("text","bg_col",fallback="[0.0,0.0,0.0,0.5]"))
+        self.fg_col = json.loads(config.get("text","fg_col",fallback="[1.0,1.0,1.0,1.0]"))
 
         print("Loading saved channel %s" % (self.channel))
 
@@ -627,6 +629,8 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_align_y(self.align_y)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
         self.overlay.set_floating(self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
+        self.overlay.set_bg(self.bg_col)
+        self.overlay.set_fg(self.fg_col)
     
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -644,6 +648,9 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text","floating_w","%s"%(self.floating_w))
         config.set("text","floating_h","%s"%(self.floating_h))
         config.set("text","channel",self.channel)
+        config.set("text","bg_col",json.dumps(self.bg_col))
+        config.set("text","fg_col",json.dumps(self.fg_col))
+
         if self.font:
             config.set("text","font",self.font)
         
@@ -665,6 +672,16 @@ class TextSettingsWindow(SettingsWindow):
         if self.font:
             font.set_font(self.font)
         font.connect("font-set", self.change_font)
+
+        # Colours
+        bg_col_label = Gtk.Label.new("Background colour")
+        bg_col = Gtk.ColorButton.new_with_rgba(Gdk.RGBA(self.bg_col[0],self.bg_col[1],self.bg_col[2],self.bg_col[3]))
+        fg_col_label = Gtk.Label.new("Text colour")
+        fg_col = Gtk.ColorButton.new_with_rgba(Gdk.RGBA(self.fg_col[0],self.fg_col[1],self.fg_col[2],self.fg_col[3]))
+        bg_col.set_use_alpha(True)
+        fg_col.set_use_alpha(True)
+        bg_col.connect("color-set", self.change_bg)
+        fg_col.connect("color-set", self.change_fg)
 
          # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
@@ -731,10 +748,15 @@ class TextSettingsWindow(SettingsWindow):
 
         box.attach(enabled_label,0,0,1,1)
         box.attach(enabled,1,0,1,1)
-        box.attach(font_label,0,1,1,1)
-        box.attach(font,1,1,1,1)
-        box.attach(channel_label,0,2,1,1)
-        box.attach(channel,1,2,1,1)
+        box.attach(channel_label,0,1,1,1)
+        box.attach(channel,1,1,1,1)
+
+        box.attach(font_label,0,2,1,1)
+        box.attach(font,1,2,1,1)
+        box.attach(fg_col_label,0,3,1,1)
+        box.attach(fg_col,1,3,1,1)
+        box.attach(bg_col_label,0,4,1,1)
+        box.attach(bg_col,1,4,1,1)
         box.attach(align_label,0,5,1,5)
         box.attach(align_type_box,1,5,1,1)
         box.attach(monitor,1,6,1,1)
@@ -831,6 +853,23 @@ class TextSettingsWindow(SettingsWindow):
 
     def get_channel(self):
         return self.channel
+
+
+    def change_bg(self, button):
+        c= button.get_rgba()
+        c = [c.red, c.green, c.blue, c.alpha]
+        self.overlay.set_bg(c)
+
+        self.bg_col = c
+        self.save_config()
+
+    def change_fg(self, button):
+        c = button.get_rgba()
+        c = [c.red, c.green, c.blue, c.alpha]
+        self.overlay.set_fg(c)
+
+        self.fg_col = c
+        self.save_config()
 
 class VoiceSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
@@ -1213,7 +1252,7 @@ class VoiceSettingsWindow(SettingsWindow):
 class OverlayWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
-        self.set_size_request(400, 220)
+        self.set_size_request(50, 50)
 
         self.connect('draw', self.draw)
 
@@ -1311,14 +1350,20 @@ class OverlayWindow(Gtk.Window):
     def set_monitor(self, idx):
         self.monitor = idx
         self.force_location()
+        self.redraw()
     
     def set_align_x(self, b):
         self.align_right = b
         self.force_location()
+        self.redraw()
 
     def set_align_y(self, i):
         self.align_vert = i
         self.force_location()
+        self.redraw()
+
+    def col(self,c,a=1.0):
+        self.context.set_source_rgba(c[0],c[1],c[2],c[3]*a)
 
 
 class TextOverlayWindow(OverlayWindow):
@@ -1342,6 +1387,14 @@ class TextOverlayWindow(OverlayWindow):
         else:
             self.hide()
 
+    def set_fg(self, fg_col):
+        self.fg_col = fg_col
+        self.redraw()
+    
+    def set_bg(self, bg_col):
+        self.bg_col = bg_col
+        self.redraw()
+
     def do_draw(self,context):
         self.context = context
         context.set_antialias(self.compositing)
@@ -1350,10 +1403,10 @@ class TextOverlayWindow(OverlayWindow):
         # Make background transparent
         context.set_source_rgba(0.0,0.0,0.0,0.4)
         # Don't layer drawing over each other, always replace
-        context.set_operator(cairo.OPERATOR_SOURCE)
+        self.col(self.bg_col)
         context.paint()
         context.set_operator(cairo.OPERATOR_OVER)
-        context.set_source_rgba(1,1,1,1)
+        self.col(self.fg_col)
         
         if not self.connected:
             return
@@ -1443,9 +1496,6 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_square_avatar(self, i):
         self.round_avatar = not i
         self.redraw()
-
-    def col(self,c,a=1.0):
-        self.context.set_source_rgba(c[0],c[1],c[2],c[3]*a)
 
     def set_wind_col(self):
         self.col(self.wind_col)
