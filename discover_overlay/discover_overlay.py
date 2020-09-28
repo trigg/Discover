@@ -129,16 +129,23 @@ def update_text(message_in):
     for idx in range(0, len(text)):
         message = text[idx]
         if message['id'] == message_in['id']:
-            text[idx] = message_in
+            new_message = {'id': message['id'],
+                           'content': get_message_from_message(message_in),
+                           'nick': message['nick'],
+                           'nick_col': message['nick_col']}
+            text[idx] = new_message
             text_altered = True
+            return
 
 def delete_text(message_in):
     global text, text_altered
     for idx in range(0, len(text)):
         message = text[idx]
         if message['id'] == message_in['id']:
-            text[idx] = {"id":message["id"], "content":"-- redacted --", "nick":"-- redacted --","nick_col":"#ffffff"}
-            text_altered = True            
+            del text[idx]
+            #text[idx] = {"id":message["id"], "content":"-- redacted --", "nick":"-- redacted --","nick_col":"#ffffff"}
+            text_altered = True
+            return
 
 def get_message_from_message(message):
     if len(message["content"])>0:
@@ -217,9 +224,12 @@ def on_message(ws, message):
         elif j["evt"] == "VOICE_CONNECTION_STATUS":
             # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
             last_connection = j["data"]["state"]
-        elif j["evt"] == "MESSAGE_CREATE":
-            
+        elif j["evt"] == "MESSAGE_CREATE":            
             add_text(j["data"]["message"])
+        elif j["evt"] == "MESSAGE_UPDATE":
+            update_text(j["data"]["message"])
+        elif j["evt"] == "MESSAGE_DELETE":
+            delete_text(j["data"]["message"])
         else:
             print(j)
         return
