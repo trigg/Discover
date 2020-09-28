@@ -1320,17 +1320,27 @@ class TextOverlayWindow(OverlayWindow):
         if not self.connected:
             return
 
-        yp = h
-        for line in reversed(self.content):
-            context.move_to(0,yp)
-            if line["nick"]:
-                context.show_text(line["nick"])
-            context.show_text(": "+line["content"])
-            xb, yb, w, h, dx, dy = context.text_extents(line["content"])
-            xb, yb, w, h2, dx, dy = context.text_extents(line["nick"])
-            h = max(h,h2)
-            yp -= h + self.text_spacing
+        long_string=""
+        for line in self.content:
+            col = "#fff"
+            if 'nick_col' in line and line['nick_col']:
+                col = line['nick_col']
+            alt_cont = line["content"]
+            alt_cont=alt_cont.replace("<","[")
+            alt_cont=alt_cont.replace(">","]")
+            alt_cont=alt_cont.replace("&", "&amp;")
+            long_string = "%s\n<span foreground='%s'>%s</span>: %s" %( long_string, col,line["nick"], alt_cont)
+        font = Pango.FontDescription("JetBrains Mono Normal 13")
+        layout = self.create_pango_layout(long_string)
+        layout.set_markup(long_string, -1)
+        attr = Pango.AttrList()
 
+        layout.set_width(Pango.SCALE *w)
+        layout.set_spacing(Pango.SCALE * 3)
+        layout.set_font_description(font)
+        tw,th =layout.get_pixel_size()
+        context.move_to(0,-th+h)
+        PangoCairo.show_layout(context, layout)
 
 class VoiceOverlayWindow(OverlayWindow):
     def __init__(self):
