@@ -21,7 +21,7 @@ A compositor is strongly advised but there is a non-compositor mode optionally
 
 ## Usage
 
-run `discover-overlay` if this fails it is most likely in `~/.local/bin/discord-overlay`
+run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
 
 Comes with sane-enough defaults but has a system tray icon & settings window if needed.
 
