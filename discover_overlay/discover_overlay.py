@@ -1291,6 +1291,9 @@ class TextOverlayWindow(OverlayWindow):
         OverlayWindow.__init__(self)
         self.text_spacing = 4
         self.content = []
+        self.text_font=None
+        self.text_size=13
+
         self.connected = True
 
     def set_text_list(self,tlist, alt):
@@ -1330,14 +1333,15 @@ class TextOverlayWindow(OverlayWindow):
             alt_cont=alt_cont.replace(">","]")
             alt_cont=alt_cont.replace("&", "&amp;")
             long_string = "%s\n<span foreground='%s'>%s</span>: %s" %( long_string, col,line["nick"], alt_cont)
-        font = Pango.FontDescription("JetBrains Mono Normal 13")
         layout = self.create_pango_layout(long_string)
         layout.set_markup(long_string, -1)
         attr = Pango.AttrList()
 
         layout.set_width(Pango.SCALE *w)
         layout.set_spacing(Pango.SCALE * 3)
-        layout.set_font_description(font)
+        if(self.text_font):
+            font = Pango.FontDescription(self.text_font)
+            layout.set_font_description(font)
         tw,th =layout.get_pixel_size()
         context.move_to(0,-th+h)
         PangoCairo.show_layout(context, layout)
