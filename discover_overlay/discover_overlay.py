@@ -255,6 +255,8 @@ def on_message(ws, message):
     elif j["cmd"] == "GET_CHANNELS":
         guilds[j['nonce']]["channels"] = j["data"]["channels"]
         for channel in j["data"]["channels"]:
+            channel['guild_id'] = j['nonce']
+            channel['guild_name'] = guilds[j['nonce']]["name"]
             channels[channel["id"]] = channel
             if channel["type"] == 2:
                 req_channel_details(ws, channel["id"])
@@ -583,20 +585,41 @@ class TextSettingsWindow(SettingsWindow):
             self.align_y_widget.hide()
             self.align_monitor_widget.hide()
             self.align_placement_widget.show()
-        model = monitor_store = Gtk.ListStore(str)
-        for c in self.list_channels_keys:
-            model.append([self.list_channels[c]["name"]])
+        model = monitor_store = Gtk.ListStore(str, bool)
+        #for c in self.list_channels_keys:
+        #    print(self.list_channels[c])
+        #    model.append([self.list_channels[c]["name"]])
+        self.channel_lookup=[]
+        for guild in self.guild_list():
+            guild_id, guild_name = guild
+            self.channel_lookup.append('0')
+            model.append([guild_name, False])
+            for c in self.list_channels_keys:
+                chan = self.list_channels[c]
+                if chan['guild_id'] == guild_id:
+                    model.append([chan["name"], True])
+                    self.channel_lookup.append(c)
+                    
         self.channel_widget.set_model(model)
         self.channel_model = model
 
         idx = 0
-        for c in self.list_channels_keys:
+        for c in self.channel_lookup:
             if c == self.channel:
                 self.ignore_channel_change = True
                 self.channel_widget.set_active(idx)
                 self.ignore_channel_change = False
                 break
             idx+=1
+
+    def guild_list(self):
+        guilds = []
+        done = []
+        for channel in self.list_channels.values():
+            if not channel["guild_id"] in done:
+                done.append(channel["guild_id"])
+                guilds.append([channel["guild_id"],channel["guild_name"]])
+        return guilds
 
     def set_channels(self, in_list):
         self.list_channels = in_list
@@ -740,8 +763,10 @@ class TextSettingsWindow(SettingsWindow):
 
         channel.connect("changed", self.change_channel)
         rt = Gtk.CellRendererText()
+        #channel.set_row_separator_func(lambda model, path: model[path][1])
         channel.pack_start(rt, True)
-        channel.add_attribute(rt,"text",0)        
+        channel.add_attribute(rt,"text",0)   
+        channel.add_attribute(rt,'sensitive',1)
 
         self.align_x_widget= align_x
         self.align_y_widget= align_y
@@ -783,7 +808,7 @@ class TextSettingsWindow(SettingsWindow):
     def change_channel(self, button):
         if self.ignore_channel_change:
             return
-        c = self.list_channels_keys[button.get_active()]
+        c = self.channel_lookup[button.get_active()]
         self.channel = c
         self.save_config()
 
