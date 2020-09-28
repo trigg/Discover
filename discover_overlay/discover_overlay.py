@@ -616,6 +616,8 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_w = config.getint("text","floating_w", fallback=400)
         self.floating_h = config.getint("text","floating_h", fallback=400)
         self.channel = config.get("text","channel", fallback="0")
+        self.font = config.get("text","font",fallback=None)
+
         print("Loading saved channel %s" % (self.channel))
 
 
@@ -642,6 +644,8 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text","floating_w","%s"%(self.floating_w))
         config.set("text","floating_h","%s"%(self.floating_h))
         config.set("text","channel",self.channel)
+        if self.font:
+            config.set("text","font",self.font)
         
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -654,6 +658,13 @@ class TextSettingsWindow(SettingsWindow):
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
+
+        # Font chooser
+        font_label = Gtk.Label.new("Font")
+        font = Gtk.FontButton()
+        if self.font:
+            font.set_font(self.font)
+        font.connect("font-set", self.change_font)
 
          # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
@@ -720,8 +731,10 @@ class TextSettingsWindow(SettingsWindow):
 
         box.attach(enabled_label,0,0,1,1)
         box.attach(enabled,1,0,1,1)
-        box.attach(channel_label,0,1,1,1)
-        box.attach(channel,1,1,1,1)
+        box.attach(font_label,0,1,1,1)
+        box.attach(font,1,1,1,1)
+        box.attach(channel_label,0,2,1,1)
+        box.attach(channel,1,2,1,1)
         box.attach(align_label,0,5,1,5)
         box.attach(align_type_box,1,5,1,1)
         box.attach(monitor,1,6,1,1)
@@ -730,6 +743,17 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(align_placement_button,1,9,1,1)
 
         self.add(box)
+
+    def change_font(self, button):
+        font = button.get_font()
+        desc = Pango.FontDescription.from_string(font)
+        s = desc.get_size()
+        if not desc.get_size_is_absolute():
+            s = s / Pango.SCALE
+        self.overlay.set_font(desc.get_family(), s)
+
+        self.font = desc.to_string()
+        self.save_config()
 
     def change_channel(self, button):
         if self.ignore_channel_change:
@@ -1351,7 +1375,7 @@ class TextOverlayWindow(OverlayWindow):
         layout.set_width(Pango.SCALE *w)
         layout.set_spacing(Pango.SCALE * 3)
         if(self.text_font):
-            font = Pango.FontDescription(self.text_font)
+            font = Pango.FontDescription("%s %s" % (self.text_font, self.text_size))
             layout.set_font_description(font)
         tw,th =layout.get_pixel_size()
         context.move_to(0,-th+h)
