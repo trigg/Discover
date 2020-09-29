@@ -6,8 +6,16 @@ Considerably lighter on system resources and less hack-and-slash included than d
 
 ## Installing
 
+### Stable
 ```
 python3 -m pip install discover-overlay
+```
+
+### Latest Testing
+```
+git clone https://github.com/trigg/Discover.git
+cd Discover
+python3 -m pip install .
 ```
 
 ## Dependencies
