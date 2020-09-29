@@ -148,10 +148,11 @@ class DiscordConnector:
             if j["evt"] == "READY":
                 self.req_auth()
             elif j["evt"] == "VOICE_STATE_UPDATE":
+                print(j)
                 self.list_altered = True
                 thisuser = j["data"]["user"]
                 un = j["data"]["user"]["username"]
-                mute = j["data"]["voice_state"]["mute"] or j["data"]["voice_state"]["self_mute"]
+                mute = j["data"]["voice_state"]["mute"] or j["data"]["voice_state"]["self_mute"] or j["data"]["voice_state"]["suppress"]
                 deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
                 thisuser["mute"] = mute
                 thisuser["deaf"] = deaf
