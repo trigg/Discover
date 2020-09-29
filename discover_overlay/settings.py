@@ -16,9 +16,9 @@ except ModuleNotFoundError:
 
 class SettingsWindow(Gtk.Window):
     def init_config(self):
-        self.configDir = os.path.join(xdg_config_home, "discover")
+        self.configDir = os.path.join(xdg_config_home, "discover_overlay")
         os.makedirs(self.configDir, exist_ok=True)
-        self.configFile = os.path.join(self.configDir, "discover.ini")
+        self.configFile = os.path.join(self.configDir, "config.ini")
         self.read_config()
 
     def close_window(self, a=None, b=None):

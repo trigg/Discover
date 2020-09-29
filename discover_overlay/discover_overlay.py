@@ -52,15 +52,15 @@ class Discover:
             gi.require_version('AppIndicator3', '0.1')
             from gi.repository import AppIndicator3
             self.ind = AppIndicator3.Indicator.new(
-                "discover",
-                "discover",
+                "discover_overlay",
+                "discover_overlay",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
         except:
 
             # Create System Tray
-            self.tray = Gtk.StatusIcon.new_from_icon_name("discover")
+            self.tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
             self.tray.connect('popup-menu', show_menu)
 
     def make_menu(self):
