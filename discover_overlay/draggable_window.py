@@ -49,13 +49,20 @@ class DraggableWindow(Gtk.Window):
         self.set_decorated(False)
         self.set_keep_above(True)
         display = Gdk.Display.get_default()
-        monitor = display.get_monitor(self.monitor)
-        geometry = monitor.get_geometry()
-        scale_factor = monitor.get_scale_factor()
-        w = scale_factor * geometry.width
-        h = scale_factor * geometry.height
-        x = geometry.x
-        y = geometry.y
+        if "get_monitor" in dir(display):
+            monitor = display.get_monitor(self.monitor)
+            geometry = monitor.get_geometry()
+            scale_factor = monitor.get_scale_factor()
+            w = scale_factor * geometry.width
+            h = scale_factor * geometry.height
+            x = geometry.x
+            y = geometry.y
+        else:
+            screen = display.get_default_screen()
+            w = screen.width()
+            h = screen.height()
+            x = 0
+            y = 0
         #self.resize(400, h)
         self.move(self.x, self.y)
         self.resize(self.w, self.h)

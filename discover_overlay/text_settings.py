@@ -178,8 +178,9 @@ class TextSettingsWindow(SettingsWindow):
 
         monitor_store = Gtk.ListStore(str)
         display = Gdk.Display.get_default()
-        for i in range(0, display.get_n_monitors()):
-            monitor_store.append([display.get_monitor(i).get_model()])
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                monitor_store.append([display.get_monitor(i).get_model()])
         monitor = Gtk.ComboBox.new_with_model(monitor_store)
         monitor.set_active(self.get_monitor_index(self.monitor))
         monitor.connect("changed", self.change_monitor)
@@ -313,12 +314,13 @@ class TextSettingsWindow(SettingsWindow):
 
     def change_monitor(self, button):
         display = Gdk.Display.get_default()
-        mon = display.get_monitor(button.get_active())
-        m_s = mon.get_model()
-        self.overlay.set_monitor(button.get_active())
+        if "get_monitor" in dir(display):
+            mon = display.get_monitor(button.get_active())
+            m_s = mon.get_model()
+            self.overlay.set_monitor(button.get_active())
 
-        self.monitor = m_s
-        self.save_config()
+            self.monitor = m_s
+            self.save_config()
 
     def change_align_x(self, button):
         self.overlay.set_align_x(button.get_active() == 1)

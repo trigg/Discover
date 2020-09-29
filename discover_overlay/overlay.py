@@ -75,19 +75,31 @@ class OverlayWindow(Gtk.Window):
         self.set_decorated(False)
         self.set_keep_above(True)
         display = Gdk.Display.get_default()
-        monitor = display.get_monitor(self.monitor)
-        geometry = monitor.get_geometry()
-        scale_factor = monitor.get_scale_factor()
-        if not self.floating:
-            w = scale_factor * geometry.width
-            h = scale_factor * geometry.height
-            x = geometry.x
-            y = geometry.y
-            self.resize(w, h)
-            self.move(x, y)
+        if "get_monitor" in dir(display):
+            monitor = display.get_monitor(self.monitor)
+            geometry = monitor.get_geometry()
+            scale_factor = monitor.get_scale_factor()
+            if not self.floating:
+                w = scale_factor * geometry.width
+                h = scale_factor * geometry.height
+                x = geometry.x
+                y = geometry.y
+                self.resize(w, h)
+                self.move(x, y)
+            else:
+                self.move(self.x, self.y)
+                self.resize(self.w, self.h)
         else:
-            self.move(self.x, self.y)
-            self.resize(self.w, self.h)
+            if not self.floating:
+                screen = display.get_default_screen()
+                w = screen.width()
+                h = screen.height()
+                x = 0
+                y = 0
+            else:
+                self.move(self.x, self.y)
+                self.resize(self.w, self.h)
+
         self.redraw()
 
     def redraw(self):

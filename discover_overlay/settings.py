@@ -38,9 +38,10 @@ class SettingsWindow(Gtk.Window):
 
     def get_monitor_index(self, name):
         display = Gdk.Display.get_default()
-        for i in range(0, display.get_n_monitors()):
-            if display.get_monitor(i).get_model() == name:
-                return i
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                if display.get_monitor(i).get_model() == name:
+                    return i
         print("Could not find monitor : %s" % (name))
         return 0
 

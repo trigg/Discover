@@ -148,7 +148,6 @@ class DiscordConnector:
             if j["evt"] == "READY":
                 self.req_auth()
             elif j["evt"] == "VOICE_STATE_UPDATE":
-                print(j)
                 self.list_altered = True
                 thisuser = j["data"]["user"]
                 un = j["data"]["user"]["username"]
