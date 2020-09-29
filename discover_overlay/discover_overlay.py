@@ -61,7 +61,7 @@ class Discover:
 
             # Create System Tray
             self.tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
-            self.tray.connect('popup-menu', show_menu)
+            self.tray.connect('popup-menu', self.show_menu)
 
     def make_menu(self):
         # Create System Menu
