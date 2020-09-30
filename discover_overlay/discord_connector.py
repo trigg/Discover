@@ -274,7 +274,7 @@ class DiscordConnector:
             for channel in guild["channels"]:
                 channels = channels + " " + channel["name"]
             logging.info(
-                "%s: %s" % (guild["name"], channels))
+                u"%s: %s" % (guild["name"], channels))
         self.sub_server()
         self.find_user()
 
