@@ -32,6 +32,7 @@ from .text_settings import TextSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
+from .autostart import Autostart
 import logging
 
 
@@ -69,17 +70,24 @@ class Discover:
         menu = Gtk.Menu()
         vsettings_opt = Gtk.MenuItem.new_with_label("Voice Settings")
         tsettings_opt = Gtk.MenuItem.new_with_label("Text Settings")
+        autostart_opt = Gtk.CheckMenuItem("Start on boot")
+        autostart_opt.set_active(self.a.is_auto())
         close_opt = Gtk.MenuItem.new_with_label("Close")
 
         menu.append(vsettings_opt)
         menu.append(tsettings_opt)
+        menu.append(autostart_opt)
         menu.append(close_opt)
 
         vsettings_opt.connect("activate", self.show_vsettings)
         tsettings_opt.connect("activate", self.show_tsettings)
+        autostart_opt.connect("toggled", self.toggle_auto)
         close_opt.connect("activate", self.close)
         menu.show_all()
         return menu
+
+    def toggle_auto(self, button):
+        self.a.set_autostart(button.get_active())
 
     def show_menu(self, obj, button, time):
         self.menu.show_all()
@@ -96,6 +104,8 @@ class Discover:
         Gtk.main_quit()
 
     def main(self):
+        self.a = Autostart("discover_overlay")
+        # a.set_autostart(True)
         self.create_gui()
         self.connection = DiscordConnector(
             self.text_settings, self.voice_settings,
