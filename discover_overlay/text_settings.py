@@ -98,6 +98,8 @@ class TextSettingsWindow(SettingsWindow):
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
         self.fg_col = json.loads(config.get(
             "text", "fg_col", fallback="[1.0,1.0,1.0,1.0]"))
+        self.popup_style = config.getboolean(
+            "text", "popup_style", fallback=False)
 
         logging.info(
             "Loading saved channel %s" % (self.channel))
@@ -111,6 +113,7 @@ class TextSettingsWindow(SettingsWindow):
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
         self.overlay.set_bg(self.bg_col)
         self.overlay.set_fg(self.fg_col)
+        self.overlay.set_popup_style(self.popup_style)
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -130,6 +133,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "channel", self.channel)
         config.set("text", "bg_col", json.dumps(self.bg_col))
         config.set("text", "fg_col", json.dumps(self.fg_col))
+        config.set("text", "popup_style", "%s" % (int(self.popup_style)))
 
         if self.font:
             config.set("text", "font", self.font)
@@ -145,6 +149,12 @@ class TextSettingsWindow(SettingsWindow):
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
+
+        # Popup Style
+        popup_style_label = Gtk.Label.new("Popup Style")
+        popup_style = Gtk.CheckButton.new()
+        popup_style.set_active(self.popup_style)
+        popup_style.connect("toggled", self.change_popup_style)
 
         # Font chooser
         font_label = Gtk.Label.new("Font")
@@ -235,21 +245,23 @@ class TextSettingsWindow(SettingsWindow):
 
         box.attach(enabled_label, 0, 0, 1, 1)
         box.attach(enabled, 1, 0, 1, 1)
-        box.attach(channel_label, 0, 1, 1, 1)
-        box.attach(channel, 1, 1, 1, 1)
+        box.attach(popup_style_label, 0, 1, 1, 1)
+        box.attach(popup_style, 1, 1, 1, 1)
+        box.attach(channel_label, 0, 2, 1, 1)
+        box.attach(channel, 1, 2, 1, 1)
 
-        box.attach(font_label, 0, 2, 1, 1)
-        box.attach(font, 1, 2, 1, 1)
-        box.attach(fg_col_label, 0, 3, 1, 1)
-        box.attach(fg_col, 1, 3, 1, 1)
-        box.attach(bg_col_label, 0, 4, 1, 1)
-        box.attach(bg_col, 1, 4, 1, 1)
-        box.attach(align_label, 0, 5, 1, 5)
-        box.attach(align_type_box, 1, 5, 1, 1)
-        box.attach(monitor, 1, 6, 1, 1)
-        box.attach(align_x, 1, 7, 1, 1)
-        box.attach(align_y, 1, 8, 1, 1)
-        box.attach(align_placement_button, 1, 9, 1, 1)
+        box.attach(font_label, 0, 3, 1, 1)
+        box.attach(font, 1, 3, 1, 1)
+        box.attach(fg_col_label, 0, 4, 1, 1)
+        box.attach(fg_col, 1, 4, 1, 1)
+        box.attach(bg_col_label, 0, 5, 1, 1)
+        box.attach(bg_col, 1, 5, 1, 1)
+        box.attach(align_label, 0, 6, 1, 5)
+        box.attach(align_type_box, 1, 6, 1, 1)
+        box.attach(monitor, 1, 7, 1, 1)
+        box.attach(align_x, 1, 8, 1, 1)
+        box.attach(align_y, 1, 9, 1, 1)
+        box.attach(align_placement_button, 1, 10, 1, 1)
 
         self.add(box)
 
@@ -340,6 +352,12 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_enabled(button.get_active())
 
         self.enabled = button.get_active()
+        self.save_config()
+
+    def change_popup_style(self, button):
+        self.overlay.set_popup_style(button.get_active())
+
+        self.popup_style = button.get_active()
         self.save_config()
 
     def get_channel(self):

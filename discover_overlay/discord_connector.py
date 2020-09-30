@@ -4,6 +4,7 @@ import time
 import json
 import requests
 import logging
+import calendar
 
 
 class DiscordConnector:
@@ -84,6 +85,10 @@ class DiscordConnector:
                 self.in_room.remove(userid)
 
     def add_text(self, message):
+        utc_time = time.strptime(
+            message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
+        t = time.time()
+        epoch_time = calendar.timegm(utc_time)
         un = message["author"]["username"]
         if "nick" in message and message['nick'] and len(message["nick"]) > 1:
             un = message["nick"]
@@ -95,6 +100,7 @@ class DiscordConnector:
                           'content': self.get_message_from_message(message),
                           'nick': un,
                           'nick_col': ac,
+                          'time': epoch_time,
                           })
         self.text_altered = True
 
@@ -105,7 +111,8 @@ class DiscordConnector:
                 new_message = {'id': message['id'],
                                'content': self.get_message_from_message(message_in),
                                'nick': message['nick'],
-                               'nick_col': message['nick_col']}
+                               'nick_col': message['nick_col'],
+                               'time': message['time']}
                 self.text[idx] = new_message
                 self.text_altered = True
                 return
@@ -372,6 +379,8 @@ class DiscordConnector:
         self.voice_overlay.set_connection(self.last_connection)
         list_altered = False
         # Update text list
+        if self.text_overlay.popup_style:
+            self.text_altered = True
         if self.text_altered:
             self.text_overlay.set_text_list(self.text, self.text_altered)
             self.text_altered = False
