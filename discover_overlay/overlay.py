@@ -5,6 +5,7 @@ gi.require_version('GdkPixbuf', '2.0')
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
 import cairo
+import logging
 
 
 class OverlayWindow(Gtk.Window):
@@ -19,7 +20,8 @@ class OverlayWindow(Gtk.Window):
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
         if not self.get_display().supports_input_shapes():
-            print("Input shapes not available. Quitting")
+            logging.info(
+                "Input shapes not available. Quitting")
             sys.exit(1)
         if visual:
             # Set the visual even if we can't use it right now

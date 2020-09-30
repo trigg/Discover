@@ -7,6 +7,7 @@ from .overlay import OverlayWindow
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
 import cairo
+import logging
 
 
 class TextOverlayWindow(OverlayWindow):

@@ -4,10 +4,11 @@ gi.require_version('PangoCairo', '1.0')
 gi.require_version('GdkPixbuf', '2.0')
 import math
 from .overlay import OverlayWindow
+from .image_getter import get_image
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
 import cairo
-import urllib
+import logging
 
 
 class VoiceOverlayWindow(OverlayWindow):
@@ -32,8 +33,9 @@ class VoiceOverlayWindow(OverlayWindow):
         self.userlist = []
         self.connected = False
         self.force_location()
-        self.def_avatar = self.get_img(
-            "https://cdn.discordapp.com/embed/avatars/3.png")
+        self.def_avatar = get_image(self.recv_avatar,
+                                    "https://cdn.discordapp.com/embed/avatars/3.png",
+                                    'def', self.avatar_size)
 
         self.first_draw = True
 
@@ -91,8 +93,9 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def reset_avatar(self):
         self.avatars = {}
-        self.def_avatar = self.get_img(
-            "https://cdn.discordapp.com/embed/avatars/3.png")
+        self.def_avatar = get_image(self.recv_avatar,
+                                    "https://cdn.discordapp.com/embed/avatars/3.png",
+                                    'def', self.avatar_size)
 
     def set_user_list(self, userlist, alt):
         self.userlist = userlist
@@ -150,31 +153,26 @@ class VoiceOverlayWindow(OverlayWindow):
         # Don't hold a ref
         self.context = None
 
-    def get_img(self, url):
-        req = urllib.request.Request(url)
-        req.add_header(
-            'Referer', 'https://streamkit.discord.com/overlay/voice')
-        req.add_header('User-Agent', 'Mozilla/5.0')
-        try:
-            response = urllib.request.urlopen(req)
-            input_stream = Gio.MemoryInputStream.new_from_data(
-                response.read(), None)
-            pixbuf = Pixbuf.new_from_stream(input_stream, None)
-            pixbuf = pixbuf.scale_simple(self.avatar_size, self.avatar_size,
-                                         GdkPixbuf.InterpType.BILINEAR)
-            return pixbuf
-        except:
-            print("Could not access : %s" % (url))
-        return none
+    def recv_avatar(self, id, pix):
+        if(id == 'def'):
+            self.def_avatar = pix
+        else:
+            self.avatars[id] = pix
+
+    def delete_avatar(self, id):
+        if id in self.avatars:
+            del self.avatars[id]
 
     def draw_avatar(self, context, user, y):
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
             url = "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (
-                user["id"], user["avatar"])
-            p = self.get_img(url)
-            if p:
-                self.avatars[user["id"]] = p
+                user['id'], user['avatar'])
+            get_image(self.recv_avatar, url, user["id"],
+                      self.avatar_size)
+
+            # Set the key with no value to avoid spamming requests
+            self.avatars[user["id"]] = None
 
         (w, h) = self.get_size()
         c = None

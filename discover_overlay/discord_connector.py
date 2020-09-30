@@ -3,6 +3,7 @@ import select
 import time
 import json
 import requests
+import logging
 
 
 class DiscordConnector:
@@ -57,7 +58,8 @@ class DiscordConnector:
             return
         if channel != self.current_voice:
             cn = self.channels[channel]['name']
-            print("Joined room: %s" % (cn))
+            logging.info(
+                "Joined room: %s" % (cn))
             self.current_voice = channel
             if need_req:
                 self.req_channel_details(channel)
@@ -68,7 +70,8 @@ class DiscordConnector:
             return
         if channel != self.current_text:
             self.current_text = channel
-            print("Changing text room: %s" % (channel))
+            logging.info(
+                "Changing text room: %s" % (channel))
             if need_req:
                 self.req_channel_details(channel)
 
@@ -137,6 +140,8 @@ class DiscordConnector:
                 user["deaf"] = self.userlist[user["id"]]["deaf"]
             if not "speaking" in user and "speaking" in self.userlist[user["id"]]:
                 user["speaking"] = self.userlist[user["id"]]["speaking"]
+            if self.userlist[user["id"]]["avatar"] != user["avatar"]:
+                self.voice_overlay.delete_avatar(user["id"])
         self.userlist[user["id"]] = user
 
     def on_message(self, message):
@@ -200,7 +205,7 @@ class DiscordConnector:
                 if self.current_text == j["data"]["channel_id"]:
                     self.delete_text(j["data"]["message"])
             else:
-                print(j)
+                logging.info(j)
             return
         elif j["cmd"] == "AUTHENTICATE":
             if j["evt"] == "ERROR":
@@ -209,8 +214,10 @@ class DiscordConnector:
             else:
                 self.req_guilds()
                 self.user = j["data"]["user"]
-                print("ID is %s" % (self.user["id"]))
-                print("Logged in as %s" % (self.user["username"]))
+                logging.info(
+                    "ID is %s" % (self.user["id"]))
+                logging.info(
+                    "Logged in as %s" % (self.user["username"]))
                 self.authed = True
                 return
         elif j["cmd"] == "GET_GUILDS":
@@ -234,7 +241,8 @@ class DiscordConnector:
             return
         elif j["cmd"] == "GET_CHANNEL":
             if j["evt"] == "ERROR":
-                print("Could not get room")
+                logging.info(
+                    "Could not get room")
                 return
             for voice in j["data"]["voice_states"]:
                 if voice["user"]["id"] == self.user["id"]:
@@ -250,7 +258,7 @@ class DiscordConnector:
                 for message in j["data"]["messages"]:
                     self.add_text(message)
             return
-        print(j)
+        logging.info(j)
 
     def check_guilds(self):
         # Check if all of the guilds contain a channel
@@ -265,15 +273,16 @@ class DiscordConnector:
             channels = ""
             for channel in guild["channels"]:
                 channels = channels + " " + channel["name"]
-            print("%s: %s" % (guild["name"], channels))
+            logging.info(
+                "%s: %s" % (guild["name"], channels))
         self.sub_server()
         self.find_user()
 
     def on_error(self, error):
-        print("ERROR : %s" % (error))
+        logging.error("ERROR : %s" % (error))
 
     def on_close(self):
-        print("Connection closed")
+        logging.info("Connection closed")
         self.ws = None
 
     def req_auth(self):
@@ -351,7 +360,8 @@ class DiscordConnector:
         if not self.ws:
             self.connect()
             if self.warn_connection:
-                print("Unable to connect to Discord client")
+                logging.info(
+                    "Unable to connect to Discord client")
                 self.warn_connection = False
             return True
         # Recreate a list of users in current room
@@ -392,6 +402,6 @@ class DiscordConnector:
                                                   origin="https://streamkit.discord.com")
         except Exception as e:
             if self.error_connection:
-                print(e)
+                logging.error(e)
                 self.error_connection = False
             pass

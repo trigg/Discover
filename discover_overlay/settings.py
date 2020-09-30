@@ -6,6 +6,7 @@ import sys
 import os
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+import logging
 
 
 try:
@@ -42,7 +43,8 @@ class SettingsWindow(Gtk.Window):
             for i in range(0, display.get_n_monitors()):
                 if display.get_monitor(i).get_model() == name:
                     return i
-        print("Could not find monitor : %s" % (name))
+        logging.info(
+            "Could not find monitor : %s" % (name))
         return 0
 
     def present(self):

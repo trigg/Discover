@@ -5,6 +5,7 @@ gi.require_version('GdkPixbuf', '2.0')
 import cairo
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+import logging
 
 
 class DraggableWindow(Gtk.Window):

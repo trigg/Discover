@@ -32,6 +32,7 @@ from .text_settings import TextSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
+import logging
 
 
 class Discover:
@@ -58,7 +59,8 @@ class Discover:
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
         except:
-
+            logging.info(
+                "Falling back to Sys tray")
             # Create System Tray
             self.tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
             self.tray.connect('popup-menu', self.show_menu)
@@ -109,5 +111,6 @@ class Discover:
 
 
 def entrypoint():
+    logging.getLogger().setLevel(logging.INFO)
     discover = Discover()
     discover.main()

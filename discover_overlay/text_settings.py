@@ -8,6 +8,7 @@ from .draggable_window import DraggableWindow
 from .settings import SettingsWindow
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+import logging
 
 
 class TextSettingsWindow(SettingsWindow):
@@ -98,7 +99,8 @@ class TextSettingsWindow(SettingsWindow):
         self.fg_col = json.loads(config.get(
             "text", "fg_col", fallback="[1.0,1.0,1.0,1.0]"))
 
-        print("Loading saved channel %s" % (self.channel))
+        logging.info(
+            "Loading saved channel %s" % (self.channel))
 
         # Pass all of our config over to the overlay
         self.overlay.set_enabled(self.enabled)

@@ -8,6 +8,7 @@ from .draggable_window import DraggableWindow
 from .settings import SettingsWindow
 from gi.repository.GdkPixbuf import Pixbuf
 from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+import logging
 
 
 class VoiceSettingsWindow(SettingsWindow):
