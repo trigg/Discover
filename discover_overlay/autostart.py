@@ -50,4 +50,4 @@ class Autostart:
             pass
 
     def is_auto(self):
-        return True if self.auto else None
+        return True if self.auto else False
