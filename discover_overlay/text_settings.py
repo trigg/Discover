@@ -36,6 +36,14 @@ class TextSettingsWindow(SettingsWindow):
             self.align_y_widget.hide()
             self.align_monitor_widget.hide()
             self.align_placement_widget.show()
+
+        if self.popup_style:
+            self.text_time_widget.show()
+            self.text_time_label_widget.show()
+        else:
+            self.text_time_widget.hide()
+            self.text_time_label_widget.hide()
+
         model = monitor_store = Gtk.ListStore(str, bool)
         # for c in self.list_channels_keys:
         #    print(self.list_channels[c])
@@ -100,6 +108,7 @@ class TextSettingsWindow(SettingsWindow):
             "text", "fg_col", fallback="[1.0,1.0,1.0,1.0]"))
         self.popup_style = config.getboolean(
             "text", "popup_style", fallback=False)
+        self.text_time = config.getint("text", "text_time", fallback=30)
 
         logging.info(
             "Loading saved channel %s" % (self.channel))
@@ -114,6 +123,7 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_bg(self.bg_col)
         self.overlay.set_fg(self.fg_col)
         self.overlay.set_popup_style(self.popup_style)
+        self.overlay.set_text_time(self.text_time)
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -134,6 +144,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "bg_col", json.dumps(self.bg_col))
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
+        config.set("text", "text_time", "%s" % (int(self.text_time)))
 
         if self.font:
             config.set("text", "font", self.font)
@@ -155,6 +166,13 @@ class TextSettingsWindow(SettingsWindow):
         popup_style = Gtk.CheckButton.new()
         popup_style.set_active(self.popup_style)
         popup_style.connect("toggled", self.change_popup_style)
+
+        # Popup timer
+        text_time_label = Gtk.Label.new("Popup timer")
+        text_time_adjustment = Gtk.Adjustment.new(
+            self.text_time, 8, 9000, 1, 1, 8)
+        text_time = Gtk.SpinButton.new(text_time_adjustment, 0, 0)
+        text_time.connect("value-changed", self.change_text_time)
 
         # Font chooser
         font_label = Gtk.Label.new("Font")
@@ -242,26 +260,29 @@ class TextSettingsWindow(SettingsWindow):
         self.align_monitor_widget = monitor
         self.align_placement_widget = align_placement_button
         self.channel_widget = channel
+        self.text_time_widget = text_time
+        self.text_time_label_widget = text_time_label
 
         box.attach(enabled_label, 0, 0, 1, 1)
         box.attach(enabled, 1, 0, 1, 1)
         box.attach(popup_style_label, 0, 1, 1, 1)
         box.attach(popup_style, 1, 1, 1, 1)
-        box.attach(channel_label, 0, 2, 1, 1)
-        box.attach(channel, 1, 2, 1, 1)
-
-        box.attach(font_label, 0, 3, 1, 1)
-        box.attach(font, 1, 3, 1, 1)
-        box.attach(fg_col_label, 0, 4, 1, 1)
-        box.attach(fg_col, 1, 4, 1, 1)
-        box.attach(bg_col_label, 0, 5, 1, 1)
-        box.attach(bg_col, 1, 5, 1, 1)
-        box.attach(align_label, 0, 6, 1, 5)
-        box.attach(align_type_box, 1, 6, 1, 1)
-        box.attach(monitor, 1, 7, 1, 1)
-        box.attach(align_x, 1, 8, 1, 1)
-        box.attach(align_y, 1, 9, 1, 1)
-        box.attach(align_placement_button, 1, 10, 1, 1)
+        box.attach(text_time_label, 0, 2, 1, 1)
+        box.attach(text_time, 1, 2, 1, 1)
+        box.attach(channel_label, 0, 3, 1, 1)
+        box.attach(channel, 1, 3, 1, 1)
+        box.attach(font_label, 0, 4, 1, 1)
+        box.attach(font, 1, 4, 1, 1)
+        box.attach(fg_col_label, 0, 5, 1, 1)
+        box.attach(fg_col, 1, 5, 1, 1)
+        box.attach(bg_col_label, 0, 6, 1, 1)
+        box.attach(bg_col, 1, 6, 1, 1)
+        box.attach(align_label, 0, 7, 1, 5)
+        box.attach(align_type_box, 1, 7, 1, 1)
+        box.attach(monitor, 1, 8, 1, 1)
+        box.attach(align_x, 1, 9, 1, 1)
+        box.attach(align_y, 1, 10, 1, 1)
+        box.attach(align_placement_button, 1, 11, 1, 1)
 
         self.add(box)
 
@@ -358,6 +379,20 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_popup_style(button.get_active())
 
         self.popup_style = button.get_active()
+        self.save_config()
+
+        if button.get_active():
+            # We're using popup style
+            self.text_time_widget.show()
+            self.text_time_label_widget.show()
+        else:
+            self.text_time_widget.hide()
+            self.text_time_label_widget.hide()
+
+    def change_text_time(self, button):
+        self.overlay.set_text_time(button.get_value())
+
+        self.text_time = button.get_value()
         self.save_config()
 
     def get_channel(self):

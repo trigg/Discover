@@ -21,6 +21,10 @@ class TextOverlayWindow(OverlayWindow):
         self.connected = True
         self.bg_col = [0.0, 0.6, 0.0, 0.1]
         self.fg_col = [1.0, 1.0, 1.0, 1.0]
+        #self.text_time = 30
+
+    def set_text_time(self, t):
+        self.text_time = t
 
     def set_text_list(self, tlist, alt):
         self.content = tlist
@@ -59,7 +63,7 @@ class TextOverlayWindow(OverlayWindow):
         sep = ""
         tnow = time.time()
         for line in self.content:
-            if not self.popup_style or tnow - line['time'] < 30:
+            if not self.popup_style or tnow - line['time'] < self.text_time:
                 col = "#fff"
                 if 'nick_col' in line and line['nick_col']:
                     col = line['nick_col']
