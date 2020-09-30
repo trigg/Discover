@@ -58,10 +58,9 @@ class Discover:
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
-        except:
-            logging.info(
-                "Falling back to Sys tray")
+        except Exception as e:
             # Create System Tray
+            logging.info("Falling back to Systray : %s" % (e))
             self.tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
             self.tray.connect('popup-menu', self.show_menu)
 

@@ -22,7 +22,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_font = None
         self.text_size = 13
         self.icon_spacing = 8
-        self.edge_padding = 0
+        self.vert_edge_padding = 0
+        self.horz_edge_padding = 0
 
         self.round_avatar = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
@@ -68,8 +69,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_pad = i
         self.redraw()
 
-    def set_edge_padding(self, i):
-        self.edge_padding = i
+    def set_vert_edge_padding(self, i):
+        self.vert_edge_padding = i
+        self.redraw()
+
+    def set_horz_edge_padding(self, i):
+        self.horz_edge_padding = i
         self.redraw()
 
     def set_square_avatar(self, i):
@@ -138,12 +143,12 @@ class VoiceOverlayWindow(OverlayWindow):
             (len(self.userlist) + 1) * self.icon_spacing
 
         # Choose where to start drawing
-        rh = 0 + self.edge_padding
+        rh = 0 + self.vert_edge_padding
         if self.align_vert == 1:
             # Ignore padding?
             rh = (h / 2) - (height / 2)
         elif self.align_vert == 2:
-            rh = h - height - self.edge_padding
+            rh = h - height - self.vert_edge_padding
         # Iterate users in room.
         for user in self.userlist:
             self.draw_avatar(context, user, rh)
@@ -188,16 +193,20 @@ class VoiceOverlayWindow(OverlayWindow):
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
         if self.align_right:
-            self.draw_text(context, user["username"], w - self.avatar_size, y)
+            self.draw_text(
+                context, user["username"], w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
-                context, pix, w - self.avatar_size, y, c, alpha)
+                context, pix, w - self.avatar_size - self.horz_edge_padding, y, c, alpha)
             if mute:
-                self.draw_mute(context, w - self.avatar_size, y, alpha)
+                self.draw_mute(context, w - self.avatar_size -
+                               self.horz_edge_padding, y, alpha)
         else:
-            self.draw_text(context, user["username"], self.avatar_size, y)
-            self.draw_avatar_pix(context, pix, 0, y, c, alpha)
+            self.draw_text(
+                context, user["username"], self.avatar_size + self.horz_edge_padding, y)
+            self.draw_avatar_pix(
+                context, pix, self.horz_edge_padding, y, c, alpha)
             if mute:
-                self.draw_mute(context, 0, y, alpha)
+                self.draw_mute(context, self.horz_edge_padding, y, alpha)
 
     def draw_text(self, context, string, x, y):
         if self.text_font:

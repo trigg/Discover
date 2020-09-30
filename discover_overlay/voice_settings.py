@@ -56,7 +56,10 @@ class VoiceSettingsWindow(SettingsWindow):
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=False)
         self.monitor = config.get("main", "monitor", fallback="None")
-        self.edge_padding = config.getint("main", "edge_padding", fallback=0)
+        self.vert_edge_padding = config.getint(
+            "main", "vert_edge_padding", fallback=0)
+        self.horz_edge_padding = config.getint(
+            "main", "horz_edge_padding", fallback=0)
         self.floating = config.getboolean("main", "floating", fallback=False)
         self.floating_x = config.getint("main", "floating_x", fallback=0)
         self.floating_y = config.getint("main", "floating_y", fallback=0)
@@ -75,7 +78,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_text_padding(self.text_padding)
         self.overlay.set_square_avatar(self.square_avatar)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
-        self.overlay.set_edge_padding(self.edge_padding)
+        self.overlay.set_vert_edge_padding(self.vert_edge_padding)
+        self.overlay.set_horz_edge_padding(self.horz_edge_padding)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -106,7 +110,10 @@ class VoiceSettingsWindow(SettingsWindow):
             config.set("main", "font", self.font)
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
         config.set("main", "monitor", self.monitor)
-        config.set("main", "edge_padding", "%d" % (self.edge_padding))
+        config.set("main", "vert_edge_padding", "%d" %
+                   (self.vert_edge_padding))
+        config.set("main", "horz_edge_padding", "%d" %
+                   (self.horz_edge_padding))
         config.set("main", "floating", "%s" % (int(self.floating)))
         config.set("main", "floating_x", "%s" % (self.floating_x))
         config.set("main", "floating_y", "%s" % (self.floating_y))
@@ -227,11 +234,21 @@ class VoiceSettingsWindow(SettingsWindow):
         text_padding.connect("value-changed", self.change_text_padding)
 
         # Edge padding
-        edge_padding_label = Gtk.Label.new("Edge Padding")
-        edge_padding_adjustment = Gtk.Adjustment.new(
-            self.edge_padding, 0, 1000, 1, 1, 0)
-        edge_padding = Gtk.SpinButton.new(edge_padding_adjustment, 0, 0)
-        edge_padding.connect("value-changed", self.change_edge_padding)
+        vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
+        vert_edge_padding_adjustment = Gtk.Adjustment.new(
+            self.vert_edge_padding, 0, 1000, 1, 1, 0)
+        vert_edge_padding = Gtk.SpinButton.new(
+            vert_edge_padding_adjustment, 0, 0)
+        vert_edge_padding.connect(
+            "value-changed", self.change_vert_edge_padding)
+
+        horz_edge_padding_label = Gtk.Label.new("Horizontal Edge Padding")
+        horz_edge_padding_adjustment = Gtk.Adjustment.new(
+            self.horz_edge_padding, 0, 1000, 1, 1, 0)
+        horz_edge_padding = Gtk.SpinButton.new(
+            horz_edge_padding_adjustment, 0, 0)
+        horz_edge_padding.connect(
+            "value-changed", self.change_horz_edge_padding)
 
         # Avatar shape
         square_avatar_label = Gtk.Label.new("Square Avatar")
@@ -261,10 +278,12 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(icon_spacing, 1, 11, 1, 1)
         box.attach(text_padding_label, 0, 12, 1, 1)
         box.attach(text_padding, 1, 12, 1, 1)
-        box.attach(edge_padding_label, 0, 13, 1, 1)
-        box.attach(edge_padding, 1, 13, 1, 1)
-        box.attach(square_avatar_label, 0, 14, 1, 1)
-        box.attach(square_avatar, 1, 14, 1, 1)
+        box.attach(vert_edge_padding_label, 0, 13, 1, 1)
+        box.attach(vert_edge_padding, 1, 13, 1, 1)
+        box.attach(horz_edge_padding_label, 0, 14, 1, 1)
+        box.attach(horz_edge_padding, 1, 14, 1, 1)
+        box.attach(square_avatar_label, 0, 15, 1, 1)
+        box.attach(square_avatar, 1, 15, 1, 1)
 
         self.add(box)
 
@@ -400,10 +419,16 @@ class VoiceSettingsWindow(SettingsWindow):
         self.text_padding = button.get_value()
         self.save_config()
 
-    def change_edge_padding(self, button):
-        self.overlay.set_edge_padding(button.get_value())
+    def change_vert_edge_padding(self, button):
+        self.overlay.set_vert_edge_padding(button.get_value())
 
-        self.edge_padding = button.get_value()
+        self.vert_edge_padding = button.get_value()
+        self.save_config()
+
+    def change_horz_edge_padding(self, button):
+        self.overlay.set_horz_edge_padding(button.get_value())
+
+        self.horz_edge_padding = button.get_value()
         self.save_config()
 
     def change_square_avatar(self, button):
