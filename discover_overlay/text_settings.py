@@ -278,7 +278,7 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(bg_col_label, 0, 6, 1, 1)
         box.attach(bg_col, 1, 6, 1, 1)
         box.attach(align_label, 0, 7, 1, 5)
-        box.attach(align_type_box, 1, 7, 1, 1)
+        #box.attach(align_type_box, 1, 7, 1, 1)
         box.attach(monitor, 1, 8, 1, 1)
         box.attach(align_x, 1, 9, 1, 1)
         box.attach(align_y, 1, 10, 1, 1)
