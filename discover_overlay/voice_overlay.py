@@ -237,6 +237,11 @@ class VoiceOverlayWindow(OverlayWindow):
             context.show_text(string)
 
     def draw_avatar_pix(self, context, pixbuf, x, y, c, alpha):
+        if not pixbuf:
+            pixbuf = self.def_avatar
+            
+        if not pixbuf:
+            return
         context.move_to(x, y)
         context.save()
         #context.set_source_pixbuf(pixbuf, 0.0, 0.0)
@@ -244,8 +249,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.arc(x + (self.avatar_size / 2), y +
                         (self.avatar_size / 2), self.avatar_size / 2, 0, 2 * math.pi)
             context.clip()
-        if not pixbuf:
-            pixbuf = self.def_avatar
+
         self.set_wind_col()
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.rectangle(x, y, self.avatar_size, self.avatar_size)
