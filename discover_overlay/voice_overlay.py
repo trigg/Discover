@@ -199,12 +199,14 @@ class VoiceOverlayWindow(OverlayWindow):
         (w, h) = self.get_size()
         c = None
         mute = False
+        deaf = False
         alpha = 1.0
         if "speaking" in user and user["speaking"]:
             c = self.talk_col
         if "mute" in user and user["mute"]:
             mute = True
         if "deaf" in user and user["deaf"]:
+            deaf = True
             alpha = 0.5
         pix = None
         if user["id"] in self.avatars:
@@ -214,7 +216,10 @@ class VoiceOverlayWindow(OverlayWindow):
                 context, user["username"], w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, w - self.avatar_size - self.horz_edge_padding, y, c, alpha)
-            if mute:
+            if deaf:
+                self.draw_deaf(context, w - self.avatar_size -
+                               self.horz_edge_padding, y, 1.0)
+            elif mute:
                 self.draw_mute(context, w - self.avatar_size -
                                self.horz_edge_padding, y, alpha)
         else:
@@ -222,7 +227,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 context, user["username"], self.avatar_size + self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, self.horz_edge_padding, y, c, alpha)
-            if mute:
+            if deaf:
+                self.draw_deaf(context, self.horz_edge_padding, y, 1.0)
+            elif mute:
                 self.draw_mute(context, self.horz_edge_padding, y, alpha)
 
     def draw_text(self, context, string, x, y):
@@ -329,6 +336,54 @@ class VoiceOverlayWindow(OverlayWindow):
         # Stand horizontal
         context.move_to(0.35, 0.75)
         context.line_to(0.65, 0.75)
+        context.stroke()
+
+        context.restore()
+        # Strike through
+        context.arc(0.7, 0.3, 0.035, 1.25 * math.pi, 2.25 * math.pi)
+        context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
+        context.close_path()
+        context.fill()
+
+        context.restore()
+
+    def draw_deaf(self, context, x, y, a):
+        context.save()
+        context.translate(x, y)
+        context.scale(self.avatar_size, self.avatar_size)
+        self.set_mute_col(a)
+        context.save()
+
+        # Clip Strike-through
+        context.set_fill_rule(cairo.FILL_RULE_EVEN_ODD)
+        context.set_line_width(0.1)
+        context.move_to(0.0, 0.0)
+        context.line_to(1.0, 0.0)
+        context.line_to(1.0, 1.0)
+        context.line_to(0.0, 1.0)
+        context.line_to(0.0, 0.0)
+        context.close_path()
+        context.new_sub_path()
+        context.arc(0.9, 0.1, 0.05, 1.25 * math.pi, 2.25 * math.pi)
+        context.arc(0.1, 0.9, 0.05, .25 * math.pi, 1.25 * math.pi)
+        context.close_path()
+        context.clip()
+
+
+        # Top band
+        context.arc(0.5, 0.5, 0.2, 1.0 * math.pi, 0)
+        context.stroke()
+
+        # Left band
+        context.arc(0.28, 0.65, 0.075, 1.5 * math.pi, 0.5 * math.pi)
+        context.move_to(0.3, 0.5)
+        context.line_to(0.3, 0.75)
+        context.stroke()
+
+        # Right band
+        context.arc(0.72, 0.65, 0.075, 0.5 * math.pi, 1.5 * math.pi)
+        context.move_to(0.7, 0.5)
+        context.line_to(0.7, 0.75)
         context.stroke()
 
         context.restore()
