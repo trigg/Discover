@@ -55,7 +55,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.font = config.get("main", "font", fallback=None)
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=False)
-        self.only_speaking = config.getboolean("main", "only_speaking", fallback=True)
+        self.only_speaking = config.getboolean(
+            "main", "only_speaking", fallback=False)
         self.monitor = config.get("main", "monitor", fallback="None")
         self.vert_edge_padding = config.getint(
             "main", "vert_edge_padding", fallback=0)
