@@ -33,15 +33,6 @@ run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover
 
 Comes with sane-enough defaults but has a system tray icon & settings window if needed.
 
-## Still in progress
-
-Not all features are at the level I would like.
-
-To do list:
-
-- Text channels
-- Text notifications (different from above)
-- Open to suggestions
 
 ## Why do you keep making Discord Overlays?
 

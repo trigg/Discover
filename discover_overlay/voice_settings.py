@@ -260,7 +260,7 @@ class VoiceSettingsWindow(SettingsWindow):
         square_avatar.set_active(self.square_avatar)
         square_avatar.connect("toggled", self.change_square_avatar)
 
-        only_speaking_label = Gtk.Label.new("Only Speaking")
+        only_speaking_label = Gtk.Label.new("Display Speakers Only")
         only_speaking = Gtk.CheckButton.new()
         only_speaking.set_active(self.only_speaking)
         only_speaking.connect("toggled", self.change_only_speaking)
