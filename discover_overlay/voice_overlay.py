@@ -12,6 +12,8 @@ import logging
 
 
 class VoiceOverlayWindow(OverlayWindow):
+
+
     def __init__(self):
         OverlayWindow.__init__(self)
 
@@ -32,6 +34,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
         self.userlist = []
+        self.users_to_draw = []
         self.connected = False
         self.force_location()
         self.def_avatar = get_image(self.recv_avatar,
@@ -80,6 +83,9 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_square_avatar(self, i):
         self.round_avatar = not i
         self.redraw()
+
+    def set_only_speaking(self, only_speaking):
+        self.only_speaking = only_speaking
 
     def set_wind_col(self):
         self.col(self.wind_col)
@@ -136,11 +142,22 @@ class VoiceOverlayWindow(OverlayWindow):
         if not self.connected:
             return
 
+        # Gather which users to draw
+        if self.only_speaking:
+            self.users_to_draw = self.userlist[:]
+            # Remove users that arent speaking
+            for user in self.userlist:
+                speaking = "speaking" in user and user["speaking"]
+                if not speaking:
+                    self.users_to_draw.remove(user)
+        else:
+            self.users_to_draw = self.userlist
+
         # Get size of window
         (w, h) = self.get_size()
         # Calculate height needed to show overlay
-        height = (len(self.userlist) * self.avatar_size) + \
-            (len(self.userlist) + 1) * self.icon_spacing
+        height = (len(self.users_to_draw) * self.avatar_size) + \
+            (len(self.users_to_draw) + 1) * self.icon_spacing
 
         # Choose where to start drawing
         rh = 0 + self.vert_edge_padding
@@ -149,8 +166,8 @@ class VoiceOverlayWindow(OverlayWindow):
             rh = (h / 2) - (height / 2)
         elif self.align_vert == 2:
             rh = h - height - self.vert_edge_padding
-        # Iterate users in room.
-        for user in self.userlist:
+
+        for user in self.users_to_draw:
             self.draw_avatar(context, user, rh)
             # Shift the relative position down to next location
             rh += self.avatar_size + self.icon_spacing
