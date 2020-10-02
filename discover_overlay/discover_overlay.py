@@ -55,7 +55,7 @@ class Discover:
             from gi.repository import AppIndicator3
             self.ind = AppIndicator3.Indicator.new(
                 "discover_overlay",
-                "discover_overlay",
+                "discover-overlay",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
