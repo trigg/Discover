@@ -87,8 +87,8 @@ class TextOverlayWindow(OverlayWindow):
         elif msg['type'] == 'emoji':
             if 'surrogate' in msg:
                 # ['src'] is SVG URL
-                ret = msg
-                # ret = msg['surrogate']
+                #ret = msg
+                ret = msg['surrogate']
             else:
                 ### Add Image ###
                 url = ("https://cdn.discordapp.com/emojis/%s.png?v=1" %
