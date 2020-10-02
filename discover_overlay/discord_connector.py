@@ -34,7 +34,6 @@ class DiscordConnector:
         self.last_connection = ""
         self.text = []
         self.authed = False
-        self.timeregex = re.compile(r"\.\d+")
 
     def get_access_token_stage1(self):
         global oauth_token
@@ -87,12 +86,8 @@ class DiscordConnector:
                 self.in_room.remove(userid)
 
     def add_text(self, message):
-        # Remove micro time
-        time_input = message["timestamp"]
-        time_input = self.timeregex.sub("", time_input)
-        print(time_input)
         utc_time = time.strptime(
-            time_input, "%Y-%m-%dT%H:%M:%S%z")
+            message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
         t = time.time()
         epoch_time = calendar.timegm(utc_time)
         un = message["author"]["username"]
@@ -107,6 +102,7 @@ class DiscordConnector:
                           'nick': un,
                           'nick_col': ac,
                           'time': epoch_time,
+                          'attach': self.get_attachment_from_message(message),
                           })
         self.text_altered = True
 
@@ -118,7 +114,8 @@ class DiscordConnector:
                                'content': self.get_message_from_message(message_in),
                                'nick': message['nick'],
                                'nick_col': message['nick_col'],
-                               'time': message['time']}
+                               'time': message['time'],
+                               'attach': message['attach']}
                 self.text[idx] = new_message
                 self.text_altered = True
                 return
@@ -133,7 +130,9 @@ class DiscordConnector:
                 return
 
     def get_message_from_message(self, message):
-        if "content" in message and len(message["content"]) > 0:
+        if "content_parsed" in message:
+            return message["content_parsed"]
+        elif "content" in message and len(message["content"]) > 0:
             return message["content"]
         elif len(message["embeds"]) == 1:
             if "rawDescription" in message["embeds"][0]:
@@ -141,9 +140,13 @@ class DiscordConnector:
             if "author" in message["embeds"][0]:
                 return message["embeds"][0]["author"]["name"]
         elif len(message["attachments"]) == 1:
-            # Need to care
-            return "-- attachment --"
+            return ""
         return ""
+
+    def get_attachment_from_message(self, message):
+        if len(message["attachments"]) == 1:
+            return message["attachments"]
+        return None
 
     def update_user(self, user):
         if user["id"] in self.userlist:

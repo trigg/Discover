@@ -104,9 +104,9 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def reset_avatar(self):
         self.avatars = {}
-        self.def_avatar = get_image(self.recv_avatar,
-                                    "https://cdn.discordapp.com/embed/avatars/3.png",
-                                    'def', self.avatar_size)
+        get_image(self.recv_avatar,
+                  "https://cdn.discordapp.com/embed/avatars/3.png",
+                  'def', self.avatar_size)
 
     def set_user_list(self, userlist, alt):
         self.userlist = userlist
@@ -263,7 +263,7 @@ class VoiceOverlayWindow(OverlayWindow):
     def draw_avatar_pix(self, context, pixbuf, x, y, c, alpha):
         if not pixbuf:
             pixbuf = self.def_avatar
-            
+
         if not pixbuf:
             return
         context.move_to(x, y)

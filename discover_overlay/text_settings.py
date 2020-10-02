@@ -109,6 +109,8 @@ class TextSettingsWindow(SettingsWindow):
         self.popup_style = config.getboolean(
             "text", "popup_style", fallback=False)
         self.text_time = config.getint("text", "text_time", fallback=30)
+        self.show_attach = config.getboolean(
+            "text", "show_attach", fallback=True)
 
         logging.info(
             "Loading saved channel %s" % (self.channel))
@@ -124,6 +126,7 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_fg(self.fg_col)
         self.overlay.set_popup_style(self.popup_style)
         self.overlay.set_text_time(self.text_time)
+        self.overlay.set_show_attach(self.show_attach)
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -145,6 +148,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
         config.set("text", "text_time", "%s" % (int(self.text_time)))
+        config.set("text", "show_attach", "%s" % (int(self.show_attach)))
 
         if self.font:
             config.set("text", "font", self.font)
@@ -255,6 +259,12 @@ class TextSettingsWindow(SettingsWindow):
         channel.add_attribute(rt, "text", 0)
         channel.add_attribute(rt, 'sensitive', 1)
 
+        # Show Attachments
+        show_attach_label = Gtk.Label.new("Show Attachments")
+        show_attach = Gtk.CheckButton.new()
+        show_attach.set_active(self.show_attach)
+        show_attach.connect("toggled", self.change_show_attach)
+
         self.align_x_widget = align_x
         self.align_y_widget = align_y
         self.align_monitor_widget = monitor
@@ -283,6 +293,8 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(align_x, 1, 9, 1, 1)
         box.attach(align_y, 1, 10, 1, 1)
         box.attach(align_placement_button, 1, 11, 1, 1)
+        box.attach(show_attach_label, 0, 12, 1, 1)
+        box.attach(show_attach, 1, 12, 1, 1)
 
         self.add(box)
 
@@ -412,4 +424,10 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_fg(c)
 
         self.fg_col = c
+        self.save_config()
+
+    def change_show_attach(self, button):
+        self.overlay.set_show_attach(button.get_active())
+
+        self.show_attach = button.get_active()
         self.save_config()
