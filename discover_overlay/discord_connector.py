@@ -2,6 +2,7 @@ import websocket
 import select
 import time
 import json
+import re
 import requests
 import logging
 import calendar
@@ -33,6 +34,7 @@ class DiscordConnector:
         self.last_connection = ""
         self.text = []
         self.authed = False
+        self.timeregex = re.compile(r"\.\d+")
 
     def get_access_token_stage1(self):
         global oauth_token
@@ -85,8 +87,12 @@ class DiscordConnector:
                 self.in_room.remove(userid)
 
     def add_text(self, message):
+        # Remove micro time
+        time_input = message["timestamp"]
+        time_input = self.timeregex.sub("", time_input)
+        print(time_input)
         utc_time = time.strptime(
-            message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            time_input, "%Y-%m-%dT%H:%M:%S%z")
         t = time.time()
         epoch_time = calendar.timegm(utc_time)
         un = message["author"]["username"]
