@@ -129,7 +129,10 @@ class TextOverlayWindow(OverlayWindow):
         context.paint()
 
         cy = h
+        tnow = time.time()
         for line in reversed(self.content):
+            if self.popup_style and tnow - line['time'] > self.text_time:
+                break
             out_line = ""
             self.imgList = []
 
