@@ -55,6 +55,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.font = config.get("main", "font", fallback=None)
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=False)
+        self.only_speaking = config.getboolean("main", "only_speaking", fallback=True)
         self.monitor = config.get("main", "monitor", fallback="None")
         self.vert_edge_padding = config.getint(
             "main", "vert_edge_padding", fallback=0)
@@ -77,6 +78,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_icon_spacing(self.icon_spacing)
         self.overlay.set_text_padding(self.text_padding)
         self.overlay.set_square_avatar(self.square_avatar)
+        self.overlay.set_only_speaking(self.only_speaking)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
@@ -109,6 +111,7 @@ class VoiceSettingsWindow(SettingsWindow):
         if self.font:
             config.set("main", "font", self.font)
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
+        config.set("main", "only_speaking", "%d" % (int(self.only_speaking)))
         config.set("main", "monitor", self.monitor)
         config.set("main", "vert_edge_padding", "%d" %
                    (self.vert_edge_padding))
@@ -256,6 +259,11 @@ class VoiceSettingsWindow(SettingsWindow):
         square_avatar.set_active(self.square_avatar)
         square_avatar.connect("toggled", self.change_square_avatar)
 
+        only_speaking_label = Gtk.Label.new("Only Speaking")
+        only_speaking = Gtk.CheckButton.new()
+        only_speaking.set_active(self.only_speaking)
+        only_speaking.connect("toggled", self.change_only_speaking)
+
         box.attach(font_label, 0, 0, 1, 1)
         box.attach(font, 1, 0, 1, 1)
         box.attach(bg_col_label, 0, 1, 1, 1)
@@ -284,6 +292,8 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(horz_edge_padding, 1, 14, 1, 1)
         box.attach(square_avatar_label, 0, 15, 1, 1)
         box.attach(square_avatar, 1, 15, 1, 1)
+        box.attach(only_speaking_label, 0, 16, 1, 1)
+        box.attach(only_speaking, 1, 16, 1, 1)
 
         self.add(box)
 
@@ -435,4 +445,10 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_square_avatar(button.get_active())
 
         self.square_avatar = button.get_active()
+        self.save_config()
+
+    def change_only_speaking(self, button):
+        self.overlay.set_only_speaking(button.get_active())
+
+        self.only_speaking = button.get_active()
         self.save_config()
