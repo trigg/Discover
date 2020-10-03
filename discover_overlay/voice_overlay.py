@@ -111,7 +111,12 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_user_list(self, userlist, alt):
         self.userlist = userlist
-        self.userlist.sort(key=lambda x: x["username"])
+        for user in userlist:
+            if "nick" in user:
+                user["friendlyname"] = user["nick"]
+            else:
+                user["friendlyname"] = user["username"]
+        self.userlist.sort(key=lambda x: x["friendlyname"])
         screen = self.get_screen()
         c = screen.is_composited()
         if not self.compositing == c:
@@ -152,6 +157,12 @@ class VoiceOverlayWindow(OverlayWindow):
             # Bad object equality here, so we need to reassign
             if user["id"] == self_user["id"]:
                 self_user = user
+
+            # Update friendly name with nick if possible
+            if "nick" in user:
+                user["friendlyname"] = user["nick"]
+            else:
+                user["friendlyname"] = user["username"]
 
             # Remove users that arent speaking
             if self.only_speaking:
@@ -226,7 +237,7 @@ class VoiceOverlayWindow(OverlayWindow):
             pix = self.avatars[user["id"]]
         if self.align_right:
             self.draw_text(
-                context, user["username"], w - self.avatar_size - self.horz_edge_padding, y)
+                context, user["friendlyname"], w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, w - self.avatar_size - self.horz_edge_padding, y, c, alpha)
             if deaf:
@@ -237,7 +248,7 @@ class VoiceOverlayWindow(OverlayWindow):
                                self.horz_edge_padding, y, alpha)
         else:
             self.draw_text(
-                context, user["username"], self.avatar_size + self.horz_edge_padding, y)
+                context, user["friendlyname"], self.avatar_size + self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, self.horz_edge_padding, y, c, alpha)
             if deaf:

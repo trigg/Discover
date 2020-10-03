@@ -151,13 +151,16 @@ class DiscordConnector:
 
     def update_user(self, user):
         if user["id"] in self.userlist:
-            if not "mute" in user and "mute" in self.userlist[user["id"]]:
-                user["mute"] = self.userlist[user["id"]]["mute"]
-            if not "deaf" in user and "deaf" in self.userlist[user["id"]]:
-                user["deaf"] = self.userlist[user["id"]]["deaf"]
-            if not "speaking" in user and "speaking" in self.userlist[user["id"]]:
-                user["speaking"] = self.userlist[user["id"]]["speaking"]
-            if self.userlist[user["id"]]["avatar"] != user["avatar"]:
+            olduser = self.userlist[user["id"]]
+            if "mute" not in user and "mute" in olduser:
+                user["mute"] = olduser["mute"]
+            if "deaf" not in user and "deaf" in olduser:
+                user["deaf"] = olduser["deaf"]
+            if "speaking" not in user and "speaking" in olduser:
+                user["speaking"] = olduser["speaking"]
+            if "nick" not in user and "nick" in olduser:
+                user["nick"] = olduser["nick"]
+            if olduser["avatar"] != user["avatar"]:
                 self.voice_overlay.delete_avatar(user["id"])
         self.userlist[user["id"]] = user
 
@@ -172,7 +175,8 @@ class DiscordConnector:
             elif j["evt"] == "VOICE_STATE_UPDATE":
                 self.list_altered = True
                 thisuser = j["data"]["user"]
-                un = j["data"]["user"]["username"]
+                nick = j["data"]["nick"]
+                thisuser["nick"] = nick
                 mute = j["data"]["voice_state"]["mute"] or j["data"]["voice_state"]["self_mute"] or j["data"]["voice_state"]["suppress"]
                 deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
                 thisuser["mute"] = mute
@@ -180,10 +184,12 @@ class DiscordConnector:
                 self.update_user(thisuser)
             elif j["evt"] == "VOICE_STATE_CREATE":
                 self.list_altered = True
-                self.update_user(j["data"]["user"])
+                thisuser = j["data"]["user"]
+                nick = j["data"]["nick"]
+                thisuser["nick"] = nick
+                self.update_user(thisuser)
                 # If someone joins any voice room grab it fresh from server
                 self.req_channel_details(self.current_voice)
-                un = j["data"]["user"]["username"]
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
             elif j["evt"] == "VOICE_STATE_DELETE":
@@ -268,8 +274,11 @@ class DiscordConnector:
                 self.list_altered = True
                 self.in_room = []
                 for voice in j["data"]["voice_states"]:
-                    self.update_user(voice["user"])
-                    self.set_in_room(voice["user"]["id"], True)
+                    thisuser = voice["user"]
+                    if "nick" in j["data"]:
+                        thisuser["nick"] = j["data"]["nick"]
+                    self.update_user(thisuser)
+                    self.set_in_room(thisuser["id"], True)
             if self.current_text == j["data"]["id"]:
                 self.text = []
                 for message in j["data"]["messages"]:
