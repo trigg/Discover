@@ -1,12 +1,11 @@
 import gi
 gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
 gi.require_version('GdkPixbuf', '2.0')
 import urllib
 import requests
 import threading
 from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+from gi.repository import Gtk, Gio, GdkPixbuf, Gdk
 import cairo
 import logging
 import PIL.Image as Image

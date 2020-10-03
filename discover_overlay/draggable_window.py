@@ -1,10 +1,7 @@
 import gi
 gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
 import cairo
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+from gi.repository import Gtk, Gdk
 import logging
 
 

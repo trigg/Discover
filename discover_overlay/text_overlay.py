@@ -1,15 +1,12 @@
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
 import math
 from .overlay import OverlayWindow
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+from gi.repository import Gtk, Gdk, Pango, PangoCairo
 import cairo
 import logging
 import time
-import sys
 import re
 from .image_getter import get_surface
 
@@ -171,8 +168,6 @@ class TextOverlayWindow(OverlayWindow):
             self.context.set_source_surface(pix, 0, y - h)
             self.context.rectangle(0, y - h, w, h)
             self.context.fill()
-            # Gdk.cairo_set_source_pixbuf(self.context, pix, 0, y - h)
-            # self.context.paint()
             return y - h
         return y
 

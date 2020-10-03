@@ -12,21 +12,8 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import gi
 gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
-import os
-import sys
-import json
-import math
-import time
-import cairo
-import base64
+from gi.repository import Gtk, GLib
 import select
-import urllib
-import requests
-import websocket
 from .voice_settings import VoiceSettingsWindow
 from .text_settings import TextSettingsWindow
 from .voice_overlay import VoiceOverlayWindow

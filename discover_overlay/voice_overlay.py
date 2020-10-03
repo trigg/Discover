@@ -1,13 +1,10 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
 import math
 from .overlay import OverlayWindow
 from .image_getter import get_image
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
+from gi.repository import Gtk, Gdk
 import cairo
 import logging
 
