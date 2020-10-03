@@ -38,11 +38,23 @@ import logging
 
 class Discover:
     def __init__(self):
-        pass
+        self.a = Autostart("discover_overlay")
+        # a.set_autostart(True)
+        self.create_gui()
+        self.connection = DiscordConnector(
+            self.text_settings, self.voice_settings,
+            self.text_overlay, self.voice_overlay)
+        self.connection.connect()
+        GLib.timeout_add((1000 / 60), self.connection.do_read)
+
+        try:
+            Gtk.main()
+        except:
+            pass
 
     def create_gui(self):
-        self.voice_overlay = VoiceOverlayWindow()
-        self.text_overlay = TextOverlayWindow()
+        self.voice_overlay = VoiceOverlayWindow(self)
+        self.text_overlay = TextOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
         self.voice_settings = VoiceSettingsWindow(self.voice_overlay)
@@ -103,23 +115,7 @@ class Discover:
     def close(self, a=None, b=None, c=None):
         Gtk.main_quit()
 
-    def main(self):
-        self.a = Autostart("discover_overlay")
-        # a.set_autostart(True)
-        self.create_gui()
-        self.connection = DiscordConnector(
-            self.text_settings, self.voice_settings,
-            self.text_overlay, self.voice_overlay)
-        self.connection.connect()
-        GLib.timeout_add((1000 / 60), self.connection.do_read)
-
-        try:
-            Gtk.main()
-        except:
-            pass
-
 
 def entrypoint():
     logging.getLogger().setLevel(logging.INFO)
     discover = Discover()
-    discover.main()

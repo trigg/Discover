@@ -15,8 +15,9 @@ from .image_getter import get_surface
 
 
 class TextOverlayWindow(OverlayWindow):
-    def __init__(self):
+    def __init__(self, discover):
         OverlayWindow.__init__(self)
+        self.discover = discover
         self.text_spacing = 4
         self.content = []
         self.text_font = None
