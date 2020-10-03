@@ -1,4 +1,5 @@
 import gi
+
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 gi.require_version('GdkPixbuf', '2.0')
@@ -13,10 +14,10 @@ import logging
 
 class VoiceOverlayWindow(OverlayWindow):
 
-
-    def __init__(self):
+    def __init__(self, discover):
         OverlayWindow.__init__(self)
 
+        self.discover = discover
         self.avatars = {}
 
         self.avatar_size = 48
@@ -87,6 +88,9 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_only_speaking(self, only_speaking):
         self.only_speaking = only_speaking
 
+    def set_highlight_self(self, highlight_self):
+        self.highlight_self = highlight_self
+
     def set_wind_col(self):
         self.col(self.wind_col)
 
@@ -142,16 +146,28 @@ class VoiceOverlayWindow(OverlayWindow):
         if not self.connected:
             return
 
+        connection = self.discover.connection
+        self_user = connection.user
+
         # Gather which users to draw
-        if self.only_speaking:
-            self.users_to_draw = self.userlist[:]
+        self.users_to_draw = self.userlist[:]
+        for user in self.userlist:
+            # Bad object equality here, so we need to reassign
+            if user["id"] == self_user["id"]:
+                self_user = user
+
             # Remove users that arent speaking
-            for user in self.userlist:
+            if self.only_speaking:
                 speaking = "speaking" in user and user["speaking"]
                 if not speaking:
                     self.users_to_draw.remove(user)
-        else:
-            self.users_to_draw = self.userlist
+
+        if self.highlight_self:
+            try:
+                self.users_to_draw.remove(self_user)
+            except ValueError:
+                pass  # Not in list
+            self.users_to_draw.insert(0, self_user)
 
         # Get size of window
         (w, h) = self.get_size()
@@ -368,7 +384,6 @@ class VoiceOverlayWindow(OverlayWindow):
         context.arc(0.1, 0.9, 0.05, .25 * math.pi, 1.25 * math.pi)
         context.close_path()
         context.clip()
-
 
         # Top band
         context.arc(0.5, 0.5, 0.2, 1.0 * math.pi, 0)
