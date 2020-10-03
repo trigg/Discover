@@ -4,7 +4,7 @@ import json
 from configparser import ConfigParser
 from .draggable_window import DraggableWindow
 from .settings import SettingsWindow
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Pango
 import logging
 
 
