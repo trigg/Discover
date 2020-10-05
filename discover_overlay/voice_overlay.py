@@ -3,7 +3,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 import math
 from .overlay import OverlayWindow
-from .image_getter import get_image
+from .image_getter import get_surface, draw_img_to_rect
 from gi.repository import Gtk, Gdk
 import cairo
 import logging
@@ -36,11 +36,9 @@ class VoiceOverlayWindow(OverlayWindow):
         self.users_to_draw = []
         self.connected = False
         self.force_location()
-        self.def_avatar = get_image(self.recv_avatar,
-                                    "https://cdn.discordapp.com/embed/avatars/3.png",
-                                    'def', self.avatar_size)
-
-        self.first_draw = True
+        self.def_avatar = get_surface(self.recv_avatar,
+                                      "https://cdn.discordapp.com/embed/avatars/3.png",
+                                      'def', self.avatar_size)
 
     def set_bg(self, bg):
         self.norm_col = bg
@@ -60,7 +58,6 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_avatar_size(self, size):
         self.avatar_size = size
-        self.reset_avatar()
         self.redraw()
 
     def set_icon_spacing(self, i):
@@ -110,12 +107,6 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_mute_col(self, a=1.0):
         self.col(self.mute_col, a)
-
-    def reset_avatar(self):
-        self.avatars = {}
-        get_image(self.recv_avatar,
-                  "https://cdn.discordapp.com/embed/avatars/3.png",
-                  'def', self.avatar_size)
 
     def set_user_list(self, userlist, alt):
         self.userlist = userlist
@@ -213,7 +204,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.context = None
 
     def recv_avatar(self, id, pix):
-        if(id == 'def'):
+        if id == 'def':
             self.def_avatar = pix
         else:
             self.avatars[id] = pix
@@ -227,8 +218,8 @@ class VoiceOverlayWindow(OverlayWindow):
         if user["id"] not in self.avatars and user["avatar"]:
             url = "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (
                 user['id'], user['avatar'])
-            get_image(self.recv_avatar, url, user["id"],
-                      self.avatar_size)
+            get_surface(self.recv_avatar, url, user["id"],
+                        self.avatar_size)
 
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
@@ -237,13 +228,11 @@ class VoiceOverlayWindow(OverlayWindow):
         c = None
         mute = False
         deaf = False
-        alpha = 1.0
 
         if "mute" in user and user["mute"]:
             mute = True
         if "deaf" in user and user["deaf"]:
             deaf = True
-            alpha = 0.5
         if "speaking" in user and user["speaking"] and not deaf and not mute:
             c = self.talk_col
         pix = None
@@ -254,23 +243,23 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_text(
                     context, user["friendlyname"], w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
-                context, pix, w - self.avatar_size - self.horz_edge_padding, y, c, alpha)
+                context, pix, w - self.avatar_size - self.horz_edge_padding, y, c)
             if deaf:
                 self.draw_deaf(context, w - self.avatar_size -
-                               self.horz_edge_padding, y, 1.0)
+                               self.horz_edge_padding, y)
             elif mute:
                 self.draw_mute(context, w - self.avatar_size -
-                               self.horz_edge_padding, y, alpha)
+                               self.horz_edge_padding, y)
         else:
             if not self.icon_only:
                 self.draw_text(
                     context, user["friendlyname"], self.avatar_size + self.horz_edge_padding, y)
             self.draw_avatar_pix(
-                context, pix, self.horz_edge_padding, y, c, alpha)
+                context, pix, self.horz_edge_padding, y, c)
             if deaf:
-                self.draw_deaf(context, self.horz_edge_padding, y, 1.0)
+                self.draw_deaf(context, self.horz_edge_padding, y)
             elif mute:
-                self.draw_mute(context, self.horz_edge_padding, y, alpha)
+                self.draw_mute(context, self.horz_edge_padding, y)
 
     def draw_text(self, context, string, x, y):
         if self.text_font:
@@ -300,27 +289,24 @@ class VoiceOverlayWindow(OverlayWindow):
             context.move_to(x + self.text_pad, y + ho + h)
             context.show_text(string)
 
-    def draw_avatar_pix(self, context, pixbuf, x, y, c, alpha):
+    def draw_avatar_pix(self, context, pixbuf, x, y, c):
         if not pixbuf:
             pixbuf = self.def_avatar
-
-        if not pixbuf:
-            return
+            if not pixbuf:
+                return
         context.move_to(x, y)
         context.save()
-        #context.set_source_pixbuf(pixbuf, 0.0, 0.0)
         if self.round_avatar:
             context.arc(x + (self.avatar_size / 2), y +
                         (self.avatar_size / 2), self.avatar_size / 2, 0, 2 * math.pi)
             context.clip()
 
-        self.set_wind_col()
+        self.set_norm_col()
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.rectangle(x, y, self.avatar_size, self.avatar_size)
         context.fill()
-        context.set_operator(cairo.OPERATOR_OVER)
-        Gdk.cairo_set_source_pixbuf(context, pixbuf, x, y)
-        context.paint_with_alpha(alpha)
+        draw_img_to_rect(pixbuf, context, x, y,
+                         self.avatar_size, self.avatar_size)
         context.restore()
         if c:
             if self.round_avatar:
@@ -333,11 +319,11 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.col(c)
                 context.stroke()
 
-    def draw_mute(self, context, x, y, a):
+    def draw_mute(self, context, x, y):
         context.save()
         context.translate(x, y)
         context.scale(self.avatar_size, self.avatar_size)
-        self.set_mute_col(a)
+        self.set_mute_col()
         context.save()
 
         # Clip Strike-through
@@ -387,11 +373,11 @@ class VoiceOverlayWindow(OverlayWindow):
 
         context.restore()
 
-    def draw_deaf(self, context, x, y, a):
+    def draw_deaf(self, context, x, y):
         context.save()
         context.translate(x, y)
         context.scale(self.avatar_size, self.avatar_size)
-        self.set_mute_col(a)
+        self.set_mute_col()
         context.save()
 
         # Clip Strike-through
