@@ -8,7 +8,7 @@ import cairo
 import logging
 import time
 import re
-from .image_getter import get_surface
+from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
 
 
 class TextOverlayWindow(OverlayWindow):
@@ -157,18 +157,21 @@ class TextOverlayWindow(OverlayWindow):
 
     def draw_attach(self, y, url):
         (w, h) = self.get_size()
-        if self.attachment[url]:
+        if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
-            h = pix.get_height()
+            iw = pix.get_width()
+            ih = pix.get_height()
+            iw = min(iw, w)
+            ih = min(ih, (h * .7))
+            (ax, ay, aw, ah) = get_aspected_size(pix, iw, ih)
             self.col(self.bg_col)
-            self.context.rectangle(0, y - h, w, h)
+            self.context.rectangle(0, y - ah, w, ah)
+
             self.context.fill()
             self.context.set_operator(cairo.OPERATOR_OVER)
-            self.col([1, 1, 1, 1])
-            self.context.set_source_surface(pix, 0, y - h)
-            self.context.rectangle(0, y - h, w, h)
-            self.context.fill()
-            return y - h
+            new_w, new_h = draw_img_to_rect(
+                pix, self.context, 0, y - ih, iw, ih, aspect=True)
+            return y - new_h
         return y
 
     def draw_text(self, y, text):
@@ -225,21 +228,8 @@ class TextOverlayWindow(OverlayWindow):
             return
         pix = self.attachment[key]
         (x, y) = ctx.get_current_point()
-        px = pix.get_width()
-        py = pix.get_height()
-        ctx.save()
-        ctx.translate(x, y - self.text_size)
-        ctx.scale(self.text_size, self.text_size)
-        ctx.scale(1 / px, 1 / py)
-        ctx.set_source_surface(pix, 0, 0)
-
-        ctx.rectangle(0, 0, px, py)
-        if not path:
-            ctx.fill()
-        ctx.restore()
-
-        ctx.move_to(x + self.text_size, y)
-
+        draw_img_to_rect(pix, ctx, x, y - self.text_size, self.text_size,
+                         self.text_size, path=path)
         return True
 
     def santize_string(self, string):
