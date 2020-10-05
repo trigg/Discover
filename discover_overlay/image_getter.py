@@ -137,8 +137,11 @@ def draw_img_to_rect(img, ctx, x, y, w, h, path=False, aspect=False, anchor=0, h
     ctx.save()
     px = img.get_width()
     py = img.get_height()
-    (x_off, y_off, w, h) = get_aspected_size(
-        img, w, h, anchor=anchor, hanchor=hanchor)
+    x_off = 0
+    y_off = 0
+    if aspect:
+        (x_off, y_off, w, h) = get_aspected_size(
+            img, w, h, anchor=anchor, hanchor=hanchor)
 
     ctx.translate(x + x_off, y + y_off)
     ctx.scale(w, h)
