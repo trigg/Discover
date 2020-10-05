@@ -68,6 +68,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.floating_y = config.getint("main", "floating_y", fallback=0)
         self.floating_w = config.getint("main", "floating_w", fallback=400)
         self.floating_h = config.getint("main", "floating_h", fallback=400)
+        self.order = config.getint("main", "order", fallback=0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -86,6 +87,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
+        self.overlay.set_order(self.order)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -128,6 +130,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_y", "%s" % (self.floating_y))
         config.set("main", "floating_w", "%s" % (self.floating_w))
         config.set("main", "floating_h", "%s" % (self.floating_h))
+        config.set("main", "order", "%s" % (self.order))
 
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -281,6 +284,19 @@ class VoiceSettingsWindow(SettingsWindow):
         icon_only.set_active(self.icon_only)
         icon_only.connect("toggled", self.change_icon_only)
 
+        # Order avatars
+        order_label = Gtk.Label.new("Order Avatars By")
+        order_store = Gtk.ListStore(str)
+        order_store.append(["Alphabetically"])
+        order_store.append(["ID"])
+        order_store.append(["Last Spoken"])
+        order = Gtk.ComboBox.new_with_model(order_store)
+        order.set_active(self.order)
+        order.connect("changed", self.change_order)
+        rt = Gtk.CellRendererText()
+        order.pack_start(rt, True)
+        order.add_attribute(rt, "text", 0)
+
         box.attach(font_label, 0, 0, 1, 1)
         box.attach(font, 1, 0, 1, 1)
         box.attach(bg_col_label, 0, 1, 1, 1)
@@ -315,6 +331,8 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(highlight_self, 1, 17, 1, 1)
         box.attach(icon_only_label, 0, 18, 1, 1)
         box.attach(icon_only, 1, 18, 1, 1)
+        box.attach(order_label, 0, 19, 1, 1)
+        box.attach(order, 1, 19, 1, 1)
 
         self.add(box)
 
@@ -484,4 +502,10 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_icon_only(button.get_active())
 
         self.icon_only = button.get_active()
+        self.save_config()
+
+    def change_order(self, button):
+        self.overlay.set_order(button.get_active())
+
+        self.order = button.get_active()
         self.save_config()

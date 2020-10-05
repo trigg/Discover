@@ -160,8 +160,12 @@ class DiscordConnector:
                 user["speaking"] = olduser["speaking"]
             if "nick" not in user and "nick" in olduser:
                 user["nick"] = olduser["nick"]
+            if "lastspoken" not in user and "lastspoken" in olduser:
+                user["lastspoken"] = olduser["lastspoken"]
             if olduser["avatar"] != user["avatar"]:
                 self.voice_overlay.delete_avatar(user["id"])
+        if "lastspoken" not in user:  # Still nothing?
+            user["lastspoken"] = 0  # EEEEPOOCH EEEEEPOCH! BELIEVE MEEEE
         self.userlist[user["id"]] = user
 
     def on_message(self, message):
@@ -205,6 +209,8 @@ class DiscordConnector:
                 # It's only possible to get alerts for the room you're in
                 self.set_channel(j["data"]["channel_id"])
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
+                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.time()
+                self.list_altered = True
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True

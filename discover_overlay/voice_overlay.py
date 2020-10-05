@@ -88,7 +88,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_highlight_self(self, highlight_self):
         self.highlight_self = highlight_self
-    
+
+    def set_order(self, i):
+        self.order = i
+
     def set_icon_only(self, i):
         self.icon_only = i
         self.redraw()
@@ -121,7 +124,12 @@ class VoiceOverlayWindow(OverlayWindow):
                 user["friendlyname"] = user["nick"]
             else:
                 user["friendlyname"] = user["username"]
-        self.userlist.sort(key=lambda x: x["friendlyname"])
+        if self.order == 1:  # ID Sort
+            self.userlist.sort(key=lambda x: x["id"])
+        elif self.order == 2:  # Spoken sort
+            self.userlist.sort(key=lambda x: x["lastspoken"], reverse=True)
+        else:  # Name sort
+            self.userlist.sort(key=lambda x: x["friendlyname"])
         screen = self.get_screen()
         c = screen.is_composited()
         if not self.compositing == c:
@@ -230,13 +238,14 @@ class VoiceOverlayWindow(OverlayWindow):
         mute = False
         deaf = False
         alpha = 1.0
-        if "speaking" in user and user["speaking"]:
-            c = self.talk_col
+
         if "mute" in user and user["mute"]:
             mute = True
         if "deaf" in user and user["deaf"]:
             deaf = True
             alpha = 0.5
+        if "speaking" in user and user["speaking"] and not deaf and not mute:
+            c = self.talk_col
         pix = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
