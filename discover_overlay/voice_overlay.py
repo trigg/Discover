@@ -119,6 +119,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.userlist.sort(key=lambda x: x["id"])
         elif self.order == 2:  # Spoken sort
             self.userlist.sort(key=lambda x: x["lastspoken"], reverse=True)
+            self.userlist.sort(key=lambda x: x["speaking"], reverse=True)
         else:  # Name sort
             self.userlist.sort(key=lambda x: x["friendlyname"])
         screen = self.get_screen()

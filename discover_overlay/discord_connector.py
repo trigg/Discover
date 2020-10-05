@@ -166,6 +166,8 @@ class DiscordConnector:
                 self.voice_overlay.delete_avatar(user["id"])
         if "lastspoken" not in user:  # Still nothing?
             user["lastspoken"] = 0  # EEEEPOOCH EEEEEPOCH! BELIEVE MEEEE
+        if "speaking" not in user:
+            user["speaking"] = False
         self.userlist[user["id"]] = user
 
     def on_message(self, message):
