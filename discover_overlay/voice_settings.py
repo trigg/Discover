@@ -56,6 +56,8 @@ class VoiceSettingsWindow(SettingsWindow):
             "main", "only_speaking", fallback=False)
         self.highlight_self = config.getboolean(
             "main", "highlight_self", fallback=False)
+        self.icon_only = config.getboolean(
+            "main", "icon_only", fallback=False)
         self.monitor = config.get("main", "monitor", fallback="None")
         self.vert_edge_padding = config.getint(
             "main", "vert_edge_padding", fallback=0)
@@ -80,6 +82,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_square_avatar(self.square_avatar)
         self.overlay.set_only_speaking(self.only_speaking)
         self.overlay.set_highlight_self(self.highlight_self)
+        self.overlay.set_icon_only(self.icon_only)
         self.overlay.set_monitor(self.get_monitor_index(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
@@ -114,6 +117,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
         config.set("main", "only_speaking", "%d" % (int(self.only_speaking)))
         config.set("main", "highlight_self", "%d" % (int(self.highlight_self)))
+        config.set("main", "icon_only", "%d" % (int(self.icon_only)))
         config.set("main", "monitor", self.monitor)
         config.set("main", "vert_edge_padding", "%d" %
                    (self.vert_edge_padding))
@@ -271,6 +275,12 @@ class VoiceSettingsWindow(SettingsWindow):
         highlight_self.set_active(self.highlight_self)
         highlight_self.connect("toggled", self.change_highlight_self)
 
+        # Display icon only
+        icon_only_label = Gtk.Label.new("Display Icon Only")
+        icon_only = Gtk.CheckButton.new()
+        icon_only.set_active(self.icon_only)
+        icon_only.connect("toggled", self.change_icon_only)
+
         box.attach(font_label, 0, 0, 1, 1)
         box.attach(font, 1, 0, 1, 1)
         box.attach(bg_col_label, 0, 1, 1, 1)
@@ -303,6 +313,8 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(only_speaking, 1, 16, 1, 1)
         box.attach(highlight_self_label, 0, 17, 1, 1)
         box.attach(highlight_self, 1, 17, 1, 1)
+        box.attach(icon_only_label, 0, 18, 1, 1)
+        box.attach(icon_only, 1, 18, 1, 1)
 
         self.add(box)
 
@@ -466,4 +478,10 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_highlight_self(button.get_active())
 
         self.highlight_self = button.get_active()
+        self.save_config()
+
+    def change_icon_only(self, button):
+        self.overlay.set_icon_only(button.get_active())
+
+        self.icon_only = button.get_active()
         self.save_config()

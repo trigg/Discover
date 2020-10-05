@@ -26,6 +26,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.horz_edge_padding = 0
 
         self.round_avatar = True
+        self.icon_only = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
         self.text_col = [1.0, 1.0, 1.0, 1.0]
         self.norm_col = [0.0, 0.0, 0.0, 0.5]
@@ -87,6 +88,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_highlight_self(self, highlight_self):
         self.highlight_self = highlight_self
+    
+    def set_icon_only(self, i):
+        self.icon_only = i
+        self.redraw()
 
     def set_wind_col(self):
         self.col(self.wind_col)
@@ -236,8 +241,9 @@ class VoiceOverlayWindow(OverlayWindow):
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
         if self.align_right:
-            self.draw_text(
-                context, user["friendlyname"], w - self.avatar_size - self.horz_edge_padding, y)
+            if not self.icon_only:
+                self.draw_text(
+                    context, user["friendlyname"], w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, w - self.avatar_size - self.horz_edge_padding, y, c, alpha)
             if deaf:
@@ -247,8 +253,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_mute(context, w - self.avatar_size -
                                self.horz_edge_padding, y, alpha)
         else:
-            self.draw_text(
-                context, user["friendlyname"], self.avatar_size + self.horz_edge_padding, y)
+            if not self.icon_only:
+                self.draw_text(
+                    context, user["friendlyname"], self.avatar_size + self.horz_edge_padding, y)
             self.draw_avatar_pix(
                 context, pix, self.horz_edge_padding, y, c, alpha)
             if deaf:
