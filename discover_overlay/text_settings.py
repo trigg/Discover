@@ -18,6 +18,7 @@ class TextSettingsWindow(SettingsWindow):
         self.placement_window = None
         self.init_config()
         self.list_channels_keys = []
+        self.list_channels = {}
         self.ignore_channel_change = False
         self.create_gui()
 

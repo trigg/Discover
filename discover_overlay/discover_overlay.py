@@ -12,7 +12,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Gio
 import select
 from .voice_settings import VoiceSettingsWindow
 from .text_settings import TextSettingsWindow
@@ -21,10 +21,18 @@ from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
 from .autostart import Autostart
 import logging
+import pidfile
+import os
+import sys
+
+try:
+    from xdg.BaseDirectory import xdg_config_home
+except ModuleNotFoundError:
+    from xdg import XDG_CONFIG_HOME as xdg_config_home
 
 
 class Discover:
-    def __init__(self):
+    def __init__(self, rpc_file, args):
         self.a = Autostart("discover_overlay")
         # a.set_autostart(True)
         self.create_gui()
@@ -33,11 +41,38 @@ class Discover:
             self.text_overlay, self.voice_overlay)
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)
+        self.rpc_file = rpc_file
+        rpc_file = Gio.File.new_for_path(rpc_file)
+        monitor = rpc_file.monitor_file(0, None)
+        monitor.connect("changed", self.rpc_changed)
+        self.do_args(args)
 
         try:
             Gtk.main()
         except:
             pass
+
+    def do_args(self, data):
+        if "--help" in data:
+            pass
+        elif "--about" in data:
+            pass
+        elif "--configure-voice" in data:
+            self.show_vsettings()
+        elif "--configure-text" in data:
+            self.show_tsettings()
+        elif "--configure" in data:
+            self.show_tsettings()
+            self.show_vsettings()
+        elif "--close" in data:
+            sys.exit(0)
+
+
+    def rpc_changed(self, a=None, b=None, c=None,d=None):
+        with open (self.rpc_file, "r") as tfile:
+            data=tfile.readlines()
+            if len(data)>=1:
+                self.do_args(data[0])
 
     def create_gui(self):
         self.voice_overlay = VoiceOverlayWindow(self)
@@ -104,5 +139,21 @@ class Discover:
 
 
 def entrypoint():
-    logging.getLogger().setLevel(logging.INFO)
-    discover = Discover()
+    configDir = os.path.join(xdg_config_home, "discover_overlay")
+    os.makedirs(configDir, exist_ok=True)
+    line = ""
+    for arg in sys.argv[1:]:
+        line = "%s %s" % (line, arg)
+    pid_file = os.path.join(configDir, "discover_overlay.pid")
+    rpc_file = os.path.join(configDir, "discover_overlay.rpc")
+    try:
+        with pidfile.PIDFile(pid_file):
+            logging.getLogger().setLevel(logging.INFO)
+            discover = Discover(rpc_file, line)
+    except pidfile.AlreadyRunningError:
+        logging.warn("Discover overlay is currently running")
+
+        with open(rpc_file, "w") as tfile:
+            tfile.write(line)
+            logging.warn("Sent RPC command")
+

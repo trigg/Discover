@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Discover Overlay - Config
+Comment=Open configuration for Discover Overlay
+Exec=discover-overlay --configure
+Icon=discover-overlay
+Terminal=false
+Type=Application
+Catergories=Network;
