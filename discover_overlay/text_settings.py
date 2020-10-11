@@ -42,10 +42,7 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_widget.hide()
             self.text_time_label_widget.hide()
 
-        model = monitor_store = Gtk.ListStore(str, bool)
-        # for c in self.list_channels_keys:
-        #    print(self.list_channels[c])
-        #    model.append([self.list_channels[c]["name"]])
+        model = Gtk.ListStore(str, bool)
         self.channel_lookup = []
         for guild in self.guild_list():
             guild_id, guild_name = guild

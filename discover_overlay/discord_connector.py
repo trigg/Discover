@@ -37,7 +37,6 @@ class DiscordConnector:
         self.authed = False
 
     def get_access_token_stage1(self):
-        global oauth_token
         self.ws.send("{\"cmd\":\"AUTHORIZE\",\"args\":{\"client_id\":\"%s\",\"scopes\":[\"rpc\",\"messages.read\"],\"prompt\":\"none\"},\"nonce\":\"deadbeef\"}" % (
             self.oauth_token))
 
@@ -89,7 +88,6 @@ class DiscordConnector:
     def add_text(self, message):
         utc_time = time.strptime(
             message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
-        t = time.time()
         epoch_time = calendar.timegm(utc_time)
         un = message["author"]["username"]
         if "nick" in message and message['nick'] and len(message["nick"]) > 1:
@@ -122,7 +120,6 @@ class DiscordConnector:
                 return
 
     def delete_text(self, message_in):
-        global text, text_altered
         for idx in range(0, len(self.text)):
             message = self.text[idx]
             if message['id'] == message_in['id']:
@@ -335,9 +332,12 @@ class DiscordConnector:
             channel, channel))
 
     def find_user(self):
+        count = 0
         for channel in self.channels:
             if self.channels[channel]["type"] == 2:
                 self.req_channel_details(channel)
+                count+=1
+        logging.warn("Getting %s rooms" %(count))
 
     def sub_raw(self, cmd, channel, nonce):
         self.ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{%s},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (
@@ -404,7 +404,7 @@ class DiscordConnector:
             newlist.append(self.userlist[userid])
         self.voice_overlay.set_user_list(newlist, self.list_altered)
         self.voice_overlay.set_connection(self.last_connection)
-        list_altered = False
+        self.list_altered = False
         # Update text list
         if self.text_overlay.popup_style:
             self.text_altered = True

@@ -149,7 +149,7 @@ def entrypoint():
     try:
         with pidfile.PIDFile(pid_file):
             logging.getLogger().setLevel(logging.INFO)
-            discover = Discover(rpc_file, line)
+            Discover(rpc_file, line)
     except pidfile.AlreadyRunningError:
         logging.warn("Discover overlay is currently running")
 
