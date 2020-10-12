@@ -19,6 +19,7 @@ class GeneralSettingsWindow(SettingsWindow):
         self.connect("delete-event", self.close_window)
         self.init_config()
         self.a = Autostart("discover_overlay")
+        self.placement_window = None
 
         self.create_gui()
 
