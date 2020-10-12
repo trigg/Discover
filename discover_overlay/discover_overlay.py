@@ -19,7 +19,7 @@ from .text_settings import TextSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
-from .autostart import Autostart
+from .general_settings import GeneralSettingsWindow
 import logging
 import pidfile
 import os
@@ -33,8 +33,6 @@ except ModuleNotFoundError:
 
 class Discover:
     def __init__(self, rpc_file, args):
-        self.a = Autostart("discover_overlay")
-        # a.set_autostart(True)
         self.create_gui()
         self.connection = DiscordConnector(
             self.text_settings, self.voice_settings,
@@ -57,6 +55,8 @@ class Discover:
             pass
         elif "--about" in data:
             pass
+        elif "--configure-general" in data:
+            self.show_gsettings()
         elif "--configure-voice" in data:
             self.show_vsettings()
         elif "--configure-text" in data:
@@ -64,6 +64,7 @@ class Discover:
         elif "--configure" in data:
             self.show_tsettings()
             self.show_vsettings()
+            self.show_gsettings()
         elif "--close" in data:
             sys.exit(0)
 
@@ -81,6 +82,7 @@ class Discover:
         self.make_sys_tray_icon(self.menu)
         self.voice_settings = VoiceSettingsWindow(self.voice_overlay)
         self.text_settings = TextSettingsWindow(self.text_overlay)
+        self.general_settings = GeneralSettingsWindow(self.text_overlay, self.voice_overlay)
 
     def make_sys_tray_icon(self, menu):
         # Create AppIndicator
@@ -104,24 +106,20 @@ class Discover:
         menu = Gtk.Menu()
         vsettings_opt = Gtk.MenuItem.new_with_label("Voice Settings")
         tsettings_opt = Gtk.MenuItem.new_with_label("Text Settings")
-        autostart_opt = Gtk.CheckMenuItem("Start on boot")
-        autostart_opt.set_active(self.a.is_auto())
+        gsettings_opt = Gtk.MenuItem.new_with_label("General Settings")
         close_opt = Gtk.MenuItem.new_with_label("Close")
 
         menu.append(vsettings_opt)
         menu.append(tsettings_opt)
-        menu.append(autostart_opt)
+        menu.append(gsettings_opt)
         menu.append(close_opt)
 
         vsettings_opt.connect("activate", self.show_vsettings)
         tsettings_opt.connect("activate", self.show_tsettings)
-        autostart_opt.connect("toggled", self.toggle_auto)
+        gsettings_opt.connect("activate", self.show_gsettings)
         close_opt.connect("activate", self.close)
         menu.show_all()
         return menu
-
-    def toggle_auto(self, button):
-        self.a.set_autostart(button.get_active())
 
     def show_menu(self, obj, button, time):
         self.menu.show_all()
@@ -133,6 +131,9 @@ class Discover:
 
     def show_tsettings(self, obj=None, data=None):
         self.text_settings.present()
+
+    def show_gsettings(self, obj=None, data=None):
+        self.general_settings.present()
 
     def close(self, a=None, b=None, c=None):
         Gtk.main_quit()

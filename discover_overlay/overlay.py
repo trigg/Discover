@@ -3,6 +3,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 import cairo
 import logging
+import sys
 
 
 class OverlayWindow(Gtk.Window):
@@ -36,6 +37,7 @@ class OverlayWindow(Gtk.Window):
         self.align_right = True
         self.align_vert = 1
         self.floating = False
+        self.force_xshape= False
 
     def draw(self, widget, context):
         pass
@@ -105,7 +107,7 @@ class OverlayWindow(Gtk.Window):
         gdkwin = self.get_window()
 
         if gdkwin:
-            if not self.compositing:
+            if not self.compositing or self.force_xshape:
                 (w, h) = self.get_size()
                 surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
                 surface_ctx = cairo.Context(surface)
@@ -133,3 +135,6 @@ class OverlayWindow(Gtk.Window):
 
     def col(self, c, a=1.0):
         self.context.set_source_rgba(c[0], c[1], c[2], c[3] * a)
+
+    def set_force_xshape(self, force):
+        self.force_xshape = force
