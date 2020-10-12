@@ -14,12 +14,10 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Gio
 import select
-from .voice_settings import VoiceSettingsWindow
-from .text_settings import TextSettingsWindow
+from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
-from .general_settings import GeneralSettingsWindow
 import logging
 import pidfile
 import os
@@ -35,7 +33,7 @@ class Discover:
     def __init__(self, rpc_file, args):
         self.create_gui()
         self.connection = DiscordConnector(
-            self.text_settings, self.voice_settings,
+            self.settings.text_settings, self.settings.voice_settings,
             self.text_overlay, self.voice_overlay)
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)
@@ -55,16 +53,8 @@ class Discover:
             pass
         elif "--about" in data:
             pass
-        elif "--configure-general" in data:
-            self.show_gsettings()
-        elif "--configure-voice" in data:
-            self.show_vsettings()
-        elif "--configure-text" in data:
-            self.show_tsettings()
         elif "--configure" in data:
-            self.show_tsettings()
-            self.show_vsettings()
-            self.show_gsettings()
+            self.show_settings()
         elif "--close" in data:
             sys.exit(0)
 
@@ -80,9 +70,7 @@ class Discover:
         self.text_overlay = TextOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
-        self.voice_settings = VoiceSettingsWindow(self.voice_overlay)
-        self.text_settings = TextSettingsWindow(self.text_overlay)
-        self.general_settings = GeneralSettingsWindow(self.text_overlay, self.voice_overlay)
+        self.settings = MainSettingsWindow(self.text_overlay, self.voice_overlay)
 
     def make_sys_tray_icon(self, menu):
         # Create AppIndicator
@@ -104,19 +92,13 @@ class Discover:
     def make_menu(self):
         # Create System Menu
         menu = Gtk.Menu()
-        vsettings_opt = Gtk.MenuItem.new_with_label("Voice Settings")
-        tsettings_opt = Gtk.MenuItem.new_with_label("Text Settings")
-        gsettings_opt = Gtk.MenuItem.new_with_label("General Settings")
+        settings_opt = Gtk.MenuItem.new_with_label("Settings")
         close_opt = Gtk.MenuItem.new_with_label("Close")
 
-        menu.append(vsettings_opt)
-        menu.append(tsettings_opt)
-        menu.append(gsettings_opt)
+        menu.append(settings_opt)
         menu.append(close_opt)
 
-        vsettings_opt.connect("activate", self.show_vsettings)
-        tsettings_opt.connect("activate", self.show_tsettings)
-        gsettings_opt.connect("activate", self.show_gsettings)
+        settings_opt.connect("activate", self.show_settings)
         close_opt.connect("activate", self.close)
         menu.show_all()
         return menu
@@ -126,14 +108,8 @@ class Discover:
         self.menu.popup(
             None, None, Gtk.StatusIcon.position_menu, obj, button, time)
 
-    def show_vsettings(self, obj=None, data=None):
-        self.voice_settings.present()
-
-    def show_tsettings(self, obj=None, data=None):
-        self.text_settings.present()
-
-    def show_gsettings(self, obj=None, data=None):
-        self.general_settings.present()
+    def show_settings(self, obj=None, data=None):
+        self.settings.present()
 
     def close(self, a=None, b=None, c=None):
         Gtk.main_quit()

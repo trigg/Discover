@@ -11,7 +11,7 @@ import logging
 
 class GeneralSettingsWindow(SettingsWindow):
     def __init__(self, overlay, overlay2):
-        Gtk.Window.__init__(self)
+        Gtk.VBox.__init__(self)
         self.overlay = overlay
         self.overlay2 = overlay
         self.set_size_request(400, 200)

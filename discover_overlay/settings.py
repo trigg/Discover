@@ -12,7 +12,7 @@ except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
 
-class SettingsWindow(Gtk.Window):
+class SettingsWindow(Gtk.VBox):
     def init_config(self):
         self.configDir = os.path.join(xdg_config_home, "discover_overlay")
         os.makedirs(self.configDir, exist_ok=True)

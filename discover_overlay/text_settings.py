@@ -10,7 +10,7 @@ import logging
 
 class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
-        Gtk.Window.__init__(self)
+        Gtk.VBox.__init__(self)
         self.overlay = overlay
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
