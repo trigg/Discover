@@ -7,8 +7,19 @@ import sys
 
 
 class OverlayWindow(Gtk.Window):
+    def detect_type(self):
+        window = Gtk.Window()
+        screen = window.get_screen()
+        screen_type = "%s" % (screen)
+        if "Wayland" in screen_type:
+            print("Using Wayland GDK. Expect bugs")
+            return Gtk.WindowType.TOPLEVEL
+        return Gtk.WindowType.POPUP
+
     def __init__(self):
-        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
+        Gtk.Window.__init__(self, type=self.detect_type())
+        screen = self.get_screen()
+        screen_type = "%s" % (screen)
         self.set_size_request(50, 50)
 
         self.connect('draw', self.draw)
@@ -16,6 +27,7 @@ class OverlayWindow(Gtk.Window):
         self.compositing = False
         # Set RGBA
         screen = self.get_screen()
+        screen_type = "%s" % (screen)
         visual = screen.get_rgba_visual()
         if not self.get_display().supports_input_shapes():
             logging.info(
@@ -31,6 +43,9 @@ class OverlayWindow(Gtk.Window):
         self.set_untouchable()
         self.set_skip_pager_hint(True)
         self.set_skip_taskbar_hint(True)
+        self.set_keep_above(True)
+        self.set_decorated(True)
+        self.set_accept_focus(False)
 
         self.show_all()
         self.monitor = 0
