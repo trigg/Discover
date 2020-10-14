@@ -96,6 +96,7 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_w = config.getint("text", "floating_w", fallback=400)
         self.floating_h = config.getint("text", "floating_h", fallback=400)
         self.channel = config.get("text", "channel", fallback="0")
+        self.guild = config.get("text", "guild", fallback="0")
         self.font = config.get("text", "font", fallback=None)
         self.bg_col = json.loads(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
@@ -139,6 +140,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "floating_w", "%s" % (self.floating_w))
         config.set("text", "floating_h", "%s" % (self.floating_h))
         config.set("text", "channel", self.channel)
+        config.set("text", "guild", self.guild)
         config.set("text", "bg_col", json.dumps(self.bg_col))
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
