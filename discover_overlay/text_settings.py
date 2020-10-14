@@ -254,6 +254,16 @@ class TextSettingsWindow(SettingsWindow):
         channel.add_attribute(rt, "text", 0)
         channel.add_attribute(rt, 'sensitive', 1)
 
+        guild_label = Gtk.Label.new("Server")
+        guild = Gtk.ComboBox.new()
+
+        guild.connect("changed", self.change_guild)
+        guild_rt = Gtk.CellRendererText()
+        #guild.set_row_separator_func(lambda model, path: model[path][1])
+        guild.pack_start(rt, True)
+        guild.add_attribute(rt, "text", 0)
+        guild.add_attribute(rt, 'sensitive', 1)
+
         # Show Attachments
         show_attach_label = Gtk.Label.new("Show Attachments")
         show_attach = Gtk.CheckButton.new()
@@ -264,6 +274,7 @@ class TextSettingsWindow(SettingsWindow):
         self.align_y_widget = align_y
         self.align_monitor_widget = monitor
         self.align_placement_widget = align_placement_button
+        self.guild_widget = guild
         self.channel_widget = channel
         self.text_time_widget = text_time
         self.text_time_label_widget = text_time_label
@@ -274,22 +285,25 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(popup_style, 1, 1, 1, 1)
         box.attach(text_time_label, 0, 2, 1, 1)
         box.attach(text_time, 1, 2, 1, 1)
-        box.attach(channel_label, 0, 3, 1, 1)
-        box.attach(channel, 1, 3, 1, 1)
-        box.attach(font_label, 0, 4, 1, 1)
-        box.attach(font, 1, 4, 1, 1)
-        box.attach(fg_col_label, 0, 5, 1, 1)
-        box.attach(fg_col, 1, 5, 1, 1)
-        box.attach(bg_col_label, 0, 6, 1, 1)
-        box.attach(bg_col, 1, 6, 1, 1)
-        box.attach(align_label, 0, 7, 1, 5)
-        #box.attach(align_type_box, 1, 7, 1, 1)
-        box.attach(monitor, 1, 8, 1, 1)
-        box.attach(align_x, 1, 9, 1, 1)
-        box.attach(align_y, 1, 10, 1, 1)
-        box.attach(align_placement_button, 1, 11, 1, 1)
-        box.attach(show_attach_label, 0, 12, 1, 1)
-        box.attach(show_attach, 1, 12, 1, 1)
+        box.attach(guild_label, 0, 3, 1, 1)
+        box.attach(guild, 1, 3, 1, 1)
+
+        box.attach(channel_label, 0, 4, 1, 1)
+        box.attach(channel, 1, 4, 1, 1)
+        box.attach(font_label, 0, 5, 1, 1)
+        box.attach(font, 1, 5, 1, 1)
+        box.attach(fg_col_label, 0, 6, 1, 1)
+        box.attach(fg_col, 1, 6, 1, 1)
+        box.attach(bg_col_label, 0, 7, 1, 1)
+        box.attach(bg_col, 1, 7, 1, 1)
+        box.attach(align_label, 0, 8, 1, 5)
+        #box.attach(align_type_box, 1, 8, 1, 1)
+        box.attach(monitor, 1, 9, 1, 1)
+        box.attach(align_x, 1, 10, 1, 1)
+        box.attach(align_y, 1, 11, 1, 1)
+        box.attach(align_placement_button, 1, 12, 1, 1)
+        box.attach(show_attach_label, 0, 13, 1, 1)
+        box.attach(show_attach, 1, 13, 1, 1)
 
         self.add(box)
 
