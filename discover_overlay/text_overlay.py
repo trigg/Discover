@@ -96,7 +96,7 @@ class TextOverlayWindow(OverlayWindow):
                 ret = "`"
         elif msg['type'] == 'inlineCode' or msg['type'] == 'codeBlock' or msg['type'] == 'blockQuote':
             ret = "<span font_family=\"monospace\" background=\"#0004\">%s</span>" % (
-                msg['content'])
+                self.make_line(msg['content']))
         elif msg['type'] == 'u':
             ret = "<u>%s</u>" % (self.make_line(msg['content']))
         elif msg['type'] == 'em':
@@ -110,7 +110,7 @@ class TextOverlayWindow(OverlayWindow):
         elif msg['type'] == 'br':
             ret = '\n'
         else:
-            logging.warning("Unknown text type : %s" % (msg["type"]))
+            logging.error("Unknown text type : %s" % (msg["type"]))
         return ret
 
     def recv_attach(self, id, pix):

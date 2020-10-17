@@ -19,7 +19,6 @@ class OverlayWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, type=self.detect_type())
         screen = self.get_screen()
-        screen_type = "%s" % (screen)
         self.set_size_request(50, 50)
 
         self.connect('draw', self.draw)
@@ -27,7 +26,6 @@ class OverlayWindow(Gtk.Window):
         self.compositing = False
         # Set RGBA
         screen = self.get_screen()
-        screen_type = "%s" % (screen)
         visual = screen.get_rgba_visual()
         if not self.get_display().supports_input_shapes():
             logging.info(
