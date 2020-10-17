@@ -63,6 +63,7 @@ class DiscordConnector:
             cn = self.channels[channel]['name']
             logging.info(
                 "Joined room: %s" % (cn))
+            self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
                 self.req_channel_details(channel)
@@ -201,7 +202,7 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
-                    self.sub_all_voice()
+                    #self.sub_all_voice()
                 else:
                     un = j["data"]["user"]["username"]
             elif j["evt"] == "SPEAKING_START":
