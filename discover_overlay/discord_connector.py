@@ -35,6 +35,7 @@ class DiscordConnector:
         self.last_connection = ""
         self.text = []
         self.authed = False
+        self.last_text_channel = None
 
     def get_access_token_stage1(self):
         self.ws.send("{\"cmd\":\"AUTHORIZE\",\"args\":{\"client_id\":\"%s\",\"scopes\":[\"rpc\",\"messages.read\"],\"prompt\":\"none\"},\"nonce\":\"deadbeef\"}" % (
@@ -262,8 +263,8 @@ class DiscordConnector:
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
             self.check_guilds()
-            self.sub_all_voice_guild(j["nonce"])
-            self.sub_all_text_guild(j["nonce"])
+            #self.sub_all_voice_guild(j["nonce"])
+            #self.sub_all_text_guild(j["nonce"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             return
@@ -308,6 +309,8 @@ class DiscordConnector:
                 u"%s: %s" % (guild["name"], channels))
         self.sub_server()
         self.find_user()
+        if self.last_text_channel:
+            self.sub_text_channel(self.last_text_channel)
 
     def on_error(self, error):
         logging.error("ERROR : %s" % (error))
@@ -429,6 +432,12 @@ class DiscordConnector:
                 self.on_close()
                 return True
         return True
+
+    def start_listening_text(self, ch):
+        if self.ws:
+            self.sub_text_channel(ch)
+        else:
+            self.last_text_channel = ch
 
     def connect(self):
         if self.ws:

@@ -22,6 +22,11 @@ class TextSettingsWindow(SettingsWindow):
         self.ignore_channel_change = False
         self.create_gui()
 
+    def add_connector(self, conn):
+        self.connector = conn
+        if self.channel:
+            self.connector.start_listening_text(self.channel)
+
     def present(self):
         self.show_all()
         if not self.floating:
@@ -307,7 +312,9 @@ class TextSettingsWindow(SettingsWindow):
     def change_channel(self, button):
         if self.ignore_channel_change:
             return
+        
         c = self.channel_lookup[button.get_active()]
+        self.connector.start_listening_text(c)
         self.channel = c
         self.save_config()
 

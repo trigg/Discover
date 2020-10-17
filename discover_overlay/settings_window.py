@@ -19,6 +19,7 @@ class MainSettingsWindow(Gtk.Window):
 
         self.text_overlay = text_overlay
         self.voice_overlay = voice_overlay
+        self.set_title("Discover Overlay Configuration")
         
         # Create
         nb = Gtk.Notebook()

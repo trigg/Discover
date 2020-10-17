@@ -31,6 +31,7 @@ class TextOverlayWindow(OverlayWindow):
 
         self.imgList = []
         self.imgFinder = re.compile(r"`")
+        self.set_title("Discover Text")
 
     def set_text_time(self, t):
         self.text_time = t
