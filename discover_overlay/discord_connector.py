@@ -413,6 +413,8 @@ class DiscordConnector:
             self.text_altered = False
         # Update text channels
         self.text_settings.set_channels(self.channels)
+        # Update guilds
+        self.text_settings.set_guilds(self.guilds)
         # Check for changed channel
         if self.authed:
             self.set_text_channel(self.text_settings.get_channel())
