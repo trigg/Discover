@@ -19,6 +19,8 @@ class TextSettingsWindow(SettingsWindow):
         self.init_config()
         self.list_channels_keys = []
         self.list_channels = {}
+        self.list_guilds_keys = []
+        self.list_guilds = {}
         self.ignore_channel_change = False
         self.ignore_guild_change = False
         self.create_gui()
