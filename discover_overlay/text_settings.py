@@ -95,10 +95,10 @@ class TextSettingsWindow(SettingsWindow):
     def guild_list(self):
         guilds = []
         done = []
-        for channel in self.list_channels.values():
-            if not channel["guild_id"] in done:
-                done.append(channel["guild_id"])
-                guilds.append([channel["guild_id"], channel["guild_name"]])
+        for guild in self.list_guilds.values():
+            if not guild["id"] in done:
+                done.append(guild["id"])
+                guilds.append([guild["id"], guild["name"]])
         return guilds
 
     def set_channels(self, in_list):
