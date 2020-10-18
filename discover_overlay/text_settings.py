@@ -105,6 +105,8 @@ class TextSettingsWindow(SettingsWindow):
         self.list_channels = in_list
         self.list_channels_keys = []
         for key in in_list.keys():
+            # filter for only text channels
+            # https://discord.com/developers/docs/resources/channel#channel-object-channel-types
             if in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
