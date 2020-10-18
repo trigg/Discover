@@ -26,6 +26,42 @@ class TextSettingsWindow(SettingsWindow):
         self.ignore_guild_change = False
         self.create_gui()
 
+    def update_channel_model(self):
+        c_model = Gtk.ListStore(str, bool)
+        self.channel_lookup = ["0"]
+
+        for guild in self.guild_list():
+            guild_id, guild_name = guild
+            # if no guild is specified, poulate channel list with every channel from each guild
+            if self.guild == GUILD_DEFAULT_VALUE:
+                c_model.append([guild_name, False])
+                for c in self.list_channels_keys:
+                    chan = self.list_channels[c]
+                    if chan['guild_id'] == guild_id:
+                        c_model.append([chan["name"], True])
+                        self.channel_lookup.append(c)
+        
+        # if a guild is specified, poulate channel list with every channel from *just that guild*
+        if self.guild != GUILD_DEFAULT_VALUE:
+            for c in self.list_channels_keys:
+                chan = self.list_channels[c]
+                if chan['guild_id'] == self.guild:
+                    c_model.append([chan["name"], True])
+                    self.channel_lookup.append(c)
+
+        self.channel_widget.set_model(c_model)
+        self.channel_model = c_model
+
+        idx = 0
+        for c in self.channel_lookup:
+            if c == self.channel:
+                self.ignore_channel_change = True
+                self.channel_widget.set_active(idx)
+                self.ignore_channel_change = False
+                break
+            idx += 1
+
+
     def present(self):
         self.show_all()
         if not self.floating:
@@ -66,41 +102,6 @@ class TextSettingsWindow(SettingsWindow):
                 self.ignore_guild_change = False
                 break
             idxg += 1
-
-    def update_channel_model(self):
-        c_model = Gtk.ListStore(str, bool)
-        self.channel_lookup = ["0"]
-
-        for guild in self.guild_list():
-            guild_id, guild_name = guild
-            # if no guild is specified, poulate channel list with every channel from each guild
-            if self.guild == GUILD_DEFAULT_VALUE:
-                c_model.append([guild_name, False])
-                for c in self.list_channels_keys:
-                    chan = self.list_channels[c]
-                    if chan['guild_id'] == guild_id:
-                        c_model.append([chan["name"], True])
-                        self.channel_lookup.append(c)
-        
-        # if a guild is specified, poulate channel list with every channel from *just that guild*
-        if self.guild != GUILD_DEFAULT_VALUE:
-            for c in self.list_channels_keys:
-                chan = self.list_channels[c]
-                if chan['guild_id'] == self.guild:
-                    c_model.append([chan["name"], True])
-                    self.channel_lookup.append(c)
-
-        self.channel_widget.set_model(c_model)
-        self.channel_model = c_model
-
-        idx = 0
-        for c in self.channel_lookup:
-            if c == self.channel:
-                self.ignore_channel_change = True
-                self.channel_widget.set_active(idx)
-                self.ignore_channel_change = False
-                break
-            idx += 1
 
     def guild_list(self):
         guilds = []
