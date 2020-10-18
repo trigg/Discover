@@ -46,9 +46,7 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_widget.hide()
             self.text_time_label_widget.hide()
 
-        c_model = Gtk.ListStore(str, bool)
         g_model = Gtk.ListStore(str, bool)
-        self.channel_lookup = ["0"]
         self.guild_lookup = [GUILD_DEFAULT_VALUE]
 
         for guild in self.guild_list():
@@ -56,6 +54,25 @@ class TextSettingsWindow(SettingsWindow):
             self.guild_lookup.append(guild)
             g_model.append([guild_name, True])
 
+        self.guild_widget.set_model(g_model)
+        self.guild_model = g_model
+        self.update_channel_model()
+
+        idxg = 0
+        for g in self.guild_lookup:
+            if g[0] == self.guild:
+                self.ignore_guild_change = True
+                self.guild_widget.set_active(idxg)
+                self.ignore_guild_change = False
+                break
+            idxg += 1
+
+    def update_channel_model(self):
+        c_model = Gtk.ListStore(str, bool)
+        self.channel_lookup = ["0"]
+
+        for guild in self.guild_list():
+            guild_id, guild_name = guild
             # if no guild is specified, poulate channel list with every channel from each guild
             if self.guild == GUILD_DEFAULT_VALUE:
                 c_model.append([guild_name, False])
@@ -73,8 +90,6 @@ class TextSettingsWindow(SettingsWindow):
                     c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
-        self.guild_widget.set_model(g_model)
-        self.guild_model = g_model
         self.channel_widget.set_model(c_model)
         self.channel_model = c_model
 
@@ -86,15 +101,6 @@ class TextSettingsWindow(SettingsWindow):
                 self.ignore_channel_change = False
                 break
             idx += 1
-
-        idxg = 0
-        for g in self.guild_lookup:
-            if g[0] == self.guild:
-                self.ignore_guild_change = True
-                self.guild_widget.set_active(idxg)
-                self.ignore_guild_change = False
-                break
-            idxg += 1
 
     def guild_list(self):
         guilds = []
