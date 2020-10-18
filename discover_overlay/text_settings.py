@@ -55,6 +55,7 @@ class TextSettingsWindow(SettingsWindow):
             self.guild_lookup.append(guild)
             g_model.append([guild_name, True])
 
+            guilds_by_id = "0"
             if self.guild == "0":
                 c_model.append([guild_name, False])
                 guilds_by_id = guild_id
