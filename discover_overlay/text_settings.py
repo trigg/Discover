@@ -368,8 +368,9 @@ class TextSettingsWindow(SettingsWindow):
     def change_guild(self, button):
         if self.ignore_guild_change:
             return
-        g = self.guild_lookup[button.get_active()]      
-        self.guild = g
+        g = self.guild_lookup[button.get_active()]   
+        # get the guilds ID because config values must be strings  
+        self.guild = g[0]
         self.save_config()
 
     def change_placement(self, button):
