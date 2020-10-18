@@ -7,6 +7,7 @@ from .settings import SettingsWindow
 from gi.repository import Gtk, Gdk, Pango
 import logging
 
+GUILD_DEFAULT_VALUE = "0"
 
 class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
@@ -48,7 +49,7 @@ class TextSettingsWindow(SettingsWindow):
         c_model = Gtk.ListStore(str, bool)
         g_model = Gtk.ListStore(str, bool)
         self.channel_lookup = ["0"]
-        self.guild_lookup = ["0"]
+        self.guild_lookup = [GUILD_DEFAULT_VALUE]
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
@@ -56,7 +57,7 @@ class TextSettingsWindow(SettingsWindow):
             g_model.append([guild_name, True])
 
             guilds_by_id = "0"
-            if self.guild == "0":
+            if self.guild == GUILD_DEFAULT_VALUE:
                 c_model.append([guild_name, False])
                 guilds_by_id = guild_id
             else:
@@ -131,7 +132,7 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_w = config.getint("text", "floating_w", fallback=400)
         self.floating_h = config.getint("text", "floating_h", fallback=400)
         self.channel = config.get("text", "channel", fallback="0")
-        self.guild = config.get("text", "guild", fallback="0")
+        self.guild = config.get("text", "guild", fallback=GUILD_DEFAULT_VALUE)
         self.font = config.get("text", "font", fallback=None)
         self.bg_col = json.loads(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
