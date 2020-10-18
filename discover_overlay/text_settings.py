@@ -108,6 +108,13 @@ class TextSettingsWindow(SettingsWindow):
             if in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
+        
+    def set_guilds(self, in_list):
+        self.list_guilds = in_list
+        self.list_guilds_keys = []
+        for key in in_list.keys():
+            self.list_guilds_keys.append(key)
+        self.list_guilds_keys.sort()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
