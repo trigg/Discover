@@ -60,6 +60,8 @@ class TextSettingsWindow(SettingsWindow):
                     c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
+        self.guild_widget.set_model(g_model)
+        self.guild_model = g_model
         self.channel_widget.set_model(c_model)
         self.channel_model = c_model
 
