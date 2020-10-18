@@ -56,17 +56,20 @@ class TextSettingsWindow(SettingsWindow):
             self.guild_lookup.append(guild)
             g_model.append([guild_name, True])
 
-            guilds_by_id = "0"
+            # if no guild is specified, poulate channel list with every channel from each guild
             if self.guild == GUILD_DEFAULT_VALUE:
                 c_model.append([guild_name, False])
-                guilds_by_id = guild_id
-            else:
-                guilds_by_id = self.guild
-
-
+                for c in self.list_channels_keys:
+                    chan = self.list_channels[c]
+                    if chan['guild_id'] == guild_id:
+                        c_model.append([chan["name"], True])
+                        self.channel_lookup.append(c)
+        
+        # if a guild is specified, poulate channel list with every channel from *just that guild*
+        if self.guild != GUILD_DEFAULT_VALUE:
             for c in self.list_channels_keys:
                 chan = self.list_channels[c]
-                if chan['guild_id'] == guilds_by_id:
+                if chan['guild_id'] == self.guild:
                     c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
