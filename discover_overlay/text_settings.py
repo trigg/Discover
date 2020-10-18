@@ -364,14 +364,7 @@ class TextSettingsWindow(SettingsWindow):
     def change_guild(self, button):
         if self.ignore_guild_change:
             return
-        
-        g = self.guild if self.guild != "0" else "0"
-        for guild in self.guild_list():
-            guild_id, guild_name = guild
-            selected = button.get_active()
-            if selected == guild_name:
-                 g = selected
-        
+        g = self.guild_lookup[button.get_active()]      
         self.guild = g
         self.save_config()
 
