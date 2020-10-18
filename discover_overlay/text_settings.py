@@ -47,12 +47,11 @@ class TextSettingsWindow(SettingsWindow):
 
         c_model = Gtk.ListStore(str, bool)
         g_model = Gtk.ListStore(str, bool)
-        self.channel_lookup = []
+        self.channel_lookup = ["0"]
         self.guild_lookup = ["0"]
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
-            self.channel_lookup.append('0')
             self.guild_lookup.append(guild)
             g_model.append([guild_name, True])
 
