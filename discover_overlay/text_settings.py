@@ -85,7 +85,7 @@ class TextSettingsWindow(SettingsWindow):
 
         idxg = 0
         for g in self.guild_lookup:
-            if g == self.guild:
+            if g[0] == self.guild:
                 self.ignore_guild_change = True
                 self.guild_widget.set_active(idxg)
                 self.ignore_guild_change = False
