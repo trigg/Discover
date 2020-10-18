@@ -51,12 +51,19 @@ class TextSettingsWindow(SettingsWindow):
         for guild in self.guild_list():
             guild_id, guild_name = guild
             self.channel_lookup.append('0')
-            c_model.append([guild_name, False])
             self.guild_lookup.append(guild)
             g_model.append([guild_name, True])
+
+            if self.guild == "0":
+                c_model.append([guild_name, False])
+                guilds_by_id = guild_id
+            else:
+                guilds_by_id = self.guild
+
+
             for c in self.list_channels_keys:
                 chan = self.list_channels[c]
-                if chan['guild_id'] == guild_id:
+                if chan['guild_id'] == guilds_by_id:
                     c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
