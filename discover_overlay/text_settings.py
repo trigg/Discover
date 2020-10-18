@@ -360,6 +360,9 @@ class TextSettingsWindow(SettingsWindow):
             return
         c = self.channel_lookup[button.get_active()]
         self.channel = c
+        # if the channel is not from the current guild, set the guild too
+        if c["guild_id"] != self.guild:
+             self.guild = c["guild_id"]
         self.save_config()
     
 
