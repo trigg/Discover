@@ -43,20 +43,20 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_widget.hide()
             self.text_time_label_widget.hide()
 
-        model = Gtk.ListStore(str, bool)
+        c_model = Gtk.ListStore(str, bool)
         self.channel_lookup = []
         for guild in self.guild_list():
             guild_id, guild_name = guild
             self.channel_lookup.append('0')
-            model.append([guild_name, False])
+            c_model.append([guild_name, False])
             for c in self.list_channels_keys:
                 chan = self.list_channels[c]
                 if chan['guild_id'] == guild_id:
-                    model.append([chan["name"], True])
+                    c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
-        self.channel_widget.set_model(model)
-        self.channel_model = model
+        self.channel_widget.set_model(c_model)
+        self.channel_model = c_model
 
         idx = 0
         for c in self.channel_lookup:
