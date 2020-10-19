@@ -27,12 +27,14 @@ class TextSettingsWindow(SettingsWindow):
         self.create_gui()
 
     def update_channel_model(self):
+        # potentially organize channels by their group/parent_id
+        # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
         c_model = Gtk.ListStore(str, bool)
         self.channel_lookup = ["0"]
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
-            # if no guild is specified, poulate channel list with every channel from each guild
+            # if no guild is specified, populate channel list with every channel from each guild
             if self.guild == GUILD_DEFAULT_VALUE:
                 c_model.append([guild_name, False])
                 for c in self.list_channels_keys:
