@@ -28,11 +28,11 @@ It is advised to install python-gobject from your own package manager.
 
 #### Debian/Ubuntu
 
-`apt install python3-gi`
+`apt install python3-gi gtk-layer-shell`
 
 #### Arch
 
-`pacman -S python-gobject`
+`pacman -S python-gobject gtk-layer-shell`
 
 
 ## Usage
