@@ -118,14 +118,30 @@ class TextOverlayWindow(OverlayWindow):
         self.attachment[id] = pix
         self.redraw()
 
+    def draw(self, widget, ctx):
+        self.do_draw(ctx)
+
     def do_draw(self, context):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         (w, h) = self.get_size()
-
         # Make background transparent
         context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
+        context.set_operator(cairo.OPERATOR_SOURCE)
         context.paint()
+        context.save()
+        if self.is_wayland:
+            # Special case!
+            # The window is full-screen regardless of what the user has selected. Because Wayland
+            # We need to set a clip and a transform to imitate original behaviour
+
+            w = self.w
+            h = self.h
+            context.translate(self.x, self.y)
+            context.rectangle(0,0,w,h)
+            context.clip()
+            
+        
 
         cy = h
         tnow = time.time()
@@ -155,18 +171,19 @@ class TextOverlayWindow(OverlayWindow):
             if cy <= 0:
                 # We've done enough
                 break
+        if self.is_wayland:
+            context.restore()
 
     def draw_attach(self, y, url):
-        (w, h) = self.get_size()
         if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
             iw = pix.get_width()
             ih = pix.get_height()
-            iw = min(iw, w)
-            ih = min(ih, (h * .7))
+            iw = min(iw, self.w)
+            ih = min(ih, (self.h * .7))
             (ax, ay, aw, ah) = get_aspected_size(pix, iw, ih)
             self.col(self.bg_col)
-            self.context.rectangle(0, y - ah, w, ah)
+            self.context.rectangle(0, y - ah, self.w, ah)
 
             self.context.fill()
             self.context.set_operator(cairo.OPERATOR_OVER)
@@ -176,13 +193,12 @@ class TextOverlayWindow(OverlayWindow):
         return y
 
     def draw_text(self, y, text):
-        (w, h) = self.get_size()
 
         layout = self.create_pango_layout(text)
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        layout.set_width(Pango.SCALE * w)
+        layout.set_width(Pango.SCALE * self.w)
         layout.set_spacing(Pango.SCALE * 3)
         if(self.text_font):
             font = Pango.FontDescription(
@@ -190,7 +206,7 @@ class TextOverlayWindow(OverlayWindow):
             layout.set_font_description(font)
         tw, th = layout.get_pixel_size()
         self.col(self.bg_col)
-        self.context.rectangle(0, y - th, w, th)
+        self.context.rectangle(0, y - th, self.w, th)
         self.context.fill()
         self.context.set_operator(cairo.OPERATOR_OVER)
         self.col(self.fg_col)

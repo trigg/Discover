@@ -65,7 +65,7 @@ class OverlayWindow(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
     def draw(self, widget, context):
-        pass
+        self.do_draw(context)
 
     def do_draw(self, context):
         pass
@@ -98,38 +98,47 @@ class OverlayWindow(Gtk.Window):
         self.get_window().shape_combine_region(None, 0, 0)
 
     def force_location(self):
-        self.set_decorated(False)
-        self.set_keep_above(True)
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            monitor = display.get_monitor(self.monitor)
-            geometry = monitor.get_geometry()
-            scale_factor = monitor.get_scale_factor()
-            if not self.floating:
-                w = scale_factor * geometry.width
-                h = scale_factor * geometry.height
-                x = geometry.x
-                y = geometry.y
-                self.resize(w, h)
-                self.move(x, y)
+        if not self.is_wayland:
+            self.set_decorated(False)
+            self.set_keep_above(True)
+            display = Gdk.Display.get_default()
+            if "get_monitor" in dir(display):
+                monitor = display.get_monitor(self.monitor)
+                geometry = monitor.get_geometry()
+                scale_factor = monitor.get_scale_factor()
+                if not self.floating:
+                    w = scale_factor * geometry.width
+                    h = scale_factor * geometry.height
+                    x = geometry.x
+                    y = geometry.y
+                    self.resize(w, h)
+                    self.move(x, y)
+                else:
+                    self.move(self.x, self.y)
+                    self.resize(self.w, self.h)
             else:
-                self.move(self.x, self.y)
-                self.resize(self.w, self.h)
-        else:
-            if not self.floating:
-                screen = display.get_default_screen()
-                w = screen.width()
-                h = screen.height()
-                x = 0
-                y = 0
-            else:
-                self.move(self.x, self.y)
-                self.resize(self.w, self.h)
+                if not self.floating:
+                    screen = display.get_default_screen()
+                    w = screen.width()
+                    h = screen.height()
+                    x = 0
+                    y = 0
+                else:
+                    self.move(self.x, self.y)
+                    self.resize(self.w, self.h)
 
+        if not self.floating:
+            (w,h) = self.get_size()
+            self.w = w
+            self.h = h
         self.redraw()
 
     def redraw(self):
         gdkwin = self.get_window()
+        if not self.floating:
+            (w,h) = self.get_size()
+            self.w = w
+            self.h = h
 
         if gdkwin:
             if not self.compositing or self.force_xshape:

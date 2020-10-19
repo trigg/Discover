@@ -144,12 +144,26 @@ class VoiceOverlayWindow(OverlayWindow):
     def do_draw(self, context):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
-
+        # Get size of window
+        (w, h) = self.get_size()
         # Make background transparent
         self.set_wind_col()
         # Don't layer drawing over each other, always replace
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.paint()
+        context.save()
+        if self.is_wayland:
+            # Special case!
+            # The window is full-screen regardless of what the user has selected. Because Wayland
+            # We need to set a clip and a transform to imitate original behaviour
+
+            w = self.w
+            h = self.h
+            context.translate(self.x, self.y)
+            context.rectangle(0,0,w,h)
+            context.clip()
+
+
         context.set_operator(cairo.OPERATOR_OVER)
         if not self.connected:
             return
@@ -183,8 +197,6 @@ class VoiceOverlayWindow(OverlayWindow):
                 pass  # Not in list
             self.users_to_draw.insert(0, self_user)
 
-        # Get size of window
-        (w, h) = self.get_size()
         # Calculate height needed to show overlay
         height = (len(self.users_to_draw) * self.avatar_size) + \
             (len(self.users_to_draw) + 1) * self.icon_spacing
@@ -203,6 +215,8 @@ class VoiceOverlayWindow(OverlayWindow):
             rh += self.avatar_size + self.icon_spacing
 
         # Don't hold a ref
+        if self.is_wayland:
+            context.restore()
         self.context = None
 
     def recv_avatar(self, id, pix):
@@ -226,7 +240,6 @@ class VoiceOverlayWindow(OverlayWindow):
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
 
-        (w, h) = self.get_size()
         c = None
         mute = False
         deaf = False
@@ -243,14 +256,14 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.align_right:
             if not self.icon_only:
                 self.draw_text(
-                    context, user["friendlyname"], w - self.avatar_size - self.horz_edge_padding, y)
+                    context, user["friendlyname"], self.w - self.avatar_size - self.horz_edge_padding, y)
             self.draw_avatar_pix(
-                context, pix, w - self.avatar_size - self.horz_edge_padding, y, c)
+                context, pix, self.w - self.avatar_size - self.horz_edge_padding, y, c)
             if deaf:
-                self.draw_deaf(context, w - self.avatar_size -
+                self.draw_deaf(context, self.w - self.avatar_size -
                                self.horz_edge_padding, y)
             elif mute:
-                self.draw_mute(context, w - self.avatar_size -
+                self.draw_mute(context, self.w - self.avatar_size -
                                self.horz_edge_padding, y)
         else:
             if not self.icon_only:

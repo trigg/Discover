@@ -3,6 +3,7 @@ gi.require_version("Gtk", "3.0")
 import json
 from configparser import ConfigParser
 from .draggable_window import DraggableWindow
+from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
 from gi.repository import Gtk, Gdk, Pango
 import logging
@@ -189,10 +190,10 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "monitor", self.monitor)
         config.set("text", "enabled", "%d" % (int(self.enabled)))
         config.set("text", "floating", "%s" % (int(self.floating)))
-        config.set("text", "floating_x", "%s" % (self.floating_x))
-        config.set("text", "floating_y", "%s" % (self.floating_y))
-        config.set("text", "floating_w", "%s" % (self.floating_w))
-        config.set("text", "floating_h", "%s" % (self.floating_h))
+        config.set("text", "floating_x", "%s" % (int(self.floating_x)))
+        config.set("text", "floating_y", "%s" % (int(self.floating_y)))
+        config.set("text", "floating_w", "%s" % (int(self.floating_w)))
+        config.set("text", "floating_h", "%s" % (int(self.floating_h)))
         config.set("text", "channel", self.channel)
         config.set("text", "guild", self.guild)
         config.set("text", "bg_col", json.dumps(self.bg_col))
@@ -394,22 +395,31 @@ class TextSettingsWindow(SettingsWindow):
 
     def change_placement(self, button):
         if self.placement_window:
-            (x, y) = self.placement_window.get_position()
-            (w, h) = self.placement_window.get_size()
+            (x,y,w,h) = self.placement_window.get_coords()
             self.floating_x = x
             self.floating_y = y
             self.floating_w = w
             self.floating_h = h
             self.overlay.set_floating(True, x, y, w, h)
             self.save_config()
-            button.set_label("Place Window")
+            if not self.overlay.is_wayland:
+                button.set_label("Place Window")
 
             self.placement_window.close()
             self.placement_window = None
         else:
-            self.placement_window = DraggableWindow(
-                x=self.floating_x, y=self.floating_y, w=self.floating_w, h=self.floating_h, message="Place & resize this window then press Save!")
-            button.set_label("Save this position")
+            if self.overlay.is_wayland:
+                self.placement_window = DraggableWindowWayland(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Green!",settings=self)
+            else:
+                self.placement_window = DraggableWindow(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Save!",settings=self)
+            if not self.overlay.is_wayland:
+                button.set_label("Save this position")
 
     def change_align_type_edge(self, button):
         if button.get_active():
