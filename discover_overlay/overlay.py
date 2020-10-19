@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GtkLayerShell
 import cairo
 import logging
 import sys
@@ -44,6 +44,7 @@ class OverlayWindow(Gtk.Window):
         self.set_keep_above(True)
         self.set_decorated(True)
         self.set_accept_focus(False)
+        self.set_wayland_hax()
 
         self.show_all()
         self.monitor = 0
@@ -51,6 +52,10 @@ class OverlayWindow(Gtk.Window):
         self.align_vert = 1
         self.floating = False
         self.force_xshape= False
+
+    def set_wayland_hax(self):
+        GtkLayerShell.init_for_window(self)
+        GtkLayerShell.set_layer(GtkLayerShell.Layer.TOP)
 
     def draw(self, widget, context):
         pass
