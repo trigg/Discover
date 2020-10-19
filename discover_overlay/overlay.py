@@ -27,7 +27,6 @@ class OverlayWindow(Gtk.Window):
         self.is_wayland = False
         if "Wayland" in screen_type:
             self.is_wayland = True
-            print("Using Wayland GDK. Expect bugs")
             return Gtk.WindowType.TOPLEVEL
         return Gtk.WindowType.POPUP
 
