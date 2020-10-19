@@ -36,9 +36,10 @@ class VoiceOverlayWindow(OverlayWindow):
         self.users_to_draw = []
         self.connected = False
         self.force_location()
-        self.def_avatar = get_surface(self.recv_avatar,
-                                      "https://cdn.discordapp.com/embed/avatars/3.png",
-                                      'def', self.avatar_size)
+        get_surface(self.recv_avatar,
+            "https://cdn.discordapp.com/embed/avatars/3.png",
+                'def', self.avatar_size)
+        self.set_title("Discover Voice")
 
     def set_bg(self, bg):
         self.norm_col = bg

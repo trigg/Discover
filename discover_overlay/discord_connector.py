@@ -35,6 +35,7 @@ class DiscordConnector:
         self.last_connection = ""
         self.text = []
         self.authed = False
+        self.last_text_channel = None
 
     def get_access_token_stage1(self):
         self.ws.send("{\"cmd\":\"AUTHORIZE\",\"args\":{\"client_id\":\"%s\",\"scopes\":[\"rpc\",\"messages.read\"],\"prompt\":\"none\"},\"nonce\":\"deadbeef\"}" % (
@@ -62,6 +63,7 @@ class DiscordConnector:
             cn = self.channels[channel]['name']
             logging.info(
                 "Joined room: %s" % (cn))
+            self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
                 self.req_channel_details(channel)
@@ -200,7 +202,7 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
-                    self.sub_all_voice()
+                    #self.sub_all_voice()
                 else:
                     un = j["data"]["user"]["username"]
             elif j["evt"] == "SPEAKING_START":
@@ -262,8 +264,8 @@ class DiscordConnector:
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
             self.check_guilds()
-            self.sub_all_voice_guild(j["nonce"])
-            self.sub_all_text_guild(j["nonce"])
+            #self.sub_all_voice_guild(j["nonce"])
+            #self.sub_all_text_guild(j["nonce"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             return
@@ -308,6 +310,8 @@ class DiscordConnector:
                 u"%s: %s" % (guild["name"], channels))
         self.sub_server()
         self.find_user()
+        if self.last_text_channel:
+            self.sub_text_channel(self.last_text_channel)
 
     def on_error(self, error):
         logging.error("ERROR : %s" % (error))
@@ -431,6 +435,12 @@ class DiscordConnector:
                 self.on_close()
                 return True
         return True
+
+    def start_listening_text(self, ch):
+        if self.ws:
+            self.sub_text_channel(ch)
+        else:
+            self.last_text_channel = ch
 
     def connect(self):
         if self.ws:

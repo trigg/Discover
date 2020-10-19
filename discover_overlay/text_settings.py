@@ -26,6 +26,7 @@ class TextSettingsWindow(SettingsWindow):
         self.ignore_guild_change = False
         self.create_gui()
 
+
     def update_channel_model(self):
         # potentially organize channels by their group/parent_id
         # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
@@ -63,6 +64,11 @@ class TextSettingsWindow(SettingsWindow):
                 break
             idx += 1
 
+
+    def add_connector(self, conn):
+        self.connector = conn
+        if self.channel:
+            self.connector.start_listening_text(self.channel)
 
     def present(self):
         self.show_all()
@@ -371,7 +377,9 @@ class TextSettingsWindow(SettingsWindow):
     def change_channel(self, button):
         if self.ignore_channel_change:
             return
+        
         c = self.channel_lookup[button.get_active()]
+        self.connector.start_listening_text(c)
         self.channel = c
         self.save_config()
     
