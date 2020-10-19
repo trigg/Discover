@@ -1,18 +1,33 @@
-import gi
-gi.require_version("Gtk", "3.0")
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 from configparser import ConfigParser
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
-from gi.repository import Gtk, Gdk, Pango
 import logging
+import gi
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
+from gi.repository import Gtk, Gdk, Pango
+
 
 GUILD_DEFAULT_VALUE = "0"
 
+
 class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
-        Gtk.VBox.__init__(self)
+        SettingsWindow.__init__(self)
         self.overlay = overlay
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
@@ -26,7 +41,6 @@ class TextSettingsWindow(SettingsWindow):
         self.ignore_channel_change = False
         self.ignore_guild_change = False
         self.create_gui()
-
 
     def update_channel_model(self):
         # potentially organize channels by their group/parent_id
@@ -44,7 +58,7 @@ class TextSettingsWindow(SettingsWindow):
                     if chan['guild_id'] == guild_id:
                         c_model.append([chan["name"], True])
                         self.channel_lookup.append(c)
-        
+
         # if a guild is specified, poulate channel list with every channel from *just that guild*
         if self.guild != GUILD_DEFAULT_VALUE:
             for c in self.list_channels_keys:
@@ -65,13 +79,12 @@ class TextSettingsWindow(SettingsWindow):
                 break
             idx += 1
 
-
     def add_connector(self, conn):
         self.connector = conn
         if self.channel:
             self.connector.start_listening_text(self.channel)
 
-    def present(self):
+    def present_settings(self):
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -130,7 +143,7 @@ class TextSettingsWindow(SettingsWindow):
             if in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
-        
+
     def set_guilds(self, in_list):
         self.list_guilds = in_list
         self.list_guilds_keys = []
@@ -164,13 +177,14 @@ class TextSettingsWindow(SettingsWindow):
             "text", "show_attach", fallback=True)
 
         logging.info(
-            "Loading saved channel %s" % (self.channel))
+            "Loading saved channel %s", self.channel)
 
         # Pass all of our config over to the overlay
         self.overlay.set_enabled(self.enabled)
         self.overlay.set_align_x(self.align_x)
         self.overlay.set_align_y(self.align_y)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor),self.get_monitor_obj(self.monitor))
+        self.overlay.set_monitor(self.get_monitor_index(
+            self.monitor), self.get_monitor_obj(self.monitor))
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
         self.overlay.set_bg(self.bg_col)
@@ -306,7 +320,6 @@ class TextSettingsWindow(SettingsWindow):
 
         channel.connect("changed", self.change_channel)
         rt = Gtk.CellRendererText()
-        #channel.set_row_separator_func(lambda model, path: model[path][1])
         channel.pack_start(rt, True)
         channel.add_attribute(rt, "text", 0)
         channel.add_attribute(rt, 'sensitive', 1)
@@ -315,8 +328,7 @@ class TextSettingsWindow(SettingsWindow):
         guild = Gtk.ComboBox.new()
 
         guild.connect("changed", self.change_guild)
-        guild_rt = Gtk.CellRendererText()
-        #guild.set_row_separator_func(lambda model, path: model[path][1])
+        rt = Gtk.CellRendererText()
         guild.pack_start(rt, True)
         guild.add_attribute(rt, "text", 0)
         guild.add_attribute(rt, 'sensitive', 1)
@@ -378,24 +390,23 @@ class TextSettingsWindow(SettingsWindow):
     def change_channel(self, button):
         if self.ignore_channel_change:
             return
-        
+
         c = self.channel_lookup[button.get_active()]
         self.connector.start_listening_text(c)
         self.channel = c
         self.save_config()
-    
 
     def change_guild(self, button):
         if self.ignore_guild_change:
             return
-        guild_id = self.guild_lookup[button.get_active()]   
+        guild_id = self.guild_lookup[button.get_active()]
         self.guild = guild_id
         self.save_config()
         self.update_channel_model()
 
     def change_placement(self, button):
         if self.placement_window:
-            (x,y,w,h) = self.placement_window.get_coords()
+            (x, y, w, h) = self.placement_window.get_coords()
             self.floating_x = x
             self.floating_y = y
             self.floating_w = w
@@ -412,12 +423,12 @@ class TextSettingsWindow(SettingsWindow):
                 self.placement_window = DraggableWindowWayland(
                     x=self.floating_x, y=self.floating_y,
                     w=self.floating_w, h=self.floating_h,
-                    message="Place & resize this window then press Green!",settings=self)
+                    message="Place & resize this window then press Green!", settings=self)
             else:
                 self.placement_window = DraggableWindow(
                     x=self.floating_x, y=self.floating_y,
                     w=self.floating_w, h=self.floating_h,
-                    message="Place & resize this window then press Save!",settings=self)
+                    message="Place & resize this window then press Save!", settings=self)
             if not self.overlay.is_wayland:
                 button.set_label("Save this position")
 

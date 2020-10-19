@@ -1,11 +1,26 @@
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""A Wayland full-screen window which can be moved and resized"""
+import cairo
 import gi
 gi.require_version("Gtk", "3.0")
-import cairo
+# pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk, GtkLayerShell
-import logging
 
 
 class DraggableWindowWayland(Gtk.Window):
+    """A Wayland full-screen window which can be moved and resized"""
+
     def __init__(self, x=0, y=0, w=300, h=300, message="Message", settings=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.TOPLEVEL)
         if w < 100:
@@ -16,11 +31,11 @@ class DraggableWindowWayland(Gtk.Window):
         self.y = y
         self.w = w
         self.h = h
-        self.settings=settings
+        self.settings = settings
         self.message = message
         self.set_size_request(50, 50)
 
-        self.connect('draw', self.draw)
+        self.connect('draw', self.dodraw)
         self.connect('motion-notify-event', self.drag)
         self.connect('button-press-event', self.button_press)
         self.connect('button-release-event', self.button_release)
@@ -39,21 +54,23 @@ class DraggableWindowWayland(Gtk.Window):
         GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
         self.show_all()
-        #self.force_location()
+        # self.force_location()
 
     def force_location(self):
-        (sx, sy)= self.get_size()
+        """Move the window to previously given co-ords. In wayland just clip to current screen"""
+        (size_x, size_y) = self.get_size()
         if self.x < 0:
-            self.x=0
+            self.x = 0
         if self.y < 0:
-            self.y=0
-        if self.x + self.w > sx:
-            self.x = sx - self.w
-        if self.y + self.h > sy:
-            self.y = sy - self.h
+            self.y = 0
+        if self.x + self.w > size_x:
+            self.x = size_x - self.w
+        if self.y + self.h > size_y:
+            self.y = size_y - self.h
         self.queue_draw()
 
-    def drag(self, w, event):
+    def drag(self, _w, event):
+        """Called by GTK while mouse is moving over window. Used to resize and move"""
         if event.state & Gdk.ModifierType.BUTTON1_MASK:
             if self.drag_type == 1:
                 # Center is move
@@ -81,14 +98,15 @@ class DraggableWindowWayland(Gtk.Window):
                 self.drag_y = event.y
                 self.force_location()
 
-    def button_press(self, w, event):
+    def button_press(self, _w, event):
+        """Called when a mouse button is pressed on this window"""
         px = event.x - self.x
         py = event.y - self.y
 
         if not self.drag_type:
             self.drag_type = 1
             # Where in the window did we press?
-            if px < 20 and py<20:
+            if px < 20 and py < 20:
                 self.settings.change_placement(None)
             if py > self.h - 32:
                 self.drag_type += 2
@@ -97,13 +115,15 @@ class DraggableWindowWayland(Gtk.Window):
             self.drag_x = event.x
             self.drag_y = event.y
 
-    def button_release(self, w, event):
+    def button_release(self, _w, _event):
+        """Called when a mouse button is released"""
         self.drag_type = None
 
-    def draw(self, widget, context):
+    def dodraw(self, _widget, context):
+        """Draw our window. For wayland we're secretly a fullscreen app and need to draw only a single rectangle of the overlay"""
         context.translate(self.x, self.y)
         context.save()
-        context.rectangle(0,0,self.w,self.h)
+        context.rectangle(0, 0, self.w, self.h)
         context.clip()
 
         context.set_source_rgba(1.0, 1.0, 0.0, 0.7)
@@ -114,8 +134,8 @@ class DraggableWindowWayland(Gtk.Window):
 
         # Draw text
         context.set_source_rgba(0.0, 0.0, 0.0, 1.0)
-        xb, yb, w, h, dx, dy = context.text_extents(self.message)
-        context.move_to(self.w / 2 - w / 2, self.h / 2 - h / 2)
+        _xb, _yb, width, height, _dx, _dy = context.text_extents(self.message)
+        context.move_to(self.w / 2 - width / 2, self.h / 2 - height / 2)
         context.show_text(self.message)
 
         # Draw resizing edges
@@ -128,10 +148,10 @@ class DraggableWindowWayland(Gtk.Window):
 
         # Draw Done!
         context.set_source_rgba(0.0, 1.0, 0.0, 0.5)
-        context.rectangle(0, 0, 20,20)
+        context.rectangle(0, 0, 20, 20)
         context.fill()
         context.restore()
 
-
     def get_coords(self):
-        return (self.x,self.y,self.w,self.h)
+        """Return the position and size of the window"""
+        return (self.x, self.y, self.w, self.h)

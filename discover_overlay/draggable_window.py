@@ -1,12 +1,27 @@
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""An X11 window which can be moved and resized"""
 import gi
-gi.require_version("Gtk", "3.0")
 import cairo
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk
-import logging
 
 
 class DraggableWindow(Gtk.Window):
-    def __init__(self, x=0, y=0, w=300, h=300, message="Message",settings=None):
+    """An X11 window which can be moved and resized"""
+
+    def __init__(self, x=0, y=0, w=300, h=300, message="Message", settings=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
         if w < 100:
             w = 100
@@ -16,11 +31,11 @@ class DraggableWindow(Gtk.Window):
         self.y = y
         self.w = w
         self.h = h
-        self.settings=settings
+        self.settings = settings
         self.message = message
         self.set_size_request(50, 50)
 
-        self.connect('draw', self.draw)
+        self.connect('draw', self.dodraw)
         self.connect('motion-notify-event', self.drag)
         self.connect('button-press-event', self.button_press)
         self.connect('button-release-event', self.button_release)
@@ -45,28 +60,15 @@ class DraggableWindow(Gtk.Window):
         self.show_all()
 
     def force_location(self):
+        """Move the window to previously given co-ords. Also double check sanity on layer & decorations"""
+
         self.set_decorated(False)
         self.set_keep_above(True)
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            monitor = display.get_monitor(self.monitor)
-            geometry = monitor.get_geometry()
-            scale_factor = monitor.get_scale_factor()
-            w = scale_factor * geometry.width
-            h = scale_factor * geometry.height
-            x = geometry.x
-            y = geometry.y
-        else:
-            screen = display.get_default_screen()
-            w = screen.width()
-            h = screen.height()
-            x = 0
-            y = 0
-        #self.resize(400, h)
         self.move(self.x, self.y)
         self.resize(self.w, self.h)
 
-    def drag(self, w, event):
+    def drag(self, _w, event):
+        """Called by GTK while mouse is moving over window. Used to resize and move"""
         if event.state & Gdk.ModifierType.BUTTON1_MASK:
             if self.drag_type == 1:
                 # Center is move
@@ -92,6 +94,7 @@ class DraggableWindow(Gtk.Window):
                 self.force_location()
 
     def button_press(self, w, event):
+        """Called when a mouse button is pressed on this window"""
         (w, h) = self.get_size()
         if not self.drag_type:
             self.drag_type = 1
@@ -103,10 +106,12 @@ class DraggableWindow(Gtk.Window):
             self.drag_x = event.x
             self.drag_y = event.y
 
-    def button_release(self, w, event):
+    def button_release(self, _w, _event):
+        """Called when a mouse button is released"""
         self.drag_type = None
 
-    def draw(self, widget, context):
+    def dodraw(self, _widget, context):
+        """Draw our window."""
         context.set_source_rgba(1.0, 1.0, 0.0, 0.7)
         # Don't layer drawing over each other, always replace
         context.set_operator(cairo.OPERATOR_SOURCE)
@@ -117,7 +122,7 @@ class DraggableWindow(Gtk.Window):
 
         # Draw text
         context.set_source_rgba(0.0, 0.0, 0.0, 1.0)
-        xb, yb, w, h, dx, dy = context.text_extents(self.message)
+        _xb, _yb, w, h, _dx, _dy = context.text_extents(self.message)
         context.move_to(sw / 2 - w / 2, sh / 2 - h / 2)
         context.show_text(self.message)
 
@@ -130,6 +135,7 @@ class DraggableWindow(Gtk.Window):
         context.fill()
 
     def get_coords(self):
-        (x, y) = self.placement_window.get_position()
-        (w, h) = self.placement_window.get_size()
-        return (x,y,w,h)
+        """Return window position and size"""
+        (x, y) = self.get_position()
+        (w, h) = self.get_size()
+        return (x, y, w, h)

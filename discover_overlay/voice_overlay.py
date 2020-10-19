@@ -1,12 +1,19 @@
-import gi
-
-gi.require_version("Gtk", "3.0")
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import math
+import cairo
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect
-from gi.repository import Gtk, Gdk
-import cairo
-import logging
 
 
 class VoiceOverlayWindow(OverlayWindow):
@@ -37,8 +44,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.connected = False
         self.force_location()
         get_surface(self.recv_avatar,
-            "https://cdn.discordapp.com/embed/avatars/3.png",
-                'def', self.avatar_size)
+                    "https://cdn.discordapp.com/embed/avatars/3.png",
+                    'def', self.avatar_size)
         self.set_title("Discover Voice")
 
     def set_bg(self, bg):
@@ -137,11 +144,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.connected = is_connected
             self.redraw()
 
-    def draw(self, widget, context):
-        # Draw
-        self.do_draw(context)
-
-    def do_draw(self, context):
+    def overlay_draw(self, _w, context, _data=None):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         # Get size of window
@@ -160,9 +163,8 @@ class VoiceOverlayWindow(OverlayWindow):
             w = self.w
             h = self.h
             context.translate(self.x, self.y)
-            context.rectangle(0,0,w,h)
+            context.rectangle(0, 0, w, h)
             context.clip()
-
 
         context.set_operator(cairo.OPERATOR_OVER)
         if not self.connected:
@@ -219,16 +221,16 @@ class VoiceOverlayWindow(OverlayWindow):
             context.restore()
         self.context = None
 
-    def recv_avatar(self, id, pix):
-        if id == 'def':
+    def recv_avatar(self, identifier, pix):
+        if identifier == 'def':
             self.def_avatar = pix
         else:
-            self.avatars[id] = pix
+            self.avatars[identifier] = pix
         self.redraw()
 
-    def delete_avatar(self, id):
+    def delete_avatar(self, identifier):
         if id in self.avatars:
-            del self.avatars[id]
+            del self.avatars[identifier]
 
     def draw_avatar(self, context, user, y):
         # Ensure pixbuf for avatar
@@ -282,7 +284,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.set_font_face(cairo.ToyFontFace(
                 self.text_font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL))
         context.set_font_size(self.text_size)
-        xb, yb, w, h, dx, dy = context.text_extents(string)
+        _xb, _yb, w, h, _dx, _dy = context.text_extents(string)
         ho = (self.avatar_size / 2) - (h / 2)
         if self.align_right:
             context.move_to(0, 0)

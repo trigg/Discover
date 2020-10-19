@@ -1,9 +1,22 @@
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk, GtkLayerShell
-import cairo
-import logging
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import sys
+import logging
+import gi
+import cairo
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
+from gi.repository import Gtk, Gdk, GtkLayerShell
 
 
 class OverlayWindow(Gtk.Window):
@@ -11,9 +24,9 @@ class OverlayWindow(Gtk.Window):
         window = Gtk.Window()
         screen = window.get_screen()
         screen_type = "%s" % (screen)
-        self.is_wayland=False
+        self.is_wayland = False
         if "Wayland" in screen_type:
-            self.is_wayland=True
+            self.is_wayland = True
             print("Using Wayland GDK. Expect bugs")
             return Gtk.WindowType.TOPLEVEL
         return Gtk.WindowType.POPUP
@@ -23,7 +36,7 @@ class OverlayWindow(Gtk.Window):
         screen = self.get_screen()
         self.set_size_request(50, 50)
 
-        self.connect('draw', self.draw)
+        self.connect('draw', self.overlay_draw)
 
         self.compositing = False
         # Set RGBA
@@ -53,8 +66,8 @@ class OverlayWindow(Gtk.Window):
         self.align_right = True
         self.align_vert = 1
         self.floating = False
-        self.force_xshape= False
-        self.context=None
+        self.force_xshape = False
+        self.context = None
 
     def set_wayland_state(self):
         if self.is_wayland:
@@ -65,10 +78,7 @@ class OverlayWindow(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
-    def draw(self, widget, context):
-        self.do_draw(context)
-
-    def do_draw(self, context):
+    def overlay_draw(self, _w, context, data=None):
         pass
 
     def set_font(self, name, size):
@@ -129,7 +139,7 @@ class OverlayWindow(Gtk.Window):
                     self.resize(self.w, self.h)
 
         if not self.floating:
-            (w,h) = self.get_size()
+            (w, h) = self.get_size()
             self.w = w
             self.h = h
         self.redraw()
@@ -137,7 +147,7 @@ class OverlayWindow(Gtk.Window):
     def redraw(self):
         gdkwin = self.get_window()
         if not self.floating:
-            (w,h) = self.get_size()
+            (w, h) = self.get_size()
             self.w = w
             self.h = h
 
@@ -146,7 +156,7 @@ class OverlayWindow(Gtk.Window):
                 (w, h) = self.get_size()
                 surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
                 surface_ctx = cairo.Context(surface)
-                self.do_draw(surface_ctx)
+                self.overlay_draw(None, surface_ctx)
                 reg = Gdk.cairo_region_create_from_surface(surface)
                 gdkwin.shape_combine_region(reg, 0, 0)
             else:
@@ -156,7 +166,6 @@ class OverlayWindow(Gtk.Window):
     def set_monitor(self, idx=None, mon=None):
         self.monitor = idx
         if self.is_wayland:
-            print(self)
             if mon:
                 GtkLayerShell.set_monitor(self, mon)
         self.force_location()

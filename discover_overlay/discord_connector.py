@@ -1,12 +1,23 @@
-import websocket
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import select
 import time
 import json
-import re
 import sys
-import requests
 import logging
 import calendar
+import websocket
+import requests
 
 
 class DiscordConnector:
@@ -17,7 +28,6 @@ class DiscordConnector:
         self.voice_overlay = voice_overlay
         self.ws = None
         self.access_token = "none"
-        # TODO Magic number
         self.oauth_token = "207646673902501888"
         self.access_delay = 0
         self.warn_connection = True
@@ -47,7 +57,7 @@ class DiscordConnector:
         x = requests.post(url, json=myobj)
         try:
             j = json.loads(x.text)
-        except:
+        except json.JSONDecodeError:
             j = {}
         if "access_token" in j:
             self.access_token = j["access_token"]
@@ -62,7 +72,7 @@ class DiscordConnector:
         if channel != self.current_voice:
             cn = self.channels[channel]['name']
             logging.info(
-                "Joined room: %s" % (cn))
+                "Joined room: %s", cn)
             self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
@@ -75,7 +85,7 @@ class DiscordConnector:
         if channel != self.current_text:
             self.current_text = channel
             logging.info(
-                "Changing text room: %s" % (channel))
+                "Changing text room: %s", channel)
             if need_req:
                 self.req_channel_details(channel)
 
@@ -202,9 +212,7 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
-                    #self.sub_all_voice()
-                else:
-                    un = j["data"]["user"]["username"]
+                    # self.sub_all_voice()
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 # It's only possible to get alerts for the room you're in
@@ -245,9 +253,9 @@ class DiscordConnector:
                 self.req_guilds()
                 self.user = j["data"]["user"]
                 logging.info(
-                    "ID is %s" % (self.user["id"]))
+                    "ID is %s", self.user["id"])
                 logging.info(
-                    "Logged in as %s" % (self.user["username"]))
+                    "Logged in as %s", self.user["username"])
                 self.authed = True
                 return
         elif j["cmd"] == "GET_GUILDS":
@@ -264,8 +272,8 @@ class DiscordConnector:
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
             self.check_guilds()
-            #self.sub_all_voice_guild(j["nonce"])
-            #self.sub_all_text_guild(j["nonce"])
+            # self.sub_all_voice_guild(j["nonce"])
+            # self.sub_all_text_guild(j["nonce"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             return
@@ -307,14 +315,14 @@ class DiscordConnector:
             for channel in guild["channels"]:
                 channels = channels + " " + channel["name"]
             logging.info(
-                u"%s: %s" % (guild["name"], channels))
+                u"%s: %s", guild["name"], channels)
         self.sub_server()
         self.find_user()
         if self.last_text_channel:
             self.sub_text_channel(self.last_text_channel)
 
     def on_error(self, error):
-        logging.error("ERROR : %s" % (error))
+        logging.error("ERROR : %s", error)
 
     def on_close(self):
         logging.info("Connection closed")
@@ -340,8 +348,8 @@ class DiscordConnector:
         for channel in self.channels:
             if self.channels[channel]["type"] == 2:
                 self.req_channel_details(channel)
-                count+=1
-        logging.warn("Getting %s rooms" %(count))
+                count += 1
+        logging.warning("Getting %s rooms", count)
 
     def sub_raw(self, cmd, channel, nonce):
         self.ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{%s},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (
@@ -424,14 +432,14 @@ class DiscordConnector:
             self.set_text_channel(self.text_settings.get_channel())
 
         # Poll socket for new information
-        r, w, e = select.select((self.ws.sock,), (), (), 0)
+        r, _w, _e = select.select((self.ws.sock,), (), (), 0)
         while r:
             try:
                 # Recieve & send to on_message
                 msg = self.ws.recv()
                 self.on_message(msg)
-                r, w, e = select.select((self.ws.sock,), (), (), 0)
-            except websocket._exceptions.WebSocketConnectionClosedException:
+                r, _w, _e = select.select((self.ws.sock,), (), (), 0)
+            except websocket.WebSocketConnectionClosedException:
                 self.on_close()
                 return True
         return True
@@ -448,8 +456,7 @@ class DiscordConnector:
         try:
             self.ws = websocket.create_connection("ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
                                                   origin="https://streamkit.discord.com")
-        except Exception as e:
+        except ConnectionError as e:
             if self.error_connection:
                 logging.error(e)
                 self.error_connection = False
-            pass

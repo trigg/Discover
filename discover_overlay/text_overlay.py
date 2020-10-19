@@ -1,14 +1,27 @@
-import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-import math
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from .overlay import OverlayWindow
-from gi.repository import Gtk, Gdk, Pango, PangoCairo
 import cairo
 import logging
 import time
 import re
 from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version('PangoCairo', '1.0')
+# pylint: disable=wrong-import-position
+from gi.repository import Pango, PangoCairo
 
 
 class TextOverlayWindow(OverlayWindow):
@@ -111,17 +124,14 @@ class TextOverlayWindow(OverlayWindow):
         elif msg['type'] == 'br':
             ret = '\n'
         else:
-            logging.error("Unknown text type : %s" % (msg["type"]))
+            logging.error("Unknown text type : %s", msg["type"])
         return ret
 
-    def recv_attach(self, id, pix):
-        self.attachment[id] = pix
+    def recv_attach(self, identifier, pix):
+        self.attachment[identifier] = pix
         self.redraw()
 
-    def draw(self, widget, ctx):
-        self.do_draw(ctx)
-
-    def do_draw(self, context):
+    def overlay_draw(self, _w, context, data=None):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         (w, h) = self.get_size()
@@ -138,10 +148,8 @@ class TextOverlayWindow(OverlayWindow):
             w = self.w
             h = self.h
             context.translate(self.x, self.y)
-            context.rectangle(0,0,w,h)
+            context.rectangle(0, 0, w, h)
             context.clip()
-            
-        
 
         cy = h
         tnow = time.time()
@@ -181,13 +189,13 @@ class TextOverlayWindow(OverlayWindow):
             ih = pix.get_height()
             iw = min(iw, self.w)
             ih = min(ih, (self.h * .7))
-            (ax, ay, aw, ah) = get_aspected_size(pix, iw, ih)
+            (_ax, _ay, _aw, ah) = get_aspected_size(pix, iw, ih)
             self.col(self.bg_col)
             self.context.rectangle(0, y - ah, self.w, ah)
 
             self.context.fill()
             self.context.set_operator(cairo.OPERATOR_OVER)
-            new_w, new_h = draw_img_to_rect(
+            _new_w, new_h = draw_img_to_rect(
                 pix, self.context, 0, y - ih, iw, ih, aspect=True)
             return y - new_h
         return y
@@ -204,7 +212,7 @@ class TextOverlayWindow(OverlayWindow):
             font = Pango.FontDescription(
                 "%s %s" % (self.text_font, self.text_size))
             layout.set_font_description(font)
-        tw, th = layout.get_pixel_size()
+        _tw, th = layout.get_pixel_size()
         self.col(self.bg_col)
         self.context.rectangle(0, y - th, self.w, th)
         self.context.fill()
@@ -223,7 +231,7 @@ class TextOverlayWindow(OverlayWindow):
 
             if len(self.imgList) <= count:
                 break  # We fucked up. Who types ` anyway
-            url = self.imgList[count]
+            #url = self.imgList[count]
 
             at = Pango.attr_shape_new_with_data(
                 self.pango_rect, self.pango_rect, count, None)
@@ -236,7 +244,7 @@ class TextOverlayWindow(OverlayWindow):
         PangoCairo.show_layout(self.context, layout)
         return y - th
 
-    def render_custom(self, ctx, shape, path, data):
+    def render_custom(self, ctx, shape, path, _data):
         key = self.imgList[shape.data]['url']
         if key not in self.attachment:
             get_surface(self.recv_attach,

@@ -1,21 +1,32 @@
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version('GdkPixbuf', '2.0')
 import urllib
 import requests
 import threading
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, Gio, GdkPixbuf, Gdk
 import cairo
 import logging
 import PIL.Image as Image
-from io import BytesIO
+gi.require_version("Gtk", "3.0")
+gi.require_version('GdkPixbuf', '2.0')
+# pylint: disable=wrong-import-position
+from gi.repository import Gio, GdkPixbuf
 
 
 class Image_Getter():
-    def __init__(self, func, url, id, size):
+    def __init__(self, func, url, identifier, size):
         self.func = func
-        self.id = id
+        self.id = identifier
         self.url = url
         self.size = size
 
@@ -28,36 +39,22 @@ class Image_Getter():
             response = urllib.request.urlopen(req)
             input_stream = Gio.MemoryInputStream.new_from_data(
                 response.read(), None)
-            pixbuf = Pixbuf.new_from_stream(input_stream, None)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_stream(input_stream, None)
             if self.size:
                 pixbuf = pixbuf.scale_simple(self.size, self.size,
                                              GdkPixbuf.InterpType.BILINEAR)
-            # elif self.limit_x or self.limit_y:
-            #    px = pixbuf.width()
-            #    py = pixbuf.height()
-            #    aspect = px / py
-            #    scale = 1.0
-            #    if self.limit_x and self.limit_y:
-            #        scale = min(self.limit_x / px, self.limit_y / py, 1.0)
-            #    elif self.limit_x:
-            #        scale = min(self.limit_x / px, 1.0)
-            #    elif self.limit_y:
-            #        scale = min(self.limit_y / py, 1.0)##
-#
-#                pixbuf = pixbuf.scale_simple(int(px * scale), int(py * scale),
-#                                             GdkPixbuf.InterpType.BILINEAR)
 
             self.func(self.id, pixbuf)
-        except Exception as e:
+        except urllib.error.URLError as exception:
             logging.error(
-                "Could not access : %s" % (self.url))
-            logging.error(e)
+                "Could not access : %s", self.url)
+            logging.error(exception)
 
 
 class Surface_Getter():
-    def __init__(self, func, url, id, size):
+    def __init__(self, func, url, identifier, size):
         self.func = func
-        self.id = id
+        self.id = identifier
         self.url = url
         self.size = size
 
@@ -71,33 +68,41 @@ class Surface_Getter():
             surf = self.from_pil(im)
 
             self.func(self.id, surf)
-        except:
-            logging.error("Unable to open %s" % (self.url))
+        except requests.HTTPError:
+            logging.error("Unable to open %s", self.url)
+        except requests.TooManyRedirects:
+            logging.error("Unable to open %s - Too many redirects", self.url)
+        except requests.Timeout:
+            logging.error("Unable to open %s - Timeout", self.url)
+        except requests.ConnectionError:
+            logging.error("Unable to open %s - Connection error", self.url)
+        except ValueError:
+            logging.error("Unable to read %s", self.url)
+        except TypeError:
+            logging.error("Unable to read %s", self.url)
 
-    def from_pil(self, im, alpha=1.0, format=cairo.FORMAT_ARGB32):
+    def from_pil(self, im, alpha=1.0):
         """
         :param im: Pillow Image
         :param alpha: 0..1 alpha to add to non-alpha images
         :param format: Pixel format for output surface
         """
-        assert format in (
-            cairo.FORMAT_RGB24, cairo.FORMAT_ARGB32), "Unsupported pixel format: %s" % format
         if 'A' not in im.getbands():
             im.putalpha(int(alpha * 256.))
         arr = bytearray(im.tobytes('raw', 'BGRa'))
         surface = cairo.ImageSurface.create_for_data(
-            arr, format, im.width, im.height)
+            arr, cairo.FORMAT_ARGB32, im.width, im.height)
         return surface
 
 
-def get_image(func, id, ava, size):
-    image_getter = Image_Getter(func, id, ava, size)
+def get_image(func, identifier, ava, size):
+    image_getter = Image_Getter(func, identifier, ava, size)
     t = threading.Thread(target=image_getter.get_url, args=())
     t.start()
 
 
-def get_surface(func, id, ava, size):
-    image_getter = Surface_Getter(func, id, ava, size)
+def get_surface(func, identifier, ava, size):
+    image_getter = Surface_Getter(func, identifier, ava, size)
     t = threading.Thread(target=image_getter.get_url, args=())
     t.start()
 
@@ -106,7 +111,7 @@ def get_aspected_size(img, w, h, anchor=0, hanchor=0):
     px = img.get_width()
     py = img.get_height()
     if py < 1 or h < 1:
-        return (0, 0)
+        return (0, 0, 0, 0)
     img_aspect = px / py
     rect_aspect = w / h
 

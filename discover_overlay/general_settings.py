@@ -1,19 +1,31 @@
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import gi
-gi.require_version("Gtk", "3.0")
-import json
 from configparser import ConfigParser
-from .draggable_window import DraggableWindow
 from .settings import SettingsWindow
 from .autostart import Autostart
-from gi.repository import Gtk, Gdk, Pango
-import logging
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
+from gi.repository import Gtk
 
 
 class GeneralSettingsWindow(SettingsWindow):
     def __init__(self, overlay, overlay2):
-        Gtk.VBox.__init__(self)
+        SettingsWindow.__init__(self)
         self.overlay = overlay
-        self.overlay2 = overlay
+        self.overlay2 = overlay2
+        self.xshape = None
+        self.autostart = None
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)

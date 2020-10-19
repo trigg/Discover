@@ -1,27 +1,41 @@
-import gi
-gi.require_version("Gtk", "3.0")
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 from configparser import ConfigParser
+import gi
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk, Pango
-import logging
 
 
 class VoiceSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
-        Gtk.VBox.__init__(self)
+        SettingsWindow.__init__(self)
         self.overlay = overlay
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
         self.placement_window = None
+        self.align_x = None
+        self.align_y = None
         self.init_config()
 
         self.create_gui()
 
-    def present(self):
+    def present_settings(self):
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -85,7 +99,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_only_speaking(self.only_speaking)
         self.overlay.set_highlight_self(self.highlight_self)
         self.overlay.set_icon_only(self.icon_only)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor),self.get_monitor_obj(self.monitor))
+        self.overlay.set_monitor(self.get_monitor_index(
+            self.monitor), self.get_monitor_obj(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
         self.overlay.set_order(self.order)
@@ -337,17 +352,15 @@ class VoiceSettingsWindow(SettingsWindow):
 
         self.add(box)
 
-        pass
-
     def change_placement(self, button):
         if self.placement_window:
-            (x,y,w,h) = self.placement_window.get_coords()
+            (x, y, w, h) = self.placement_window.get_coords()
             self.floating_x = x
             self.floating_y = y
             self.floating_w = w
             self.floating_h = h
             self.overlay.set_floating(True, x, y, w, h)
-            self.save_config
+            self.save_config()
             if not self.overlay.is_wayland:
                 button.set_label("Place Window")
             self.placement_window.close()
@@ -357,12 +370,12 @@ class VoiceSettingsWindow(SettingsWindow):
                 self.placement_window = DraggableWindowWayland(
                     x=self.floating_x, y=self.floating_y,
                     w=self.floating_w, h=self.floating_h,
-                    message="Place & resize this window then press Green!",settings=self)
+                    message="Place & resize this window then press Green!", settings=self)
             else:
                 self.placement_window = DraggableWindow(
                     x=self.floating_x, y=self.floating_y,
                     w=self.floating_w, h=self.floating_h,
-                    message="Place & resize this window then press Save!",settings=self)
+                    message="Place & resize this window then press Save!", settings=self)
             if not self.overlay.is_wayland:
                 button.set_label("Save this position")
 
@@ -447,7 +460,6 @@ class VoiceSettingsWindow(SettingsWindow):
             mon = display.get_monitor(button.get_active())
             m_s = mon.get_model()
             self.overlay.set_monitor(button.get_active(), mon)
-
 
             self.monitor = m_s
             self.save_config()
