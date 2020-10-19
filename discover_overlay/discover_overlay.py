@@ -87,7 +87,7 @@ class Discover:
         except Exception as e:
             # Create System Tray
             logging.info("Falling back to Systray : %s" % (e))
-            self.tray = Gtk.StatusIcon.new_from_icon_name("discover_overlay")
+            self.tray = Gtk.StatusIcon.new_from_icon_name("discover-overlay")
             self.tray.connect('popup-menu', self.show_menu)
 
     def make_menu(self):
