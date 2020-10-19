@@ -81,7 +81,7 @@ class TextSettingsWindow(SettingsWindow):
         else:
             self.align_x_widget.hide()
             self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
+            self.align_monitor_widget.show()
             self.align_placement_widget.show()
 
         if self.popup_style:
@@ -170,7 +170,7 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_enabled(self.enabled)
         self.overlay.set_align_x(self.align_x)
         self.overlay.set_align_y(self.align_y)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_monitor(self.get_monitor_index(self.monitor),self.get_monitor_obj(self.monitor))
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
         self.overlay.set_bg(self.bg_col)
@@ -450,7 +450,7 @@ class TextSettingsWindow(SettingsWindow):
         if "get_monitor" in dir(display):
             mon = display.get_monitor(button.get_active())
             m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active())
+            self.overlay.set_monitor(button.get_active(), mon)
 
             self.monitor = m_s
             self.save_config()

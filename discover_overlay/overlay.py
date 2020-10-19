@@ -54,6 +54,7 @@ class OverlayWindow(Gtk.Window):
         self.align_vert = 1
         self.floating = False
         self.force_xshape= False
+        self.context=None
 
     def set_wayland_state(self):
         if self.is_wayland:
@@ -152,8 +153,12 @@ class OverlayWindow(Gtk.Window):
                 gdkwin.shape_combine_region(None, 0, 0)
         self.queue_draw()
 
-    def set_monitor(self, idx):
+    def set_monitor(self, idx=None, mon=None):
         self.monitor = idx
+        if self.is_wayland:
+            print(self)
+            if mon:
+                GtkLayerShell.set_monitor(self, mon)
         self.force_location()
         self.redraw()
 

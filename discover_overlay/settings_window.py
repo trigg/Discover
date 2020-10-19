@@ -37,6 +37,7 @@ class MainSettingsWindow(Gtk.Window):
         nb.append_page(self.core_settings)
         nb.set_tab_label_text(self.core_settings, "Core")
         self.add(nb)
+        self.nb=nb
 
     def close_window(self,a=None,b=None):
         self.text_settings.close_window(a,b)
@@ -49,4 +50,5 @@ class MainSettingsWindow(Gtk.Window):
         self.voice_settings.present()
         self.text_settings.present()
         self.core_settings.present()
-        self.show_all()
+        self.nb.show()
+        self.show()

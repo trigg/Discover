@@ -44,5 +44,15 @@ class SettingsWindow(Gtk.VBox):
             "Could not find monitor : %s" % (name))
         return 0
 
+    def get_monitor_obj(self, name):
+        display = Gdk.Display.get_default()
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                if display.get_monitor(i).get_model() == name:
+                    return display.get_monitor(i)
+        logging.info(
+            "Could not find monitor : %s" % (name))
+        return None
+
     def present(self):
         self.show_all()

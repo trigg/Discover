@@ -31,7 +31,7 @@ class VoiceSettingsWindow(SettingsWindow):
         else:
             self.align_x_widget.hide()
             self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
+            self.align_monitor_widget.show()
             self.align_placement_widget.show()
 
     def read_config(self):
@@ -85,7 +85,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_only_speaking(self.only_speaking)
         self.overlay.set_highlight_self(self.highlight_self)
         self.overlay.set_icon_only(self.icon_only)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_monitor(self.get_monitor_index(self.monitor),self.get_monitor_obj(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
         self.overlay.set_order(self.order)
@@ -446,7 +446,8 @@ class VoiceSettingsWindow(SettingsWindow):
         if "get_monitor" in dir(display):
             mon = display.get_monitor(button.get_active())
             m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active())
+            self.overlay.set_monitor(button.get_active(), mon)
+
 
             self.monitor = m_s
             self.save_config()
