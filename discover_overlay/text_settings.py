@@ -87,7 +87,7 @@ class TextSettingsWindow(SettingsWindow):
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
-            self.guild_lookup.append(guild)
+            self.guild_lookup.append(guild_id)
             g_model.append([guild_name, True])
 
         self.guild_widget.set_model(g_model)
@@ -95,8 +95,8 @@ class TextSettingsWindow(SettingsWindow):
         self.update_channel_model()
 
         idxg = 0
-        for g in self.guild_lookup:
-            if g[0] == self.guild:
+        for guild_id in self.guild_lookup:
+            if guild_id == self.guild:
                 self.ignore_guild_change = True
                 self.guild_widget.set_active(idxg)
                 self.ignore_guild_change = False
@@ -381,9 +381,8 @@ class TextSettingsWindow(SettingsWindow):
     def change_guild(self, button):
         if self.ignore_guild_change:
             return
-        g = self.guild_lookup[button.get_active()]   
-        # get the guilds ID because config values must be strings  
-        self.guild = g[0]
+        guild_id = self.guild_lookup[button.get_active()]   
+        self.guild = guild_id
         self.save_config()
 
     def change_placement(self, button):
