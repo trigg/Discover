@@ -386,6 +386,7 @@ class TextSettingsWindow(SettingsWindow):
         guild_id = self.guild_lookup[button.get_active()]   
         self.guild = guild_id
         self.save_config()
+        self.update_channel_model()
 
     def change_placement(self, button):
         if self.placement_window:
