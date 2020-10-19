@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Settings tab parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
 import os
 import logging
 import gi
@@ -25,6 +26,8 @@ except ModuleNotFoundError:
 
 
 class SettingsWindow(Gtk.VBox):
+    """Settings tab parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+
     def __init__(self):
         Gtk.VBox.__init__(self)
         self.placement_window = None

@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Voice setting tab on settings window"""
 import json
 from configparser import ConfigParser
 import gi
@@ -22,6 +23,8 @@ from gi.repository import Gtk, Gdk, Pango
 
 
 class VoiceSettingsWindow(SettingsWindow):
+    """Voice setting tab on settings window"""
+
     def __init__(self, overlay):
         SettingsWindow.__init__(self)
         self.overlay = overlay

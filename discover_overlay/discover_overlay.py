@@ -10,10 +10,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Main application class"""
 import os
 import sys
-import gi
 import logging
+import gi
 import pidfile
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
@@ -30,6 +31,8 @@ except ModuleNotFoundError:
 
 
 class Discover:
+    """Main application class"""
+
     def __init__(self, rpc_file, args):
         self.ind = None
         self.tray = None

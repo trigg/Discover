@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Overlay parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
 import sys
 import logging
 import gi
@@ -20,6 +21,8 @@ from gi.repository import Gtk, Gdk, GtkLayerShell
 
 
 class OverlayWindow(Gtk.Window):
+    """Overlay parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+
     def detect_type(self):
         window = Gtk.Window()
         screen = window.get_screen()

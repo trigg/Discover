@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Overlay window for voice"""
 import math
 import cairo
 from .overlay import OverlayWindow
@@ -17,6 +18,7 @@ from .image_getter import get_surface, draw_img_to_rect
 
 
 class VoiceOverlayWindow(OverlayWindow):
+    """Overlay window for voice"""
 
     def __init__(self, discover):
         OverlayWindow.__init__(self)

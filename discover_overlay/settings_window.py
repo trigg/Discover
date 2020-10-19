@@ -10,16 +10,19 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Settings window holding all settings tab"""
+import gi
 from .voice_settings import VoiceSettingsWindow
 from .text_settings import TextSettingsWindow
 from .general_settings import GeneralSettingsWindow
-import gi
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk
 
 
 class MainSettingsWindow(Gtk.Window):
+    """Settings window holding all settings tab"""
+
     def __init__(self, text_overlay, voice_overlay):
         Gtk.Window.__init__(self)
 

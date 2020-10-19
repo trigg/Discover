@@ -10,20 +10,22 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import gi
+"""Functions & Classes to assist image loading."""
 import urllib
-import requests
 import threading
-import cairo
 import logging
+import gi
+import requests
+import cairo
 import PIL.Image as Image
-gi.require_version("Gtk", "3.0")
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf
 
 
-class Image_Getter():
+class ImageGetter():
+    """Older attempt. Not advised as it can't manage anything but PNG. Loads to GDK Pixmap"""
+
     def __init__(self, func, url, identifier, size):
         self.func = func
         self.id = identifier
@@ -51,7 +53,9 @@ class Image_Getter():
             logging.error(exception)
 
 
-class Surface_Getter():
+class SurfaceGetter():
+    """Download and decode image using PIL and store as a cairo surface"""
+
     def __init__(self, func, url, identifier, size):
         self.func = func
         self.id = identifier
@@ -59,7 +63,7 @@ class Surface_Getter():
         self.size = size
 
     def get_url(self):
-
+        """Downloads and decodes"""
         try:
             resp = requests.get(self.url, stream=True, headers={
                 'Referer': 'https://streamkit.discord.com/overlay/voice', 'User-Agent': 'Mozilla/5.0'})
@@ -96,18 +100,21 @@ class Surface_Getter():
 
 
 def get_image(func, identifier, ava, size):
-    image_getter = Image_Getter(func, identifier, ava, size)
+    """Download to GDK Pixmap"""
+    image_getter = ImageGetter(func, identifier, ava, size)
     t = threading.Thread(target=image_getter.get_url, args=())
     t.start()
 
 
 def get_surface(func, identifier, ava, size):
-    image_getter = Surface_Getter(func, identifier, ava, size)
+    """Download to cairo surface"""
+    image_getter = SurfaceGetter(func, identifier, ava, size)
     t = threading.Thread(target=image_getter.get_url, args=())
     t.start()
 
 
 def get_aspected_size(img, w, h, anchor=0, hanchor=0):
+    """Get dimensions of image keeping current aspect ratio"""
     px = img.get_width()
     py = img.get_height()
     if py < 1 or h < 1:
@@ -135,6 +142,7 @@ def get_aspected_size(img, w, h, anchor=0, hanchor=0):
 
 
 def draw_img_to_rect(img, ctx, x, y, w, h, path=False, aspect=False, anchor=0, hanchor=0):
+    """Draw cairo surface onto context"""
     # Path - only add the path do not fill : True/False
     # Aspect - keep aspect ratio : True/False
     # Anchor - with aspect : 0=left 1=middle 2=right

@@ -10,13 +10,15 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Text setting tab on settings window"""
 import json
+import logging
 from configparser import ConfigParser
+import gi
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
-import logging
-import gi
+
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk, Pango
@@ -26,6 +28,8 @@ GUILD_DEFAULT_VALUE = "0"
 
 
 class TextSettingsWindow(SettingsWindow):
+    """Text setting tab on settings window"""
+
     def __init__(self, overlay):
         SettingsWindow.__init__(self)
         self.overlay = overlay

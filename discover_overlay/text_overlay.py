@@ -10,14 +10,14 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-from .overlay import OverlayWindow
-import cairo
+"""Overlay window for text"""
 import logging
 import time
 import re
-from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
+import cairo
 import gi
+from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
+from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position
@@ -25,6 +25,8 @@ from gi.repository import Pango, PangoCairo
 
 
 class TextOverlayWindow(OverlayWindow):
+    """Overlay window for voice"""
+
     def __init__(self, discover):
         OverlayWindow.__init__(self)
         self.discover = discover

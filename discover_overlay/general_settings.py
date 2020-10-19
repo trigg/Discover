@@ -10,8 +10,9 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import gi
+"""Core Settings Tab"""
 from configparser import ConfigParser
+import gi
 from .settings import SettingsWindow
 from .autostart import Autostart
 gi.require_version("Gtk", "3.0")
@@ -20,6 +21,8 @@ from gi.repository import Gtk
 
 
 class GeneralSettingsWindow(SettingsWindow):
+    """Core Settings Tab"""
+
     def __init__(self, overlay, overlay2):
         SettingsWindow.__init__(self)
         self.overlay = overlay

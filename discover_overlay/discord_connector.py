@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""The connector for discord. Connects in as if it was Streamkit for OBS or Xsplit and communicates to get voice & text info to display"""
 import select
 import time
 import json
@@ -21,6 +22,8 @@ import requests
 
 
 class DiscordConnector:
+    """The connector for discord. Connects in as if it was Streamkit for OBS or Xsplit and communicates to get voice & text info to display"""
+
     def __init__(self, text_settings, voice_settings, text_overlay, voice_overlay):
         self.text_settings = text_settings
         self.text_overlay = text_overlay
