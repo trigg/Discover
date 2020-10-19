@@ -21,7 +21,7 @@ from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, GLib, Gio
 
 try:
