@@ -7,6 +7,7 @@ from .settings import SettingsWindow
 from gi.repository import Gtk, Gdk, Pango
 import logging
 
+GUILD_DEFAULT_VALUE = "0"
 
 class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
@@ -19,8 +20,50 @@ class TextSettingsWindow(SettingsWindow):
         self.init_config()
         self.list_channels_keys = []
         self.list_channels = {}
+        self.list_guilds_keys = []
+        self.list_guilds = {}
         self.ignore_channel_change = False
+        self.ignore_guild_change = False
         self.create_gui()
+
+
+    def update_channel_model(self):
+        # potentially organize channels by their group/parent_id
+        # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
+        c_model = Gtk.ListStore(str, bool)
+        self.channel_lookup = ["0"]
+
+        for guild in self.guild_list():
+            guild_id, guild_name = guild
+            # if no guild is specified, populate channel list with every channel from each guild
+            if self.guild == GUILD_DEFAULT_VALUE:
+                c_model.append([guild_name, False])
+                for c in self.list_channels_keys:
+                    chan = self.list_channels[c]
+                    if chan['guild_id'] == guild_id:
+                        c_model.append([chan["name"], True])
+                        self.channel_lookup.append(c)
+        
+        # if a guild is specified, poulate channel list with every channel from *just that guild*
+        if self.guild != GUILD_DEFAULT_VALUE:
+            for c in self.list_channels_keys:
+                chan = self.list_channels[c]
+                if chan['guild_id'] == self.guild:
+                    c_model.append([chan["name"], True])
+                    self.channel_lookup.append(c)
+
+        self.channel_widget.set_model(c_model)
+        self.channel_model = c_model
+
+        idx = 0
+        for c in self.channel_lookup:
+            if c == self.channel:
+                self.ignore_channel_change = True
+                self.channel_widget.set_active(idx)
+                self.ignore_channel_change = False
+                break
+            idx += 1
+
 
     def add_connector(self, conn):
         self.connector = conn
@@ -47,46 +90,52 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_widget.hide()
             self.text_time_label_widget.hide()
 
-        model = Gtk.ListStore(str, bool)
-        self.channel_lookup = []
+        g_model = Gtk.ListStore(str, bool)
+        self.guild_lookup = []
+
         for guild in self.guild_list():
             guild_id, guild_name = guild
-            self.channel_lookup.append('0')
-            model.append([guild_name, False])
-            for c in self.list_channels_keys:
-                chan = self.list_channels[c]
-                if chan['guild_id'] == guild_id:
-                    model.append([chan["name"], True])
-                    self.channel_lookup.append(c)
+            self.guild_lookup.append(guild_id)
+            g_model.append([guild_name, True])
 
-        self.channel_widget.set_model(model)
-        self.channel_model = model
+        self.guild_widget.set_model(g_model)
+        self.guild_model = g_model
+        self.update_channel_model()
 
-        idx = 0
-        for c in self.channel_lookup:
-            if c == self.channel:
-                self.ignore_channel_change = True
-                self.channel_widget.set_active(idx)
-                self.ignore_channel_change = False
+        idxg = 0
+        for guild_id in self.guild_lookup:
+            if guild_id == self.guild:
+                self.ignore_guild_change = True
+                self.guild_widget.set_active(idxg)
+                self.ignore_guild_change = False
                 break
-            idx += 1
+            idxg += 1
 
     def guild_list(self):
         guilds = []
         done = []
-        for channel in self.list_channels.values():
-            if not channel["guild_id"] in done:
-                done.append(channel["guild_id"])
-                guilds.append([channel["guild_id"], channel["guild_name"]])
+        for guild in self.list_guilds.values():
+            if not guild["id"] in done:
+                done.append(guild["id"])
+                guilds.append([guild["id"], guild["name"]])
         return guilds
 
     def set_channels(self, in_list):
         self.list_channels = in_list
         self.list_channels_keys = []
         for key in in_list.keys():
+            # filter for only text channels
+            # https://discord.com/developers/docs/resources/channel#channel-object-channel-types
             if in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
+        
+    def set_guilds(self, in_list):
+        self.list_guilds = in_list
+        self.list_guilds_keys = []
+        for key in in_list.keys():
+            self.list_guilds_keys.append(key)
+        self.list_guilds_keys.sort()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
@@ -101,6 +150,7 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_w = config.getint("text", "floating_w", fallback=400)
         self.floating_h = config.getint("text", "floating_h", fallback=400)
         self.channel = config.get("text", "channel", fallback="0")
+        self.guild = config.get("text", "guild", fallback=GUILD_DEFAULT_VALUE)
         self.font = config.get("text", "font", fallback=None)
         self.bg_col = json.loads(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
@@ -144,6 +194,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "floating_w", "%s" % (self.floating_w))
         config.set("text", "floating_h", "%s" % (self.floating_h))
         config.set("text", "channel", self.channel)
+        config.set("text", "guild", self.guild)
         config.set("text", "bg_col", json.dumps(self.bg_col))
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
@@ -259,6 +310,16 @@ class TextSettingsWindow(SettingsWindow):
         channel.add_attribute(rt, "text", 0)
         channel.add_attribute(rt, 'sensitive', 1)
 
+        guild_label = Gtk.Label.new("Server")
+        guild = Gtk.ComboBox.new()
+
+        guild.connect("changed", self.change_guild)
+        guild_rt = Gtk.CellRendererText()
+        #guild.set_row_separator_func(lambda model, path: model[path][1])
+        guild.pack_start(rt, True)
+        guild.add_attribute(rt, "text", 0)
+        guild.add_attribute(rt, 'sensitive', 1)
+
         # Show Attachments
         show_attach_label = Gtk.Label.new("Show Attachments")
         show_attach = Gtk.CheckButton.new()
@@ -269,6 +330,7 @@ class TextSettingsWindow(SettingsWindow):
         self.align_y_widget = align_y
         self.align_monitor_widget = monitor
         self.align_placement_widget = align_placement_button
+        self.guild_widget = guild
         self.channel_widget = channel
         self.text_time_widget = text_time
         self.text_time_label_widget = text_time_label
@@ -279,22 +341,25 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(popup_style, 1, 1, 1, 1)
         box.attach(text_time_label, 0, 2, 1, 1)
         box.attach(text_time, 1, 2, 1, 1)
-        box.attach(channel_label, 0, 3, 1, 1)
-        box.attach(channel, 1, 3, 1, 1)
-        box.attach(font_label, 0, 4, 1, 1)
-        box.attach(font, 1, 4, 1, 1)
-        box.attach(fg_col_label, 0, 5, 1, 1)
-        box.attach(fg_col, 1, 5, 1, 1)
-        box.attach(bg_col_label, 0, 6, 1, 1)
-        box.attach(bg_col, 1, 6, 1, 1)
-        box.attach(align_label, 0, 7, 1, 5)
-        #box.attach(align_type_box, 1, 7, 1, 1)
-        box.attach(monitor, 1, 8, 1, 1)
-        box.attach(align_x, 1, 9, 1, 1)
-        box.attach(align_y, 1, 10, 1, 1)
-        box.attach(align_placement_button, 1, 11, 1, 1)
-        box.attach(show_attach_label, 0, 12, 1, 1)
-        box.attach(show_attach, 1, 12, 1, 1)
+        box.attach(guild_label, 0, 3, 1, 1)
+        box.attach(guild, 1, 3, 1, 1)
+
+        box.attach(channel_label, 0, 4, 1, 1)
+        box.attach(channel, 1, 4, 1, 1)
+        box.attach(font_label, 0, 5, 1, 1)
+        box.attach(font, 1, 5, 1, 1)
+        box.attach(fg_col_label, 0, 6, 1, 1)
+        box.attach(fg_col, 1, 6, 1, 1)
+        box.attach(bg_col_label, 0, 7, 1, 1)
+        box.attach(bg_col, 1, 7, 1, 1)
+        box.attach(align_label, 0, 8, 1, 5)
+        #box.attach(align_type_box, 1, 8, 1, 1)
+        box.attach(monitor, 1, 9, 1, 1)
+        box.attach(align_x, 1, 10, 1, 1)
+        box.attach(align_y, 1, 11, 1, 1)
+        box.attach(align_placement_button, 1, 12, 1, 1)
+        box.attach(show_attach_label, 0, 13, 1, 1)
+        box.attach(show_attach, 1, 13, 1, 1)
 
         self.add(box)
 
@@ -317,6 +382,15 @@ class TextSettingsWindow(SettingsWindow):
         self.connector.start_listening_text(c)
         self.channel = c
         self.save_config()
+    
+
+    def change_guild(self, button):
+        if self.ignore_guild_change:
+            return
+        guild_id = self.guild_lookup[button.get_active()]   
+        self.guild = guild_id
+        self.save_config()
+        self.update_channel_model()
 
     def change_placement(self, button):
         if self.placement_window:
