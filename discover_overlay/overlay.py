@@ -11,7 +11,9 @@ class OverlayWindow(Gtk.Window):
         window = Gtk.Window()
         screen = window.get_screen()
         screen_type = "%s" % (screen)
+        self.is_wayland=False
         if "Wayland" in screen_type:
+            self.is_wayland=True
             print("Using Wayland GDK. Expect bugs")
             return Gtk.WindowType.TOPLEVEL
         return Gtk.WindowType.POPUP
@@ -44,7 +46,7 @@ class OverlayWindow(Gtk.Window):
         self.set_keep_above(True)
         self.set_decorated(True)
         self.set_accept_focus(False)
-        self.set_wayland_hax()
+        self.set_wayland_state()
 
         self.show_all()
         self.monitor = 0
@@ -53,9 +55,14 @@ class OverlayWindow(Gtk.Window):
         self.floating = False
         self.force_xshape= False
 
-    def set_wayland_hax(self):
-        GtkLayerShell.init_for_window(self)
-        GtkLayerShell.set_layer(GtkLayerShell.Layer.TOP)
+    def set_wayland_state(self):
+        if self.is_wayland:
+            GtkLayerShell.init_for_window(self)
+            GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
+            GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
+            GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
+            GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
+            GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
     def draw(self, widget, context):
         pass
