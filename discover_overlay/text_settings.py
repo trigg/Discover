@@ -85,7 +85,7 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_label_widget.hide()
 
         g_model = Gtk.ListStore(str, bool)
-        self.guild_lookup = [GUILD_DEFAULT_VALUE]
+        self.guild_lookup = []
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
