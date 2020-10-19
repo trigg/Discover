@@ -20,7 +20,7 @@ class MainSettingsWindow(Gtk.Window):
         self.text_overlay = text_overlay
         self.voice_overlay = voice_overlay
         self.set_title("Discover Overlay Configuration")
-        self.set_icon_from_file("discover-overlay.png")
+        self.set_icon_name("discover-overlay")
         self.set_default_size(280, 180)
 
         # Create
