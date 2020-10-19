@@ -31,6 +31,23 @@ class VoiceSettingsWindow(SettingsWindow):
         self.placement_window = None
         self.align_x = None
         self.align_y = None
+        self.bg_col = None
+        self.fg_col = None
+        self.tk_col = None
+        self.mt_col = None
+        self.avatar_size = None
+        self.icon_spacing = None
+        self.text_padding = None
+        self.font = None
+        self.square_avatar = None
+        self.only_speaking = None
+        self.highlight_self = None
+        self.icon_only = None
+        self.monitor = None
+        self.vert_edge_padding = None
+        self.horz_edge_padding = None
+        self.floating = None
+        self.order = None
         self.init_config()
 
         self.create_gui()

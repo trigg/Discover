@@ -34,11 +34,16 @@ class OverlayWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, type=self.detect_type())
         screen = self.get_screen()
-        self.set_size_request(50, 50)
-
-        self.connect('draw', self.overlay_draw)
-
         self.compositing = False
+        self.text_font = None
+        self.text_size = None
+        self.x = None
+        self.y = None
+        self.w = None
+        self.h = None
+
+        self.set_size_request(50, 50)
+        self.connect('draw', self.overlay_draw)
         # Set RGBA
         screen = self.get_screen()
         visual = screen.get_rgba_visual()

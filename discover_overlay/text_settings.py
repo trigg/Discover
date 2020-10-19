@@ -29,9 +29,7 @@ class TextSettingsWindow(SettingsWindow):
     def __init__(self, overlay):
         SettingsWindow.__init__(self)
         self.overlay = overlay
-        self.set_size_request(400, 200)
-        self.connect("destroy", self.close_window)
-        self.connect("delete-event", self.close_window)
+
         self.placement_window = None
         self.init_config()
         self.list_channels_keys = []
@@ -40,6 +38,31 @@ class TextSettingsWindow(SettingsWindow):
         self.list_guilds = {}
         self.ignore_channel_change = False
         self.ignore_guild_change = False
+        self.channel_lookup = None
+        self.channel_model = None
+        self.connector = None
+        self.guild_lookup = None
+        self.guild_model = None
+        self.guild_widget = None
+        self.align_x = None
+        self.align_y = None
+        self.monitor = None
+        self.floating = None
+        self.channel = None
+        self.guild = None
+        self.font = None
+        self.bg_col = None
+        self.fg_col = None
+        self.popup_style = None
+        self.text_time = None
+        self.show_attach = None
+        self.enabled = None
+
+        self.set_size_request(400, 200)
+        self.connect("destroy", self.close_window)
+        self.connect("delete-event", self.close_window)
+
+        self.init_config()
         self.create_gui()
 
     def update_channel_model(self):

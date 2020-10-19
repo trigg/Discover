@@ -31,6 +31,10 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_spacing = 8
         self.vert_edge_padding = 0
         self.horz_edge_padding = 0
+        self.only_speaking = None
+        self.highlight_self = None
+        self.order = None
+        self.def_avatar = None
 
         self.round_avatar = True
         self.icon_only = True

@@ -32,6 +32,9 @@ class TextOverlayWindow(OverlayWindow):
         self.content = []
         self.text_font = None
         self.text_size = 13
+        self.text_time = None
+        self.show_attach = None
+        self.popup_style = None
         # 0, 0, self.text_size, self.text_size)
         self.pango_rect = Pango.Rectangle()
         self.pango_rect.width = self.text_size * Pango.SCALE
