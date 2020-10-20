@@ -16,7 +16,7 @@ Connects in as if it was Streamkit for OBS or Xsplit and
 communicates to get voice & text info to display
 
 Terminology:
-GUILDS - Often called 'Servers' in dicord. It is the group of users and channels that make up
+GUILDS - Often called 'Servers' in discord. It is the group of users and channels that make up
          one server.
 CHANNEL - Often called 'Rooms'. Both voice and text channels are types of channel
 """
