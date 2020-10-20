@@ -10,7 +10,10 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""Settings tab parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+"""
+Settings tab parent class. Helpful if we need more
+overlay types without copy-and-pasting too much code
+"""
 import os
 import logging
 import gi
@@ -26,13 +29,16 @@ except ModuleNotFoundError:
 
 
 class SettingsWindow(Gtk.VBox):
-    """Settings tab parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+    """
+    Settings tab parent class. Helpful if we need more
+    overlay types without copy-and-pasting too much code
+    """
 
     def __init__(self):
         Gtk.VBox.__init__(self)
         self.placement_window = None
-        self.configDir = None
-        self.configFile = None
+        self.config_dir = None
+        self.config_file = None
         self.overlay = None
         self.floating_x = None
         self.floating_y = None
@@ -40,20 +46,20 @@ class SettingsWindow(Gtk.VBox):
         self.floating_h = None
 
     def init_config(self):
-        self.configDir = os.path.join(xdg_config_home, "discover_overlay")
-        os.makedirs(self.configDir, exist_ok=True)
-        self.configFile = os.path.join(self.configDir, "config.ini")
+        self.config_dir = os.path.join(xdg_config_home, "discover_overlay")
+        os.makedirs(self.config_dir, exist_ok=True)
+        self.config_file = os.path.join(self.config_dir, "config.ini")
         self.read_config()
 
     def close_window(self, _a=None, _b=None):
         if self.placement_window:
-            (x, y) = self.placement_window.get_position()
-            (w, h) = self.placement_window.get_size()
-            self.floating_x = x
-            self.floating_y = y
-            self.floating_w = w
-            self.floating_h = h
-            self.overlay.set_floating(True, x, y, w, h)
+            (pos_x, pos_y) = self.placement_window.get_position()
+            (width, height) = self.placement_window.get_size()
+            self.floating_x = pos_x
+            self.floating_y = pos_y
+            self.floating_w = width
+            self.floating_h = height
+            self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
             self.placement_window.close()
             self.placement_window = None

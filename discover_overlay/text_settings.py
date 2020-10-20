@@ -20,7 +20,7 @@ from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
 
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk, Pango
 
 
@@ -80,26 +80,26 @@ class TextSettingsWindow(SettingsWindow):
             # if no guild is specified, populate channel list with every channel from each guild
             if self.guild == GUILD_DEFAULT_VALUE:
                 c_model.append([guild_name, False])
-                for c in self.list_channels_keys:
-                    chan = self.list_channels[c]
+                for channel_key in self.list_channels_keys:
+                    chan = self.list_channels[channel_key]
                     if chan['guild_id'] == guild_id:
                         c_model.append([chan["name"], True])
-                        self.channel_lookup.append(c)
+                        self.channel_lookup.append(channel_key)
 
         # if a guild is specified, poulate channel list with every channel from *just that guild*
         if self.guild != GUILD_DEFAULT_VALUE:
-            for c in self.list_channels_keys:
-                chan = self.list_channels[c]
+            for channel_key in self.list_channels_keys:
+                chan = self.list_channels[channel_key]
                 if chan['guild_id'] == self.guild:
                     c_model.append([chan["name"], True])
-                    self.channel_lookup.append(c)
+                    self.channel_lookup.append(channel_key)
 
         self.channel_widget.set_model(c_model)
         self.channel_model = c_model
 
         idx = 0
-        for c in self.channel_lookup:
-            if c == self.channel:
+        for channel in self.channel_lookup:
+            if channel == self.channel:
                 self.ignore_channel_change = True
                 self.channel_widget.set_active(idx)
                 self.ignore_channel_change = False
@@ -180,7 +180,7 @@ class TextSettingsWindow(SettingsWindow):
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         self.enabled = config.getboolean("text", "enabled", fallback=False)
         self.align_x = config.getboolean("text", "rightalign", fallback=True)
         self.align_y = config.getint("text", "topalign", fallback=2)
@@ -222,7 +222,7 @@ class TextSettingsWindow(SettingsWindow):
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         if not config.has_section("text"):
             config.add_section("text")
 
@@ -246,7 +246,7 @@ class TextSettingsWindow(SettingsWindow):
         if self.font:
             config.set("text", "font", self.font)
 
-        with open(self.configFile, 'w') as file:
+        with open(self.config_file, 'w') as file:
             config.write(file)
 
     def create_gui(self):
@@ -311,9 +311,9 @@ class TextSettingsWindow(SettingsWindow):
         monitor = Gtk.ComboBox.new_with_model(monitor_store)
         monitor.set_active(self.get_monitor_index(self.monitor))
         monitor.connect("changed", self.change_monitor)
-        rt = Gtk.CellRendererText()
-        monitor.pack_start(rt, True)
-        monitor.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        monitor.pack_start(renderer_text, True)
+        monitor.add_attribute(renderer_text, "text", 0)
 
         align_x_store = Gtk.ListStore(str)
         align_x_store.append(["Left"])
@@ -321,9 +321,9 @@ class TextSettingsWindow(SettingsWindow):
         align_x = Gtk.ComboBox.new_with_model(align_x_store)
         align_x.set_active(True if self.align_x else False)
         align_x.connect("changed", self.change_align_x)
-        rt = Gtk.CellRendererText()
-        align_x.pack_start(rt, True)
-        align_x.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        align_x.pack_start(renderer_text, True)
+        align_x.add_attribute(renderer_text, "text", 0)
 
         align_y_store = Gtk.ListStore(str)
         align_y_store.append(["Top"])
@@ -332,9 +332,9 @@ class TextSettingsWindow(SettingsWindow):
         align_y = Gtk.ComboBox.new_with_model(align_y_store)
         align_y.set_active(self.align_y)
         align_y.connect("changed", self.change_align_y)
-        rt = Gtk.CellRendererText()
-        align_y.pack_start(rt, True)
-        align_y.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        align_y.pack_start(renderer_text, True)
+        align_y.add_attribute(renderer_text, "text", 0)
 
         align_placement_button = Gtk.Button.new_with_label("Place Window")
 
@@ -346,19 +346,19 @@ class TextSettingsWindow(SettingsWindow):
         channel = Gtk.ComboBox.new()
 
         channel.connect("changed", self.change_channel)
-        rt = Gtk.CellRendererText()
-        channel.pack_start(rt, True)
-        channel.add_attribute(rt, "text", 0)
-        channel.add_attribute(rt, 'sensitive', 1)
+        renderer_text = Gtk.CellRendererText()
+        channel.pack_start(renderer_text, True)
+        channel.add_attribute(renderer_text, "text", 0)
+        channel.add_attribute(renderer_text, 'sensitive', 1)
 
         guild_label = Gtk.Label.new("Server")
         guild = Gtk.ComboBox.new()
 
         guild.connect("changed", self.change_guild)
-        rt = Gtk.CellRendererText()
-        guild.pack_start(rt, True)
-        guild.add_attribute(rt, "text", 0)
-        guild.add_attribute(rt, 'sensitive', 1)
+        renderer_text = Gtk.CellRendererText()
+        guild.pack_start(renderer_text, True)
+        guild.add_attribute(renderer_text, "text", 0)
+        guild.add_attribute(renderer_text, 'sensitive', 1)
 
         # Show Attachments
         show_attach_label = Gtk.Label.new("Show Attachments")
@@ -406,10 +406,10 @@ class TextSettingsWindow(SettingsWindow):
     def change_font(self, button):
         font = button.get_font()
         desc = Pango.FontDescription.from_string(font)
-        s = desc.get_size()
+        size = desc.get_size()
         if not desc.get_size_is_absolute():
-            s = s / Pango.SCALE
-        self.overlay.set_font(desc.get_family(), s)
+            size = size / Pango.SCALE
+        self.overlay.set_font(desc.get_family(), size)
 
         self.font = desc.to_string()
         self.save_config()
@@ -418,9 +418,9 @@ class TextSettingsWindow(SettingsWindow):
         if self.ignore_channel_change:
             return
 
-        c = self.channel_lookup[button.get_active()]
-        self.connector.start_listening_text(c)
-        self.channel = c
+        channel = self.channel_lookup[button.get_active()]
+        self.connector.start_listening_text(channel)
+        self.channel = channel
         self.save_config()
 
     def change_guild(self, button):
@@ -433,12 +433,12 @@ class TextSettingsWindow(SettingsWindow):
 
     def change_placement(self, button):
         if self.placement_window:
-            (x, y, w, h) = self.placement_window.get_coords()
-            self.floating_x = x
-            self.floating_y = y
-            self.floating_w = w
-            self.floating_h = h
-            self.overlay.set_floating(True, x, y, w, h)
+            (pos_x, pos_y, width, height) = self.placement_window.get_coords()
+            self.floating_x = pos_x
+            self.floating_y = pos_y
+            self.floating_w = width
+            self.floating_h = height
+            self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
             if not self.overlay.is_wayland:
                 button.set_label("Place Window")
@@ -448,13 +448,13 @@ class TextSettingsWindow(SettingsWindow):
         else:
             if self.overlay.is_wayland:
                 self.placement_window = DraggableWindowWayland(
-                    x=self.floating_x, y=self.floating_y,
-                    w=self.floating_w, h=self.floating_h,
+                    pos_x=self.floating_x, pos_y=self.floating_y,
+                    width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Green!", settings=self)
             else:
                 self.placement_window = DraggableWindow(
-                    x=self.floating_x, y=self.floating_y,
-                    w=self.floating_w, h=self.floating_h,
+                    pos_x=self.floating_x, pos_y=self.floating_y,
+                    width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Save!", settings=self)
             if not self.overlay.is_wayland:
                 button.set_label("Save this position")
@@ -535,19 +535,19 @@ class TextSettingsWindow(SettingsWindow):
         return self.channel
 
     def change_bg(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_bg(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_bg(colour)
 
-        self.bg_col = c
+        self.bg_col = colour
         self.save_config()
 
     def change_fg(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_fg(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_fg(colour)
 
-        self.fg_col = c
+        self.fg_col = colour
         self.save_config()
 
     def change_show_attach(self, button):

@@ -16,7 +16,7 @@ import gi
 from .settings import SettingsWindow
 from .autostart import Autostart
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk
 
 
@@ -28,19 +28,18 @@ class GeneralSettingsWindow(SettingsWindow):
         self.overlay = overlay
         self.overlay2 = overlay2
         self.xshape = None
-        self.autostart = None
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
         self.init_config()
-        self.a = Autostart("discover_overlay")
+        self.autostart_helper = Autostart("discover_overlay")
         self.placement_window = None
 
         self.create_gui()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         self.xshape = config.getboolean("general", "xshape", fallback=False)
 
         # Pass all of our config over to the overlay
@@ -49,13 +48,13 @@ class GeneralSettingsWindow(SettingsWindow):
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         if not config.has_section("general"):
             config.add_section("general")
 
         config.set("general", "xshape", "%d" % (int(self.xshape)))
 
-        with open(self.configFile, 'w') as file:
+        with open(self.config_file, 'w') as file:
             config.write(file)
 
     def create_gui(self):
@@ -64,7 +63,7 @@ class GeneralSettingsWindow(SettingsWindow):
         # Auto start
         autostart_label = Gtk.Label.new("Autostart on boot")
         autostart = Gtk.CheckButton.new()
-        autostart.set_active(self.a.is_auto())
+        autostart.set_active(self.autostart_helper.is_auto())
         autostart.connect("toggled", self.change_autostart)
 
         # Force XShape
@@ -81,8 +80,8 @@ class GeneralSettingsWindow(SettingsWindow):
         self.add(box)
 
     def change_autostart(self, button):
-        self.autostart = button.get_active()
-        self.a.set_autostart(self.autostart)
+        autostart = button.get_active()
+        self.autostart_helper.set_autostart(autostart)
 
     def change_xshape(self, button):
         self.overlay.set_force_xshape(button.get_active())

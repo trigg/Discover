@@ -21,16 +21,12 @@ from gi.repository import Gtk, Gdk
 class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
 
-    def __init__(self, x=0, y=0, w=300, h=300, message="Message", settings=None):
+    def __init__(self, pos_x=0, pos_y=0, width=300, height=300, message="Message", settings=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
-        if w < 100:
-            w = 100
-        if h < 100:
-            h = 100
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = max(100, width)
+        self.height = max(100, height)
         self.settings = settings
         self.message = message
         self.set_size_request(50, 50)
@@ -60,48 +56,51 @@ class DraggableWindow(Gtk.Window):
         self.show_all()
 
     def force_location(self):
-        """Move the window to previously given co-ords. Also double check sanity on layer & decorations"""
+        """
+        Move the window to previously given co-ords.
+        Also double check sanity on layer & decorations
+        """
 
         self.set_decorated(False)
         self.set_keep_above(True)
-        self.move(self.x, self.y)
-        self.resize(self.w, self.h)
+        self.move(self.pos_x, self.pos_y)
+        self.resize(self.width, self.height)
 
     def drag(self, _w, event):
         """Called by GTK while mouse is moving over window. Used to resize and move"""
         if event.state & Gdk.ModifierType.BUTTON1_MASK:
             if self.drag_type == 1:
                 # Center is move
-                self.x = event.x_root - self.drag_x
-                self.y = event.y_root - self.drag_y
+                self.pos_x = event.x_root - self.drag_x
+                self.pos_y = event.y_root - self.drag_y
                 self.force_location()
             elif self.drag_type == 2:
                 # Right edge
-                self.w += event.x - self.drag_x
+                self.width += event.x - self.drag_x
                 self.drag_x = event.x
                 self.force_location()
             elif self.drag_type == 3:
                 # Bottom edge
-                self.h += event.y - self.drag_y
+                self.height += event.y - self.drag_y
                 self.drag_y = event.y
                 self.force_location()
             else:
                 # Bottom Right
-                self.w += event.x - self.drag_x
-                self.h += event.y - self.drag_y
+                self.width += event.x - self.drag_x
+                self.height += event.y - self.drag_y
                 self.drag_x = event.x
                 self.drag_y = event.y
                 self.force_location()
 
-    def button_press(self, w, event):
+    def button_press(self, _widget, event):
         """Called when a mouse button is pressed on this window"""
-        (w, h) = self.get_size()
+        (width, height) = self.get_size()
         if not self.drag_type:
             self.drag_type = 1
             # Where in the window did we press?
-            if event.y > h - 32:
+            if event.y > height - 32:
                 self.drag_type += 2
-            if event.x > w - 32:
+            if event.x > width - 32:
                 self.drag_type += 1
             self.drag_x = event.x
             self.drag_y = event.y
@@ -118,24 +117,26 @@ class DraggableWindow(Gtk.Window):
         context.paint()
         context.set_operator(cairo.OPERATOR_OVER)
         # Get size of window
-        (sw, sh) = self.get_size()
+        (window_width, window_height) = self.get_size()
 
         # Draw text
         context.set_source_rgba(0.0, 0.0, 0.0, 1.0)
-        _xb, _yb, w, h, _dx, _dy = context.text_extents(self.message)
-        context.move_to(sw / 2 - w / 2, sh / 2 - h / 2)
+        _xb, _yb, text_width, text_height, _dx, _dy = context.text_extents(
+            self.message)
+        context.move_to(window_width / 2 - text_width / 2,
+                        window_height / 2 - text_height / 2)
         context.show_text(self.message)
 
         # Draw resizing edges
         context.set_source_rgba(0.0, 0.0, 1.0, 0.5)
-        context.rectangle(sw - 32, 0, 32, sh)
+        context.rectangle(window_width - 32, 0, 32, window_height)
         context.fill()
 
-        context.rectangle(0, sh - 32, sw, 32)
+        context.rectangle(0, window_height - 32, window_width, 32)
         context.fill()
 
     def get_coords(self):
         """Return window position and size"""
-        (x, y) = self.get_position()
-        (w, h) = self.get_size()
-        return (x, y, w, h)
+        (pos_x, pos_y) = self.get_position()
+        (width, height) = self.get_size()
+        return (pos_x, pos_y, width, height)

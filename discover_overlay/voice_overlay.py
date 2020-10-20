@@ -54,20 +54,20 @@ class VoiceOverlayWindow(OverlayWindow):
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
 
-    def set_bg(self, bg):
-        self.norm_col = bg
+    def set_bg(self, background_colour):
+        self.norm_col = background_colour
         self.redraw()
 
-    def set_fg(self, fg):
-        self.text_col = fg
+    def set_fg(self, foreground_colour):
+        self.text_col = foreground_colour
         self.redraw()
 
-    def set_tk(self, tk):
-        self.talk_col = tk
+    def set_tk(self, talking_colour):
+        self.talk_col = talking_colour
         self.redraw()
 
-    def set_mt(self, mt):
-        self.mute_col = mt
+    def set_mt(self, mute_colour):
+        self.mute_col = mute_colour
         self.redraw()
 
     def set_avatar_size(self, size):
@@ -116,11 +116,11 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_norm_col(self):
         self.col(self.norm_col)
 
-    def set_talk_col(self, a=1.0):
-        self.col(self.talk_col, a)
+    def set_talk_col(self, alpha=1.0):
+        self.col(self.talk_col, alpha)
 
-    def set_mute_col(self, a=1.0):
-        self.col(self.mute_col, a)
+    def set_mute_col(self, alpha=1.0):
+        self.col(self.mute_col, alpha)
 
     def set_user_list(self, userlist, alt):
         self.userlist = userlist
@@ -137,10 +137,10 @@ class VoiceOverlayWindow(OverlayWindow):
         else:  # Name sort
             self.userlist.sort(key=lambda x: x["friendlyname"])
         screen = self.get_screen()
-        c = screen.is_composited()
-        if not self.compositing == c:
+        # Check if composite state has changed
+        if not self.compositing == screen.is_composited():
             alt = True
-            self.compositing = c
+            self.compositing = screen.is_composited()
         if alt:
             self.redraw()
 
@@ -154,7 +154,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         # Get size of window
-        (w, h) = self.get_size()
+        (width, height) = self.get_size()
         # Make background transparent
         self.set_wind_col()
         # Don't layer drawing over each other, always replace
@@ -166,10 +166,10 @@ class VoiceOverlayWindow(OverlayWindow):
             # The window is full-screen regardless of what the user has selected. Because Wayland
             # We need to set a clip and a transform to imitate original behaviour
 
-            w = self.w
-            h = self.h
-            context.translate(self.x, self.y)
-            context.rectangle(0, 0, w, h)
+            width = self.width
+            height = self.height
+            context.translate(self.pos_x, self.pos_y)
+            context.rectangle(0, 0, width, height)
             context.clip()
 
         context.set_operator(cairo.OPERATOR_OVER)
@@ -206,25 +206,25 @@ class VoiceOverlayWindow(OverlayWindow):
             self.users_to_draw.insert(0, self_user)
 
         # Calculate height needed to show overlay
-        height = (len(self.users_to_draw) * self.avatar_size) + \
+        needed_height = (len(self.users_to_draw) * self.avatar_size) + \
             (len(self.users_to_draw) + 1) * self.icon_spacing
 
         # Choose where to start drawing
-        rh = 0 + self.vert_edge_padding
+        current_y = 0 + self.vert_edge_padding
         if self.align_vert == 1:
             # Ignore padding?
-            rh = (h / 2) - (height / 2)
+            current_y = (height / 2) - (needed_height / 2)
         elif self.align_vert == 2:
-            rh = h - height - self.vert_edge_padding
+            current_y = height - needed_height - self.vert_edge_padding
 
         for user in self.users_to_draw:
-            self.draw_avatar(context, user, rh)
+            self.draw_avatar(context, user, current_y)
             # Shift the relative position down to next location
-            rh += self.avatar_size + self.icon_spacing
+            current_y += self.avatar_size + self.icon_spacing
 
-        # Don't hold a ref
         if self.is_wayland:
             context.restore()
+        # Don't hold a ref
         self.context = None
 
     def recv_avatar(self, identifier, pix):
@@ -238,7 +238,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if id in self.avatars:
             del self.avatars[identifier]
 
-    def draw_avatar(self, context, user, y):
+    def draw_avatar(self, context, user, pos_y):
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
             url = "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (
@@ -249,7 +249,7 @@ class VoiceOverlayWindow(OverlayWindow):
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
 
-        c = None
+        colour = None
         mute = False
         deaf = False
 
@@ -258,94 +258,125 @@ class VoiceOverlayWindow(OverlayWindow):
         if "deaf" in user and user["deaf"]:
             deaf = True
         if "speaking" in user and user["speaking"] and not deaf and not mute:
-            c = self.talk_col
+            colour = self.talk_col
         pix = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
         if self.align_right:
             if not self.icon_only:
                 self.draw_text(
-                    context, user["friendlyname"], self.w - self.avatar_size - self.horz_edge_padding, y)
+                    context, user["friendlyname"],
+                    self.width - self.avatar_size - self.horz_edge_padding,
+                    pos_y
+                )
             self.draw_avatar_pix(
-                context, pix, self.w - self.avatar_size - self.horz_edge_padding, y, c)
+                context, pix,
+                self.width - self.avatar_size - self.horz_edge_padding,
+                pos_y,
+                colour
+            )
             if deaf:
-                self.draw_deaf(context, self.w - self.avatar_size -
-                               self.horz_edge_padding, y)
+                self.draw_deaf(context, self.width - self.avatar_size -
+                               self.horz_edge_padding, pos_y)
             elif mute:
-                self.draw_mute(context, self.w - self.avatar_size -
-                               self.horz_edge_padding, y)
+                self.draw_mute(context, self.width - self.avatar_size -
+                               self.horz_edge_padding, pos_y)
         else:
             if not self.icon_only:
                 self.draw_text(
-                    context, user["friendlyname"], self.avatar_size + self.horz_edge_padding, y)
+                    context,
+                    user["friendlyname"],
+                    self.avatar_size + self.horz_edge_padding,
+                    pos_y
+                )
             self.draw_avatar_pix(
-                context, pix, self.horz_edge_padding, y, c)
+                context, pix, self.horz_edge_padding, pos_y, colour
+            )
             if deaf:
-                self.draw_deaf(context, self.horz_edge_padding, y)
+                self.draw_deaf(context, self.horz_edge_padding, pos_y)
             elif mute:
-                self.draw_mute(context, self.horz_edge_padding, y)
+                self.draw_mute(context, self.horz_edge_padding, pos_y)
 
-    def draw_text(self, context, string, x, y):
+    def draw_text(self, context, string, pos_x, pos_y):
         if self.text_font:
             context.set_font_face(cairo.ToyFontFace(
                 self.text_font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL))
         context.set_font_size(self.text_size)
-        _xb, _yb, w, h, _dx, _dy = context.text_extents(string)
-        ho = (self.avatar_size / 2) - (h / 2)
+        _xb, _yb, width, height, _dx, _dy = context.text_extents(string)
+        height_offset = (self.avatar_size / 2) - (height / 2)
         if self.align_right:
             context.move_to(0, 0)
             self.set_norm_col()
-            context.rectangle(x - w - (self.text_pad * 2), y + ho - self.text_pad,
-                              w + (self.text_pad * 4), h + (self.text_pad * 2))
+            context.rectangle(
+                pos_x - width - (self.text_pad * 2),
+                pos_y + height_offset - self.text_pad,
+                width + (self.text_pad * 4),
+                height + (self.text_pad * 2)
+            )
             context.fill()
 
             self.set_text_col()
-            context.move_to(x - w - self.text_pad, y + ho + h)
+            context.move_to(
+                pos_x - width - self.text_pad,
+                pos_y + height_offset + height
+            )
             context.show_text(string)
         else:
             context.move_to(0, 0)
             self.set_norm_col()
-            context.rectangle(x - (self.text_pad * 2), y + ho - self.text_pad,
-                              w + (self.text_pad * 4), h + (self.text_pad * 2))
+            context.rectangle(
+                pos_x - (self.text_pad * 2),
+                pos_y + height_offset - self.text_pad,
+                width + (self.text_pad * 4),
+                height + (self.text_pad * 2)
+            )
             context.fill()
 
             self.set_text_col()
-            context.move_to(x + self.text_pad, y + ho + h)
+            context.move_to(pos_x + self.text_pad,
+                            pos_y + height_offset + height)
             context.show_text(string)
 
-    def draw_avatar_pix(self, context, pixbuf, x, y, c):
+    def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour):
         if not pixbuf:
             pixbuf = self.def_avatar
             if not pixbuf:
                 return
-        context.move_to(x, y)
+        context.move_to(pos_x, pos_y)
         context.save()
         if self.round_avatar:
-            context.arc(x + (self.avatar_size / 2), y +
+            context.arc(pos_x + (self.avatar_size / 2), pos_y +
                         (self.avatar_size / 2), self.avatar_size / 2, 0, 2 * math.pi)
             context.clip()
 
         self.set_norm_col()
         context.set_operator(cairo.OPERATOR_SOURCE)
-        context.rectangle(x, y, self.avatar_size, self.avatar_size)
+        context.rectangle(pos_x, pos_y, self.avatar_size, self.avatar_size)
         context.fill()
-        draw_img_to_rect(pixbuf, context, x, y,
+        draw_img_to_rect(pixbuf, context, pos_x, pos_y,
                          self.avatar_size, self.avatar_size)
         context.restore()
-        if c:
+        if border_colour:
             if self.round_avatar:
-                context.arc(x + (self.avatar_size / 2), y +
-                            (self.avatar_size / 2), self.avatar_size / 2, 0, 2 * math.pi)
-                self.col(c)
+                context.arc(
+                    pos_x + (self.avatar_size / 2),
+                    pos_y + (self.avatar_size / 2),
+                    self.avatar_size / 2,
+                    0, 2 * math.pi
+                )
+                self.col(border_colour)
                 context.stroke()
             else:
-                context.rectangle(x, y, self.avatar_size, self.avatar_size)
-                self.col(c)
+                context.rectangle(
+                    pos_x, pos_y,
+                    self.avatar_size, self.avatar_size
+                )
+                self.col(border_colour)
                 context.stroke()
 
-    def draw_mute(self, context, x, y):
+    def draw_mute(self, context, pos_x, pos_y):
         context.save()
-        context.translate(x, y)
+        context.translate(pos_x, pos_y)
         context.scale(self.avatar_size, self.avatar_size)
         self.set_mute_col()
         context.save()
@@ -397,9 +428,9 @@ class VoiceOverlayWindow(OverlayWindow):
 
         context.restore()
 
-    def draw_deaf(self, context, x, y):
+    def draw_deaf(self, context, pos_x, pos_y):
         context.save()
-        context.translate(x, y)
+        context.translate(pos_x, pos_y)
         context.scale(self.avatar_size, self.avatar_size)
         self.set_mute_col()
         context.save()

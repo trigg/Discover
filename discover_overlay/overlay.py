@@ -10,13 +10,16 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""Overlay parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+"""
+Overlay parent class. Helpful if we need more overlay
+types without copy-and-pasting too much code
+"""
 import sys
 import logging
 import gi
 import cairo
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk
 try:
     from gi.repository import GtkLayerShell
@@ -25,7 +28,10 @@ except ImportError:
 
 
 class OverlayWindow(Gtk.Window):
-    """Overlay parent class. Helpful if we need more overlay types without copy-and-pasting too much code"""
+    """
+    Overlay parent class. Helpful if we need more overlay
+    types without copy-and-pasting too much code
+    """
 
     def detect_type(self):
         window = Gtk.Window()
@@ -43,10 +49,10 @@ class OverlayWindow(Gtk.Window):
         self.compositing = False
         self.text_font = None
         self.text_size = None
-        self.x = None
-        self.y = None
-        self.w = None
-        self.h = None
+        self.pos_x = None
+        self.pos_y = None
+        self.width = None
+        self.height = None
 
         self.set_size_request(50, 50)
         self.connect('draw', self.overlay_draw)
@@ -97,24 +103,23 @@ class OverlayWindow(Gtk.Window):
         self.text_size = size
         self.redraw()
 
-    def set_floating(self, floating, x, y, w, h):
+    def set_floating(self, floating, pos_x, pos_y, width, height):
         self.floating = floating
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.width = width
+        self.height = height
         self.force_location()
 
     def set_untouchable(self):
-        (w, h) = self.get_size()
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        (width, height) = self.get_size()
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         surface_ctx = cairo.Context(surface)
         surface_ctx.set_source_rgba(0.0, 0.0, 0.0, 0.0)
         surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
         surface_ctx.paint()
         reg = Gdk.cairo_region_create_from_surface(surface)
         self.input_shape_combine_region(reg)
-        # self.shape_combine_region(reg)
 
     def unset_shape(self):
         self.get_window().shape_combine_region(None, 0, 0)
@@ -129,43 +134,38 @@ class OverlayWindow(Gtk.Window):
                 geometry = monitor.get_geometry()
                 scale_factor = monitor.get_scale_factor()
                 if not self.floating:
-                    w = scale_factor * geometry.width
-                    h = scale_factor * geometry.height
-                    x = geometry.x
-                    y = geometry.y
-                    self.resize(w, h)
-                    self.move(x, y)
+                    width = scale_factor * geometry.width
+                    height = scale_factor * geometry.height
+                    pos_x = geometry.x
+                    pos_y = geometry.y
+                    self.resize(width, height)
+                    self.move(pos_x, pos_y)
                 else:
-                    self.move(self.x, self.y)
-                    self.resize(self.w, self.h)
+                    self.move(self.pos_x, self.pos_y)
+                    self.resize(self.width, self.height)
             else:
-                if not self.floating:
-                    screen = display.get_default_screen()
-                    w = screen.width()
-                    h = screen.height()
-                    x = 0
-                    y = 0
-                else:
-                    self.move(self.x, self.y)
-                    self.resize(self.w, self.h)
+                if self.floating:
+                    self.move(self.pos_x, self.pos_y)
+                    self.resize(self.width, self.height)
 
         if not self.floating:
-            (w, h) = self.get_size()
-            self.w = w
-            self.h = h
+            (width, height) = self.get_size()
+            self.width = width
+            self.height = height
         self.redraw()
 
     def redraw(self):
         gdkwin = self.get_window()
         if not self.floating:
-            (w, h) = self.get_size()
-            self.w = w
-            self.h = h
+            (width, height) = self.get_size()
+            self.width = width
+            self.height = height
 
         if gdkwin:
             if not self.compositing or self.force_xshape:
-                (w, h) = self.get_size()
-                surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+                (width, height) = self.get_size()
+                surface = cairo.ImageSurface(
+                    cairo.FORMAT_ARGB32, width, height)
                 surface_ctx = cairo.Context(surface)
                 self.overlay_draw(None, surface_ctx)
                 reg = Gdk.cairo_region_create_from_surface(surface)
@@ -182,18 +182,18 @@ class OverlayWindow(Gtk.Window):
         self.force_location()
         self.redraw()
 
-    def set_align_x(self, b):
-        self.align_right = b
+    def set_align_x(self, align_right):
+        self.align_right = align_right
         self.force_location()
         self.redraw()
 
-    def set_align_y(self, i):
-        self.align_vert = i
+    def set_align_y(self, align_vert):
+        self.align_vert = align_vert
         self.force_location()
         self.redraw()
 
-    def col(self, c, a=1.0):
-        self.context.set_source_rgba(c[0], c[1], c[2], c[3] * a)
+    def col(self, col, alpha=1.0):
+        self.context.set_source_rgba(col[0], col[1], col[2], col[3] * alpha)
 
     def set_force_xshape(self, force):
         self.force_xshape = force

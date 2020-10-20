@@ -16,7 +16,7 @@ from .voice_settings import VoiceSettingsWindow
 from .text_settings import TextSettingsWindow
 from .general_settings import GeneralSettingsWindow
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk
 
 
@@ -36,26 +36,26 @@ class MainSettingsWindow(Gtk.Window):
         self.set_default_size(280, 180)
 
         # Create
-        nb = Gtk.Notebook()
+        notebook = Gtk.Notebook()
         # nb.set_tab_pos(Gtk.POS_TOP)
 
         self.voice_settings = VoiceSettingsWindow(self.voice_overlay)
-        nb.append_page(self.voice_settings)
-        nb.set_tab_label_text(self.voice_settings, "Voice")
+        notebook.append_page(self.voice_settings)
+        notebook.set_tab_label_text(self.voice_settings, "Voice")
         self.text_settings = TextSettingsWindow(self.text_overlay)
-        nb.append_page(self.text_settings)
-        nb.set_tab_label_text(self.text_settings, "Text")
+        notebook.append_page(self.text_settings)
+        notebook.set_tab_label_text(self.text_settings, "Text")
         self.core_settings = GeneralSettingsWindow(
             self.text_overlay, self.voice_overlay)
-        nb.append_page(self.core_settings)
-        nb.set_tab_label_text(self.core_settings, "Core")
-        self.add(nb)
-        self.nb = nb
+        notebook.append_page(self.core_settings)
+        notebook.set_tab_label_text(self.core_settings, "Core")
+        self.add(notebook)
+        self.notebook = notebook
 
-    def close_window(self, a=None, b=None):
-        self.text_settings.close_window(a, b)
-        self.voice_settings.close_window(a, b)
-        self.core_settings.close_window(a, b)
+    def close_window(self, widget=None, event=None):
+        self.text_settings.close_window(widget, event)
+        self.voice_settings.close_window(widget, event)
+        self.core_settings.close_window(widget, event)
         self.hide()
         return True
 
@@ -63,5 +63,5 @@ class MainSettingsWindow(Gtk.Window):
         self.voice_settings.present_settings()
         self.text_settings.present_settings()
         self.core_settings.present_settings()
-        self.nb.show()
+        self.notebook.show()
         self.show()

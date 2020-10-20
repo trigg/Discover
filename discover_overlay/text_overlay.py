@@ -20,7 +20,7 @@ from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
 from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo
 
 
@@ -47,20 +47,20 @@ class TextOverlayWindow(OverlayWindow):
         self.fg_col = [1.0, 1.0, 1.0, 1.0]
         self.attachment = {}
 
-        self.imgList = []
-        self.imgFinder = re.compile(r"`")
+        self.image_list = []
+        self.img_finder = re.compile(r"`")
         self.set_title("Discover Text")
 
-    def set_text_time(self, t):
-        self.text_time = t
+    def set_text_time(self, timer):
+        self.text_time = timer
 
-    def set_text_list(self, tlist, alt):
+    def set_text_list(self, tlist, altered):
         self.content = tlist
-        if alt:
+        if altered:
             self.redraw()
 
-    def set_enabled(self, en):
-        if en:
+    def set_enabled(self, enabled):
+        if enabled:
             self.show_all()
         else:
             self.hide()
@@ -73,12 +73,12 @@ class TextOverlayWindow(OverlayWindow):
         self.bg_col = bg_col
         self.redraw()
 
-    def set_show_attach(self, att):
-        self.show_attach = att
+    def set_show_attach(self, attachment):
+        self.show_attach = attachment
         self.redraw()
 
-    def set_popup_style(self, b):
-        self.popup_style = b
+    def set_popup_style(self, boolean):
+        self.popup_style = boolean
 
     def set_font(self, name, size):
         self.text_font = name
@@ -88,48 +88,50 @@ class TextOverlayWindow(OverlayWindow):
         self.pango_rect.height = self.text_size * Pango.SCALE
         self.redraw()
 
-    def make_line(self, msg):
+    def make_line(self, message):
         ret = ""
-        if isinstance(msg, list):
-            for a in msg:
-                ret = "%s%s" % (ret, self.make_line(a))
-        elif isinstance(msg, str):
-            ret = msg
-        elif msg['type'] == 'strong':
-            ret = "<b>%s</b>" % (self.make_line(msg['content']))
-        elif msg['type'] == 'text':
-            ret = self.santize_string(msg['content'])
-        elif msg['type'] == 'link':
-            ret = "<u>%s</u>" % (self.make_line(msg['content']))
-        elif msg['type'] == 'emoji':
-            if 'surrogate' in msg:
+        if isinstance(message, list):
+            for inner_message in message:
+                ret = "%s%s" % (ret, self.make_line(inner_message))
+        elif isinstance(message, str):
+            ret = message
+        elif message['type'] == 'strong':
+            ret = "<b>%s</b>" % (self.make_line(message['content']))
+        elif message['type'] == 'text':
+            ret = self.sanitize_string(message['content'])
+        elif message['type'] == 'link':
+            ret = "<u>%s</u>" % (self.make_line(message['content']))
+        elif message['type'] == 'emoji':
+            if 'surrogate' in message:
                 # ['src'] is SVG URL
-                #ret = msg
-                ret = msg['surrogate']
+                # ret = msg
+                ret = message['surrogate']
             else:
                 ### Add Image ###
                 url = ("https://cdn.discordapp.com/emojis/%s.png?v=1" %
-                       (msg['emojiId']))
+                       (message['emojiId']))
                 img = {"url": url}
-                self.imgList.append(img)
+                self.image_list.append(img)
                 ret = "`"
-        elif msg['type'] == 'inlineCode' or msg['type'] == 'codeBlock' or msg['type'] == 'blockQuote':
+        elif (message['type'] == 'inlineCode' or
+              message['type'] == 'codeBlock' or
+              message['type'] == 'blockQuote'):
             ret = "<span font_family=\"monospace\" background=\"#0004\">%s</span>" % (
-                self.make_line(msg['content']))
-        elif msg['type'] == 'u':
-            ret = "<u>%s</u>" % (self.make_line(msg['content']))
-        elif msg['type'] == 'em':
-            ret = "<i>%s</i>" % (self.make_line(msg['content']))
-        elif msg['type'] == 's':
-            ret = "<s>%s</s>" % (self.make_line(msg['content']))
-        elif msg['type'] == 'channel':
-            ret = self.make_line(msg['content'])
-        elif msg['type'] == 'mention':
-            ret = self.make_line(msg['content'])
-        elif msg['type'] == 'br':
+                self.make_line(message['content']))
+        elif message['type'] == 'u':
+            ret = "<u>%s</u>" % (self.make_line(message['content']))
+        elif message['type'] == 'em':
+            ret = "<i>%s</i>" % (self.make_line(message['content']))
+        elif message['type'] == 's':
+            ret = "<s>%s</s>" % (self.make_line(message['content']))
+        elif message['type'] == 'channel':
+            ret = self.make_line(message['content'])
+        elif message['type'] == 'mention':
+            ret = self.make_line(message['content'])
+        elif message['type'] == 'br':
             ret = '\n'
         else:
-            logging.error("Unknown text type : %s", msg["type"])
+            logging.error("Unknown text type : %s", message["type"])
         return ret
 
     def recv_attach(self, identifier, pix):
@@ -139,7 +141,7 @@ class TextOverlayWindow(OverlayWindow):
     def overlay_draw(self, _w, context, data=None):
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
-        (w, h) = self.get_size()
+        (width, height) = self.get_size()
         # Make background transparent
         context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
         context.set_operator(cairo.OPERATOR_SOURCE)
@@ -150,19 +152,19 @@ class TextOverlayWindow(OverlayWindow):
             # The window is full-screen regardless of what the user has selected. Because Wayland
             # We need to set a clip and a transform to imitate original behaviour
 
-            w = self.w
-            h = self.h
-            context.translate(self.x, self.y)
-            context.rectangle(0, 0, w, h)
+            width = self.width
+            height = self.height
+            context.translate(self.pos_x, self.pos_y)
+            context.rectangle(0, 0, width, height)
             context.clip()
 
-        cy = h
+        current_y = height
         tnow = time.time()
         for line in reversed(self.content):
             if self.popup_style and tnow - line['time'] > self.text_time:
                 break
             out_line = ""
-            self.imgList = []
+            self.image_list = []
 
             col = "#fff"
             if 'nick_col' in line and line['nick_col']:
@@ -170,98 +172,106 @@ class TextOverlayWindow(OverlayWindow):
             for in_line in line['content']:
                 out_line = "%s%s" % (out_line, self.make_line(in_line))
             if line['attach'] and self.show_attach:
-                at = line['attach'][0]
-                url = at['url']
+                attachment = line['attach'][0]
+                url = attachment['url']
                 if url in self.attachment:
-                    cy = self.draw_attach(cy, url)
+                    current_y = self.draw_attach(current_y, url)
                 else:
                     get_surface(self.recv_attach,
                                 url,
                                 url, None)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
-            cy = self.draw_text(cy, "<span foreground='%s'>%s</span>: %s" % (self.santize_string(col),
-                                                                             self.santize_string(line["nick"]), out_line))
-            if cy <= 0:
+            message = "<span foreground='%s'>%s</span>: %s" % (self.sanitize_string(col),
+                                                               self.sanitize_string(
+                                                                   line["nick"]),
+                                                               out_line)
+            current_y = self.draw_text(current_y, message)
+            if current_y <= 0:
                 # We've done enough
                 break
         if self.is_wayland:
             context.restore()
 
-    def draw_attach(self, y, url):
+    def draw_attach(self, pos_y, url):
         if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
-            iw = pix.get_width()
-            ih = pix.get_height()
-            iw = min(iw, self.w)
-            ih = min(ih, (self.h * .7))
-            (_ax, _ay, _aw, ah) = get_aspected_size(pix, iw, ih)
+            image_width = min(pix.get_width(), self.width)
+            image_height = min(pix.get_height(), (self.height * .7))
+            (_ax, _ay, _aw, aspect_height) = get_aspected_size(
+                pix, image_width, image_height)
             self.col(self.bg_col)
-            self.context.rectangle(0, y - ah, self.w, ah)
+            self.context.rectangle(0, pos_y - aspect_height,
+                                   self.width, aspect_height)
 
             self.context.fill()
             self.context.set_operator(cairo.OPERATOR_OVER)
             _new_w, new_h = draw_img_to_rect(
-                pix, self.context, 0, y - ih, iw, ih, aspect=True)
-            return y - new_h
-        return y
+                pix, self.context, 0, pos_y - image_height, image_width, image_height, aspect=True)
+            return pos_y - new_h
+        return pos_y
 
-    def draw_text(self, y, text):
+    def draw_text(self, pos_y, text):
 
         layout = self.create_pango_layout(text)
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        layout.set_width(Pango.SCALE * self.w)
+        layout.set_width(Pango.SCALE * self.width)
         layout.set_spacing(Pango.SCALE * 3)
-        if(self.text_font):
+        if self.text_font:
             font = Pango.FontDescription(
                 "%s %s" % (self.text_font, self.text_size))
             layout.set_font_description(font)
-        _tw, th = layout.get_pixel_size()
+        _tw, text_height = layout.get_pixel_size()
         self.col(self.bg_col)
-        self.context.rectangle(0, y - th, self.w, th)
+        self.context.rectangle(0, pos_y - text_height, self.width, text_height)
         self.context.fill()
         self.context.set_operator(cairo.OPERATOR_OVER)
         self.col(self.fg_col)
 
-        self.context.move_to(0, y - th)
+        self.context.move_to(0, pos_y - text_height)
         PangoCairo.context_set_shape_renderer(
             self.get_pango_context(), self.render_custom, None)
 
         text = layout.get_text()
         count = 0
 
-        for loc in self.imgFinder.finditer(text):
+        for loc in self.img_finder.finditer(text):
             idx = loc.start()
 
-            if len(self.imgList) <= count:
+            if len(self.image_list) <= count:
                 break  # We fucked up. Who types ` anyway
-            #url = self.imgList[count]
+            # url = self.imgList[count]
 
-            at = Pango.attr_shape_new_with_data(
+            attachment = Pango.attr_shape_new_with_data(
                 self.pango_rect, self.pango_rect, count, None)
-            at.start_index = idx
-            at.end_index = idx + 1
-            attr.insert(at)
+            attachment.start_index = idx
+            attachment.end_index = idx + 1
+            attr.insert(attachment)
             count += 1
         layout.set_attributes(attr)
 
         PangoCairo.show_layout(self.context, layout)
-        return y - th
+        return pos_y - text_height
 
     def render_custom(self, ctx, shape, path, _data):
-        key = self.imgList[shape.data]['url']
+        key = self.image_list[shape.data]['url']
         if key not in self.attachment:
             get_surface(self.recv_attach,
                         key,
                         key, None)
             return
         pix = self.attachment[key]
-        (x, y) = ctx.get_current_point()
-        draw_img_to_rect(pix, ctx, x, y - self.text_size, self.text_size,
+        (pos_x, pos_y) = ctx.get_current_point()
+        draw_img_to_rect(pix, ctx, pos_x, pos_y - self.text_size, self.text_size,
                          self.text_size, path=path)
         return True
 
-    def santize_string(self, string):
+    def sanitize_string(self, string):
         # I hate that Pango has nothing for this.
-        return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("'", "&#39;").replace("\"", "&#34;")
+        string.replace("&", "&amp;")
+        string.replace("<", "&lt;")
+        string .replace(">", "&gt;")
+        string.replace("'", "&#39;")
+        string.replace("\"", "&#34;")
+        return string

@@ -18,7 +18,7 @@ from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
 gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk, Pango
 
 
@@ -70,7 +70,7 @@ class VoiceSettingsWindow(SettingsWindow):
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         self.align_x = config.getboolean("main", "rightalign", fallback=True)
         self.align_y = config.getint("main", "topalign", fallback=1)
         self.bg_col = json.loads(config.get(
@@ -130,14 +130,14 @@ class VoiceSettingsWindow(SettingsWindow):
 
         if self.font:
             desc = Pango.FontDescription.from_string(self.font)
-            s = desc.get_size()
+            size = desc.get_size()
             if not desc.get_size_is_absolute():
-                s = s / Pango.SCALE
-            self.overlay.set_font(desc.get_family(), s)
+                size = size / Pango.SCALE
+            self.overlay.set_font(desc.get_family(), size)
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
-        config.read(self.configFile)
+        config.read(self.config_file)
         if not config.has_section("main"):
             config.add_section("main")
 
@@ -168,7 +168,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_h", "%s" % (self.floating_h))
         config.set("main", "order", "%s" % (self.order))
 
-        with open(self.configFile, 'w') as file:
+        with open(self.config_file, 'w') as file:
             config.write(file)
 
     def create_gui(self):
@@ -231,9 +231,9 @@ class VoiceSettingsWindow(SettingsWindow):
         monitor = Gtk.ComboBox.new_with_model(monitor_store)
         monitor.set_active(self.get_monitor_index(self.monitor))
         monitor.connect("changed", self.change_monitor)
-        rt = Gtk.CellRendererText()
-        monitor.pack_start(rt, True)
-        monitor.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        monitor.pack_start(renderer_text, True)
+        monitor.add_attribute(renderer_text, "text", 0)
 
         align_x_store = Gtk.ListStore(str)
         align_x_store.append(["Left"])
@@ -241,9 +241,9 @@ class VoiceSettingsWindow(SettingsWindow):
         align_x = Gtk.ComboBox.new_with_model(align_x_store)
         align_x.set_active(True if self.align_x else False)
         align_x.connect("changed", self.change_align_x)
-        rt = Gtk.CellRendererText()
-        align_x.pack_start(rt, True)
-        align_x.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        align_x.pack_start(renderer_text, True)
+        align_x.add_attribute(renderer_text, "text", 0)
 
         align_y_store = Gtk.ListStore(str)
         align_y_store.append(["Top"])
@@ -252,9 +252,9 @@ class VoiceSettingsWindow(SettingsWindow):
         align_y = Gtk.ComboBox.new_with_model(align_y_store)
         align_y.set_active(self.align_y)
         align_y.connect("changed", self.change_align_y)
-        rt = Gtk.CellRendererText()
-        align_y.pack_start(rt, True)
-        align_y.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        align_y.pack_start(renderer_text, True)
+        align_y.add_attribute(renderer_text, "text", 0)
 
         align_placement_button = Gtk.Button.new_with_label("Place Window")
 
@@ -329,9 +329,9 @@ class VoiceSettingsWindow(SettingsWindow):
         order = Gtk.ComboBox.new_with_model(order_store)
         order.set_active(self.order)
         order.connect("changed", self.change_order)
-        rt = Gtk.CellRendererText()
-        order.pack_start(rt, True)
-        order.add_attribute(rt, "text", 0)
+        renderer_text = Gtk.CellRendererText()
+        order.pack_start(renderer_text, True)
+        order.add_attribute(renderer_text, "text", 0)
 
         box.attach(font_label, 0, 0, 1, 1)
         box.attach(font, 1, 0, 1, 1)
@@ -374,12 +374,12 @@ class VoiceSettingsWindow(SettingsWindow):
 
     def change_placement(self, button):
         if self.placement_window:
-            (x, y, w, h) = self.placement_window.get_coords()
-            self.floating_x = x
-            self.floating_y = y
-            self.floating_w = w
-            self.floating_h = h
-            self.overlay.set_floating(True, x, y, w, h)
+            (pos_x, pos_y, width, height) = self.placement_window.get_coords()
+            self.floating_x = pos_x
+            self.floating_y = pos_y
+            self.floating_w = width
+            self.floating_h = height
+            self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
             if not self.overlay.is_wayland:
                 button.set_label("Place Window")
@@ -388,13 +388,13 @@ class VoiceSettingsWindow(SettingsWindow):
         else:
             if self.overlay.is_wayland:
                 self.placement_window = DraggableWindowWayland(
-                    x=self.floating_x, y=self.floating_y,
-                    w=self.floating_w, h=self.floating_h,
+                    pos_x=self.floating_x, pos_y=self.floating_y,
+                    width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Green!", settings=self)
             else:
                 self.placement_window = DraggableWindow(
-                    x=self.floating_x, y=self.floating_y,
-                    w=self.floating_w, h=self.floating_h,
+                    pos_x=self.floating_x, pos_y=self.floating_y,
+                    width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Save!", settings=self)
             if not self.overlay.is_wayland:
                 button.set_label("Save this position")
@@ -428,44 +428,44 @@ class VoiceSettingsWindow(SettingsWindow):
     def change_font(self, button):
         font = button.get_font()
         desc = Pango.FontDescription.from_string(font)
-        s = desc.get_size()
+        size = desc.get_size()
         if not desc.get_size_is_absolute():
-            s = s / Pango.SCALE
-        self.overlay.set_font(desc.get_family(), s)
+            size = size / Pango.SCALE
+        self.overlay.set_font(desc.get_family(), size)
 
         self.font = desc.to_string()
         self.save_config()
 
     def change_bg(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_bg(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_bg(colour)
 
-        self.bg_col = c
+        self.bg_col = colour
         self.save_config()
 
     def change_fg(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_fg(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_fg(colour)
 
-        self.fg_col = c
+        self.fg_col = colour
         self.save_config()
 
     def change_tk(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_tk(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_tk(colour)
 
-        self.tk_col = c
+        self.tk_col = colour
         self.save_config()
 
     def change_mt(self, button):
-        c = button.get_rgba()
-        c = [c.red, c.green, c.blue, c.alpha]
-        self.overlay.set_mt(c)
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_mt(colour)
 
-        self.mt_col = c
+        self.mt_col = colour
         self.save_config()
 
     def change_avatar_size(self, button):
