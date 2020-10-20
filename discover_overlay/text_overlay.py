@@ -303,9 +303,9 @@ class TextOverlayWindow(OverlayWindow):
         """
         Sanitize a text message so that it doesn't intefere with Pango's XML format
         """
-        string.replace("&", "&amp;")
-        string.replace("<", "&lt;")
-        string .replace(">", "&gt;")
-        string.replace("'", "&#39;")
-        string.replace("\"", "&#34;")
+        string = string.replace("&", "&amp;")
+        string = string.replace("<", "&lt;")
+        string = string .replace(">", "&gt;")
+        string = string.replace("'", "&#39;")
+        string = string.replace("\"", "&#34;")
         return string
