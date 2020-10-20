@@ -9,7 +9,7 @@ setup(
     name='discover-overlay',
     author='trigg',
     author_email='',
-    version='0.3.0',
+    version='0.3.1',
     description='Voice chat overlay',
     long_description=readme(),
     long_description_content_type='text/markdown',
@@ -17,7 +17,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     data_files=[
-        ('share/applications', ['discover_overlay.desktop','discover_overlay_conf.desktop','discover_overlay_close.desktop']),
+        ('share/applications', ['discover_overlay.desktop',
+                                'discover_overlay_conf.desktop', 'discover_overlay_close.desktop']),
         ('share/icons', ['discover-overlay.png'])
     ],
     install_requires=[
