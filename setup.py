@@ -17,8 +17,11 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     data_files=[
-        ('share/applications', ['discover_overlay.desktop',
-                                'discover_overlay_conf.desktop', 'discover_overlay_close.desktop']),
+        ('share/applications', [
+            'discover_overlay.desktop',
+            'discover_overlay_conf.desktop',
+            'discover_overlay_close.desktop'
+        ]),
         ('share/icons', ['discover-overlay.png'])
     ],
     install_requires=[

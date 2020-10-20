@@ -1,0 +1,7 @@
+Attempts have been made to keep this project meeting PEP8 standards. While 
+meeting this standard would be nice pull request & patch acceptance will 
+be based on merit first and coding standard second. 
+
+Due to a quirk in the way pygobject functions and the fact we use soft
+dependencies rules & advisories about import order and position are
+routinely ignored with a #pylint metacomment
