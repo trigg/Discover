@@ -121,13 +121,13 @@ class Discover:
 
 
 def entrypoint():
-    configDir = os.path.join(xdg_config_home, "discover_overlay")
-    os.makedirs(configDir, exist_ok=True)
+    config_dir = os.path.join(xdg_config_home, "discover_overlay")
+    os.makedirs(config_dir, exist_ok=True)
     line = ""
     for arg in sys.argv[1:]:
         line = "%s %s" % (line, arg)
-    pid_file = os.path.join(configDir, "discover_overlay.pid")
-    rpc_file = os.path.join(configDir, "discover_overlay.rpc")
+    pid_file = os.path.join(config_dir, "discover_overlay.pid")
+    rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     try:
         with pidfile.PIDFile(pid_file):
             logging.getLogger().setLevel(logging.INFO)
