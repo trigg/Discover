@@ -53,6 +53,9 @@ class MainSettingsWindow(Gtk.Window):
         self.notebook = notebook
 
     def close_window(self, widget=None, event=None):
+        """
+        Hide the settings window for use at a later date
+        """
         self.text_settings.close_window(widget, event)
         self.voice_settings.close_window(widget, event)
         self.core_settings.close_window(widget, event)
@@ -60,6 +63,9 @@ class MainSettingsWindow(Gtk.Window):
         return True
 
     def present_settings(self):
+        """
+        Show the settings window
+        """
         self.voice_settings.present_settings()
         self.text_settings.present_settings()
         self.core_settings.present_settings()

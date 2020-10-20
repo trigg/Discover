@@ -38,6 +38,9 @@ class GeneralSettingsWindow(SettingsWindow):
         self.create_gui()
 
     def read_config(self):
+        """
+        Read in the 'general' section of config and set overlays
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.xshape = config.getboolean("general", "xshape", fallback=False)
@@ -47,6 +50,9 @@ class GeneralSettingsWindow(SettingsWindow):
         self.overlay2.set_force_xshape(self.xshape)
 
     def save_config(self):
+        """
+        Save the 'general' section of config
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         if not config.has_section("general"):
@@ -58,6 +64,9 @@ class GeneralSettingsWindow(SettingsWindow):
             config.write(file)
 
     def create_gui(self):
+        """
+        Prepare the GUI
+        """
         box = Gtk.Grid()
 
         # Auto start
@@ -80,10 +89,16 @@ class GeneralSettingsWindow(SettingsWindow):
         self.add(box)
 
     def change_autostart(self, button):
+        """
+        Autostart setting changed
+        """
         autostart = button.get_active()
         self.autostart_helper.set_autostart(autostart)
 
     def change_xshape(self, button):
+        """
+        XShape setting changed
+        """
         self.overlay.set_force_xshape(button.get_active())
         self.overlay2.set_force_xshape(button.get_active())
         self.xshape = button.get_active()

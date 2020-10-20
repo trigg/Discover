@@ -14,6 +14,11 @@
 The connector for discord.
 Connects in as if it was Streamkit for OBS or Xsplit and
 communicates to get voice & text info to display
+
+Terminology:
+GUILDS - Often called 'Servers' in dicord. It is the group of users and channels that make up
+         one server.
+CHANNEL - Often called 'Rooms'. Both voice and text channels are types of channel
 """
 import select
 import time
@@ -59,6 +64,9 @@ class DiscordConnector:
         self.last_text_channel = None
 
     def get_access_token_stage1(self):
+        """
+        First stage of getting an access token. Request authorization from Discord client
+        """
         cmd = {
             "cmd": "AUTHORIZE",
             "args":
@@ -72,6 +80,9 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def get_access_token_stage2(self, code1):
+        """
+        Second stage of getting an access token. Give auth code to streamkit
+        """
         url = "https://streamkit.discord.com/overlay/token"
         myobj = {"code": code1}
         response = requests.post(url, json=myobj)
@@ -86,6 +97,9 @@ class DiscordConnector:
             sys.exit(1)
 
     def set_channel(self, channel, need_req=True):
+        """
+        Set currently active voice channel
+        """
         if not channel:
             self.current_voice = "0"
             return
@@ -99,6 +113,9 @@ class DiscordConnector:
                 self.req_channel_details(channel)
 
     def set_text_channel(self, channel, need_req=True):
+        """
+        Set currently active text channel
+        """
         if not channel:
             self.current_text = "0"
             return
@@ -110,6 +127,9 @@ class DiscordConnector:
                 self.req_channel_details(channel)
 
     def set_in_room(self, userid, present):
+        """
+        Set user currently in given room
+        """
         if present:
             if userid not in self.in_room:
                 self.in_room.append(userid)
@@ -118,6 +138,9 @@ class DiscordConnector:
                 self.in_room.remove(userid)
 
     def add_text(self, message):
+        """
+        Add line of text to text list. Assumes the message is from the correct room
+        """
         utc_time = time.strptime(
             message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
         epoch_time = calendar.timegm(utc_time)
@@ -138,6 +161,9 @@ class DiscordConnector:
         self.text_altered = True
 
     def update_text(self, message_in):
+        """
+        Update a line of text
+        """
         for idx in range(0, len(self.text)):
             message = self.text[idx]
             if message['id'] == message_in['id']:
@@ -152,6 +178,9 @@ class DiscordConnector:
                 return
 
     def delete_text(self, message_in):
+        """
+        Delete a line of text
+        """
         for idx in range(0, len(self.text)):
             message = self.text[idx]
             if message['id'] == message_in['id']:
@@ -160,6 +189,10 @@ class DiscordConnector:
                 return
 
     def get_message_from_message(self, message):
+        """
+        Messages are sent as JSON objects, with varying information.
+        Decides which bits are shown and which are discarded
+        """
         if "content_parsed" in message:
             return message["content_parsed"]
         elif "content" in message and len(message["content"]) > 0:
@@ -174,11 +207,19 @@ class DiscordConnector:
         return ""
 
     def get_attachment_from_message(self, message):
+        """
+        Messages with attachments come in different forms, decide what is and is
+        not an attachment
+        """
         if len(message["attachments"]) == 1:
             return message["attachments"]
         return None
 
     def update_user(self, user):
+        """
+        Update user information
+        Pass along our custom user information from version to version
+        """
         if user["id"] in self.userlist:
             olduser = self.userlist[user["id"]]
             if "mute" not in user and "mute" in olduser:
@@ -200,6 +241,9 @@ class DiscordConnector:
         self.userlist[user["id"]] = user
 
     def on_message(self, message):
+        """
+        Recieve websocket message super-function
+        """
         j = json.loads(message)
         if j["cmd"] == "AUTHORIZE":
             self.get_access_token_stage2(j["data"]["code"])
@@ -322,7 +366,9 @@ class DiscordConnector:
         logging.info(j)
 
     def check_guilds(self):
-        # Check if all of the guilds contain a channel
+        """
+        Check if all of the guilds contain a channel
+        """
         for guild in self.guilds.values():
             if "channels" not in guild:
                 return
@@ -330,6 +376,9 @@ class DiscordConnector:
         self.on_connected()
 
     def on_connected(self):
+        """
+        Called when connection is finalised
+        """
         for guild in self.guilds.values():
             channels = ""
             for channel in guild["channels"]:
@@ -342,13 +391,22 @@ class DiscordConnector:
             self.sub_text_channel(self.last_text_channel)
 
     def on_error(self, error):
+        """
+        Called when an error has occured
+        """
         logging.error("ERROR : %s", error)
 
     def on_close(self):
+        """
+        Called when connection is closed
+        """
         logging.info("Connection closed")
         self.websocket = None
 
     def req_auth(self):
+        """
+        Request authentication token
+        """
         cmd = {
             "cmd": "AUTHENTICATE",
             "args": {
@@ -359,6 +417,9 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def req_guilds(self):
+        """
+        Request all guilds information for logged in user
+        """
         cmd = {
             "cmd": "GET_GUILDS",
             "args": {},
@@ -367,6 +428,9 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def req_channels(self, guild):
+        """
+        Request all channels information for given guild
+        """
         cmd = {
             "cmd": "GET_CHANNELS",
             "args": {
@@ -377,6 +441,9 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def req_channel_details(self, channel):
+        """
+        Request information about a specific channel
+        """
         cmd = {
             "cmd": "GET_CHANNEL",
             "args": {
@@ -387,6 +454,17 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def find_user(self):
+        """
+        ***Potential overload issue***
+
+        Asks the server for information about every single voice channel (type==2)
+        in the hope that one of them will say the user is present
+
+        because if asks about every single one without waiting for reply it is heavy even
+        if the user is relatively simple to find
+
+        It might be worth limiting the usage of this
+        """
         count = 0
         for channel in self.channels:
             if self.channels[channel]["type"] == 2:
@@ -395,6 +473,9 @@ class DiscordConnector:
         logging.warning("Getting %s rooms", count)
 
     def sub_raw(self, event, args, nonce):
+        """
+        Subscribe to event helper function
+        """
         cmd = {
             "cmd": "SUBSCRIBE",
             "args": args,
@@ -404,18 +485,34 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def sub_server(self):
+        """
+        Subscribe to helpful events that report connectivity issues &
+        when the user has intentionally changed channel
+
+        Unfortunatly no event has been found to alert to being forcibly moved
+        or that reports the users current location
+        """
         self.sub_raw("VOICE_CHANNEL_SELECT", {}, "VOICE_CHANNEL_SELECT")
         self.sub_raw("VOICE_CONNECTION_STATUS", {}, "VOICE_CONNECTION_STATUS")
 
     def sub_channel(self, event, channel):
+        """
+        Subscribe to event on channel
+        """
         self.sub_raw(event, {"channel_id": channel}, channel)
 
     def sub_text_channel(self, channel):
+        """
+        Subscribe to text-based events.
+        """
         self.sub_channel("MESSAGE_CREATE", channel)
         self.sub_channel("MESSAGE_UPDATE", channel)
         self.sub_channel("MESSAGE_DELETE", channel)
 
     def sub_voice_channel(self, channel):
+        """
+        Subscribe to voice-based events
+        """
         self.sub_channel("VOICE_STATE_CREATE", channel)
         self.sub_channel("VOICE_STATE_UPDATE", channel)
         self.sub_channel("VOICE_STATE_DELETE", channel)
@@ -423,6 +520,15 @@ class DiscordConnector:
         self.sub_channel("SPEAKING_STOP", channel)
 
     def do_read(self):
+        """
+        Poorly named logic center.
+
+        Checks for new data on socket, passes to on_message
+
+        Also passes out text data to text overlay and voice data to voice overlay
+
+        Called at 60Hz approximately but has near zero bearing on rendering
+        """
         # Ensure connection
         if not self.websocket:
             self.connect()
@@ -466,12 +572,22 @@ class DiscordConnector:
         return True
 
     def start_listening_text(self, channel):
+        """
+        Subscribe to text events on channel, or remember the channel for when we've connected
+
+        Helper function to avoid race conditions of reading config vs connecting to websocket
+        """
         if self.websocket:
             self.sub_text_channel(channel)
         else:
             self.last_text_channel = channel
 
     def connect(self):
+        """
+        Attempt to connect to websocket
+
+        Should not throw simply for being unable to connect, only for more serious issues
+        """
         if self.websocket:
             return
         try:

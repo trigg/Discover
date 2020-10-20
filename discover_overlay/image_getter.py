@@ -33,6 +33,9 @@ class ImageGetter():
         self.size = size
 
     def get_url(self):
+        """
+        Download and decode
+        """
         req = urllib.request.Request(self.url)
         req.add_header(
             'Referer', 'https://streamkit.discord.com/overlay/voice')
@@ -150,11 +153,14 @@ def draw_img_to_rect(img, ctx,
                      width, height,
                      path=False, aspect=False,
                      anchor=0, hanchor=0):
-    """Draw cairo surface onto context"""
-    # Path - only add the path do not fill : True/False
-    # Aspect - keep aspect ratio : True/False
-    # Anchor - with aspect : 0=left 1=middle 2=right
-    # HAnchor - with apect : 0=bottom 1=middle 2=top
+    """Draw cairo surface onto context
+
+    Path - only add the path do not fill : True/False
+    Aspect - keep aspect ratio : True/False
+    Anchor - with aspect : 0=left 1=middle 2=right
+    HAnchor - with apect : 0=bottom 1=middle 2=top
+    """
+
     ctx.save()
     offset_x = 0
     offset_y = 0

@@ -53,6 +53,9 @@ class Discover:
         Gtk.main()
 
     def do_args(self, data):
+        """
+        Read in arg list from command or RPC and act accordingly
+        """
         if "--help" in data:
             pass
         elif "--about" in data:
@@ -63,12 +66,18 @@ class Discover:
             sys.exit(0)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
+        """
+        Called when the RPC file has been altered
+        """
         with open(self.rpc_file, "r") as tfile:
             data = tfile.readlines()
             if len(data) >= 1:
                 self.do_args(data[0])
 
     def create_gui(self):
+        """
+        Create Systray & associated menu, overlays & settings windows
+        """
         self.voice_overlay = VoiceOverlayWindow(self)
         self.text_overlay = TextOverlayWindow(self)
         self.menu = self.make_menu()
@@ -77,7 +86,10 @@ class Discover:
             self.text_overlay, self.voice_overlay)
 
     def make_sys_tray_icon(self, menu):
-        # Create AppIndicator
+        """
+        Attempt to create an AppIndicator icon, failing that attempt to make
+        a systemtray icon
+        """
         try:
             gi.require_version('AppIndicator3', '0.1')
             # pylint: disable=import-outside-toplevel
@@ -95,7 +107,9 @@ class Discover:
             self.tray.connect('popup-menu', self.show_menu)
 
     def make_menu(self):
-        # Create System Menu
+        """
+        Create System Menu
+        """
         menu = Gtk.Menu()
         settings_opt = Gtk.MenuItem.new_with_label("Settings")
         close_opt = Gtk.MenuItem.new_with_label("Close")
@@ -109,18 +123,36 @@ class Discover:
         return menu
 
     def show_menu(self, obj, button, time):
+        """
+        Show menu when System Tray icon is clicked
+        """
         self.menu.show_all()
         self.menu.popup(
             None, None, Gtk.StatusIcon.position_menu, obj, button, time)
 
     def show_settings(self, _obj=None, _data=None):
+        """
+        Show settings window
+        """
         self.settings.present_settings()
 
     def close(self, _a=None, _b=None, _c=None):
+        """
+        End of the program
+        """
         Gtk.main_quit()
 
 
 def entrypoint():
+    """
+    Entry Point.
+
+    Check for PID & RPC.
+
+    If an overlay is already running then pass the args along and close
+
+    Otherwise start up the overlay!
+    """
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
     line = ""

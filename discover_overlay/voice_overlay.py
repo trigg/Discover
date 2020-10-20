@@ -55,74 +55,134 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_title("Discover Voice")
 
     def set_bg(self, background_colour):
+        """
+        Set the background colour
+        """
         self.norm_col = background_colour
         self.redraw()
 
     def set_fg(self, foreground_colour):
+        """
+        Set the text colour
+        """
         self.text_col = foreground_colour
         self.redraw()
 
     def set_tk(self, talking_colour):
+        """
+        Set the border colour for users who are talking
+        """
         self.talk_col = talking_colour
         self.redraw()
 
     def set_mt(self, mute_colour):
+        """
+        Set the colour of mute and deafen logos
+        """
         self.mute_col = mute_colour
         self.redraw()
 
     def set_avatar_size(self, size):
+        """
+        Set the size of the avatar icons
+        """
         self.avatar_size = size
         self.redraw()
 
     def set_icon_spacing(self, i):
+        """
+        Set the spacing between avatar icons
+        """
         self.icon_spacing = i
         self.redraw()
 
     def set_text_padding(self, i):
+        """
+        Set padding between text and border
+        """
         self.text_pad = i
         self.redraw()
 
     def set_vert_edge_padding(self, i):
+        """
+        Set padding between top/bottom of screen and overlay contents
+        """
         self.vert_edge_padding = i
         self.redraw()
 
     def set_horz_edge_padding(self, i):
+        """
+        Set padding between left/right of screen and overlay contents
+        """
         self.horz_edge_padding = i
         self.redraw()
 
     def set_square_avatar(self, i):
+        """
+        Set if the overlay should crop avatars to a circle or show full square image
+        """
         self.round_avatar = not i
         self.redraw()
 
     def set_only_speaking(self, only_speaking):
+        """
+        Set if overlay should only show people who are talking
+        """
         self.only_speaking = only_speaking
 
     def set_highlight_self(self, highlight_self):
+        """
+        Set if the overlay should highlight the user
+        """
         self.highlight_self = highlight_self
 
     def set_order(self, i):
+        """
+        Set the method used to order avatar icons & names
+        """
         self.order = i
 
     def set_icon_only(self, i):
+        """
+        Set if the overlay should draw only the icon
+        """
         self.icon_only = i
         self.redraw()
 
     def set_wind_col(self):
+        """
+        Use window colour to draw
+        """
         self.col(self.wind_col)
 
     def set_text_col(self):
+        """
+        Use text colour to draw
+        """
         self.col(self.text_col)
 
     def set_norm_col(self):
+        """
+        Use background colour to draw
+        """
         self.col(self.norm_col)
 
     def set_talk_col(self, alpha=1.0):
+        """
+        Use talking colour to draw
+        """
         self.col(self.talk_col, alpha)
 
     def set_mute_col(self, alpha=1.0):
+        """
+        Use mute colour to draw
+        """
         self.col(self.mute_col, alpha)
 
     def set_user_list(self, userlist, alt):
+        """
+        Set the users in list to draw
+        """
         self.userlist = userlist
         for user in userlist:
             if "nick" in user:
@@ -145,12 +205,18 @@ class VoiceOverlayWindow(OverlayWindow):
             self.redraw()
 
     def set_connection(self, connection):
+        """
+        Set if discord has a clean connection to server
+        """
         is_connected = connection == "VOICE_CONNECTED"
         if self.connected != is_connected:
             self.connected = is_connected
             self.redraw()
 
     def overlay_draw(self, _w, context, _data=None):
+        """
+        Draw the Overlay
+        """
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         # Get size of window
@@ -228,17 +294,19 @@ class VoiceOverlayWindow(OverlayWindow):
         self.context = None
 
     def recv_avatar(self, identifier, pix):
+        """
+        Called when image_getter has downloaded an image
+        """
         if identifier == 'def':
             self.def_avatar = pix
         else:
             self.avatars[identifier] = pix
         self.redraw()
 
-    def delete_avatar(self, identifier):
-        if id in self.avatars:
-            del self.avatars[identifier]
-
     def draw_avatar(self, context, user, pos_y):
+        """
+        Draw avatar at given Y position. Includes both text and image based on settings
+        """
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
             url = "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (
@@ -298,6 +366,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_mute(context, self.horz_edge_padding, pos_y)
 
     def draw_text(self, context, string, pos_x, pos_y):
+        """
+        Draw username & background at given position
+        """
         if self.text_font:
             context.set_font_face(cairo.ToyFontFace(
                 self.text_font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL))
@@ -338,6 +409,9 @@ class VoiceOverlayWindow(OverlayWindow):
             context.show_text(string)
 
     def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour):
+        """
+        Draw avatar image at given position
+        """
         if not pixbuf:
             pixbuf = self.def_avatar
             if not pixbuf:
@@ -375,6 +449,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 context.stroke()
 
     def draw_mute(self, context, pos_x, pos_y):
+        """
+        Draw Mute logo
+        """
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(self.avatar_size, self.avatar_size)
@@ -429,6 +506,9 @@ class VoiceOverlayWindow(OverlayWindow):
         context.restore()
 
     def draw_deaf(self, context, pos_x, pos_y):
+        """
+        Draw deaf logo
+        """
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(self.avatar_size, self.avatar_size)

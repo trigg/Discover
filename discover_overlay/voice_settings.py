@@ -14,8 +14,6 @@
 import json
 from configparser import ConfigParser
 import gi
-from .draggable_window import DraggableWindow
-from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -56,6 +54,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.create_gui()
 
     def present_settings(self):
+        """
+        Show tab
+        """
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -69,6 +70,9 @@ class VoiceSettingsWindow(SettingsWindow):
             self.align_placement_widget.show()
 
     def read_config(self):
+        """
+        Read 'main' section of the config file
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.align_x = config.getboolean("main", "rightalign", fallback=True)
@@ -136,6 +140,9 @@ class VoiceSettingsWindow(SettingsWindow):
             self.overlay.set_font(desc.get_family(), size)
 
     def save_config(self):
+        """
+        Write settings out to the 'main' section of the config file
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         if not config.has_section("main"):
@@ -172,6 +179,9 @@ class VoiceSettingsWindow(SettingsWindow):
             config.write(file)
 
     def create_gui(self):
+        """
+        Prepare the gui
+        """
         box = Gtk.Grid()
 
         # Font chooser
@@ -372,60 +382,10 @@ class VoiceSettingsWindow(SettingsWindow):
 
         self.add(box)
 
-    def change_placement(self, button):
-        if self.placement_window:
-            (pos_x, pos_y, width, height) = self.placement_window.get_coords()
-            self.floating_x = pos_x
-            self.floating_y = pos_y
-            self.floating_w = width
-            self.floating_h = height
-            self.overlay.set_floating(True, pos_x, pos_y, width, height)
-            self.save_config()
-            if not self.overlay.is_wayland:
-                button.set_label("Place Window")
-            self.placement_window.close()
-            self.placement_window = None
-        else:
-            if self.overlay.is_wayland:
-                self.placement_window = DraggableWindowWayland(
-                    pos_x=self.floating_x, pos_y=self.floating_y,
-                    width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Green!", settings=self)
-            else:
-                self.placement_window = DraggableWindow(
-                    pos_x=self.floating_x, pos_y=self.floating_y,
-                    width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Save!", settings=self)
-            if not self.overlay.is_wayland:
-                button.set_label("Save this position")
-
-    def change_align_type_edge(self, button):
-        if button.get_active():
-            self.overlay.set_floating(
-                False, self.floating_x, self.floating_y,
-                self.floating_w, self.floating_h)
-            self.floating = False
-            self.save_config()
-
-            # Re-sort the screen
-            self.align_x_widget.show()
-            self.align_y_widget.show()
-            self.align_monitor_widget.show()
-            self.align_placement_widget.hide()
-
-    def change_align_type_floating(self, button):
-        if button.get_active():
-            self.overlay.set_floating(
-                True, self.floating_x, self.floating_y,
-                self.floating_w, self.floating_h)
-            self.floating = True
-            self.save_config()
-            self.align_x_widget.hide()
-            self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
-            self.align_placement_widget.show()
-
     def change_font(self, button):
+        """
+        Font settings changed
+        """
         font = button.get_font()
         desc = Pango.FontDescription.from_string(font)
         size = desc.get_size()
@@ -437,6 +397,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_bg(self, button):
+        """
+        Background colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_bg(colour)
@@ -445,6 +408,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_fg(self, button):
+        """
+        Text colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_fg(colour)
@@ -453,6 +419,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_tk(self, button):
+        """
+        Talking colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_tk(colour)
@@ -461,6 +430,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_mt(self, button):
+        """
+        Mute colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_mt(colour)
@@ -469,82 +441,90 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_avatar_size(self, button):
+        """
+        Avatar size setting changed
+        """
         self.overlay.set_avatar_size(button.get_value())
 
         self.avatar_size = button.get_value()
         self.save_config()
 
-    def change_monitor(self, button):
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            mon = display.get_monitor(button.get_active())
-            m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active(), mon)
-
-            self.monitor = m_s
-            self.save_config()
-
-    def change_align_x(self, button):
-        self.overlay.set_align_x(button.get_active() == 1)
-
-        self.align_x = (button.get_active() == 1)
-        self.save_config()
-
-    def change_align_y(self, button):
-        self.overlay.set_align_y(button.get_active())
-
-        self.align_y = button.get_active()
-        self.save_config()
-
     def change_icon_spacing(self, button):
+        """
+        Inter-icon spacing changed
+        """
         self.overlay.set_icon_spacing(button.get_value())
 
         self.icon_spacing = int(button.get_value())
         self.save_config()
 
     def change_text_padding(self, button):
+        """
+        Text padding changed
+        """
         self.overlay.set_text_padding(button.get_value())
 
         self.text_padding = button.get_value()
         self.save_config()
 
     def change_vert_edge_padding(self, button):
+        """
+        Vertical padding changed
+        """
         self.overlay.set_vert_edge_padding(button.get_value())
 
         self.vert_edge_padding = button.get_value()
         self.save_config()
 
     def change_horz_edge_padding(self, button):
+        """
+        Horizontal padding changed
+        """
         self.overlay.set_horz_edge_padding(button.get_value())
 
         self.horz_edge_padding = button.get_value()
         self.save_config()
 
     def change_square_avatar(self, button):
+        """
+        Square avatar setting changed
+        """
         self.overlay.set_square_avatar(button.get_active())
 
         self.square_avatar = button.get_active()
         self.save_config()
 
     def change_only_speaking(self, button):
+        """
+        Show only speaking users setting changed
+        """
         self.overlay.set_only_speaking(button.get_active())
 
         self.only_speaking = button.get_active()
         self.save_config()
 
     def change_highlight_self(self, button):
+        """
+        Highlight self setting changed
+        """
         self.overlay.set_highlight_self(button.get_active())
 
         self.highlight_self = button.get_active()
         self.save_config()
 
     def change_icon_only(self, button):
+        """
+        Icon only setting changed
+        """
         self.overlay.set_icon_only(button.get_active())
 
         self.icon_only = button.get_active()
         self.save_config()
 
     def change_order(self, button):
+        """
+        Order user setting changed
+        """
         self.overlay.set_order(button.get_active())
 
         self.order = button.get_active()

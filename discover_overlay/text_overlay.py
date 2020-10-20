@@ -52,35 +52,50 @@ class TextOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
 
     def set_text_time(self, timer):
+        """
+        Set the duration that a message will be visible for.
+        """
         self.text_time = timer
 
     def set_text_list(self, tlist, altered):
+        """
+        Update the list of text messages to show
+        """
         self.content = tlist
         if altered:
             self.redraw()
 
-    def set_enabled(self, enabled):
-        if enabled:
-            self.show_all()
-        else:
-            self.hide()
-
     def set_fg(self, fg_col):
+        """
+        Set default text colour
+        """
         self.fg_col = fg_col
         self.redraw()
 
     def set_bg(self, bg_col):
+        """
+        Set background colour
+        """
         self.bg_col = bg_col
         self.redraw()
 
     def set_show_attach(self, attachment):
+        """
+        Set if attachments should be shown inline
+        """
         self.show_attach = attachment
         self.redraw()
 
     def set_popup_style(self, boolean):
+        """
+        Set if message disappear after a certain duration
+        """
         self.popup_style = boolean
 
     def set_font(self, name, size):
+        """
+        Set font used to render text
+        """
         self.text_font = name
         self.text_size = size
         self.pango_rect = Pango.Rectangle()
@@ -89,6 +104,9 @@ class TextOverlayWindow(OverlayWindow):
         self.redraw()
 
     def make_line(self, message):
+        """
+        Decode a recursive JSON object into pango markup.
+        """
         ret = ""
         if isinstance(message, list):
             for inner_message in message:
@@ -135,10 +153,16 @@ class TextOverlayWindow(OverlayWindow):
         return ret
 
     def recv_attach(self, identifier, pix):
+        """
+        Called when an image has been downloaded by image_getter
+        """
         self.attachment[identifier] = pix
         self.redraw()
 
     def overlay_draw(self, _w, context, data=None):
+        """
+        Draw the overlay
+        """
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         (width, height) = self.get_size()
@@ -193,6 +217,9 @@ class TextOverlayWindow(OverlayWindow):
             context.restore()
 
     def draw_attach(self, pos_y, url):
+        """
+        Draw an attachment
+        """
         if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
             image_width = min(pix.get_width(), self.width)
@@ -211,7 +238,9 @@ class TextOverlayWindow(OverlayWindow):
         return pos_y
 
     def draw_text(self, pos_y, text):
-
+        """
+        Draw a text message, returning the Y position of the next message
+        """
         layout = self.create_pango_layout(text)
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
@@ -255,6 +284,9 @@ class TextOverlayWindow(OverlayWindow):
         return pos_y - text_height
 
     def render_custom(self, ctx, shape, path, _data):
+        """
+        Draw an inline image as a custom emoticon
+        """
         key = self.image_list[shape.data]['url']
         if key not in self.attachment:
             get_surface(self.recv_attach,
@@ -268,7 +300,9 @@ class TextOverlayWindow(OverlayWindow):
         return True
 
     def sanitize_string(self, string):
-        # I hate that Pango has nothing for this.
+        """
+        Sanitize a text message so that it doesn't intefere with Pango's XML format
+        """
         string.replace("&", "&amp;")
         string.replace("<", "&lt;")
         string .replace(">", "&gt;")

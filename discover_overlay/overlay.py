@@ -34,6 +34,9 @@ class OverlayWindow(Gtk.Window):
     """
 
     def detect_type(self):
+        """
+        Helper function to determine if Wayland is being used and return the Window type needed
+        """
         window = Gtk.Window()
         screen = window.get_screen()
         screen_type = "%s" % (screen)
@@ -87,6 +90,10 @@ class OverlayWindow(Gtk.Window):
         self.context = None
 
     def set_wayland_state(self):
+        """
+        If wayland is in use then attempt to set up a GtkLayerShell
+        I have no idea how this should register a fail for Weston/KDE/Gnome
+        """
         if self.is_wayland:
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
@@ -96,14 +103,22 @@ class OverlayWindow(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
     def overlay_draw(self, _w, context, data=None):
-        pass
+        """
+        Draw overlay
+        """
 
     def set_font(self, name, size):
+        """
+        Set the font used by the overlay
+        """
         self.text_font = name
         self.text_size = size
         self.redraw()
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
+        """
+        Set if the window is floating and what dimensions to use
+        """
         self.floating = floating
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -112,6 +127,10 @@ class OverlayWindow(Gtk.Window):
         self.force_location()
 
     def set_untouchable(self):
+        """
+        Create a custom input shape and tell it that all of the window is a cut-out
+        This allows us to have a window above everything but that never gets clicked on
+        """
         (width, height) = self.get_size()
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         surface_ctx = cairo.Context(surface)
@@ -122,9 +141,16 @@ class OverlayWindow(Gtk.Window):
         self.input_shape_combine_region(reg)
 
     def unset_shape(self):
+        """
+        Remove XShape (not input shape)
+        """
         self.get_window().shape_combine_region(None, 0, 0)
 
     def force_location(self):
+        """
+        On X11 enforce the location and sane defaults
+        On Wayland just store for later
+        """
         if not self.is_wayland:
             self.set_decorated(False)
             self.set_keep_above(True)
@@ -155,6 +181,11 @@ class OverlayWindow(Gtk.Window):
         self.redraw()
 
     def redraw(self):
+        """
+        Request a redraw.
+        If we're using XShape (optionally or forcibly) then render the image into the shape
+        so that we only cut out clear sections
+        """
         gdkwin = self.get_window()
         if not self.floating:
             (width, height) = self.get_size()
@@ -175,6 +206,9 @@ class OverlayWindow(Gtk.Window):
         self.queue_draw()
 
     def set_monitor(self, idx=None, mon=None):
+        """
+        Set the monitor this overlay should display on.
+        """
         self.monitor = idx
         if self.is_wayland:
             if mon:
@@ -183,17 +217,42 @@ class OverlayWindow(Gtk.Window):
         self.redraw()
 
     def set_align_x(self, align_right):
+        """
+        Set the alignment (True for right, False for left)
+        """
         self.align_right = align_right
         self.force_location()
         self.redraw()
 
     def set_align_y(self, align_vert):
+        """
+        Set the veritcal alignment
+        """
         self.align_vert = align_vert
         self.force_location()
         self.redraw()
 
     def col(self, col, alpha=1.0):
+        """
+        Convenience function to set the cairo context next colour
+        """
         self.context.set_source_rgba(col[0], col[1], col[2], col[3] * alpha)
 
     def set_force_xshape(self, force):
+        """
+        Set if XShape should be forced
+        """
         self.force_xshape = force
+
+        if self.is_wayland:
+            # Wayland and XShape are a bad idea unless you're a fan on artifacts
+            self.force_xshape = False
+
+    def set_enabled(self, enabled):
+        """
+        Set if this overlay should be visible
+        """
+        if enabled:
+            self.show_all()
+        else:
+            self.hide()

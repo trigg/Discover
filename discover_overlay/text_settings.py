@@ -15,8 +15,6 @@ import json
 import logging
 from configparser import ConfigParser
 import gi
-from .draggable_window import DraggableWindow
-from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
 
 gi.require_version("Gtk", "3.0")
@@ -70,6 +68,11 @@ class TextSettingsWindow(SettingsWindow):
         self.create_gui()
 
     def update_channel_model(self):
+        """
+        Update the Channel selector.
+
+        Populate with all channels from guild if a guild is chosen or all channels generall if not
+        """
         # potentially organize channels by their group/parent_id
         # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
         c_model = Gtk.ListStore(str, bool)
@@ -107,11 +110,19 @@ class TextSettingsWindow(SettingsWindow):
             idx += 1
 
     def add_connector(self, conn):
+        """
+        Add the discord_connector reference
+
+        If the user has previously selected a text channel then tell it to subscribe
+        """
         self.connector = conn
         if self.channel:
             self.connector.start_listening_text(self.channel)
 
     def present_settings(self):
+        """
+        Show contents of tab and update lists
+        """
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -153,6 +164,9 @@ class TextSettingsWindow(SettingsWindow):
             idxg += 1
 
     def guild_list(self):
+        """
+        Return a list of all guilds
+        """
         guilds = []
         done = []
         for guild in self.list_guilds.values():
@@ -162,6 +176,9 @@ class TextSettingsWindow(SettingsWindow):
         return guilds
 
     def set_channels(self, in_list):
+        """
+        Set the contents of list_channels
+        """
         self.list_channels = in_list
         self.list_channels_keys = []
         for key in in_list.keys():
@@ -172,6 +189,9 @@ class TextSettingsWindow(SettingsWindow):
         self.list_channels_keys.sort()
 
     def set_guilds(self, in_list):
+        """
+        Set the contents of list_guilds
+        """
         self.list_guilds = in_list
         self.list_guilds_keys = []
         for key in in_list.keys():
@@ -179,6 +199,9 @@ class TextSettingsWindow(SettingsWindow):
         self.list_guilds_keys.sort()
 
     def read_config(self):
+        """
+        Read in the 'text' section of the config
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.enabled = config.getboolean("text", "enabled", fallback=False)
@@ -221,6 +244,9 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_show_attach(self.show_attach)
 
     def save_config(self):
+        """
+        Save the current settings to the 'text' section of the config
+        """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         if not config.has_section("text"):
@@ -250,6 +276,9 @@ class TextSettingsWindow(SettingsWindow):
             config.write(file)
 
     def create_gui(self):
+        """
+        Prepare the gui
+        """
         box = Gtk.Grid()
 
         # Enabled
@@ -404,6 +433,9 @@ class TextSettingsWindow(SettingsWindow):
         self.add(box)
 
     def change_font(self, button):
+        """
+        Font settings changed
+        """
         font = button.get_font()
         desc = Pango.FontDescription.from_string(font)
         size = desc.get_size()
@@ -415,6 +447,9 @@ class TextSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_channel(self, button):
+        """
+        Channel setting changed
+        """
         if self.ignore_channel_change:
             return
 
@@ -424,6 +459,9 @@ class TextSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_guild(self, button):
+        """
+        Guild setting changed
+        """
         if self.ignore_guild_change:
             return
         guild_id = self.guild_lookup[button.get_active()]
@@ -431,87 +469,10 @@ class TextSettingsWindow(SettingsWindow):
         self.save_config()
         self.update_channel_model()
 
-    def change_placement(self, button):
-        if self.placement_window:
-            (pos_x, pos_y, width, height) = self.placement_window.get_coords()
-            self.floating_x = pos_x
-            self.floating_y = pos_y
-            self.floating_w = width
-            self.floating_h = height
-            self.overlay.set_floating(True, pos_x, pos_y, width, height)
-            self.save_config()
-            if not self.overlay.is_wayland:
-                button.set_label("Place Window")
-
-            self.placement_window.close()
-            self.placement_window = None
-        else:
-            if self.overlay.is_wayland:
-                self.placement_window = DraggableWindowWayland(
-                    pos_x=self.floating_x, pos_y=self.floating_y,
-                    width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Green!", settings=self)
-            else:
-                self.placement_window = DraggableWindow(
-                    pos_x=self.floating_x, pos_y=self.floating_y,
-                    width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Save!", settings=self)
-            if not self.overlay.is_wayland:
-                button.set_label("Save this position")
-
-    def change_align_type_edge(self, button):
-        if button.get_active():
-            self.overlay.set_floating(
-                False, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
-            self.floating = False
-            self.save_config()
-
-            # Re-sort the screen
-            self.align_x_widget.show()
-            self.align_y_widget.show()
-            self.align_monitor_widget.show()
-            self.align_placement_widget.hide()
-
-    def change_align_type_floating(self, button):
-        if button.get_active():
-            self.overlay.set_floating(
-                True, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
-            self.floating = True
-            self.save_config()
-            self.align_x_widget.hide()
-            self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
-            self.align_placement_widget.show()
-
-    def change_monitor(self, button):
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            mon = display.get_monitor(button.get_active())
-            m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active(), mon)
-
-            self.monitor = m_s
-            self.save_config()
-
-    def change_align_x(self, button):
-        self.overlay.set_align_x(button.get_active() == 1)
-
-        self.align_x = (button.get_active() == 1)
-        self.save_config()
-
-    def change_align_y(self, button):
-        self.overlay.set_align_y(button.get_active())
-
-        self.align_y = button.get_active()
-        self.save_config()
-
-    def change_enabled(self, button):
-        self.overlay.set_enabled(button.get_active())
-
-        self.enabled = button.get_active()
-        self.save_config()
-
     def change_popup_style(self, button):
+        """
+        Popup style setting changed
+        """
         self.overlay.set_popup_style(button.get_active())
 
         self.popup_style = button.get_active()
@@ -526,15 +487,24 @@ class TextSettingsWindow(SettingsWindow):
             self.text_time_label_widget.hide()
 
     def change_text_time(self, button):
+        """
+        Popup style setting changed
+        """
         self.overlay.set_text_time(button.get_value())
 
         self.text_time = button.get_value()
         self.save_config()
 
     def get_channel(self):
+        """
+        Return selected channel
+        """
         return self.channel
 
     def change_bg(self, button):
+        """
+        Background colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_bg(colour)
@@ -543,6 +513,9 @@ class TextSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_fg(self, button):
+        """
+        Foreground colour changed
+        """
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.overlay.set_fg(colour)
@@ -551,6 +524,9 @@ class TextSettingsWindow(SettingsWindow):
         self.save_config()
 
     def change_show_attach(self, button):
+        """
+        Attachment setting changed
+        """
         self.overlay.set_show_attach(button.get_active())
 
         self.show_attach = button.get_active()
