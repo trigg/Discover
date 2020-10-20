@@ -20,28 +20,27 @@ python3 -m pip install .
 
 ## Dependencies
 
-Requirements should be handled by pip.
-
-Requires PyGTK3 3.22 or newer, websocket_client
+Most requirements should be handled by pip.
 
 A compositor is strongly advised but there is a non-compositor mode optionally
+
+It is advised to install python-gobject from your own package manager.
+
+#### Debian/Ubuntu
+
+`apt install python3-gi`
+
+#### Arch
+
+`pacman -S python-gobject`
 
 
 ## Usage
 
 run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
 
-Comes with sane-enough defaults but has a system tray icon & settings window if needed.
+Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached either via System tray or by running `discover-overlay --configure`
 
-## Still in progress
-
-Not all features are at the level I would like.
-
-To do list:
-
-- Text channels
-- Text notifications (different from above)
-- Open to suggestions
 
 ## Why do you keep making Discord Overlays?
 

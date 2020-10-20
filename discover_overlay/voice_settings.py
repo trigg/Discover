@@ -1,29 +1,61 @@
-import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Voice setting tab on settings window"""
 import json
 from configparser import ConfigParser
+import gi
 from .draggable_window import DraggableWindow
+from .draggable_window_wayland import DraggableWindowWayland
 from .settings import SettingsWindow
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
-import logging
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
+from gi.repository import Gtk, Gdk, Pango
 
 
 class VoiceSettingsWindow(SettingsWindow):
+    """Voice setting tab on settings window"""
+
     def __init__(self, overlay):
-        Gtk.Window.__init__(self)
+        SettingsWindow.__init__(self)
         self.overlay = overlay
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
         self.placement_window = None
+        self.align_x = None
+        self.align_y = None
+        self.bg_col = None
+        self.fg_col = None
+        self.tk_col = None
+        self.mt_col = None
+        self.avatar_size = None
+        self.icon_spacing = None
+        self.text_padding = None
+        self.font = None
+        self.square_avatar = None
+        self.only_speaking = None
+        self.highlight_self = None
+        self.icon_only = None
+        self.monitor = None
+        self.vert_edge_padding = None
+        self.horz_edge_padding = None
+        self.floating = None
+        self.order = None
         self.init_config()
 
         self.create_gui()
 
-    def present(self):
+    def present_settings(self):
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -33,7 +65,7 @@ class VoiceSettingsWindow(SettingsWindow):
         else:
             self.align_x_widget.hide()
             self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
+            self.align_monitor_widget.show()
             self.align_placement_widget.show()
 
     def read_config(self):
@@ -55,6 +87,12 @@ class VoiceSettingsWindow(SettingsWindow):
         self.font = config.get("main", "font", fallback=None)
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=False)
+        self.only_speaking = config.getboolean(
+            "main", "only_speaking", fallback=False)
+        self.highlight_self = config.getboolean(
+            "main", "highlight_self", fallback=False)
+        self.icon_only = config.getboolean(
+            "main", "icon_only", fallback=False)
         self.monitor = config.get("main", "monitor", fallback="None")
         self.vert_edge_padding = config.getint(
             "main", "vert_edge_padding", fallback=0)
@@ -65,6 +103,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.floating_y = config.getint("main", "floating_y", fallback=0)
         self.floating_w = config.getint("main", "floating_w", fallback=400)
         self.floating_h = config.getint("main", "floating_h", fallback=400)
+        self.order = config.getint("main", "order", fallback=0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -77,9 +116,14 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_icon_spacing(self.icon_spacing)
         self.overlay.set_text_padding(self.text_padding)
         self.overlay.set_square_avatar(self.square_avatar)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_only_speaking(self.only_speaking)
+        self.overlay.set_highlight_self(self.highlight_self)
+        self.overlay.set_icon_only(self.icon_only)
+        self.overlay.set_monitor(self.get_monitor_index(
+            self.monitor), self.get_monitor_obj(self.monitor))
         self.overlay.set_vert_edge_padding(self.vert_edge_padding)
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
+        self.overlay.set_order(self.order)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -109,6 +153,9 @@ class VoiceSettingsWindow(SettingsWindow):
         if self.font:
             config.set("main", "font", self.font)
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
+        config.set("main", "only_speaking", "%d" % (int(self.only_speaking)))
+        config.set("main", "highlight_self", "%d" % (int(self.highlight_self)))
+        config.set("main", "icon_only", "%d" % (int(self.icon_only)))
         config.set("main", "monitor", self.monitor)
         config.set("main", "vert_edge_padding", "%d" %
                    (self.vert_edge_padding))
@@ -119,6 +166,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_y", "%s" % (self.floating_y))
         config.set("main", "floating_w", "%s" % (self.floating_w))
         config.set("main", "floating_h", "%s" % (self.floating_h))
+        config.set("main", "order", "%s" % (self.order))
 
         with open(self.configFile, 'w') as file:
             config.write(file)
@@ -256,6 +304,35 @@ class VoiceSettingsWindow(SettingsWindow):
         square_avatar.set_active(self.square_avatar)
         square_avatar.connect("toggled", self.change_square_avatar)
 
+        only_speaking_label = Gtk.Label.new("Display Speakers Only")
+        only_speaking = Gtk.CheckButton.new()
+        only_speaking.set_active(self.only_speaking)
+        only_speaking.connect("toggled", self.change_only_speaking)
+
+        highlight_self_label = Gtk.Label.new("Highlight Self")
+        highlight_self = Gtk.CheckButton.new()
+        highlight_self.set_active(self.highlight_self)
+        highlight_self.connect("toggled", self.change_highlight_self)
+
+        # Display icon only
+        icon_only_label = Gtk.Label.new("Display Icon Only")
+        icon_only = Gtk.CheckButton.new()
+        icon_only.set_active(self.icon_only)
+        icon_only.connect("toggled", self.change_icon_only)
+
+        # Order avatars
+        order_label = Gtk.Label.new("Order Avatars By")
+        order_store = Gtk.ListStore(str)
+        order_store.append(["Alphabetically"])
+        order_store.append(["ID"])
+        order_store.append(["Last Spoken"])
+        order = Gtk.ComboBox.new_with_model(order_store)
+        order.set_active(self.order)
+        order.connect("changed", self.change_order)
+        rt = Gtk.CellRendererText()
+        order.pack_start(rt, True)
+        order.add_attribute(rt, "text", 0)
+
         box.attach(font_label, 0, 0, 1, 1)
         box.attach(font, 1, 0, 1, 1)
         box.attach(bg_col_label, 0, 1, 1, 1)
@@ -284,31 +361,43 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(horz_edge_padding, 1, 14, 1, 1)
         box.attach(square_avatar_label, 0, 15, 1, 1)
         box.attach(square_avatar, 1, 15, 1, 1)
+        box.attach(only_speaking_label, 0, 16, 1, 1)
+        box.attach(only_speaking, 1, 16, 1, 1)
+        box.attach(highlight_self_label, 0, 17, 1, 1)
+        box.attach(highlight_self, 1, 17, 1, 1)
+        box.attach(icon_only_label, 0, 18, 1, 1)
+        box.attach(icon_only, 1, 18, 1, 1)
+        box.attach(order_label, 0, 19, 1, 1)
+        box.attach(order, 1, 19, 1, 1)
 
         self.add(box)
 
-        pass
-
     def change_placement(self, button):
         if self.placement_window:
-            (x, y) = self.placement_window.get_position()
-            (w, h) = self.placement_window.get_size()
+            (x, y, w, h) = self.placement_window.get_coords()
             self.floating_x = x
             self.floating_y = y
             self.floating_w = w
             self.floating_h = h
             self.overlay.set_floating(True, x, y, w, h)
-            self.save_config
-            button.set_label("Place Window")
-
+            self.save_config()
+            if not self.overlay.is_wayland:
+                button.set_label("Place Window")
             self.placement_window.close()
             self.placement_window = None
         else:
-            self.placement_window = DraggableWindow(
-                x=self.floating_x, y=self.floating_y,
-                w=self.floating_w, h=self.floating_h,
-                message="Place & resize this window then press Save!")
-            button.set_label("Save this position")
+            if self.overlay.is_wayland:
+                self.placement_window = DraggableWindowWayland(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Green!", settings=self)
+            else:
+                self.placement_window = DraggableWindow(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Save!", settings=self)
+            if not self.overlay.is_wayland:
+                button.set_label("Save this position")
 
     def change_align_type_edge(self, button):
         if button.get_active():
@@ -390,7 +479,7 @@ class VoiceSettingsWindow(SettingsWindow):
         if "get_monitor" in dir(display):
             mon = display.get_monitor(button.get_active())
             m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active())
+            self.overlay.set_monitor(button.get_active(), mon)
 
             self.monitor = m_s
             self.save_config()
@@ -435,4 +524,28 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_square_avatar(button.get_active())
 
         self.square_avatar = button.get_active()
+        self.save_config()
+
+    def change_only_speaking(self, button):
+        self.overlay.set_only_speaking(button.get_active())
+
+        self.only_speaking = button.get_active()
+        self.save_config()
+
+    def change_highlight_self(self, button):
+        self.overlay.set_highlight_self(button.get_active())
+
+        self.highlight_self = button.get_active()
+        self.save_config()
+
+    def change_icon_only(self, button):
+        self.overlay.set_icon_only(button.get_active())
+
+        self.icon_only = button.get_active()
+        self.save_config()
+
+    def change_order(self, button):
+        self.overlay.set_order(button.get_active())
+
+        self.order = button.get_active()
         self.save_config()

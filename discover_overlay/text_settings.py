@@ -1,66 +1,101 @@
-import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version('PangoCairo', '1.0')
-gi.require_version('GdkPixbuf', '2.0')
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""Text setting tab on settings window"""
 import json
-from configparser import ConfigParser
-from .draggable_window import DraggableWindow
-from .settings import SettingsWindow
-from gi.repository.GdkPixbuf import Pixbuf
-from gi.repository import Gtk, GLib, Gio, GdkPixbuf, Gdk, Pango, PangoCairo
 import logging
+from configparser import ConfigParser
+import gi
+from .draggable_window import DraggableWindow
+from .draggable_window_wayland import DraggableWindowWayland
+from .settings import SettingsWindow
+
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position
+from gi.repository import Gtk, Gdk, Pango
+
+
+GUILD_DEFAULT_VALUE = "0"
 
 
 class TextSettingsWindow(SettingsWindow):
+    """Text setting tab on settings window"""
+
     def __init__(self, overlay):
-        Gtk.Window.__init__(self)
+        SettingsWindow.__init__(self)
         self.overlay = overlay
-        self.set_size_request(400, 200)
-        self.connect("destroy", self.close_window)
-        self.connect("delete-event", self.close_window)
+
         self.placement_window = None
         self.init_config()
         self.list_channels_keys = []
+        self.list_channels = {}
+        self.list_guilds_keys = []
+        self.list_guilds = {}
         self.ignore_channel_change = False
+        self.ignore_guild_change = False
+        self.channel_lookup = None
+        self.channel_model = None
+        self.connector = None
+        self.guild_lookup = None
+        self.guild_model = None
+        self.guild_widget = None
+        self.align_x = None
+        self.align_y = None
+        self.monitor = None
+        self.floating = None
+        self.channel = None
+        self.guild = None
+        self.font = None
+        self.bg_col = None
+        self.fg_col = None
+        self.popup_style = None
+        self.text_time = None
+        self.show_attach = None
+        self.enabled = None
+
+        self.set_size_request(400, 200)
+        self.connect("destroy", self.close_window)
+        self.connect("delete-event", self.close_window)
+
+        self.init_config()
         self.create_gui()
 
-    def present(self):
-        self.show_all()
-        if not self.floating:
-            self.align_x_widget.show()
-            self.align_y_widget.show()
-            self.align_monitor_widget.show()
-            self.align_placement_widget.hide()
-        else:
-            self.align_x_widget.hide()
-            self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
-            self.align_placement_widget.show()
+    def update_channel_model(self):
+        # potentially organize channels by their group/parent_id
+        # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
+        c_model = Gtk.ListStore(str, bool)
+        self.channel_lookup = ["0"]
 
-        if self.popup_style:
-            self.text_time_widget.show()
-            self.text_time_label_widget.show()
-        else:
-            self.text_time_widget.hide()
-            self.text_time_label_widget.hide()
-
-        model = monitor_store = Gtk.ListStore(str, bool)
-        # for c in self.list_channels_keys:
-        #    print(self.list_channels[c])
-        #    model.append([self.list_channels[c]["name"]])
-        self.channel_lookup = []
         for guild in self.guild_list():
             guild_id, guild_name = guild
-            self.channel_lookup.append('0')
-            model.append([guild_name, False])
+            # if no guild is specified, populate channel list with every channel from each guild
+            if self.guild == GUILD_DEFAULT_VALUE:
+                c_model.append([guild_name, False])
+                for c in self.list_channels_keys:
+                    chan = self.list_channels[c]
+                    if chan['guild_id'] == guild_id:
+                        c_model.append([chan["name"], True])
+                        self.channel_lookup.append(c)
+
+        # if a guild is specified, poulate channel list with every channel from *just that guild*
+        if self.guild != GUILD_DEFAULT_VALUE:
             for c in self.list_channels_keys:
                 chan = self.list_channels[c]
-                if chan['guild_id'] == guild_id:
-                    model.append([chan["name"], True])
+                if chan['guild_id'] == self.guild:
+                    c_model.append([chan["name"], True])
                     self.channel_lookup.append(c)
 
-        self.channel_widget.set_model(model)
-        self.channel_model = model
+        self.channel_widget.set_model(c_model)
+        self.channel_model = c_model
 
         idx = 0
         for c in self.channel_lookup:
@@ -71,22 +106,77 @@ class TextSettingsWindow(SettingsWindow):
                 break
             idx += 1
 
+    def add_connector(self, conn):
+        self.connector = conn
+        if self.channel:
+            self.connector.start_listening_text(self.channel)
+
+    def present_settings(self):
+        self.show_all()
+        if not self.floating:
+            self.align_x_widget.show()
+            self.align_y_widget.show()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.hide()
+        else:
+            self.align_x_widget.hide()
+            self.align_y_widget.hide()
+            self.align_monitor_widget.show()
+            self.align_placement_widget.show()
+
+        if self.popup_style:
+            self.text_time_widget.show()
+            self.text_time_label_widget.show()
+        else:
+            self.text_time_widget.hide()
+            self.text_time_label_widget.hide()
+
+        g_model = Gtk.ListStore(str, bool)
+        self.guild_lookup = []
+
+        for guild in self.guild_list():
+            guild_id, guild_name = guild
+            self.guild_lookup.append(guild_id)
+            g_model.append([guild_name, True])
+
+        self.guild_widget.set_model(g_model)
+        self.guild_model = g_model
+        self.update_channel_model()
+
+        idxg = 0
+        for guild_id in self.guild_lookup:
+            if guild_id == self.guild:
+                self.ignore_guild_change = True
+                self.guild_widget.set_active(idxg)
+                self.ignore_guild_change = False
+                break
+            idxg += 1
+
     def guild_list(self):
         guilds = []
         done = []
-        for channel in self.list_channels.values():
-            if not channel["guild_id"] in done:
-                done.append(channel["guild_id"])
-                guilds.append([channel["guild_id"], channel["guild_name"]])
+        for guild in self.list_guilds.values():
+            if not guild["id"] in done:
+                done.append(guild["id"])
+                guilds.append([guild["id"], guild["name"]])
         return guilds
 
     def set_channels(self, in_list):
         self.list_channels = in_list
         self.list_channels_keys = []
         for key in in_list.keys():
+            # filter for only text channels
+            # https://discord.com/developers/docs/resources/channel#channel-object-channel-types
             if in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
+
+    def set_guilds(self, in_list):
+        self.list_guilds = in_list
+        self.list_guilds_keys = []
+        for key in in_list.keys():
+            self.list_guilds_keys.append(key)
+        self.list_guilds_keys.sort()
 
     def read_config(self):
         config = ConfigParser(interpolation=None)
@@ -101,6 +191,7 @@ class TextSettingsWindow(SettingsWindow):
         self.floating_w = config.getint("text", "floating_w", fallback=400)
         self.floating_h = config.getint("text", "floating_h", fallback=400)
         self.channel = config.get("text", "channel", fallback="0")
+        self.guild = config.get("text", "guild", fallback=GUILD_DEFAULT_VALUE)
         self.font = config.get("text", "font", fallback=None)
         self.bg_col = json.loads(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
@@ -109,21 +200,25 @@ class TextSettingsWindow(SettingsWindow):
         self.popup_style = config.getboolean(
             "text", "popup_style", fallback=False)
         self.text_time = config.getint("text", "text_time", fallback=30)
+        self.show_attach = config.getboolean(
+            "text", "show_attach", fallback=True)
 
         logging.info(
-            "Loading saved channel %s" % (self.channel))
+            "Loading saved channel %s", self.channel)
 
         # Pass all of our config over to the overlay
         self.overlay.set_enabled(self.enabled)
         self.overlay.set_align_x(self.align_x)
         self.overlay.set_align_y(self.align_y)
-        self.overlay.set_monitor(self.get_monitor_index(self.monitor))
+        self.overlay.set_monitor(self.get_monitor_index(
+            self.monitor), self.get_monitor_obj(self.monitor))
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
         self.overlay.set_bg(self.bg_col)
         self.overlay.set_fg(self.fg_col)
         self.overlay.set_popup_style(self.popup_style)
         self.overlay.set_text_time(self.text_time)
+        self.overlay.set_show_attach(self.show_attach)
 
     def save_config(self):
         config = ConfigParser(interpolation=None)
@@ -136,15 +231,17 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "monitor", self.monitor)
         config.set("text", "enabled", "%d" % (int(self.enabled)))
         config.set("text", "floating", "%s" % (int(self.floating)))
-        config.set("text", "floating_x", "%s" % (self.floating_x))
-        config.set("text", "floating_y", "%s" % (self.floating_y))
-        config.set("text", "floating_w", "%s" % (self.floating_w))
-        config.set("text", "floating_h", "%s" % (self.floating_h))
+        config.set("text", "floating_x", "%s" % (int(self.floating_x)))
+        config.set("text", "floating_y", "%s" % (int(self.floating_y)))
+        config.set("text", "floating_w", "%s" % (int(self.floating_w)))
+        config.set("text", "floating_h", "%s" % (int(self.floating_h)))
         config.set("text", "channel", self.channel)
+        config.set("text", "guild", self.guild)
         config.set("text", "bg_col", json.dumps(self.bg_col))
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
         config.set("text", "text_time", "%s" % (int(self.text_time)))
+        config.set("text", "show_attach", "%s" % (int(self.show_attach)))
 
         if self.font:
             config.set("text", "font", self.font)
@@ -250,15 +347,30 @@ class TextSettingsWindow(SettingsWindow):
 
         channel.connect("changed", self.change_channel)
         rt = Gtk.CellRendererText()
-        #channel.set_row_separator_func(lambda model, path: model[path][1])
         channel.pack_start(rt, True)
         channel.add_attribute(rt, "text", 0)
         channel.add_attribute(rt, 'sensitive', 1)
+
+        guild_label = Gtk.Label.new("Server")
+        guild = Gtk.ComboBox.new()
+
+        guild.connect("changed", self.change_guild)
+        rt = Gtk.CellRendererText()
+        guild.pack_start(rt, True)
+        guild.add_attribute(rt, "text", 0)
+        guild.add_attribute(rt, 'sensitive', 1)
+
+        # Show Attachments
+        show_attach_label = Gtk.Label.new("Show Attachments")
+        show_attach = Gtk.CheckButton.new()
+        show_attach.set_active(self.show_attach)
+        show_attach.connect("toggled", self.change_show_attach)
 
         self.align_x_widget = align_x
         self.align_y_widget = align_y
         self.align_monitor_widget = monitor
         self.align_placement_widget = align_placement_button
+        self.guild_widget = guild
         self.channel_widget = channel
         self.text_time_widget = text_time
         self.text_time_label_widget = text_time_label
@@ -269,20 +381,25 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(popup_style, 1, 1, 1, 1)
         box.attach(text_time_label, 0, 2, 1, 1)
         box.attach(text_time, 1, 2, 1, 1)
-        box.attach(channel_label, 0, 3, 1, 1)
-        box.attach(channel, 1, 3, 1, 1)
-        box.attach(font_label, 0, 4, 1, 1)
-        box.attach(font, 1, 4, 1, 1)
-        box.attach(fg_col_label, 0, 5, 1, 1)
-        box.attach(fg_col, 1, 5, 1, 1)
-        box.attach(bg_col_label, 0, 6, 1, 1)
-        box.attach(bg_col, 1, 6, 1, 1)
-        box.attach(align_label, 0, 7, 1, 5)
-        #box.attach(align_type_box, 1, 7, 1, 1)
-        box.attach(monitor, 1, 8, 1, 1)
-        box.attach(align_x, 1, 9, 1, 1)
-        box.attach(align_y, 1, 10, 1, 1)
-        box.attach(align_placement_button, 1, 11, 1, 1)
+        box.attach(guild_label, 0, 3, 1, 1)
+        box.attach(guild, 1, 3, 1, 1)
+
+        box.attach(channel_label, 0, 4, 1, 1)
+        box.attach(channel, 1, 4, 1, 1)
+        box.attach(font_label, 0, 5, 1, 1)
+        box.attach(font, 1, 5, 1, 1)
+        box.attach(fg_col_label, 0, 6, 1, 1)
+        box.attach(fg_col, 1, 6, 1, 1)
+        box.attach(bg_col_label, 0, 7, 1, 1)
+        box.attach(bg_col, 1, 7, 1, 1)
+        box.attach(align_label, 0, 8, 1, 5)
+        #box.attach(align_type_box, 1, 8, 1, 1)
+        box.attach(monitor, 1, 9, 1, 1)
+        box.attach(align_x, 1, 10, 1, 1)
+        box.attach(align_y, 1, 11, 1, 1)
+        box.attach(align_placement_button, 1, 12, 1, 1)
+        box.attach(show_attach_label, 0, 13, 1, 1)
+        box.attach(show_attach, 1, 13, 1, 1)
 
         self.add(box)
 
@@ -300,28 +417,47 @@ class TextSettingsWindow(SettingsWindow):
     def change_channel(self, button):
         if self.ignore_channel_change:
             return
+
         c = self.channel_lookup[button.get_active()]
+        self.connector.start_listening_text(c)
         self.channel = c
         self.save_config()
 
+    def change_guild(self, button):
+        if self.ignore_guild_change:
+            return
+        guild_id = self.guild_lookup[button.get_active()]
+        self.guild = guild_id
+        self.save_config()
+        self.update_channel_model()
+
     def change_placement(self, button):
         if self.placement_window:
-            (x, y) = self.placement_window.get_position()
-            (w, h) = self.placement_window.get_size()
+            (x, y, w, h) = self.placement_window.get_coords()
             self.floating_x = x
             self.floating_y = y
             self.floating_w = w
             self.floating_h = h
             self.overlay.set_floating(True, x, y, w, h)
             self.save_config()
-            button.set_label("Place Window")
+            if not self.overlay.is_wayland:
+                button.set_label("Place Window")
 
             self.placement_window.close()
             self.placement_window = None
         else:
-            self.placement_window = DraggableWindow(
-                x=self.floating_x, y=self.floating_y, w=self.floating_w, h=self.floating_h, message="Place & resize this window then press Save!")
-            button.set_label("Save this position")
+            if self.overlay.is_wayland:
+                self.placement_window = DraggableWindowWayland(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Green!", settings=self)
+            else:
+                self.placement_window = DraggableWindow(
+                    x=self.floating_x, y=self.floating_y,
+                    w=self.floating_w, h=self.floating_h,
+                    message="Place & resize this window then press Save!", settings=self)
+            if not self.overlay.is_wayland:
+                button.set_label("Save this position")
 
     def change_align_type_edge(self, button):
         if button.get_active():
@@ -352,7 +488,7 @@ class TextSettingsWindow(SettingsWindow):
         if "get_monitor" in dir(display):
             mon = display.get_monitor(button.get_active())
             m_s = mon.get_model()
-            self.overlay.set_monitor(button.get_active())
+            self.overlay.set_monitor(button.get_active(), mon)
 
             self.monitor = m_s
             self.save_config()
@@ -412,4 +548,10 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_fg(c)
 
         self.fg_col = c
+        self.save_config()
+
+    def change_show_attach(self, button):
+        self.overlay.set_show_attach(button.get_active())
+
+        self.show_attach = button.get_active()
         self.save_config()
