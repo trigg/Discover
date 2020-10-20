@@ -10,7 +10,11 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""The connector for discord. Connects in as if it was Streamkit for OBS or Xsplit and communicates to get voice & text info to display"""
+"""
+The connector for discord.
+Connects in as if it was Streamkit for OBS or Xsplit and
+communicates to get voice & text info to display
+"""
 import select
 import time
 import json
@@ -22,14 +26,18 @@ import requests
 
 
 class DiscordConnector:
-    """The connector for discord. Connects in as if it was Streamkit for OBS or Xsplit and communicates to get voice & text info to display"""
+    """
+    The connector for discord.
+    Connects in as if it was Streamkit for OBS or Xsplit and
+    communicates to get voice & text info to display
+    """
 
     def __init__(self, text_settings, voice_settings, text_overlay, voice_overlay):
         self.text_settings = text_settings
         self.text_overlay = text_overlay
         self.voice_settings = voice_settings
         self.voice_overlay = voice_overlay
-        self.ws = None
+        self.websocket = None
         self.access_token = "none"
         self.oauth_token = "207646673902501888"
         self.access_delay = 0
@@ -51,19 +59,28 @@ class DiscordConnector:
         self.last_text_channel = None
 
     def get_access_token_stage1(self):
-        self.ws.send("{\"cmd\":\"AUTHORIZE\",\"args\":{\"client_id\":\"%s\",\"scopes\":[\"rpc\",\"messages.read\"],\"prompt\":\"none\"},\"nonce\":\"deadbeef\"}" % (
-            self.oauth_token))
+        cmd = {
+            "cmd": "AUTHORIZE",
+            "args":
+            {
+                "client_id": self.oauth_token,
+                "scopes": ["rpc", "messages.read"],
+                "prompt": "none",
+            },
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def get_access_token_stage2(self, code1):
         url = "https://streamkit.discord.com/overlay/token"
         myobj = {"code": code1}
-        x = requests.post(url, json=myobj)
+        response = requests.post(url, json=myobj)
         try:
-            j = json.loads(x.text)
+            jsonresponse = json.loads(response.text)
         except json.JSONDecodeError:
-            j = {}
-        if "access_token" in j:
-            self.access_token = j["access_token"]
+            jsonresponse = {}
+        if "access_token" in jsonresponse:
+            self.access_token = jsonresponse["access_token"]
             self.req_auth()
         else:
             sys.exit(1)
@@ -73,9 +90,9 @@ class DiscordConnector:
             self.current_voice = "0"
             return
         if channel != self.current_voice:
-            cn = self.channels[channel]['name']
+            channel_name = self.channels[channel]['name']
             logging.info(
-                "Joined room: %s", cn)
+                "Joined room: %s", channel_name)
             self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
@@ -104,17 +121,17 @@ class DiscordConnector:
         utc_time = time.strptime(
             message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
         epoch_time = calendar.timegm(utc_time)
-        un = message["author"]["username"]
+        username = message["author"]["username"]
         if "nick" in message and message['nick'] and len(message["nick"]) > 1:
-            un = message["nick"]
-        ac = "#ffffff"
+            username = message["nick"]
+        colour = "#ffffff"
         if "author_color" in message:
-            ac = message["author_color"]
+            colour = message["author_color"]
 
         self.text.append({'id': message["id"],
                           'content': self.get_message_from_message(message),
-                          'nick': un,
-                          'nick_col': ac,
+                          'nick': username,
+                          'nick_col': colour,
                           'time': epoch_time,
                           'attach': self.get_attachment_from_message(message),
                           })
@@ -195,7 +212,9 @@ class DiscordConnector:
                 thisuser = j["data"]["user"]
                 nick = j["data"]["nick"]
                 thisuser["nick"] = nick
-                mute = j["data"]["voice_state"]["mute"] or j["data"]["voice_state"]["self_mute"] or j["data"]["voice_state"]["suppress"]
+                mute = (j["data"]["voice_state"]["mute"] or
+                        j["data"]["voice_state"]["self_mute"] or
+                        j["data"]["voice_state"]["suppress"])
                 deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
                 thisuser["mute"] = mute
                 thisuser["deaf"] = deaf
@@ -275,8 +294,6 @@ class DiscordConnector:
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
             self.check_guilds()
-            # self.sub_all_voice_guild(j["nonce"])
-            # self.sub_all_text_guild(j["nonce"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             return
@@ -329,22 +346,45 @@ class DiscordConnector:
 
     def on_close(self):
         logging.info("Connection closed")
-        self.ws = None
+        self.websocket = None
 
     def req_auth(self):
-        self.ws.send("{\"cmd\":\"AUTHENTICATE\",\"args\":{\"access_token\":\"%s\"},\"nonce\":\"deadbeef\"}" % (
-            self.access_token))
+        cmd = {
+            "cmd": "AUTHENTICATE",
+            "args": {
+                "access_token": self.access_token
+            },
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def req_guilds(self):
-        self.ws.send("{\"cmd\":\"GET_GUILDS\",\"args\":{},\"nonce\":\"3333\"}")
+        cmd = {
+            "cmd": "GET_GUILDS",
+            "args": {},
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def req_channels(self, guild):
-        self.ws.send("{\"cmd\":\"GET_CHANNELS\",\"args\":{\"guild_id\":\"%s\"},\"nonce\":\"%s\"}" % (
-            guild, guild))
+        cmd = {
+            "cmd": "GET_CHANNELS",
+            "args": {
+                "guild_id": guild
+            },
+            "nonce": guild
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def req_channel_details(self, channel):
-        self.ws.send("{\"cmd\":\"GET_CHANNEL\",\"args\":{\"channel_id\":\"%s\"},\"nonce\":\"%s\"}" % (
-            channel, channel))
+        cmd = {
+            "cmd": "GET_CHANNEL",
+            "args": {
+                "channel_id": channel
+            },
+            "nonce": channel
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def find_user(self):
         count = 0
@@ -354,25 +394,21 @@ class DiscordConnector:
                 count += 1
         logging.warning("Getting %s rooms", count)
 
-    def sub_raw(self, cmd, channel, nonce):
-        self.ws.send("{\"cmd\":\"SUBSCRIBE\",\"args\":{%s},\"evt\":\"%s\",\"nonce\":\"%s\"}" % (
-            channel, cmd, nonce))
+    def sub_raw(self, event, args, nonce):
+        cmd = {
+            "cmd": "SUBSCRIBE",
+            "args": args,
+            "evt": event,
+            "nonce": nonce
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def sub_server(self):
-        # Experimental
-        self.sub_raw("VOICE_CHANNEL_SELECT", "", "VOICE_CHANNEL_SELECT")
-        self.sub_raw("VOICE_CONNECTION_STATUS", "", "VOICE_CONNECTION_STATUS")
-        #sub_raw(ws,"ACTIVITY_JOIN", "","ACTIVITY_JOIN")
-        #sub_raw(ws,"ACTIVITY_JOIN_REQUEST", "","ACTIVITY_JOIN_REQUEST")
-        #sub_raw(ws,"ACTIVITY_SPECTATE", "", "ACTIVITY_SPECTATE")
-        # sub_raw(ws,"ACTIVITY_INVITE","","ACTIVITY_INVITE")
-        #sub_raw(ws,"GAME_JOIN", "", "GAME_JOIN")
-        #sub_raw(ws,"GAME_SPECTATE", "", "GAME_SPECTATE")
-        #sub_raw(ws,"VOICE_SETTINGS_UPDATE", "", "VOICE_SETTINGS_UPDATE")
-        #sub_raw(ws,"GUILD_STATUS", "\"guild_id\":\"147073008450666496\"", "GUILD_STATUS")
+        self.sub_raw("VOICE_CHANNEL_SELECT", {}, "VOICE_CHANNEL_SELECT")
+        self.sub_raw("VOICE_CONNECTION_STATUS", {}, "VOICE_CONNECTION_STATUS")
 
-    def sub_channel(self, cmd, channel):
-        self.sub_raw(cmd, "\"channel_id\":\"%s\"" % (channel), channel)
+    def sub_channel(self, event, channel):
+        self.sub_raw(event, {"channel_id": channel}, channel)
 
     def sub_text_channel(self, channel):
         self.sub_channel("MESSAGE_CREATE", channel)
@@ -386,27 +422,9 @@ class DiscordConnector:
         self.sub_channel("SPEAKING_START", channel)
         self.sub_channel("SPEAKING_STOP", channel)
 
-    def sub_all_voice_guild(self, gid):
-        for channel in self.guilds[gid]["channels"]:
-            if channel["type"] == 2:
-                self.sub_voice_channel(channel["id"])
-
-    def sub_all_text_guild(self, gid):
-        for channel in self.guilds[gid]["channels"]:
-            if channel["type"] == 0:
-                self.sub_text_channel(channel["id"])
-
-    def sub_all_voice(self):
-        for guild in self.guilds:
-            self.sub_all_voice_guild(guild)
-
-    def sub_all_text(self):
-        for guild in self.guilds:
-            self.sub_all_text_guild(guild)
-
     def do_read(self):
         # Ensure connection
-        if not self.ws:
+        if not self.websocket:
             self.connect()
             if self.warn_connection:
                 logging.info(
@@ -435,31 +453,33 @@ class DiscordConnector:
             self.set_text_channel(self.text_settings.get_channel())
 
         # Poll socket for new information
-        r, _w, _e = select.select((self.ws.sock,), (), (), 0)
-        while r:
+        recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
+        while recv:
             try:
                 # Recieve & send to on_message
-                msg = self.ws.recv()
+                msg = self.websocket.recv()
                 self.on_message(msg)
-                r, _w, _e = select.select((self.ws.sock,), (), (), 0)
+                recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
             except websocket.WebSocketConnectionClosedException:
                 self.on_close()
                 return True
         return True
 
-    def start_listening_text(self, ch):
-        if self.ws:
-            self.sub_text_channel(ch)
+    def start_listening_text(self, channel):
+        if self.websocket:
+            self.sub_text_channel(channel)
         else:
-            self.last_text_channel = ch
+            self.last_text_channel = channel
 
     def connect(self):
-        if self.ws:
+        if self.websocket:
             return
         try:
-            self.ws = websocket.create_connection("ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
-                                                  origin="https://streamkit.discord.com")
-        except ConnectionError as e:
+            self.websocket = websocket.create_connection(
+                "ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
+                origin="https://streamkit.discord.com"
+            )
+        except ConnectionError as error:
             if self.error_connection:
-                logging.error(e)
+                logging.error(error)
                 self.error_connection = False
