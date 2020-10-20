@@ -88,7 +88,7 @@ class Discover:
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
-        except ImportError as exception:
+        except (ImportError, ValueError) as exception:
             # Create System Tray
             logging.info("Falling back to Systray : %s", exception)
             self.tray = Gtk.StatusIcon.new_from_icon_name("discover-overlay")
