@@ -76,7 +76,7 @@ class TextSettingsWindow(SettingsWindow):
         # potentially organize channels by their group/parent_id
         # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
         c_model = Gtk.ListStore(str, bool)
-        self.channel_lookup = ["0"]
+        self.channel_lookup = []
 
         for guild in self.guild_list():
             guild_id, guild_name = guild
