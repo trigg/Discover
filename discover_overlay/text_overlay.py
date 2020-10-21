@@ -198,12 +198,18 @@ class TextOverlayWindow(OverlayWindow):
             if line['attach'] and self.show_attach:
                 attachment = line['attach'][0]
                 url = attachment['url']
-                if url in self.attachment:
-                    current_y = self.draw_attach(current_y, url)
+                extension = attachment['filename']
+                extension = extension.rsplit(".", 1)[1]
+                extension = extension.lower()
+                if extension in ['jpeg', 'jpg', 'png', 'gif']:
+                    if url in self.attachment:
+                        current_y = self.draw_attach(current_y, url)
+                    else:
+                        get_surface(self.recv_attach,
+                                    url,
+                                    url, None)
                 else:
-                    get_surface(self.recv_attach,
-                                url,
-                                url, None)
+                    logging.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
             message = "<span foreground='%s'>%s</span>: %s" % (self.sanitize_string(col),
                                                                self.sanitize_string(
