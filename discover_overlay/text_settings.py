@@ -173,10 +173,6 @@ class TextSettingsWindow(SettingsWindow):
         """
         Set the contents of list_channels
         """
-        if in_list != {}:
-            print(in_list)
-            in_list = {k: v for k, v in sorted(in_list.items(), key=lambda i: i[1]["position"])}
-
         self.list_channels = in_list
         self.list_channels_keys = []
         for (key, _value) in enumerate(in_list):
