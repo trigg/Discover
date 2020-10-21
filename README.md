@@ -24,7 +24,7 @@ Most requirements should be handled by pip.
 
 A compositor is strongly advised but there is a non-compositor mode optionally
 
-It is advised to install python-gobject from your own package manager.
+It is advised to install python-gobject from your system's own package manager.
 
 #### Debian/Ubuntu
 
@@ -41,6 +41,13 @@ Run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover
 
 Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached either via System tray or by running `discover-overlay --configure`
 
+### Debugging
+If you are trying to debug on VS Code you are likely to get the following message:
+```
+/usr/bin/python3: No module named discover_overlay.__main__; 'discover_overlay' is a package and cannot be directly executed
+```
+
+To get around this, copy the main file created by discover-overlay with ``cp $(which discover-overlay) /path/to/Discover/discover_overlay/__main__.py``
 
 ## Why do you keep making Discord Overlays?
 
