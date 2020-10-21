@@ -71,28 +71,19 @@ class TextSettingsWindow(SettingsWindow):
         """
         Update the Channel selector.
 
-        Populate with all channels from guild if a guild is chosen or all channels generall if not
+        Populate with all channels from guild.
+        Leave empty if guild is unselected
         """
         # potentially organize channels by their group/parent_id
         # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
         c_model = Gtk.ListStore(str, bool)
         self.channel_lookup = []
 
-        for guild in self.guild_list():
-            guild_id, guild_name = guild
-            # if no guild is specified, populate channel list with every channel from each guild
-            if self.guild == GUILD_DEFAULT_VALUE:
-                c_model.append([guild_name, False])
-                for channel_key in self.list_channels_keys:
-                    chan = self.list_channels[channel_key]
-                    if chan['guild_id'] == guild_id:
-                        c_model.append([chan["name"], True])
-                        self.channel_lookup.append(channel_key)
-
         # if a guild is specified, poulate channel list with every channel from *just that guild*
         if self.guild != GUILD_DEFAULT_VALUE:
-            for channel_key in self.list_channels_keys:
-                chan = self.list_channels[channel_key]
+            for position in self.list_channels_keys:
+                chan = self.list_channels[position]
+                channel_key = chan["id"]
                 if chan['guild_id'] == self.guild:
                     c_model.append([chan["name"], True])
                     self.channel_lookup.append(channel_key)
@@ -163,6 +154,9 @@ class TextSettingsWindow(SettingsWindow):
                 break
             idxg += 1
 
+        if self.guild is not None:
+            self.connector.request_text_rooms_for_guild(self.guild)
+
     def guild_list(self):
         """
         Return a list of all guilds
@@ -181,12 +175,13 @@ class TextSettingsWindow(SettingsWindow):
         """
         self.list_channels = in_list
         self.list_channels_keys = []
-        for key in in_list.keys():
+        for (key, _value) in enumerate(in_list):
             # filter for only text channels
             # https://discord.com/developers/docs/resources/channel#channel-object-channel-types
-            if in_list[key]["type"] == 0:
+            if in_list[key] is not None and in_list[key]["type"] == 0:
                 self.list_channels_keys.append(key)
         self.list_channels_keys.sort()
+        self.update_channel_model()
 
     def set_guilds(self, in_list):
         """
@@ -467,7 +462,8 @@ class TextSettingsWindow(SettingsWindow):
         guild_id = self.guild_lookup[button.get_active()]
         self.guild = guild_id
         self.save_config()
-        self.update_channel_model()
+        # self.update_channel_model()
+        self.connector.request_text_rooms_for_guild(self.guild)
 
     def change_popup_style(self, button):
         """

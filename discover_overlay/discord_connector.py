@@ -63,6 +63,10 @@ class DiscordConnector:
         self.authed = False
         self.last_text_channel = None
 
+        self.request_text_rooms = None
+        self.request_text_rooms_response = None
+        self.request_text_rooms_awaiting = 0
+
     def get_access_token_stage1(self):
         """
         First stage of getting an access token. Request authorization from Discord client
@@ -342,26 +346,39 @@ class DiscordConnector:
         elif j["cmd"] == "SUBSCRIBE":
             return
         elif j["cmd"] == "GET_CHANNEL":
+            self.request_text_rooms_awaiting -= 1
             if j["evt"] == "ERROR":
                 logging.info(
                     "Could not get room")
                 return
-            for voice in j["data"]["voice_states"]:
-                if voice["user"]["id"] == self.user["id"]:
-                    self.set_channel(j["data"]["id"], False)
-            if j["data"]["id"] == self.current_voice:
-                self.list_altered = True
-                self.in_room = []
+            if j["data"]["type"] == 2:
                 for voice in j["data"]["voice_states"]:
-                    thisuser = voice["user"]
-                    if "nick" in j["data"]:
-                        thisuser["nick"] = j["data"]["nick"]
-                    self.update_user(thisuser)
-                    self.set_in_room(thisuser["id"], True)
-            if self.current_text == j["data"]["id"]:
-                self.text = []
-                for message in j["data"]["messages"]:
-                    self.add_text(message)
+                    if voice["user"]["id"] == self.user["id"]:
+                        self.set_channel(j["data"]["id"], False)
+                if j["data"]["id"] == self.current_voice:
+                    self.list_altered = True
+                    self.in_room = []
+                    for voice in j["data"]["voice_states"]:
+                        thisuser = voice["user"]
+                        if "nick" in j["data"]:
+                            thisuser["nick"] = j["data"]["nick"]
+                        self.update_user(thisuser)
+                        self.set_in_room(thisuser["id"], True)
+            elif j["data"]["type"] == 0:
+                if self.request_text_rooms_response is not None:
+                    self.request_text_rooms_response[j['data']
+                                                     ['position']] = j['data']
+                if self.current_text == j["data"]["id"]:
+                    self.text = []
+                    for message in j["data"]["messages"]:
+                        self.add_text(message)
+            if (self.request_text_rooms_awaiting == 0 and
+                    self.request_text_rooms is not None):
+                # Update text channels
+                self.text_settings.set_channels(
+                    self.request_text_rooms_response)
+                self.request_text_rooms = None
+
             return
         logging.info(j)
 
@@ -441,7 +458,7 @@ class DiscordConnector:
         self.websocket.send(json.dumps(cmd))
 
     def req_channel_details(self, channel):
-        """
+        """message
         Request information about a specific channel
         """
         cmd = {
@@ -452,6 +469,14 @@ class DiscordConnector:
             "nonce": channel
         }
         self.websocket.send(json.dumps(cmd))
+
+    def req_all_channel_details(self, guild):
+        """
+        Ask for information on all channels in a guild
+        """
+        for channel in self.guilds[guild]["channels"]:
+            self.request_text_rooms_awaiting += 1
+            self.req_channel_details(channel["id"])
 
     def find_user(self):
         """
@@ -550,8 +575,6 @@ class DiscordConnector:
         if self.text_altered:
             self.text_overlay.set_text_list(self.text, self.text_altered)
             self.text_altered = False
-        # Update text channels
-        self.text_settings.set_channels(self.channels)
         # Update guilds
         self.text_settings.set_guilds(self.guilds)
         # Check for changed channel
@@ -581,6 +604,18 @@ class DiscordConnector:
             self.sub_text_channel(channel)
         else:
             self.last_text_channel = channel
+
+    def request_text_rooms_for_guild(self, guild_id):
+        """
+        Request a correctly ordered list of text channels.
+
+        This will be mixed in with 'None' in the list where a voice channel is
+        """
+        self.request_text_rooms_awaiting = 0
+        self.request_text_rooms = guild_id
+        self.request_text_rooms_response = [
+            None] * len(self.guilds[guild_id]["channels"])
+        self.req_all_channel_details(guild_id)
 
     def connect(self):
         """

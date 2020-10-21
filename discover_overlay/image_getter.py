@@ -17,6 +17,7 @@ import logging
 import gi
 import requests
 import cairo
+import PIL
 import PIL.Image as Image
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
@@ -91,6 +92,8 @@ class SurfaceGetter():
             logging.error("Unable to read %s", self.url)
         except TypeError:
             logging.error("Unable to read %s", self.url)
+        except PIL.UnidentifiedImageError:
+            logging.error("Unknown image type")
 
     def from_pil(self, image, alpha=1.0):
         """
