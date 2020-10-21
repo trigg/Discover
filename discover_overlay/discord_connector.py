@@ -351,7 +351,7 @@ class DiscordConnector:
                 logging.info(
                     "Could not get room")
                 return
-            if j["data"]["type"] == 2:
+            if j["data"]["type"] == 2: # Voice channel
                 for voice in j["data"]["voice_states"]:
                     if voice["user"]["id"] == self.user["id"]:
                         self.set_channel(j["data"]["id"], False)
@@ -364,7 +364,7 @@ class DiscordConnector:
                             thisuser["nick"] = j["data"]["nick"]
                         self.update_user(thisuser)
                         self.set_in_room(thisuser["id"], True)
-            elif j["data"]["type"] == 0:
+            elif j["data"]["type"] == 0: # Text channel
                 if self.request_text_rooms_response is not None:
                     self.request_text_rooms_response[j['data']
                                                      ['position']] = j['data']
@@ -585,7 +585,7 @@ class DiscordConnector:
         recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
         while recv:
             try:
-                # Recieve & send to on_message
+                # Receive & send to on_message
                 msg = self.websocket.recv()
                 self.on_message(msg)
                 recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
