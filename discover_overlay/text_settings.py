@@ -74,7 +74,7 @@ class TextSettingsWindow(SettingsWindow):
         Populate with all channels from guild.
         Leave empty if guild is unselected
         """
-        # potentially organize channels by their group/parent_id
+        # Potentially organize channels by their group/parent_id
         # https://discord.com/developers/docs/resources/channel#channel-object-channel-structure
         c_model = Gtk.ListStore(str, bool)
         self.channel_lookup = []

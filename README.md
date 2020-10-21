@@ -1,5 +1,5 @@
 # Discover
-Yet another discord overlay for linux written in Python using GTK3
+Yet another Discord overlay for Linux written in Python using GTK3.
 
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
 ![Screenshot](https://user-images.githubusercontent.com/964775/94065879-9c4e4480-fde3-11ea-9b8a-4688fd02ca17.png)
@@ -37,7 +37,7 @@ It is advised to install python-gobject from your own package manager.
 
 ## Usage
 
-run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
+Run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
 
 Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached either via System tray or by running `discover-overlay --configure`
 
