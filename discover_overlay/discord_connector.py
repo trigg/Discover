@@ -338,9 +338,9 @@ class DiscordConnector:
             for channel in j["data"]["channels"]:
                 channel['guild_id'] = j['nonce']
                 channel['guild_name'] = self.guilds[j['nonce']]["name"]
-                self.channels[channel["id"]] = channel
-                if channel["type"] == 2:
-                    self.req_channel_details(channel["id"])
+                # self.channels[channel["id"]] = channel
+                if channel["type"] in [0, 2]:
+                    self.req_channel_details(channel["id"], guild_id=j["nonce"])
             self.check_guilds()
             return
         elif j["cmd"] == "SUBSCRIBE":
@@ -466,7 +466,7 @@ class DiscordConnector:
             "args": {
                 "channel_id": channel
             },
-            "nonce": channel
+            "nonce": guild_id and guild_id or channel
         }
         self.websocket.send(json.dumps(cmd))
 
