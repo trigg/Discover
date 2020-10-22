@@ -22,8 +22,9 @@ gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk
 try:
+    gi.require_version('GtkLayerShell', '0.1')
     from gi.repository import GtkLayerShell
-except ImportError:
+except (ImportError, ValueError):
     pass
 
 
