@@ -301,7 +301,6 @@ class VoiceOverlayWindow(OverlayWindow):
             self.def_avatar = pix
         else:
             self.avatars[identifier] = pix
-        self.redraw()
 
     def draw_avatar(self, context, user, pos_y):
         """
