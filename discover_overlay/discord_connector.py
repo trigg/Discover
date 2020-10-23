@@ -351,7 +351,7 @@ class DiscordConnector:
                 logging.info(
                     "Could not get room")
                 return
-            if j["data"]["type"] == 2: # Voice channel
+            if j["data"]["type"] == 2:  # Voice channel
                 for voice in j["data"]["voice_states"]:
                     if voice["user"]["id"] == self.user["id"]:
                         self.set_channel(j["data"]["id"], False)
@@ -364,7 +364,7 @@ class DiscordConnector:
                             thisuser["nick"] = j["data"]["nick"]
                         self.update_user(thisuser)
                         self.set_in_room(thisuser["id"], True)
-            elif j["data"]["type"] == 0: # Text channel
+            elif j["data"]["type"] == 0:  # Text channel
                 if self.request_text_rooms_response is not None:
                     self.request_text_rooms_response[j['data']
                                                      ['position']] = j['data']
@@ -611,11 +611,12 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
-        self.request_text_rooms_awaiting = 0
-        self.request_text_rooms = guild_id
-        self.request_text_rooms_response = [
-            None] * len(self.guilds[guild_id]["channels"])
-        self.req_all_channel_details(guild_id)
+        if guild_id in self.guilds:
+            self.request_text_rooms_awaiting = 0
+            self.request_text_rooms = guild_id
+            self.request_text_rooms_response = [
+                None] * len(self.guilds[guild_id]["channels"])
+            self.req_all_channel_details(guild_id)
 
     def connect(self):
         """
