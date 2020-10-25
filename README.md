@@ -34,6 +34,10 @@ It is advised to install python-gobject from your system's own package manager.
 
 `pacman -S python-gobject`
 
+with Wayland support
+
+`pacman -S gtk-layer-shell`
+
 
 ## Usage
 
