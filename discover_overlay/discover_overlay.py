@@ -96,14 +96,15 @@ class Discover:
             from gi.repository import AppIndicator3
             self.ind = AppIndicator3.Indicator.new(
                 "discover_overlay",
-                "discover-overlay",
+                "discover-overlay-tray",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
             self.ind.set_menu(menu)
         except (ImportError, ValueError) as exception:
             # Create System Tray
             logging.info("Falling back to Systray : %s", exception)
-            self.tray = Gtk.StatusIcon.new_from_icon_name("discover-overlay")
+            self.tray = Gtk.StatusIcon.new_from_icon_name(
+                "discover-overlay-tray")
             self.tray.connect('popup-menu', self.show_menu)
 
     def make_menu(self):

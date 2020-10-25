@@ -22,7 +22,7 @@ setup(
             'discover_overlay_conf.desktop',
             'discover_overlay_close.desktop'
         ]),
-        ('share/icons', ['discover-overlay.png'])
+        ('share/icons', ['discover-overlay.png', 'discover-overlay-tray.png'])
     ],
     install_requires=[
         'PyGObject>=3.22',
