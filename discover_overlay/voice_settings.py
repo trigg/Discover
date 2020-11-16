@@ -39,6 +39,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.avatar_size = None
         self.icon_spacing = None
         self.text_padding = None
+        self.text_baseline_adj = None
         self.font = None
         self.square_avatar = None
         self.only_speaking = None
@@ -88,6 +89,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.avatar_size = config.getint("main", "avatar_size", fallback=48)
         self.icon_spacing = config.getint("main", "icon_spacing", fallback=8)
         self.text_padding = config.getint("main", "text_padding", fallback=6)
+        self.text_baseline_adj = config.getint("main", "text_baseline_adj", fallback=0)
         self.font = config.get("main", "font", fallback=None)
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=False)
@@ -119,6 +121,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_avatar_size(self.avatar_size)
         self.overlay.set_icon_spacing(self.icon_spacing)
         self.overlay.set_text_padding(self.text_padding)
+        self.overlay.set_text_baseline_adj(self.text_baseline_adj)
         self.overlay.set_square_avatar(self.square_avatar)
         self.overlay.set_only_speaking(self.only_speaking)
         self.overlay.set_highlight_self(self.highlight_self)
@@ -157,6 +160,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "avatar_size", "%d" % (self.avatar_size))
         config.set("main", "icon_spacing", "%d" % (self.icon_spacing))
         config.set("main", "text_padding", "%d" % (self.text_padding))
+        config.set("main", "text_baseline_adj", "%d" % (self.text_baseline_adj))
         if self.font:
             config.set("main", "font", self.font)
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
@@ -291,6 +295,13 @@ class VoiceSettingsWindow(SettingsWindow):
         text_padding = Gtk.SpinButton.new(text_padding_adjustment, 0, 0)
         text_padding.connect("value-changed", self.change_text_padding)
 
+        # Text Baseline Adjustment
+        text_baseline_label = Gtk.Label.new("Text Vertical Offset")
+        text_baseline_adjustment = Gtk.Adjustment.new(
+            self.text_baseline_adj, -32, 32, 1, 1, 0)
+        text_baseline = Gtk.SpinButton.new(text_baseline_adjustment, 0, 0)
+        text_baseline.connect("value-changed", self.change_text_baseline)
+
         # Edge padding
         vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
         vert_edge_padding_adjustment = Gtk.Adjustment.new(
@@ -365,20 +376,22 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(icon_spacing, 1, 11, 1, 1)
         box.attach(text_padding_label, 0, 12, 1, 1)
         box.attach(text_padding, 1, 12, 1, 1)
-        box.attach(vert_edge_padding_label, 0, 13, 1, 1)
-        box.attach(vert_edge_padding, 1, 13, 1, 1)
-        box.attach(horz_edge_padding_label, 0, 14, 1, 1)
-        box.attach(horz_edge_padding, 1, 14, 1, 1)
-        box.attach(square_avatar_label, 0, 15, 1, 1)
-        box.attach(square_avatar, 1, 15, 1, 1)
-        box.attach(only_speaking_label, 0, 16, 1, 1)
-        box.attach(only_speaking, 1, 16, 1, 1)
-        box.attach(highlight_self_label, 0, 17, 1, 1)
-        box.attach(highlight_self, 1, 17, 1, 1)
-        box.attach(icon_only_label, 0, 18, 1, 1)
-        box.attach(icon_only, 1, 18, 1, 1)
-        box.attach(order_label, 0, 19, 1, 1)
-        box.attach(order, 1, 19, 1, 1)
+        box.attach(text_baseline_label, 0, 13, 1, 1)
+        box.attach(text_baseline, 1, 13, 1, 1)
+        box.attach(vert_edge_padding_label, 0, 14, 1, 1)
+        box.attach(vert_edge_padding, 1, 14, 1, 1)
+        box.attach(horz_edge_padding_label, 0, 15, 1, 1)
+        box.attach(horz_edge_padding, 1, 15, 1, 1)
+        box.attach(square_avatar_label, 0, 16, 1, 1)
+        box.attach(square_avatar, 1, 16, 1, 1)
+        box.attach(only_speaking_label, 0, 17, 1, 1)
+        box.attach(only_speaking, 1, 17, 1, 1)
+        box.attach(highlight_self_label, 0, 18, 1, 1)
+        box.attach(highlight_self, 1, 18, 1, 1)
+        box.attach(icon_only_label, 0, 19, 1, 1)
+        box.attach(icon_only, 1, 19, 1, 1)
+        box.attach(order_label, 0, 20, 1, 1)
+        box.attach(order, 1, 20, 1, 1)
 
         self.add(box)
 
@@ -465,6 +478,15 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_text_padding(button.get_value())
 
         self.text_padding = button.get_value()
+        self.save_config()
+
+    def change_text_baseline(self, button):
+        """
+        Text baseline changed
+        """
+        self.overlay.set_text_baseline_adj(button.get_value())
+
+        self.text_baseline_adj = button.get_value()
         self.save_config()
 
     def change_vert_edge_padding(self, button):

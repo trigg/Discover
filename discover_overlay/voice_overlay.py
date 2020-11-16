@@ -30,6 +30,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_pad = 6
         self.text_font = None
         self.text_size = 13
+        self.text_baseline_adj = 0
         self.icon_spacing = 8
         self.vert_edge_padding = 0
         self.horz_edge_padding = 0
@@ -101,6 +102,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set padding between text and border
         """
         self.text_pad = i
+        self.redraw()
+
+    def set_text_baseline_adj(self, i):
+        """
+        Set padding between text and border
+        """
+        self.text_baseline_adj = i
         self.redraw()
 
     def set_vert_edge_padding(self, i):
@@ -372,8 +380,14 @@ class VoiceOverlayWindow(OverlayWindow):
             context.set_font_face(cairo.ToyFontFace(
                 self.text_font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL))
         context.set_font_size(self.text_size)
+
+        # Get text size details
+        f_ascent, f_descent, f_height, f_max_dx, f_max_dy = context.font_extents()
         _xb, _yb, width, height, _dx, _dy = context.text_extents(string)
-        height_offset = (self.avatar_size / 2) - (height / 2)
+
+        height_offset = (self.avatar_size / 2) - (f_height / 2)
+        text_y_offset = height_offset + f_height - f_descent + self.text_baseline_adj
+
         if self.align_right:
             context.move_to(0, 0)
             self.set_norm_col()
@@ -381,14 +395,14 @@ class VoiceOverlayWindow(OverlayWindow):
                 pos_x - width - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
                 width + (self.text_pad * 4),
-                height + (self.text_pad * 2)
+                f_height + (self.text_pad * 2)
             )
             context.fill()
 
             self.set_text_col()
             context.move_to(
                 pos_x - width - self.text_pad,
-                pos_y + height_offset + height
+                pos_y + text_y_offset
             )
             context.show_text(string)
         else:
@@ -398,13 +412,15 @@ class VoiceOverlayWindow(OverlayWindow):
                 pos_x - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
                 width + (self.text_pad * 4),
-                height + (self.text_pad * 2)
+                f_height + (self.text_pad * 2)
             )
             context.fill()
 
             self.set_text_col()
-            context.move_to(pos_x + self.text_pad,
-                            pos_y + height_offset + height)
+            context.move_to(
+                pos_x + self.text_pad,
+                pos_y + text_y_offset 
+            )
             context.show_text(string)
 
     def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour):
