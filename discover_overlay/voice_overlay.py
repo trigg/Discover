@@ -30,6 +30,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_pad = 6
         self.text_font = None
         self.text_size = 13
+        self.text_baseline_adj = 0
         self.icon_spacing = 8
         self.vert_edge_padding = 0
         self.horz_edge_padding = 0
@@ -101,6 +102,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set padding between text and border
         """
         self.text_pad = i
+        self.redraw()
+
+    def set_text_baseline_adj(self, i):
+        """
+        Set padding between text and border
+        """
+        self.text_baseline_adj = i
         self.redraw()
 
     def set_vert_edge_padding(self, i):
@@ -378,6 +386,8 @@ class VoiceOverlayWindow(OverlayWindow):
         _xb, _yb, width, height, _dx, _dy = context.text_extents(string)
 
         height_offset = (self.avatar_size / 2) - (f_height / 2)
+        text_y_offset = height_offset + f_height - f_descent + self.text_baseline_adj
+
         if self.align_right:
             context.move_to(0, 0)
             self.set_norm_col()
@@ -392,7 +402,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.set_text_col()
             context.move_to(
                 pos_x - width - self.text_pad,
-                pos_y + height_offset + f_height - f_descent
+                pos_y + text_y_offset
             )
             context.show_text(string)
         else:
@@ -409,7 +419,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.set_text_col()
             context.move_to(
                 pos_x + self.text_pad,
-                pos_y + height_offset + f_height - f_descent
+                pos_y + text_y_offset 
             )
             context.show_text(string)
 
