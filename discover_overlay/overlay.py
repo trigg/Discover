@@ -89,6 +89,7 @@ class OverlayWindow(Gtk.Window):
         self.floating = False
         self.force_xshape = False
         self.context = None
+        self.autohide=False
 
     def set_wayland_state(self):
         """
@@ -256,3 +257,9 @@ class OverlayWindow(Gtk.Window):
             self.show_all()
         else:
             self.hide()
+
+    def set_hide_on_mouseover(self, hide):
+        """
+        Set Mouseover hide
+        """
+        self.autohide = hide

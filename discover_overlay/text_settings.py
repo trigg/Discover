@@ -220,6 +220,7 @@ class TextSettingsWindow(SettingsWindow):
         self.text_time = config.getint("text", "text_time", fallback=30)
         self.show_attach = config.getboolean(
             "text", "show_attach", fallback=True)
+        self.autohide = config.getboolean("text", "autohide", fallback=False)
 
         logging.info(
             "Loading saved channel %s", self.channel)
@@ -237,6 +238,7 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_popup_style(self.popup_style)
         self.overlay.set_text_time(self.text_time)
         self.overlay.set_show_attach(self.show_attach)
+        self.overlay.set_hide_on_mouseover(self.autohide)
 
     def save_config(self):
         """
@@ -281,6 +283,12 @@ class TextSettingsWindow(SettingsWindow):
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
+
+        # Autohide
+        autohide_label = Gtk.Label.new("Hide on mouseover")
+        autohide = Gtk.CheckButton.new()
+        autohide.set_active(self.autohide)
+        autohide.connect("toggled", self.change_hide_on_mouseover)
 
         # Popup Style
         popup_style_label = Gtk.Label.new("Popup Style")
@@ -401,29 +409,31 @@ class TextSettingsWindow(SettingsWindow):
 
         box.attach(enabled_label, 0, 0, 1, 1)
         box.attach(enabled, 1, 0, 1, 1)
-        box.attach(popup_style_label, 0, 1, 1, 1)
-        box.attach(popup_style, 1, 1, 1, 1)
-        box.attach(text_time_label, 0, 2, 1, 1)
-        box.attach(text_time, 1, 2, 1, 1)
-        box.attach(guild_label, 0, 3, 1, 1)
-        box.attach(guild, 1, 3, 1, 1)
+        #box.attach(autohide_label, 0, 1, 1, 1)
+        #box.attach(autohide, 1, 1, 1, 1)
+        box.attach(popup_style_label, 0, 2, 1, 1)
+        box.attach(popup_style, 1, 2, 1, 1)
+        box.attach(text_time_label, 0, 3, 1, 1)
+        box.attach(text_time, 1, 3, 1, 1)
+        box.attach(guild_label, 0, 4, 1, 1)
+        box.attach(guild, 1, 4, 1, 1)
 
-        box.attach(channel_label, 0, 4, 1, 1)
-        box.attach(channel, 1, 4, 1, 1)
-        box.attach(font_label, 0, 5, 1, 1)
-        box.attach(font, 1, 5, 1, 1)
-        box.attach(fg_col_label, 0, 6, 1, 1)
-        box.attach(fg_col, 1, 6, 1, 1)
-        box.attach(bg_col_label, 0, 7, 1, 1)
-        box.attach(bg_col, 1, 7, 1, 1)
-        box.attach(align_label, 0, 8, 1, 5)
+        box.attach(channel_label, 0, 5, 1, 1)
+        box.attach(channel, 1, 5, 1, 1)
+        box.attach(font_label, 0, 6, 1, 1)
+        box.attach(font, 1, 6, 1, 1)
+        box.attach(fg_col_label, 0, 7, 1, 1)
+        box.attach(fg_col, 1, 7, 1, 1)
+        box.attach(bg_col_label, 0, 8, 1, 1)
+        box.attach(bg_col, 1, 8, 1, 1)
+        box.attach(align_label, 0, 9, 1, 5)
         #box.attach(align_type_box, 1, 8, 1, 1)
-        box.attach(monitor, 1, 9, 1, 1)
-        box.attach(align_x, 1, 10, 1, 1)
-        box.attach(align_y, 1, 11, 1, 1)
-        box.attach(align_placement_button, 1, 12, 1, 1)
-        box.attach(show_attach_label, 0, 13, 1, 1)
-        box.attach(show_attach, 1, 13, 1, 1)
+        box.attach(monitor, 1, 10, 1, 1)
+        box.attach(align_x, 1, 11, 1, 1)
+        box.attach(align_y, 1, 12, 1, 1)
+        box.attach(align_placement_button, 1, 13, 1, 1)
+        box.attach(show_attach_label, 0, 14, 1, 1)
+        box.attach(show_attach, 1, 14, 1, 1)
 
         self.add(box)
 

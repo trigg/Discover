@@ -108,9 +108,12 @@ class DiscordConnector:
             self.current_voice = "0"
             return
         if channel != self.current_voice:
-            channel_name = self.channels[channel]['name']
-            logging.info(
-                "Joined room: %s", channel_name)
+            if channel in self.channels:
+                channel_name = self.channels[channel]['name']
+                logging.info(
+                    "Joined room: %s", channel_name)
+            else:
+                logging.info("Joining private room")
             self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:

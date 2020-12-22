@@ -55,6 +55,7 @@ class SettingsWindow(Gtk.VBox):
         self.align_x = None
         self.align_y = None
         self.enabled = None
+        self.autohide = None
 
     def init_config(self):
         """
@@ -225,4 +226,12 @@ class SettingsWindow(Gtk.VBox):
         self.overlay.set_enabled(button.get_active())
 
         self.enabled = button.get_active()
+        self.save_config()
+
+    def change_hide_on_mouseover(self, button):
+        """
+        Autohide setting changed
+        """
+        self.overlay.set_hide_on_mouseover(button.get_active())
+        self.autohide = button.get_active()
         self.save_config()
