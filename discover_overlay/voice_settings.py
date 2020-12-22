@@ -17,7 +17,7 @@ import gi
 from .settings import SettingsWindow
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk, Pango
+from gi.repository import Gtk, Gdk
 
 
 class VoiceSettingsWindow(SettingsWindow):
