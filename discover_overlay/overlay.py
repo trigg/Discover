@@ -98,7 +98,7 @@ class OverlayWindow(Gtk.Window):
         """
         if self.is_wayland:
             GtkLayerShell.init_for_window(self)
-            GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
+            GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
