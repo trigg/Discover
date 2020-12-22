@@ -136,11 +136,7 @@ class VoiceSettingsWindow(SettingsWindow):
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
 
         if self.font:
-            desc = Pango.FontDescription.from_string(self.font)
-            size = desc.get_size()
-            if not desc.get_size_is_absolute():
-                size = size / Pango.SCALE
-            self.overlay.set_font(desc.get_family(), size)
+            self.overlay.set_font(self.font)
 
     def save_config(self):
         """
@@ -400,13 +396,9 @@ class VoiceSettingsWindow(SettingsWindow):
         Font settings changed
         """
         font = button.get_font()
-        desc = Pango.FontDescription.from_string(font)
-        size = desc.get_size()
-        if not desc.get_size_is_absolute():
-            size = size / Pango.SCALE
-        self.overlay.set_font(desc.get_family(), size)
+        self.overlay.set_font(font)
 
-        self.font = desc.to_string()
+        self.font = font
         self.save_config()
 
     def change_bg(self, button):

@@ -108,12 +108,11 @@ class OverlayWindow(Gtk.Window):
         Draw overlay
         """
 
-    def set_font(self, name, size):
+    def set_font(self, font):
         """
         Set the font used by the overlay
         """
-        self.text_font = name
-        self.text_size = size
+        self.text_font = font
         self.redraw()
 
     def set_floating(self, floating, pos_x, pos_y, width, height):

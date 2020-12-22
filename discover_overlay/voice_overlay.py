@@ -15,6 +15,11 @@ import math
 import cairo
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version('PangoCairo', '1.0')
+# pylint: disable=wrong-import-position,wrong-import-order
+from gi.repository import Pango, PangoCairo
 
 
 class VoiceOverlayWindow(OverlayWindow):
@@ -376,43 +381,48 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw username & background at given position
         """
+        layout = self.create_pango_layout(string)
+        layout.set_markup(string, -1)
+
+        layout.set_width(Pango.SCALE * self.width)
+        layout.set_spacing(Pango.SCALE * 3)
+        font=None
         if self.text_font:
-            context.set_font_face(cairo.ToyFontFace(
-                self.text_font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL))
-        context.set_font_size(self.text_size)
-
-        # Get text size details
-        f_ascent, f_descent, f_height, f_max_dx, f_max_dy = context.font_extents()
-        _xb, _yb, width, height, _dx, _dy = context.text_extents(string)
-
-        height_offset = (self.avatar_size / 2) - (f_height / 2)
-        text_y_offset = height_offset + f_height - f_descent + self.text_baseline_adj
+            font = Pango.FontDescription(self.text_font)
+            layout.set_font_description(font)
+        (_ink_rect, logical_rect) = layout.get_pixel_extents()
+        text_height = logical_rect.height
+        text_width = logical_rect.width
+        
+        self.set_text_col()
+        height_offset = (self.avatar_size / 2) - (text_height / 2)
+        text_y_offset=height_offset + self.text_baseline_adj
 
         if self.align_right:
             context.move_to(0, 0)
             self.set_norm_col()
             context.rectangle(
-                pos_x - width - (self.text_pad * 2),
+                pos_x - text_width - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
-                width + (self.text_pad * 4),
-                f_height + (self.text_pad * 2)
+                text_width + (self.text_pad * 4),
+                text_height + (self.text_pad * 2)
             )
             context.fill()
 
             self.set_text_col()
             context.move_to(
-                pos_x - width - self.text_pad,
+                pos_x - text_width - self.text_pad,
                 pos_y + text_y_offset
             )
-            context.show_text(string)
+            PangoCairo.show_layout(self.context, layout)
         else:
             context.move_to(0, 0)
             self.set_norm_col()
             context.rectangle(
                 pos_x - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
-                width + (self.text_pad * 4),
-                f_height + (self.text_pad * 2)
+                text_width + (self.text_pad * 4),
+                text_height + (self.text_pad * 2)
             )
             context.fill()
 
@@ -421,7 +431,11 @@ class VoiceOverlayWindow(OverlayWindow):
                 pos_x + self.text_pad,
                 pos_y + text_y_offset 
             )
-            context.show_text(string)
+            PangoCairo.show_layout(self.context, layout)
+
+        
+
+        return pos_y - text_height
 
     def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour):
         """

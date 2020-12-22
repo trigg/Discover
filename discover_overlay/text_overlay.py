@@ -92,15 +92,16 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.popup_style = boolean
 
-    def set_font(self, name, size):
+    def set_font(self, font):
         """
         Set font used to render text
         """
-        self.text_font = name
-        self.text_size = size
+        self.text_font = font
+
         self.pango_rect = Pango.Rectangle()
-        self.pango_rect.width = self.text_size * Pango.SCALE
-        self.pango_rect.height = self.text_size * Pango.SCALE
+        font = Pango.FontDescription(self.text_font)
+        self.pango_rect.width = font.get_size() * Pango.SCALE
+        self.pango_rect.height = font.get_size() * Pango.SCALE
         self.redraw()
 
     def make_line(self, message):
@@ -254,8 +255,7 @@ class TextOverlayWindow(OverlayWindow):
         layout.set_width(Pango.SCALE * self.width)
         layout.set_spacing(Pango.SCALE * 3)
         if self.text_font:
-            font = Pango.FontDescription(
-                "%s %s" % (self.text_font, self.text_size))
+            font = Pango.FontDescription(self.text_font)
             layout.set_font_description(font)
         _tw, text_height = layout.get_pixel_size()
         self.col(self.bg_col)
