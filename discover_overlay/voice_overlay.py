@@ -43,6 +43,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.highlight_self = None
         self.order = None
         self.def_avatar = None
+        self.highlight_speaking = False
 
         self.round_avatar = True
         self.icon_only = True
@@ -51,6 +52,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.norm_col = [0.0, 0.0, 0.0, 0.5]
         self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
+        self.hili_col = [0.0, 0.0, 0.0, 0.9]
         self.userlist = []
         self.users_to_draw = []
         self.connected = False
@@ -86,6 +88,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the colour of mute and deafen logos
         """
         self.mute_col = mute_colour
+        self.redraw()
+
+    def set_hi(self, highlight_colour):
+        """
+        Set the colour of background for speaking users
+        """
+        self.hili_col = highlight_colour
         self.redraw()
 
     def set_avatar_size(self, size):
@@ -143,6 +152,12 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.only_speaking = only_speaking
 
+    def set_highlight_speaking(self, highlight_speaking):
+        """
+        Set if overlay should use highlight colour for background of text
+        """
+        self.highlight_speaking = highlight_speaking
+
     def set_highlight_self(self, highlight_self):
         """
         Set if the overlay should highlight the user
@@ -179,6 +194,12 @@ class VoiceOverlayWindow(OverlayWindow):
         Use background colour to draw
         """
         self.col(self.norm_col)
+
+    def set_hili_col(self):
+        """
+        Use highlight colour to draw
+        """
+        self.col(self.hili_col)
 
     def set_talk_col(self, alpha=1.0):
         """
@@ -332,6 +353,7 @@ class VoiceOverlayWindow(OverlayWindow):
         colour = None
         mute = False
         deaf = False
+        bg_col = None
 
         if "mute" in user and user["mute"]:
             mute = True
@@ -339,6 +361,12 @@ class VoiceOverlayWindow(OverlayWindow):
             deaf = True
         if "speaking" in user and user["speaking"] and not deaf and not mute:
             colour = self.talk_col
+
+        if self.highlight_speaking and "speaking" in user and user["speaking"] and not deaf and not mute:
+            bg_col = self.hili_col
+        else:
+            bg_col = self.norm_col
+
         pix = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
@@ -347,7 +375,8 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_text(
                     context, user["friendlyname"],
                     self.width - self.avatar_size - self.horz_edge_padding,
-                    pos_y
+                    pos_y,
+                    bg_col
                 )
             self.draw_avatar_pix(
                 context, pix,
@@ -367,7 +396,8 @@ class VoiceOverlayWindow(OverlayWindow):
                     context,
                     user["friendlyname"],
                     self.avatar_size + self.horz_edge_padding,
-                    pos_y
+                    pos_y,
+                    bg_col
                 )
             self.draw_avatar_pix(
                 context, pix, self.horz_edge_padding, pos_y, colour
@@ -377,7 +407,7 @@ class VoiceOverlayWindow(OverlayWindow):
             elif mute:
                 self.draw_mute(context, self.horz_edge_padding, pos_y)
 
-    def draw_text(self, context, string, pos_x, pos_y):
+    def draw_text(self, context, string, pos_x, pos_y, bg_col):
         """
         Draw username & background at given position
         """
@@ -400,7 +430,7 @@ class VoiceOverlayWindow(OverlayWindow):
 
         if self.align_right:
             context.move_to(0, 0)
-            self.set_norm_col()
+            self.col(bg_col)
             context.rectangle(
                 pos_x - text_width - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
@@ -417,7 +447,7 @@ class VoiceOverlayWindow(OverlayWindow):
             PangoCairo.show_layout(self.context, layout)
         else:
             context.move_to(0, 0)
-            self.set_norm_col()
+            self.col(bg_col)
             context.rectangle(
                 pos_x - (self.text_pad * 2),
                 pos_y + height_offset - self.text_pad,
