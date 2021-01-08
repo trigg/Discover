@@ -97,6 +97,10 @@ class OverlayWindow(Gtk.Window):
         I have no idea how this should register a fail for Weston/KDE/Gnome
         """
         if self.is_wayland:
+            if not GtkLayerShell.is_supported():
+                logging.info("GTK Layer Shell is not supported on this wayland compositor")
+                logging.info("Currently not possible: Gnome, Plasma, Weston")
+                sys.exit(0)
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
