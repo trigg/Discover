@@ -37,7 +37,6 @@ class VoiceSettingsWindow(SettingsWindow):
         self.tk_col = None
         self.mt_col = None
         self.hi_col = None
-        self.highlight_speaking = None
         self.avatar_size = None
         self.icon_spacing = None
         self.text_padding = None
@@ -89,9 +88,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.mt_col = json.loads(config.get(
             "main", "mt_col", fallback="[0.6,0.0,0.0,1.0]"))
         self.hi_col = json.loads(config.get(
-            "main", "hi_col", fallback="[0.0,0.0,0.0,0.9]"))
-        self.highlight_speaking = config.getboolean(
-            "main", "highlight_speaking", fallback=False)
+            "main", "hi_col", fallback="[0.0,0.0,0.0,0.5]"))
         self.avatar_size = config.getint("main", "avatar_size", fallback=48)
         self.icon_spacing = config.getint("main", "icon_spacing", fallback=8)
         self.text_padding = config.getint("main", "text_padding", fallback=6)
@@ -126,7 +123,6 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_tk(self.tk_col)
         self.overlay.set_mt(self.mt_col)
         self.overlay.set_hi(self.hi_col)
-        self.overlay.set_highlight_speaking(self.highlight_speaking)
         self.overlay.set_avatar_size(self.avatar_size)
         self.overlay.set_icon_spacing(self.icon_spacing)
         self.overlay.set_text_padding(self.text_padding)
@@ -164,7 +160,6 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "tk_col", json.dumps(self.tk_col))
         config.set("main", "mt_col", json.dumps(self.mt_col))
         config.set("main", "hi_col", json.dumps(self.hi_col))
-        config.set("main", "highlight_speaking", "%d" % (self.highlight_speaking))
         config.set("main", "avatar_size", "%d" % (self.avatar_size))
         config.set("main", "icon_spacing", "%d" % (self.icon_spacing))
         config.set("main", "text_padding", "%d" % (self.text_padding))
@@ -210,19 +205,19 @@ class VoiceSettingsWindow(SettingsWindow):
         font.connect("font-set", self.change_font)
 
         # Colours
-        bg_col_label = Gtk.Label.new("Background colour")
+        bg_col_label = Gtk.Label.new("Idle Background colour")
         bg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3]))
         fg_col_label = Gtk.Label.new("Text colour")
         fg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.fg_col[0], self.fg_col[1], self.fg_col[2], self.fg_col[3]))
-        tk_col_label = Gtk.Label.new("Talk colour")
+        tk_col_label = Gtk.Label.new("Talking Border colour")
         tk_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.tk_col[0], self.tk_col[1], self.tk_col[2], self.tk_col[3]))
         mt_col_label = Gtk.Label.new("Mute colour")
         mt_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.mt_col[0], self.mt_col[1], self.mt_col[2], self.mt_col[3]))
-        hi_col_label = Gtk.Label.new("Highlight colour")
+        hi_col_label = Gtk.Label.new("Talking Background colour")
         hi_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(
                 self.hi_col[0],
@@ -239,11 +234,6 @@ class VoiceSettingsWindow(SettingsWindow):
         tk_col.connect("color-set", self.change_tk)
         mt_col.connect("color-set", self.change_mt)
         hi_col.connect("color-set", self.change_hi)
-
-        highlight_speaking_label = Gtk.Label.new("Use highlight colour for username background when speaking")
-        highlight_speaking = Gtk.CheckButton.new()
-        highlight_speaking.set_active(self.highlight_speaking)
-        highlight_speaking.connect("toggled", self.change_highlight_speaking)
 
         # Avatar size
         avatar_size_label = Gtk.Label.new("Avatar size")
@@ -388,16 +378,14 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(font, 1, 1, 1, 1)
         box.attach(bg_col_label, 0, 2, 1, 1)
         box.attach(bg_col, 1, 2, 1, 1)
-        box.attach(fg_col_label, 0, 3, 1, 1)
-        box.attach(fg_col, 1, 3, 1, 1)
-        box.attach(tk_col_label, 0, 4, 1, 1)
-        box.attach(tk_col, 1, 4, 1, 1)
-        box.attach(mt_col_label, 0, 5, 1, 1)
-        box.attach(mt_col, 1, 5, 1, 1)
-        box.attach(hi_col_label, 0, 6, 1, 1)
-        box.attach(hi_col, 1, 6, 1, 1)
-        box.attach(highlight_speaking_label, 0, 7, 1, 1)
-        box.attach(highlight_speaking, 1, 7, 1, 1)
+        box.attach(hi_col_label, 0, 3, 1, 1)
+        box.attach(hi_col, 1, 3, 1, 1)
+        box.attach(fg_col_label, 0, 4, 1, 1)
+        box.attach(fg_col, 1, 4, 1, 1)
+        box.attach(tk_col_label, 0, 5, 1, 1)
+        box.attach(tk_col, 1, 5, 1, 1)
+        box.attach(mt_col_label, 0, 6, 1, 1)
+        box.attach(mt_col, 1, 6, 1, 1)
         box.attach(avatar_size_label, 0, 8, 1, 1)
         box.attach(avatar_size, 1, 8, 1, 1)
         box.attach(align_label, 0, 9, 1, 5)
@@ -492,15 +480,6 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_hi(colour)
 
         self.hi_col = colour
-        self.save_config()
-
-    def change_highlight_speaking(self, button):
-        """
-        Highlight speaking users changed
-        """
-        self.overlay.set_highlight_speaking(button.get_active())
-
-        self.highlight_speaking = button.get_active()
         self.save_config()
 
     def change_avatar_size(self, button):

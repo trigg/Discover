@@ -15,6 +15,7 @@ import math
 import cairo
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect
+# pylint: disable=wrong-import-order
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
@@ -43,7 +44,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.highlight_self = None
         self.order = None
         self.def_avatar = None
-        self.highlight_speaking = False
 
         self.round_avatar = True
         self.icon_only = True
@@ -151,12 +151,6 @@ class VoiceOverlayWindow(OverlayWindow):
         Set if overlay should only show people who are talking
         """
         self.only_speaking = only_speaking
-
-    def set_highlight_speaking(self, highlight_speaking):
-        """
-        Set if overlay should use highlight colour for background of text
-        """
-        self.highlight_speaking = highlight_speaking
 
     def set_highlight_self(self, highlight_self):
         """
@@ -361,8 +355,7 @@ class VoiceOverlayWindow(OverlayWindow):
             deaf = True
         if "speaking" in user and user["speaking"] and not deaf and not mute:
             colour = self.talk_col
-
-        if self.highlight_speaking and "speaking" in user and user["speaking"] and not deaf and not mute:
+        if "speaking" in user and user["speaking"] and not deaf and not mute:
             bg_col = self.hili_col
         else:
             bg_col = self.norm_col
@@ -423,7 +416,7 @@ class VoiceOverlayWindow(OverlayWindow):
         (_ink_rect, logical_rect) = layout.get_pixel_extents()
         text_height = logical_rect.height
         text_width = logical_rect.width
-        
+
         self.set_text_col()
         height_offset = (self.avatar_size / 2) - (text_height / 2)
         text_y_offset=height_offset + self.text_baseline_adj
@@ -459,11 +452,11 @@ class VoiceOverlayWindow(OverlayWindow):
             self.set_text_col()
             context.move_to(
                 pos_x + self.text_pad,
-                pos_y + text_y_offset 
+                pos_y + text_y_offset
             )
             PangoCairo.show_layout(self.context, layout)
 
-        
+
 
         return pos_y - text_height
 
