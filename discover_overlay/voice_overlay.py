@@ -49,6 +49,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_only = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
         self.text_col = [1.0, 1.0, 1.0, 1.0]
+        self.text_bg_col = self.text_col.copy()
+        self.text_bg_col[3] = 0.5
         self.norm_col = [0.0, 0.0, 0.0, 0.5]
         self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
@@ -74,6 +76,8 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the text colour
         """
         self.text_col = foreground_colour
+        self.text_bg_col = self.text_col.copy()
+        self.text_bg_col[3] = 0.5
         self.redraw()
 
     def set_tk(self, talking_colour):
@@ -177,11 +181,14 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.col(self.wind_col)
 
-    def set_text_col(self):
+    def set_text_col(self, speaking):
         """
         Use text colour to draw
         """
-        self.col(self.text_col)
+        if speaking:
+            self.col(self.text_col)
+        else:
+            self.col(self.text_bg_col)
 
     def set_norm_col(self):
         """
@@ -347,6 +354,7 @@ class VoiceOverlayWindow(OverlayWindow):
         colour = None
         mute = False
         deaf = False
+        speaking = False
         bg_col = None
 
         if "mute" in user and user["mute"]:
@@ -355,6 +363,7 @@ class VoiceOverlayWindow(OverlayWindow):
             deaf = True
         if "speaking" in user and user["speaking"] and not deaf and not mute:
             colour = self.talk_col
+            speaking = True
         if "speaking" in user and user["speaking"] and not deaf and not mute:
             bg_col = self.hili_col
         else:
@@ -369,7 +378,8 @@ class VoiceOverlayWindow(OverlayWindow):
                     context, user["friendlyname"],
                     self.width - self.avatar_size - self.horz_edge_padding,
                     pos_y,
-                    bg_col
+                    bg_col,
+                    speaking
                 )
             self.draw_avatar_pix(
                 context, pix,
@@ -390,7 +400,8 @@ class VoiceOverlayWindow(OverlayWindow):
                     user["friendlyname"],
                     self.avatar_size + self.horz_edge_padding,
                     pos_y,
-                    bg_col
+                    bg_col,
+                    speaking
                 )
             self.draw_avatar_pix(
                 context, pix, self.horz_edge_padding, pos_y, colour
@@ -400,7 +411,7 @@ class VoiceOverlayWindow(OverlayWindow):
             elif mute:
                 self.draw_mute(context, self.horz_edge_padding, pos_y)
 
-    def draw_text(self, context, string, pos_x, pos_y, bg_col):
+    def draw_text(self, context, string, pos_x, pos_y, bg_col, speaking):
         """
         Draw username & background at given position
         """
@@ -417,7 +428,7 @@ class VoiceOverlayWindow(OverlayWindow):
         text_height = logical_rect.height
         text_width = logical_rect.width
 
-        self.set_text_col()
+        self.set_text_col(speaking)
         height_offset = (self.avatar_size / 2) - (text_height / 2)
         text_y_offset=height_offset + self.text_baseline_adj
 
@@ -432,7 +443,7 @@ class VoiceOverlayWindow(OverlayWindow):
             )
             context.fill()
 
-            self.set_text_col()
+            self.set_text_col(speaking)
             context.move_to(
                 pos_x - text_width - self.text_pad,
                 pos_y + text_y_offset
@@ -449,7 +460,7 @@ class VoiceOverlayWindow(OverlayWindow):
             )
             context.fill()
 
-            self.set_text_col()
+            self.set_text_col(speaking)
             context.move_to(
                 pos_x + self.text_pad,
                 pos_y + text_y_offset
