@@ -49,6 +49,7 @@ class TextOverlayWindow(OverlayWindow):
 
         self.image_list = []
         self.img_finder = re.compile(r"`")
+        self.warned_filetypes = []
         self.set_title("Discover Text")
 
     def set_text_time(self, timer):
@@ -150,7 +151,9 @@ class TextOverlayWindow(OverlayWindow):
         elif message['type'] == 'br':
             ret = '\n'
         else:
-            logging.error("Unknown text type : %s", message["type"])
+            if message["type"] not in self.warned_filetypes:
+                logging.error("Unknown text type : %s", message["type"])
+                self.warned_filetypes.append(message['type'])
         return ret
 
     def recv_attach(self, identifier, pix):
