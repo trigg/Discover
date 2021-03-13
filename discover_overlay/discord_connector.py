@@ -152,7 +152,8 @@ class DiscordConnector:
             message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
         epoch_time = calendar.timegm(utc_time)
         username = message["author"]["username"]
-        if "nick" in message and message['nick'] and len(message["nick"]) > 1 and message["nick"] is not "[object Object]":
+        if("nick" in message and message['nick'] and len(message["nick"]) > 1
+            and 'object Object' not in json.dumps(message["nick"]) ):
             username = message["nick"]
         colour = "#ffffff"
         if "author_color" in message:
