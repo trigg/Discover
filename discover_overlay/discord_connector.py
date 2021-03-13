@@ -67,6 +67,8 @@ class DiscordConnector:
         self.request_text_rooms_response = None
         self.request_text_rooms_awaiting = 0
 
+        self.rate_limited_channels=[]
+
     def get_access_token_stage1(self):
         """
         First stage of getting an access token. Request authorization from Discord client
@@ -450,16 +452,18 @@ class DiscordConnector:
 
     def req_channels(self, guild):
         """
-        Request all channels information for given guild
+        Request all channels information for given guild.
+        Don't perform now but pass off to rate-limiter
         """
-        cmd = {
-            "cmd": "GET_CHANNELS",
-            "args": {
-                "guild_id": guild
-            },
-            "nonce": guild
-        }
-        self.websocket.send(json.dumps(cmd))
+        self.rate_limited_channels.append(guild)
+        #cmd = {
+        #    "cmd": "GET_CHANNELS",
+        #    "args": {
+        #        "guild_id": guild
+        #    },
+        #    "nonce": guild
+        #}
+        #self.websocket.send(json.dumps(cmd))
 
     def req_channel_details(self, channel):
         """message
@@ -584,6 +588,18 @@ class DiscordConnector:
         # Check for changed channel
         if self.authed:
             self.set_text_channel(self.text_settings.get_channel())
+
+        if len(self.rate_limited_channels) > 0:
+            guild = self.rate_limited_channels.pop()
+            cmd = {
+                "cmd": "GET_CHANNELS",
+                "args": {
+                    "guild_id": guild
+                },
+                "nonce": guild
+            }
+            self.websocket.send(json.dumps(cmd))
+
 
         # Poll socket for new information
         recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
