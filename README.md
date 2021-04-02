@@ -18,6 +18,22 @@ cd Discover
 python3 -m pip install .
 ```
 
+### Externally Packaged 
+
+Note that while we list links to other locations to download, the version provided is unknown and often untested by us. Report bugs in these implementations to their respective project, not here.
+
+##### Arch AUR
+
+[Stable](https://aur.archlinux.org/packages/discover-overlay/)
+[Latest](https://aur.archlinux.org/packages/discover-overlay-git/)
+
+##### [Fedora](https://copr.fedorainfracloud.org/coprs/mavit/discover-overlay/)
+
+```bash
+sudo yum copr enable mavit/discover-overlay
+sudo yum install discover-overlay
+```
+
 ## Dependencies
 
 Most requirements should be handled by pip.
