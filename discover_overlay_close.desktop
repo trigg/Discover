@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Discover Overlay - Close
-Comment=Close Discover Overlay
-Exec=discover-overlay --close
-Icon=discover-overlay
-Terminal=false
-Type=Application
-Categories=Network;
