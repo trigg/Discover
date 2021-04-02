@@ -6,19 +6,30 @@ Considerably lighter on system resources and less hack-and-slash included than d
 
 ## Installing
 
-### Stable
+### From Packages
+
+#### [Fedora](https://copr.fedorainfracloud.org/coprs/mavit/discover-overlay/)
+
+```bash
+sudo yum copr enable mavit/discover-overlay
+sudo yum install discover-overlay
+```
+
+### From Source
+
+#### Stable
 ```
 python3 -m pip install discover-overlay
 ```
 
-### Latest Testing
+#### Latest Testing
 ```
 git clone https://github.com/trigg/Discover.git
 cd Discover
 python3 -m pip install .
 ```
 
-## Dependencies
+#### Dependencies
 
 Most requirements should be handled by pip.
 
@@ -26,11 +37,11 @@ A compositor is strongly advised but there is a non-compositor mode optionally
 
 It is advised to install python-gobject from your system's own package manager.
 
-#### Debian/Ubuntu
+##### Debian/Ubuntu
 
 `apt install python3-gi`
 
-#### Arch
+##### Arch
 
 `pacman -S python-gobject`
 
