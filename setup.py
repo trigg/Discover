@@ -18,9 +18,7 @@ setup(
     include_package_data=True,
     data_files=[
         ('share/applications', [
-            'discover_overlay.desktop',
-            'discover_overlay_conf.desktop',
-            'discover_overlay_close.desktop'
+            'discover_overlay.desktop'
         ]),
         ('share/icons', ['discover-overlay.png', 'discover-overlay-tray.png'])
     ],
