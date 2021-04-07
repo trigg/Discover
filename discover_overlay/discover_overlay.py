@@ -82,8 +82,7 @@ class Discover:
         self.text_overlay = TextOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
-        self.settings = MainSettingsWindow(
-            self.text_overlay, self.voice_overlay)
+        self.settings = MainSettingsWindow(self)
 
     def make_sys_tray_icon(self, menu):
         """
@@ -98,7 +97,8 @@ class Discover:
                 "discover_overlay",
                 "discover-overlay-tray",
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
-            self.ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+            # Hide for now since we don't know if it should be shown yet
+            self.ind.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
             self.ind.set_menu(menu)
         except (ImportError, ValueError) as exception:
             # Create System Tray
@@ -106,6 +106,8 @@ class Discover:
             self.tray = Gtk.StatusIcon.new_from_icon_name(
                 "discover-overlay-tray")
             self.tray.connect('popup-menu', self.show_menu)
+            # Hide for now since we don't know if it should be shown yet
+            self.tray.set_visible(False)
 
     def make_menu(self):
         """
@@ -142,6 +144,25 @@ class Discover:
         End of the program
         """
         Gtk.main_quit()
+
+    def set_force_xshape(self, force):
+        """
+        Set if XShape should be forced
+        """
+        self.voice_overlay.set_force_xshape(force)
+        self.text_overlay.set_force_xshape(force)
+
+    def set_sys_tray_icon_visible(self, visible):
+        """
+        Sets whether the tray icon is visible
+        """
+        if self.ind is not None:
+            # pylint: disable=import-outside-toplevel
+            from gi.repository import AppIndicator3
+            self.ind.set_status(
+                AppIndicator3.IndicatorStatus.ACTIVE if visible else AppIndicator3.IndicatorStatus.PASSIVE)
+        elif self.tray is not None:
+            self.tray.set_visible(visible)
 
 
 def entrypoint():

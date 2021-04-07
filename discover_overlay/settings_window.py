@@ -23,14 +23,15 @@ from gi.repository import Gtk
 class MainSettingsWindow(Gtk.Window):
     """Settings window holding all settings tab"""
 
-    def __init__(self, text_overlay, voice_overlay):
+    def __init__(self, discover):
         Gtk.Window.__init__(self)
 
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
 
-        self.text_overlay = text_overlay
-        self.voice_overlay = voice_overlay
+        self.discover = discover
+        self.text_overlay = discover.text_overlay
+        self.voice_overlay = discover.voice_overlay
         self.set_title("Discover Overlay Configuration")
         self.set_icon_name("discover-overlay")
         self.set_default_size(280, 180)
@@ -45,8 +46,7 @@ class MainSettingsWindow(Gtk.Window):
         self.text_settings = TextSettingsWindow(self.text_overlay)
         notebook.append_page(self.text_settings)
         notebook.set_tab_label_text(self.text_settings, "Text")
-        self.core_settings = GeneralSettingsWindow(
-            self.text_overlay, self.voice_overlay)
+        self.core_settings = GeneralSettingsWindow(self.discover)
         notebook.append_page(self.core_settings)
         notebook.set_tab_label_text(self.core_settings, "Core")
         self.add(notebook)
