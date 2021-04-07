@@ -23,11 +23,11 @@ from gi.repository import Gtk
 class GeneralSettingsWindow(SettingsWindow):
     """Core Settings Tab"""
 
-    def __init__(self, overlay, overlay2):
+    def __init__(self, discover):
         SettingsWindow.__init__(self)
-        self.overlay = overlay
-        self.overlay2 = overlay2
+        self.discover = discover
         self.xshape = None
+        self.show_sys_tray_icon = None
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
@@ -44,10 +44,11 @@ class GeneralSettingsWindow(SettingsWindow):
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.xshape = config.getboolean("general", "xshape", fallback=False)
+        self.show_sys_tray_icon = config.getboolean("general", "showsystray", fallback=True)
 
         # Pass all of our config over to the overlay
-        self.overlay.set_force_xshape(self.xshape)
-        self.overlay2.set_force_xshape(self.xshape)
+        self.discover.set_force_xshape(self.xshape)
+        self.discover.set_sys_tray_icon_visible(self.show_sys_tray_icon)
 
     def save_config(self):
         """
@@ -59,6 +60,7 @@ class GeneralSettingsWindow(SettingsWindow):
             config.add_section("general")
 
         config.set("general", "xshape", "%d" % (int(self.xshape)))
+        config.set("general", "showsystray", "yes" if self.show_sys_tray_icon else "no")
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -81,10 +83,18 @@ class GeneralSettingsWindow(SettingsWindow):
         xshape.set_active(self.xshape)
         xshape.connect("toggled", self.change_xshape)
 
+        # Show sys tray
+        show_sys_tray_icon_label = Gtk.Label.new("Show tray icon")
+        show_sys_tray_icon = Gtk.CheckButton.new()
+        show_sys_tray_icon.set_active(self.show_sys_tray_icon)
+        show_sys_tray_icon.connect("toggled", self.change_show_sys_tray_icon)
+
         box.attach(autostart_label, 0, 0, 1, 1)
         box.attach(autostart, 1, 0, 1, 1)
         box.attach(xshape_label, 0, 1, 1, 1)
         box.attach(xshape, 1, 1, 1, 1)
+        box.attach(show_sys_tray_icon_label, 0, 2, 1, 1)
+        box.attach(show_sys_tray_icon, 1, 2, 1, 1)
 
         self.add(box)
 
@@ -99,7 +109,14 @@ class GeneralSettingsWindow(SettingsWindow):
         """
         XShape setting changed
         """
-        self.overlay.set_force_xshape(button.get_active())
-        self.overlay2.set_force_xshape(button.get_active())
+        self.discover.set_force_xshape(button.get_active())
         self.xshape = button.get_active()
+        self.save_config()
+
+    def change_show_sys_tray_icon(self, button):
+        """
+        Show tray icon setting changed
+        """
+        self.discover.set_sys_tray_icon_visible(button.get_active())
+        self.show_sys_tray_icon = button.get_active()
         self.save_config()
