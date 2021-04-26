@@ -52,6 +52,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.horz_edge_padding = None
         self.floating = None
         self.order = None
+        self.horizontal = None
         self.init_config()
 
         self.create_gui()
@@ -117,6 +118,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.floating_h = config.getint("main", "floating_h", fallback=400)
         self.order = config.getint("main", "order", fallback=0)
         self.autohide = config.getboolean("text", "autohide", fallback=False)
+        self.horizontal = config.getboolean("main", "horizontal", fallback=False)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -141,12 +143,14 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_horz_edge_padding(self.horz_edge_padding)
         self.overlay.set_order(self.order)
         self.overlay.set_hide_on_mouseover(self.autohide)
+        self.overlay.set_horizontal(self.horizontal)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
 
         if self.font:
             self.overlay.set_font(self.font)
+
 
     def save_config(self):
         """
@@ -187,6 +191,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_w", "%s" % (self.floating_w))
         config.set("main", "floating_h", "%s" % (self.floating_h))
         config.set("main", "order", "%s" % (self.order))
+        config.set("main", "horizontal", "%s" % (self.horizontal))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -282,21 +287,21 @@ class VoiceSettingsWindow(SettingsWindow):
         monitor.pack_start(renderer_text, True)
         monitor.add_attribute(renderer_text, "text", 0)
 
-        align_x_store = Gtk.ListStore(str)
-        align_x_store.append(["Left"])
-        align_x_store.append(["Right"])
-        align_x = Gtk.ComboBox.new_with_model(align_x_store)
+        self.align_x_store = Gtk.ListStore(str)
+        self.align_x_store.append(["Left"])
+        self.align_x_store.append(["Right"])
+        align_x = Gtk.ComboBox.new_with_model(self.align_x_store)
         align_x.set_active(True if self.align_x else False)
         align_x.connect("changed", self.change_align_x)
         renderer_text = Gtk.CellRendererText()
         align_x.pack_start(renderer_text, True)
         align_x.add_attribute(renderer_text, "text", 0)
 
-        align_y_store = Gtk.ListStore(str)
-        align_y_store.append(["Top"])
-        align_y_store.append(["Middle"])
-        align_y_store.append(["Bottom"])
-        align_y = Gtk.ComboBox.new_with_model(align_y_store)
+        self.align_y_store = Gtk.ListStore(str)
+        self.align_y_store.append(["Top"])
+        self.align_y_store.append(["Middle"])
+        self.align_y_store.append(["Bottom"])
+        align_y = Gtk.ComboBox.new_with_model(self.align_y_store)
         align_y.set_active(self.align_y)
         align_y.connect("changed", self.change_align_y)
         renderer_text = Gtk.CellRendererText()
@@ -387,6 +392,12 @@ class VoiceSettingsWindow(SettingsWindow):
         order.pack_start(renderer_text, True)
         order.add_attribute(renderer_text, "text", 0)
 
+        # Display icon horizontally
+        horizontal_label = Gtk.Label.new("Display Horizontally")
+        horizontal = Gtk.CheckButton.new()
+        horizontal.set_active(self.horizontal)
+        horizontal.connect("toggled", self.change_horizontal)
+
         box.attach(autohide_label, 0, 0, 1, 1)
         box.attach(autohide, 1, 0, 1, 1)
         box.attach(font_label, 0, 1, 1, 1)
@@ -431,8 +442,13 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(icon_only, 1, 22, 1, 1)
         box.attach(order_label, 0, 23, 1, 1)
         box.attach(order, 1, 23, 1, 1)
+        box.attach(horizontal_label, 0, 24, 1, 1)
+        box.attach(horizontal, 1, 24, 1, 1)
 
         self.add(box)
+
+        self.set_orientated_names()
+
 
     def change_font(self, button):
         """
@@ -609,3 +625,37 @@ class VoiceSettingsWindow(SettingsWindow):
 
         self.order = button.get_active()
         self.save_config()
+
+    def change_horizontal(self, button):
+        """
+        Horizontal layout setting changed
+        """
+        self.overlay.set_horizontal(button.get_active())
+
+        self.horizontal = button.get_active()
+        self.save_config()
+        self.set_orientated_names()
+
+    def set_orientated_names(self):
+        i= self.align_x_store.get_iter_first()
+        i2=self.align_y_store.get_iter_first()
+        if self.horizontal:
+            self.align_x_store.set_value(i, 0, "Top")
+            i = self.align_x_store.iter_next(i)
+            self.align_x_store.set_value(i, 0, "Bottom")
+
+            self.align_y_store.set_value(i2,0,"Left")
+            i2 = self.align_y_store.iter_next(i2)
+            self.align_y_store.set_value(i2,0,"Middle")
+            i2 = self.align_y_store.iter_next(i2)
+            self.align_y_store.set_value(i2,0,"Right")
+        else:
+            self.align_x_store.set_value(i, 0, "Left")
+            i = self.align_x_store.iter_next(i)
+            self.align_x_store.set_value(i, 0, "Right")
+
+            self.align_y_store.set_value(i2,0,"Top")
+            i2 = self.align_y_store.iter_next(i2)
+            self.align_y_store.set_value(i2,0,"Middle")
+            i2 = self.align_y_store.iter_next(i2)
+            self.align_y_store.set_value(i2,0,"Bottom")

@@ -179,6 +179,10 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_only = i
         self.redraw()
 
+    def set_horizontal(self, horizontal=False):
+        self.horizontal = horizontal
+        self.redraw()
+
     def set_wind_col(self):
         """
         Use window colour to draw
@@ -295,27 +299,48 @@ class VoiceOverlayWindow(OverlayWindow):
                 pass  # Not in list
             self.users_to_draw.insert(0, self_user)
 
-        # Calculate height needed to show overlay
-        needed_height = (len(self.users_to_draw) * self.avatar_size) + \
-            (len(self.users_to_draw) + 1) * self.icon_spacing
+        if self.horizontal:
+            needed_width = (len(self.users_to_draw) * self.avatar_size) + \
+                (len(self.users_to_draw) + 1) * self.icon_spacing
 
-        # Choose where to start drawing
-        current_y = 0 + self.vert_edge_padding
-        if self.align_vert == 1:
-            # Ignore padding?
-            current_y = (height / 2) - (needed_height / 2)
-        elif self.align_vert == 2:
-            current_y = height - needed_height - self.vert_edge_padding
+            current_x = 0 + self.vert_edge_padding
+            if self.align_vert ==1 :
+                current_x = (width/2)-(needed_width)/2
+            elif self.align_vert==2:
+                current_x = width - needed_width - self.vert_edge_padding
 
-        for user in self.users_to_draw:
-            self.draw_avatar(context, user, current_y)
-            # Shift the relative position down to next location
-            current_y += self.avatar_size + self.icon_spacing
+            for user in self.users_to_draw:
+                self.draw_avatar(context, user, current_x)
+                # Shift the relative position down to next location
+                current_x += self.avatar_size + self.icon_spacing
 
-        if self.is_wayland:
-            context.restore()
-        # Don't hold a ref
-        self.context = None
+            if self.is_wayland:
+                context.restore()
+            # Don't hold a ref
+            self.context = None
+
+        else:
+            # Calculate height needed to show overlay
+            needed_height = (len(self.users_to_draw) * self.avatar_size) + \
+                (len(self.users_to_draw) + 1) * self.icon_spacing
+
+            # Choose where to start drawing
+            current_y = 0 + self.vert_edge_padding
+            if self.align_vert == 1:
+                # Ignore padding?
+                current_y = (height / 2) - (needed_height / 2)
+            elif self.align_vert == 2:
+                current_y = height - needed_height - self.vert_edge_padding
+
+            for user in self.users_to_draw:
+                self.draw_avatar(context, user, current_y)
+                # Shift the relative position down to next location
+                current_y += self.avatar_size + self.icon_spacing
+
+            if self.is_wayland:
+                context.restore()
+            # Don't hold a ref
+            self.context = None
 
     def recv_avatar(self, identifier, pix):
         """
@@ -362,7 +387,34 @@ class VoiceOverlayWindow(OverlayWindow):
         pix = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
-        if self.align_right:
+        if self.horizontal:
+            if(self.align_right):
+                self.draw_avatar_pix(
+                    context, pix,
+                    pos_y,
+                    self.height - self.avatar_size - self.horz_edge_padding,
+                    colour
+                )
+                if deaf:
+                    self.draw_deaf(context, pos_y, self.height - self.avatar_size -
+                                   self.horz_edge_padding)
+                elif mute:
+                    self.draw_mute(context, pos_y, self.height - self.avatar_size -
+                                   self.horz_edge_padding)
+            else:
+                self.draw_avatar_pix(
+                    context, pix,
+                    pos_y,
+                    0,
+                    colour
+                )
+                if deaf:
+                    self.draw_deaf(context, pos_y, self.horz_edge_padding)
+                elif mute:
+                    self.draw_mute(context, pos_y, self.horz_edge_padding)
+
+
+        elif self.align_right:
             if not self.icon_only:
                 self.draw_text(
                     context, user["friendlyname"],
