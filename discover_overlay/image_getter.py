@@ -77,7 +77,8 @@ class SurfaceGetter():
             )
             raw = resp.raw
             image = Image.open(raw)
-            surface = self.from_pil(image)
+            rgb_im = image.convert('RGB')
+            surface = self.from_pil(rgb_im)
 
             self.func(self.identifier, surface)
         except requests.HTTPError:

@@ -17,6 +17,8 @@ from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect
 # pylint: disable=wrong-import-order
 import gi
+import random
+
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -31,7 +33,8 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.discover = discover
         self.avatars = {}
-
+        self.default_avatar = "https://cdn.discordapp.com/embed/avatars/%s.png" % (
+                random.randint(0, 5)),
         self.avatar_size = 48
         self.text_pad = 6
         self.text_font = None
