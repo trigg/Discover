@@ -304,9 +304,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 (len(self.users_to_draw) + 1) * self.icon_spacing
 
             current_x = 0 + self.vert_edge_padding
-            if self.align_vert ==1 :
-                current_x = (width/2)-(needed_width)/2
-            elif self.align_vert==2:
+            if self.align_vert == 1:
+                current_x = (width / 2) - (needed_width) / 2
+            elif self.align_vert == 2:
                 current_x = width - needed_width - self.vert_edge_padding
 
             for user in self.users_to_draw:
@@ -350,6 +350,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.def_avatar = pix
         else:
             self.avatars[identifier] = pix
+        self.redraw()
 
     def draw_avatar(self, context, user, pos_y):
         """
@@ -413,7 +414,6 @@ class VoiceOverlayWindow(OverlayWindow):
                 elif mute:
                     self.draw_mute(context, pos_y, self.horz_edge_padding)
 
-
         elif self.align_right:
             if not self.icon_only:
                 self.draw_text(
@@ -462,7 +462,7 @@ class VoiceOverlayWindow(OverlayWindow):
 
         layout.set_width(Pango.SCALE * self.width)
         layout.set_spacing(Pango.SCALE * 3)
-        font=None
+        font = None
         if self.text_font:
             font = Pango.FontDescription(self.text_font)
             layout.set_font_description(font)
@@ -472,7 +472,7 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.col(tx_col)
         height_offset = (self.avatar_size / 2) - (text_height / 2)
-        text_y_offset=height_offset + self.text_baseline_adj
+        text_y_offset = height_offset + self.text_baseline_adj
 
         if self.align_right:
             context.move_to(0, 0)
@@ -508,8 +508,6 @@ class VoiceOverlayWindow(OverlayWindow):
                 pos_y + text_y_offset
             )
             PangoCairo.show_layout(self.context, layout)
-
-
 
         return pos_y - text_height
 
