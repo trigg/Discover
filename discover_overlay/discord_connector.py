@@ -410,6 +410,8 @@ class DiscordConnector:
                 u"%s: %s", guild["name"], channels)
         self.sub_server()
         self.find_user()
+        self.voice_overlay.set_enabled(True)
+        self.text_overlay.set_enabled(self.text_settings.enabled)
         if self.last_text_channel:
             self.sub_text_channel(self.last_text_channel)
 
@@ -424,6 +426,8 @@ class DiscordConnector:
         Called when connection is closed
         """
         logging.info("Connection closed")
+        self.voice_overlay.hide()
+        self.text_overlay.hide()
         self.websocket = None
 
     def req_auth(self):

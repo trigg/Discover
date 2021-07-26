@@ -357,7 +357,7 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"]:
-            url = "https://cdn.discordapp.com/avatars/%s/%s.jpg" % (
+            url = "https://cdn.discordapp.com/avatars/%s/%s.png" % (
                 user['id'], user['avatar'])
             get_surface(self.recv_avatar, url, user["id"],
                         self.avatar_size)
