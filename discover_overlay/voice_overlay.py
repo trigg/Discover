@@ -27,9 +27,8 @@ class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
     def __init__(self, discover):
-        OverlayWindow.__init__(self)
+        OverlayWindow.__init__(self, discover)
 
-        self.discover = discover
         self.avatars = {}
 
         self.avatar_size = 48
@@ -186,9 +185,14 @@ class VoiceOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_guild_ids(self, guild_ids=tuple()):
-        for _id in guild_ids:
-            if _id not in self.guild_ids:
-                self.discover.connection.req_channels(_id)
+        try:
+            for _id in guild_ids:
+                if _id not in self.guild_ids:
+                    self.discover.connection.req_channels(_id)
+        except AttributeError as _e:
+            print(_e)
+            # it some times says: AttributeError: 'Discover' object has no attribute 'connection'
+            pass
         self.guild_ids = guild_ids
 
     def set_wind_col(self):

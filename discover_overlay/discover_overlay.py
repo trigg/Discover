@@ -38,12 +38,14 @@ class Discover:
         self.tray = None
 
         self.create_gui()
+
         self.connection = DiscordConnector(
             self.settings.text_settings,
             self.settings.voice_settings,
             self.text_overlay,
             self.voice_overlay
         )
+
         self.settings.text_settings.add_connector(self.connection)
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)

@@ -5,3 +5,5 @@ env
 .vscode/launch.json
 .vscode/settings.json
 __pycache__
+venv
+.idea

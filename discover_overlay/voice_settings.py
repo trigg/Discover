@@ -29,6 +29,11 @@ def parse_guild_ids(guild_ids_str):
             guild_ids.add(guild_id)
     return tuple(guild_ids)
 
+
+def guild_ids_to_string(guild_ids):
+    """Put the guild ids into a comma seperated string."""
+    return ", ".join(str(_id) for _id in guild_ids)
+
 class VoiceSettingsWindow(SettingsWindow):
     """Voice setting tab on settings window"""
 
@@ -203,7 +208,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_h", "%s" % (self.floating_h))
         config.set("main", "order", "%s" % (self.order))
         config.set("main", "horizontal", "%s" % (self.horizontal))
-        config.set("main", "guild_ids", "%s" % (", ".join(self.guild_ids)))
+        config.set("main", "guild_ids", "%s" % guild_ids_to_string(self.guild_ids))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -411,10 +416,10 @@ class VoiceSettingsWindow(SettingsWindow):
         horizontal.connect("toggled", self.change_horizontal)
 
         # Guild ids to load:
-        guild_ids_label = Gtk.Label.new("Guild ids to load (empty = all)")
-        guild_ids = Gtk.HBox.new()
-        guild_ids.set_active(self.horizontal)
-        guild_ids.connect("toggled", self.change_horizontal)
+        guild_ids_label = Gtk.Label.new("Guild Ids")
+        guild_ids = Gtk.Entry.new()
+        guild_ids.set_text(guild_ids_to_string(self.guild_ids))
+        guild_ids.connect("changed", self.change_guild_ids)
 
         box.attach(autohide_label, 0, 0, 1, 1)
         box.attach(autohide, 1, 0, 1, 1)
@@ -462,6 +467,8 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(order, 1, 23, 1, 1)
         box.attach(horizontal_label, 0, 24, 1, 1)
         box.attach(horizontal, 1, 24, 1, 1)
+        box.attach(guild_ids_label, 0, 25, 1, 1)
+        box.attach(guild_ids, 1, 25, 1, 1)
 
         self.add(box)
 
@@ -658,7 +665,7 @@ class VoiceSettingsWindow(SettingsWindow):
         """
         Horizontal layout setting changed
         """
-        self.guild_ids = parse_guild_ids(button.get_content())
+        self.guild_ids = parse_guild_ids(button.get_text())
         self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
         self.set_orientated_names()
