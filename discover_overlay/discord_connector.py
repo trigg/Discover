@@ -336,7 +336,9 @@ class DiscordConnector:
                 return
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
-                self.req_channels(guild["id"])
+                if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
+                    print("Requesting channels for guild:", guild)
+                    self.req_channels(guild["id"])
                 self.guilds[guild["id"]] = guild
             return
         elif j["cmd"] == "GET_CHANNELS":

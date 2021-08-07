@@ -57,6 +57,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.userlist = []
         self.users_to_draw = []
         self.connected = False
+        self.horizontal = False
+        self.guild_ids = tuple()
         self.force_location()
         get_surface(self.recv_avatar,
                     "https://cdn.discordapp.com/embed/avatars/3.png",
@@ -182,6 +184,12 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_horizontal(self, horizontal=False):
         self.horizontal = horizontal
         self.redraw()
+
+    def set_guild_ids(self, guild_ids=tuple()):
+        for _id in guild_ids:
+            if _id not in self.guild_ids:
+                self.discover.connection.req_channels(_id)
+        self.guild_ids = guild_ids
 
     def set_wind_col(self):
         """
