@@ -47,8 +47,9 @@ class OverlayWindow(Gtk.Window):
             return Gtk.WindowType.TOPLEVEL
         return Gtk.WindowType.POPUP
 
-    def __init__(self):
+    def __init__(self, discover):
         Gtk.Window.__init__(self, type=self.detect_type())
+        self.discover = discover
         screen = self.get_screen()
         self.compositing = False
         self.text_font = None

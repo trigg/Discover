@@ -28,8 +28,7 @@ class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
     def __init__(self, discover):
-        OverlayWindow.__init__(self)
-        self.discover = discover
+        OverlayWindow.__init__(self, discover)
         self.text_spacing = 4
         self.content = []
         self.text_font = None

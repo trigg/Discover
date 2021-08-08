@@ -27,9 +27,8 @@ class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
     def __init__(self, discover):
-        OverlayWindow.__init__(self)
+        OverlayWindow.__init__(self, discover)
 
-        self.discover = discover
         self.avatars = {}
 
         self.avatar_size = 48
@@ -57,6 +56,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.userlist = []
         self.users_to_draw = []
         self.connected = False
+        self.horizontal = False
+        self.guild_ids = tuple()
         self.force_location()
         get_surface(self.recv_avatar,
                     "https://cdn.discordapp.com/embed/avatars/3.png",
@@ -182,6 +183,17 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_horizontal(self, horizontal=False):
         self.horizontal = horizontal
         self.redraw()
+
+    def set_guild_ids(self, guild_ids=tuple()):
+        try:
+            for _id in guild_ids:
+                if _id not in self.guild_ids:
+                    self.discover.connection.req_channels(_id)
+        except AttributeError as _e:
+            print(_e)
+            # it some times says: AttributeError: 'Discover' object has no attribute 'connection'
+            pass
+        self.guild_ids = guild_ids
 
     def set_wind_col(self):
         """

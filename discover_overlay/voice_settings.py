@@ -20,6 +20,20 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
 
+def parse_guild_ids(guild_ids_str):
+    """Parse the guild_ids from a str and return them in a tuple"""
+    guild_ids = set()
+    for guild_id in guild_ids_str.split(","):
+        guild_id = guild_id.strip()
+        if guild_id != "":
+            guild_ids.add(guild_id)
+    return tuple(guild_ids)
+
+
+def guild_ids_to_string(guild_ids):
+    """Put the guild ids into a comma seperated string."""
+    return ", ".join(str(_id) for _id in guild_ids)
+
 class VoiceSettingsWindow(SettingsWindow):
     """Voice setting tab on settings window"""
 
@@ -53,6 +67,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.floating = None
         self.order = None
         self.horizontal = None
+        self.guild_ids = None
         self.init_config()
 
         self.create_gui()
@@ -119,6 +134,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.order = config.getint("main", "order", fallback=0)
         self.autohide = config.getboolean("text", "autohide", fallback=False)
         self.horizontal = config.getboolean("main", "horizontal", fallback=False)
+        self.guild_ids = parse_guild_ids(config.get("main", "guild_ids", fallback=""))
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -144,13 +160,13 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_order(self.order)
         self.overlay.set_hide_on_mouseover(self.autohide)
         self.overlay.set_horizontal(self.horizontal)
+        self.overlay.set_guild_ids(self.guild_ids)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
 
         if self.font:
             self.overlay.set_font(self.font)
-
 
     def save_config(self):
         """
@@ -192,6 +208,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "floating_h", "%s" % (self.floating_h))
         config.set("main", "order", "%s" % (self.order))
         config.set("main", "horizontal", "%s" % (self.horizontal))
+        config.set("main", "guild_ids", "%s" % guild_ids_to_string(self.guild_ids))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -398,6 +415,12 @@ class VoiceSettingsWindow(SettingsWindow):
         horizontal.set_active(self.horizontal)
         horizontal.connect("toggled", self.change_horizontal)
 
+        # Guild ids to load:
+        guild_ids_label = Gtk.Label.new("Guild Ids")
+        guild_ids = Gtk.Entry.new()
+        guild_ids.set_text(guild_ids_to_string(self.guild_ids))
+        guild_ids.connect("changed", self.change_guild_ids)
+
         box.attach(autohide_label, 0, 0, 1, 1)
         box.attach(autohide, 1, 0, 1, 1)
         box.attach(font_label, 0, 1, 1, 1)
@@ -444,6 +467,8 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(order, 1, 23, 1, 1)
         box.attach(horizontal_label, 0, 24, 1, 1)
         box.attach(horizontal, 1, 24, 1, 1)
+        box.attach(guild_ids_label, 0, 25, 1, 1)
+        box.attach(guild_ids, 1, 25, 1, 1)
 
         self.add(box)
 
@@ -633,6 +658,15 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_horizontal(button.get_active())
 
         self.horizontal = button.get_active()
+        self.save_config()
+        self.set_orientated_names()
+
+    def change_guild_ids(self, button):
+        """
+        Horizontal layout setting changed
+        """
+        self.guild_ids = parse_guild_ids(button.get_text())
+        self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
         self.set_orientated_names()
 

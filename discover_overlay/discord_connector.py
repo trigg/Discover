@@ -336,8 +336,9 @@ class DiscordConnector:
                 return
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
-                self.req_channels(guild["id"])
                 self.guilds[guild["id"]] = guild
+                if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
+                    self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_CHANNELS":
             self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
@@ -459,7 +460,13 @@ class DiscordConnector:
         Request all channels information for given guild.
         Don't perform now but pass off to rate-limiter
         """
-        self.rate_limited_channels.append(guild)
+
+        if guild in self.guilds:
+            self.rate_limited_channels.append(guild)
+            print("Requesting channels for guild:",
+                  self.guilds.get(guild))
+        else:
+            print("Didn't find guild with id", guild)
         #cmd = {
         #    "cmd": "GET_CHANNELS",
         #    "args": {
@@ -635,11 +642,10 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
-        if guild_id in self.guilds:
+        if guild_id in self.guilds and "channels" in self.guilds[guild_id]:
             self.request_text_rooms_awaiting = 0
             self.request_text_rooms = guild_id
-            self.request_text_rooms_response = [
-                None] * len(self.guilds[guild_id]["channels"])
+            self.request_text_rooms_response = [None] * len(self.guilds[guild_id]["channels"])
             self.req_all_channel_details(guild_id)
 
     def connect(self):
