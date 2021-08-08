@@ -70,6 +70,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.guild_ids = None
         self.init_config()
         self.guild_filter_string=""
+        self.warned = False
 
         self.create_gui()
 
@@ -742,6 +743,17 @@ class VoiceSettingsWindow(SettingsWindow):
     def set_guild_list(self, guild_list):
         # Uncertain about image but it's ready incase
         # guild['icon_url']
+        if len(guild_list) > 50 and len(self.guild_ids)==0 and not self.warned:
+            # Trouble! 
+            # Show warning message
+            d = Gtk.Window(title="Server limit exceeded")
+            d.set_default_size(200,150)
+            label = Gtk.Label(label = "Your Discord server count is too high. Using Discover with too many servers can cause (long!) temporary Discord bans.\nPlease opt-in to servers you wish to use voice chat in.")
+            d.add(label)
+            d.show_all()
+            # TODO After ok, open Settings?
+            self.warned=True
+
         for guild in guild_list.values():
 
             self.guild_ids_list.append([guild["id"] in self.guild_ids, '', guild["name"],guild["id"] ])
