@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overlay window for voice"""
+import logging
 import math
 import cairo
 from .overlay import OverlayWindow
@@ -190,8 +191,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 if _id not in self.guild_ids:
                     self.discover.connection.req_channels(_id)
         except AttributeError as _e:
-            print(_e)
-            # it some times says: AttributeError: 'Discover' object has no attribute 'connection'
+            logging.error(_e)
             pass
         self.guild_ids = guild_ids
 
