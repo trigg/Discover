@@ -21,13 +21,13 @@ from gi.repository import Gtk, Gdk
 
 
 def parse_guild_ids(guild_ids_str):
-    """Parse the guild_ids from a str and return them in a tuple"""
-    guild_ids = set()
+    """Parse the guild_ids from a str and return them in a list"""
+    guild_ids = []
     for guild_id in guild_ids_str.split(","):
         guild_id = guild_id.strip()
         if guild_id != "":
-            guild_ids.add(guild_id)
-    return tuple(guild_ids)
+            guild_ids.append(guild_id)
+    return guild_ids
 
 
 def guild_ids_to_string(guild_ids):
@@ -69,6 +69,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.horizontal = None
         self.guild_ids = None
         self.init_config()
+        self.guild_filter_string=""
 
         self.create_gui()
 
@@ -416,10 +417,45 @@ class VoiceSettingsWindow(SettingsWindow):
         horizontal.connect("toggled", self.change_horizontal)
 
         # Guild ids to load:
-        guild_ids_label = Gtk.Label.new("Guild Ids")
-        guild_ids = Gtk.Entry.new()
-        guild_ids.set_text(guild_ids_to_string(self.guild_ids))
-        guild_ids.connect("changed", self.change_guild_ids)
+        guild_ids_label = Gtk.Label.new("Search Servers for User\n")
+        guild_ids_box = Gtk.VBox(homogeneous=False)
+        self.guild_ids_list = Gtk.ListStore(bool, str, str, str)
+        self.guild_ids_filter = self.guild_ids_list.filter_new()
+        self.guild_ids_filter.set_visible_func(self.guild_filter_func)
+        # TODO Append guilds
+
+        guild_ids_scroll_window = Gtk.ScrolledWindow()
+        guild_ids_scroll_window.set_size_request(300,500)
+        guild_ids_tree = Gtk.TreeView(model=self.guild_ids_filter)
+
+        guild_column = Gtk.TreeViewColumn("Guilds")
+
+        toggle = Gtk.CellRendererToggle()
+        title = Gtk.CellRendererText()
+        icon = Gtk.CellRendererPixbuf()
+
+        guild_column.pack_start(toggle, True)
+        guild_column.pack_start(icon, True)
+        guild_column.pack_start(title, True)
+
+        guild_column.add_attribute(toggle, "active", 0)
+        guild_column.add_attribute(icon, "icon_name", 1)
+        guild_column.add_attribute(title, "text", 2)
+
+        guild_ids_tree.append_column(guild_column)
+
+        guild_ids_tree.set_activate_on_single_click(True)
+
+        guild_ids_tree.connect("row-activated", self.on_guild_selection_changed)
+
+        guild_filter = Gtk.Entry()
+        guild_filter.set_placeholder_text("Filter...")
+        guild_filter.connect("changed", self.guild_filter_changed)
+
+        guild_ids_box.pack_start(guild_filter, False, False, 0)
+        guild_ids_box.pack_end(guild_ids_scroll_window, True, True, 0)
+
+        guild_ids_scroll_window.add(guild_ids_tree)
 
         box.attach(autohide_label, 0, 0, 1, 1)
         box.attach(autohide, 1, 0, 1, 1)
@@ -468,7 +504,7 @@ class VoiceSettingsWindow(SettingsWindow):
         box.attach(horizontal_label, 0, 24, 1, 1)
         box.attach(horizontal, 1, 24, 1, 1)
         box.attach(guild_ids_label, 0, 25, 1, 1)
-        box.attach(guild_ids, 1, 25, 1, 1)
+        box.attach(guild_ids_box, 1, 25, 1, 1)
 
         self.add(box)
 
@@ -661,6 +697,25 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
         self.set_orientated_names()
 
+    def on_guild_selection_changed(self, tree, number, selection):
+        model, treeiter = tree.get_selection().get_selected()
+        if treeiter is not None:
+            model[treeiter][0] = not model[treeiter][0]
+            if model[treeiter][0]:
+                self.add_guild(model[treeiter][3])
+            else:
+                self.remove_guild(model[treeiter][3])
+    
+    def add_guild(self, guild):
+        self.guild_ids.append(guild)
+        self.overlay.set_guild_ids(self.guild_ids)
+        self.save_config()
+
+    def remove_guild(self, guild):
+        self.guild_ids.remove(guild)
+        self.overlay.set_guild_ids(self.guild_ids)
+        self.save_config()
+
     def change_guild_ids(self, button):
         """
         Horizontal layout setting changed
@@ -668,6 +723,28 @@ class VoiceSettingsWindow(SettingsWindow):
         self.guild_ids = parse_guild_ids(button.get_text())
         self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
+
+    def guild_filter_changed(self, entry):
+        """
+        Change the filter string for guilds
+        """
+        self.guild_filter_string = entry.get_text()
+        self.guild_ids_filter.refilter()
+
+    def guild_filter_func(self, model, iter, data):
+        """
+        Decide if a guild is shown in the list of guilds
+        """
+        if self.guild_filter_string in model[iter][2]:
+            return True
+        return False
+    
+    def set_guild_list(self, guild_list):
+        # Uncertain about image but it's ready incase
+        # guild['icon_url']
+        for guild in guild_list.values():
+
+            self.guild_ids_list.append([guild["id"] in self.guild_ids, '', guild["name"],guild["id"] ])
         
     def set_orientated_names(self):
         i= self.align_x_store.get_iter_first()

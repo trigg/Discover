@@ -394,7 +394,7 @@ class DiscordConnector:
         Check if all of the guilds contain a channel
         """
         for guild in self.guilds.values():
-            if "channels" not in guild:
+            if len(self.voice_settings.guild_ids) > 0 and guild["id"] in self.voice_settings.guild_ids and "channels" not in guild:
                 return
         # All guilds are filled!
         self.on_connected()
@@ -405,10 +405,14 @@ class DiscordConnector:
         """
         for guild in self.guilds.values():
             channels = ""
-            for channel in guild["channels"]:
-                channels = channels + " " + channel["name"]
+            if "channels" in guild:
+                for channel in guild["channels"]:
+                    channels = channels + " " + channel["name"]
+            else:
+                    channels = "Opted out"
             logging.info(
                 u"%s: %s", guild["name"], channels)
+        self.voice_settings.set_guild_list(self.guilds)
         self.sub_server()
         self.find_user()
         self.voice_overlay.set_enabled(True)
