@@ -668,8 +668,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.guild_ids = parse_guild_ids(button.get_text())
         self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
-        self.set_orientated_names()
-
+        
     def set_orientated_names(self):
         i= self.align_x_store.get_iter_first()
         i2=self.align_y_store.get_iter_first()
