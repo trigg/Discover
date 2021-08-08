@@ -466,7 +466,7 @@ class DiscordConnector:
             print("Requesting channels for guild:",
                   self.guilds.get(guild))
         else:
-            print("Didn't find guild with id", guild)
+            logging.info(f"Didn't find guild with id {guild}")
         #cmd = {
         #    "cmd": "GET_CHANNELS",
         #    "args": {
@@ -642,11 +642,20 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
-        if guild_id in self.guilds and "channels" in self.guilds[guild_id]:
-            self.request_text_rooms_awaiting = 0
-            self.request_text_rooms = guild_id
-            self.request_text_rooms_response = [None] * len(self.guilds[guild_id]["channels"])
-            self.req_all_channel_details(guild_id)
+        if guild_id in self.guilds:
+            guild = self.guilds[guild_id]
+            if "channels" in guild:
+                self.request_text_rooms_awaiting = 0
+                self.request_text_rooms = guild_id
+                self.request_text_rooms_response = [None] * len(guild["channels"])
+                self.req_all_channel_details(guild_id)
+            else:
+                logging.warning(
+                    f"Trying to request channel details for guild without "
+                    f"cached channels. This is likely because the guild id is "
+                    f"not in guild ids. Please add {guild_id} to the guild "
+                    f"ids."
+                )
 
     def connect(self):
         """
