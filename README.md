@@ -34,6 +34,14 @@ sudo yum copr enable mavit/discover-overlay
 sudo yum install discover-overlay
 ```
 
+##### [Gentoo](https://gpo.zugaina.org/net-voip/discover-overlay)
+
+```bash
+sudo eselect repository enable guru
+sudo emaint -r guru sync
+sudo emerge net-voip/discover-overlay
+```
+
 ## Dependencies
 
 Most requirements should be handled by pip.
