@@ -36,6 +36,9 @@ class Discover:
     def __init__(self, rpc_file, args):
         self.ind = None
         self.tray = None
+        self.steamos = False
+
+        self.do_args(args)
 
         self.create_gui()
 
@@ -53,7 +56,6 @@ class Discover:
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
         monitor.connect("changed", self.rpc_changed)
-        self.do_args(args)
 
         Gtk.main()
 
@@ -69,6 +71,8 @@ class Discover:
             self.show_settings()
         elif "--close" in data:
             sys.exit(0)
+        elif "--steamos" in data:
+            self.steamos=True
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """

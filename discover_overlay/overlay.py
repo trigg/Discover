@@ -18,6 +18,9 @@ import sys
 import logging
 import gi
 import cairo
+import Xlib
+from Xlib.display import Display
+from Xlib import X, Xatom
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk
@@ -84,6 +87,22 @@ class OverlayWindow(Gtk.Window):
         self.set_wayland_state()
 
         self.show_all()
+        if discover.steamos:
+            display = Display()
+            atom = display.intern_atom("STEAM_EXTERNAL_OVERLAY")
+            opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
+
+            topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
+
+            topw.change_property(atom,
+                                 Xatom.CARDINAL,8,
+                                 [1], X.PropModeReplace)
+            topw.change_property(opaq,
+                                 Xatom.CARDINAL,32,
+                                 [0xffffffff], X.PropModeReplace)
+
+            print("Setting STEAM_EXTERNAL_OVERLAY")
+            display.sync()
         self.monitor = 0
         self.align_right = True
         self.align_vert = 1
@@ -137,6 +156,7 @@ class OverlayWindow(Gtk.Window):
         Create a custom input shape and tell it that all of the window is a cut-out
         This allows us to have a window above everything but that never gets clicked on
         """
+        return
         (width, height) = self.get_size()
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         surface_ctx = cairo.Context(surface)
