@@ -470,6 +470,7 @@ class VoiceOverlayWindow(OverlayWindow):
         Draw username & background at given position
         """
         layout = self.create_pango_layout(string)
+        //layout.set_auto_dir(True)
         layout.set_markup(string, -1)
 
         layout.set_width(Pango.SCALE * self.width)

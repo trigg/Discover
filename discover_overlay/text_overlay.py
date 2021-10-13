@@ -251,6 +251,7 @@ class TextOverlayWindow(OverlayWindow):
         Draw a text message, returning the Y position of the next message
         """
         layout = self.create_pango_layout(text)
+        layout.set_auto_dir(True)
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
