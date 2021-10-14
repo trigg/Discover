@@ -362,7 +362,8 @@ class VoiceOverlayWindow(OverlayWindow):
             self.def_avatar = pix
         else:
             self.avatars[identifier] = pix
-        self.redraw()
+        if self.context:
+            self.redraw()
 
     def draw_avatar(self, context, user, pos_y):
         """
@@ -470,7 +471,7 @@ class VoiceOverlayWindow(OverlayWindow):
         Draw username & background at given position
         """
         layout = self.create_pango_layout(string)
-        //layout.set_auto_dir(True)
+        layout.set_auto_dir(True)
         layout.set_markup(string, -1)
 
         layout.set_width(Pango.SCALE * self.width)
