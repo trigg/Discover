@@ -717,11 +717,11 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
 
-    def change_guild_ids(self, button):
+    def change_guild_ids(self, input):
         """
-        Horizontal layout setting changed
+        Guild IDs replaced
         """
-        self.guild_ids = parse_guild_ids(button.get_text())
+        self.guild_ids = parse_guild_ids(input.get_text())
         self.overlay.set_guild_ids(self.guild_ids)
         self.save_config()
 
@@ -754,8 +754,8 @@ class VoiceSettingsWindow(SettingsWindow):
             # TODO After ok, open Settings?
             self.warned=True
 
+        self.guild_ids_list.clear()
         for guild in guild_list.values():
-
             self.guild_ids_list.append([guild["id"] in self.guild_ids, '', guild["name"],guild["id"] ])
         
     def set_orientated_names(self):
