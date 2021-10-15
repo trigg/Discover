@@ -296,9 +296,11 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw an inline image as a custom emoticon
         """
-        if not shape.data in self.image_list:
+        if shape.data >= len(self.image_list):
+            logging.warning(f"{shape.data} >= {len(self.image_list)}")
             return
-        if not 'url' in self.image_list[shape.data]:
+        if 'url' not in self.image_list[shape.data]:
+            logging.warning(f"'url' not in {self.image_list[shape.data]}")
             return
         key = self.image_list[shape.data]['url']
         if key not in self.attachment:
