@@ -156,7 +156,6 @@ class OverlayWindow(Gtk.Window):
         Create a custom input shape and tell it that all of the window is a cut-out
         This allows us to have a window above everything but that never gets clicked on
         """
-        return
         (width, height) = self.get_size()
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         surface_ctx = cairo.Context(surface)
