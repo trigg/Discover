@@ -296,6 +296,10 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw an inline image as a custom emoticon
         """
+        if not shape.data in self.image_list:
+            return
+        if not 'url' in self.image_list[shape.data]:
+            return
         key = self.image_list[shape.data]['url']
         if key not in self.attachment:
             get_surface(self.recv_attach,
