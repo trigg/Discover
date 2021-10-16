@@ -127,10 +127,9 @@ class TextOverlayWindow(OverlayWindow):
                 ret = message['surrogate']
             else:
                 ### Add Image ###
-                url = ("https://cdn.discordapp.com/emojis/%s.png?v=1" %
-                       (message['emojiId']))
-                img = {"url": url}
-                self.image_list.append(img)
+                self.image_list.append(
+                    f"https://cdn.discordapp.com/emojis/{message['emojiId']}.png?v=1"
+                )
                 ret = "`"
         elif (message['type'] == 'inlineCode' or
               message['type'] == 'codeBlock' or
@@ -296,11 +295,12 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw an inline image as a custom emoticon
         """
-        if not shape.data in self.image_list:
+        # print(shape.data, self.image_list, self.attachment)
+        if shape.data >= len(self.image_list):
+            logging.warning(f"{shape.data} >= {len(self.image_list)}")
             return
-        if not 'url' in self.image_list[shape.data]:
-            return
-        key = self.image_list[shape.data]['url']
+        # key is the url to the image
+        key = self.image_list[shape.data]
         if key not in self.attachment:
             get_surface(self.recv_attach,
                         key,
