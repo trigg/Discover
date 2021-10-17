@@ -73,6 +73,8 @@ class Discover:
             sys.exit(0)
         elif "--steamos" in data:
             self.steamos=True
+        if "--debug" in data:
+            logging.getLogger().setLevel(0)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
