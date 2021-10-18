@@ -150,8 +150,15 @@ class DiscordConnector:
         """
         Add line of text to text list. Assumes the message is from the correct room
         """
-        utc_time = time.strptime(
-            message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
+        utc_time = None
+        try:
+            utc_time = time.strptime(
+                message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
+        except ValueError:
+            utc_time = time.strptime(
+                message["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
+        
+
         epoch_time = calendar.timegm(utc_time)
         username = message["author"]["username"]
         if("nick" in message and message['nick'] and len(message["nick"]) > 1
