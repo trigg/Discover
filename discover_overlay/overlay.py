@@ -61,6 +61,7 @@ class OverlayWindow(Gtk.Window):
         self.pos_y = None
         self.width = None
         self.height = None
+        self.needsredraw = False
 
         self.set_size_request(50, 50)
         self.connect('draw', self.overlay_draw)
@@ -101,7 +102,7 @@ class OverlayWindow(Gtk.Window):
                                  Xatom.CARDINAL,32,
                                  [0xffffffff], X.PropModeReplace)
 
-            print("Setting STEAM_EXTERNAL_OVERLAY")
+            logging.info("Setting STEAM_EXTERNAL_OVERLAY")
             display.sync()
         self.monitor = 0
         self.align_right = True
@@ -138,7 +139,8 @@ class OverlayWindow(Gtk.Window):
         Set the font used by the overlay
         """
         self.text_font = font
-        self.redraw()
+        self.needsredraw=True
+        logging.info("set_font redraw")
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
         """
@@ -203,7 +205,7 @@ class OverlayWindow(Gtk.Window):
             (width, height) = self.get_size()
             self.width = width
             self.height = height
-        self.redraw()
+        self.needsredraw = True
 
     def redraw(self):
         """
@@ -211,6 +213,7 @@ class OverlayWindow(Gtk.Window):
         If we're using XShape (optionally or forcibly) then render the image into the shape
         so that we only cut out clear sections
         """
+        self.needsredraw = False
         gdkwin = self.get_window()
         if not self.floating:
             (width, height) = self.get_size()
@@ -239,7 +242,9 @@ class OverlayWindow(Gtk.Window):
             if mon:
                 GtkLayerShell.set_monitor(self, mon)
         self.force_location()
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_monitor redraw")
+
 
     def set_align_x(self, align_right):
         """
@@ -247,7 +252,9 @@ class OverlayWindow(Gtk.Window):
         """
         self.align_right = align_right
         self.force_location()
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_align_x redraw")
+
 
     def set_align_y(self, align_vert):
         """
@@ -255,7 +262,9 @@ class OverlayWindow(Gtk.Window):
         """
         self.align_vert = align_vert
         self.force_location()
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_align_y redraw")
+
 
     def col(self, col, alpha=1.0):
         """

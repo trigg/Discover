@@ -63,28 +63,36 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.content = tlist
         if altered:
-            self.redraw()
+            self.needsredraw = True
+            logging.info("set_text_list redraw")
+
 
     def set_fg(self, fg_col):
         """
         Set default text colour
         """
         self.fg_col = fg_col
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_fg redraw")
+
 
     def set_bg(self, bg_col):
         """
         Set background colour
         """
         self.bg_col = bg_col
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_bg redraw")
+
 
     def set_show_attach(self, attachment):
         """
         Set if attachments should be shown inline
         """
         self.show_attach = attachment
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_show_attach redraw")
+
 
     def set_popup_style(self, boolean):
         """
@@ -102,7 +110,9 @@ class TextOverlayWindow(OverlayWindow):
         font = Pango.FontDescription(self.text_font)
         self.pango_rect.width = font.get_size() * Pango.SCALE
         self.pango_rect.height = font.get_size() * Pango.SCALE
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_font redraw")
+
 
     def make_line(self, message):
         """
@@ -159,7 +169,9 @@ class TextOverlayWindow(OverlayWindow):
         Called when an image has been downloaded by image_getter
         """
         self.attachment[identifier] = pix
-        self.redraw()
+        self.needsredraw = True
+        logging.info("recv_attach redraw")
+
 
     def overlay_draw(self, _w, context, data=None):
         """
@@ -210,6 +222,7 @@ class TextOverlayWindow(OverlayWindow):
                         get_surface(self.recv_attach,
                                     url,
                                     url, None)
+                        self.attachment[url] = None # Avoid asking repeatedly
                 else:
                     logging.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))

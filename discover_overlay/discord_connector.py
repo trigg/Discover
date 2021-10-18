@@ -604,6 +604,12 @@ class DiscordConnector:
         if self.authed:
             self.set_text_channel(self.text_settings.get_channel())
 
+        if self.voice_overlay.needsredraw:
+            self.voice_overlay.redraw()
+
+        if self.text_overlay.needsredraw:
+            self.text_overlay.redraw()
+
         if len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()
             cmd = {

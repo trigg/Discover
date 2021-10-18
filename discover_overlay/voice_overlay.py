@@ -70,91 +70,117 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the background colour
         """
         self.norm_col = background_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_bg redraw")
+
 
     def set_fg(self, foreground_colour):
         """
         Set the text colour
         """
         self.text_col = foreground_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_fg redraw")
+
 
     def set_tk(self, talking_colour):
         """
         Set the border colour for users who are talking
         """
         self.talk_col = talking_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_tk redraw")
+
 
     def set_mt(self, mute_colour):
         """
         Set the colour of mute and deafen logos
         """
         self.mute_col = mute_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_mt redraw")
+
 
     def set_hi(self, highlight_colour):
         """
         Set the colour of background for speaking users
         """
         self.hili_col = highlight_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_hi redraw")
+
 
     def set_fg_hi(self, highlight_colour):
         """
         Set the colour of background for speaking users
         """
         self.text_hili_col = highlight_colour
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_fg_hi redraw")
+
 
     def set_avatar_size(self, size):
         """
         Set the size of the avatar icons
         """
         self.avatar_size = size
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_avatar_size redraw")
+
 
     def set_icon_spacing(self, i):
         """
         Set the spacing between avatar icons
         """
         self.icon_spacing = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_icon_spacing redraw")
+
 
     def set_text_padding(self, i):
         """
         Set padding between text and border
         """
         self.text_pad = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_text_padding redraw")
+
 
     def set_text_baseline_adj(self, i):
         """
         Set padding between text and border
         """
         self.text_baseline_adj = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_text_baseline_adj redraw")
+
 
     def set_vert_edge_padding(self, i):
         """
         Set padding between top/bottom of screen and overlay contents
         """
         self.vert_edge_padding = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_text_vert_edge_padding redraw")
+
 
     def set_horz_edge_padding(self, i):
         """
         Set padding between left/right of screen and overlay contents
         """
         self.horz_edge_padding = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_horz_edge_padding redraw")
+
 
     def set_square_avatar(self, i):
         """
         Set if the overlay should crop avatars to a circle or show full square image
         """
         self.round_avatar = not i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_square_avatar redraw")
+
 
     def set_only_speaking(self, only_speaking):
         """
@@ -179,11 +205,12 @@ class VoiceOverlayWindow(OverlayWindow):
         Set if the overlay should draw only the icon
         """
         self.icon_only = i
-        self.redraw()
+        self.needsredraw = True
+        logging.info("set_icon_only redraw")
 
     def set_horizontal(self, horizontal=False):
         self.horizontal = horizontal
-        self.redraw()
+        self.needsredraw = True
 
     def set_guild_ids(self, guild_ids=tuple()):
         try:
@@ -242,7 +269,9 @@ class VoiceOverlayWindow(OverlayWindow):
             alt = True
             self.compositing = screen.is_composited()
         if alt:
-            self.redraw()
+            self.needsredraw = True
+            logging.info("set_user_list redraw")
+
 
     def set_connection(self, connection):
         """
@@ -251,7 +280,9 @@ class VoiceOverlayWindow(OverlayWindow):
         is_connected = connection == "VOICE_CONNECTED"
         if self.connected != is_connected:
             self.connected = is_connected
-            self.redraw()
+            self.needsredraw = True
+            logging.info("set_connection redraw")
+
 
     def overlay_draw(self, _w, context, _data=None):
         """
@@ -363,7 +394,9 @@ class VoiceOverlayWindow(OverlayWindow):
         else:
             self.avatars[identifier] = pix
         if self.context:
-            self.redraw()
+            self.needsredraw = True
+            logging.info("recv_avatar redraw")
+
 
     def draw_avatar(self, context, user, pos_y):
         """
