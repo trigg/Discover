@@ -63,26 +63,27 @@ class Discover:
         """
         Read in arg list from command or RPC and act accordingly
         """
-        if "--help" in data:
+        if "--help" in data or "-h" in data:
             print("Usage: discover-overlay [OPTIONS]... ")
             print("Show an X11 or wlroots overlay with information")
             print("from Discord client")
             print("")
             print("  -c, --configure        Open configuration window")
             print("  -s, --steamos          Add X11 hint to overlay in gamescope")
-            print("      --close            Close currently running instance")
+            print("  -x, --close            Close currently running instance")
             print("  -v, --debug            Verbose output for aid in debugging")
+            print("  -h, --help             This screen")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
                 sys.exit(0)
         if "--configure" in data or "-c" in data:
             self.show_settings()
-        if "--close" in data:
+        if "--close" in data or "-x" in data:
             sys.exit(0)
-        if "--steamos" in data:
+        if "--steamos" in data or "-s" in data:
             self.steamos=True
-        if "--debug" in data:
+        if "--debug" in data or "-v" in data:
             logging.getLogger().setLevel(0)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
