@@ -38,7 +38,7 @@ class Discover:
         self.tray = None
         self.steamos = False
 
-        self.do_args(args)
+        self.do_args(args, True)
 
         self.create_gui()
 
@@ -59,19 +59,28 @@ class Discover:
 
         Gtk.main()
 
-    def do_args(self, data):
+    def do_args(self, data, normal_close):
         """
         Read in arg list from command or RPC and act accordingly
         """
         if "--help" in data:
-            pass
-        elif "--about" in data:
-            pass
-        elif "--configure" in data:
+            print("Usage: discover-overlay [OPTIONS]... ")
+            print("Show an X11 or wlroots overlay with information")
+            print("from Discord client")
+            print("")
+            print("  -c, --configure        Open configuration window")
+            print("  -s, --steamos          Add X11 hint to overlay in gamescope")
+            print("      --close            Close currently running instance")
+            print("  -v, --debug            Verbose output for aid in debugging")
+            print("")
+            print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
+            if normal_close:
+                sys.exit(0)
+        if "--configure" in data or "-c" in data:
             self.show_settings()
-        elif "--close" in data:
+        if "--close" in data:
             sys.exit(0)
-        elif "--steamos" in data:
+        if "--steamos" in data:
             self.steamos=True
         if "--debug" in data:
             logging.getLogger().setLevel(0)
@@ -83,7 +92,7 @@ class Discover:
         with open(self.rpc_file, "r") as tfile:
             data = tfile.readlines()
             if len(data) >= 1:
-                self.do_args(data[0])
+                self.do_args(data[0], False)
 
     def create_gui(self):
         """
