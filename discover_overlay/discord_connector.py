@@ -37,7 +37,8 @@ class DiscordConnector:
     communicates to get voice & text info to display
     """
 
-    def __init__(self, text_settings, voice_settings, text_overlay, voice_overlay):
+    def __init__(self, discover, text_settings, voice_settings, text_overlay, voice_overlay):
+        self.discover = discover
         self.text_settings = text_settings
         self.text_overlay = text_overlay
         self.voice_settings = voice_settings
@@ -584,6 +585,9 @@ class DiscordConnector:
 
         Called at 60Hz approximately but has near zero bearing on rendering
         """
+        if self.discover.show_settings_delay:
+            self.discover.show_settings_delay = False
+            self.discover.show_settings()
         # Ensure connection
         if not self.websocket:
             self.connect()

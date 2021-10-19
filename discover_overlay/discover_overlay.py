@@ -37,12 +37,15 @@ class Discover:
         self.ind = None
         self.tray = None
         self.steamos = False
+        self.show_settings_delay=False
+        self.settings = None
 
         self.do_args(args, True)
 
         self.create_gui()
 
         self.connection = DiscordConnector(
+            self,
             self.settings.text_settings,
             self.settings.voice_settings,
             self.text_overlay,
@@ -78,7 +81,10 @@ class Discover:
             if normal_close:
                 sys.exit(0)
         if "--configure" in data or "-c" in data:
-            self.show_settings()
+            if self.settings:
+                self.show_settings()
+            else:
+                self.show_settings_delay = True
         if "--close" in data or "-x" in data:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
