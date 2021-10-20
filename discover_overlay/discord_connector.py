@@ -220,7 +220,7 @@ class DiscordConnector:
                 return message["embeds"][0]["rawDescription"]
             if "author" in message["embeds"][0]:
                 return message["embeds"][0]["author"]["name"]
-        elif len(message["attachments"]) == 1:
+        elif 'attachments' in message and len(message["attachments"]) == 1:
             return ""
         return ""
 
