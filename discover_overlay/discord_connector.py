@@ -215,12 +215,12 @@ class DiscordConnector:
             return message["content_parsed"]
         elif "content" in message and len(message["content"]) > 0:
             return message["content"]
-        elif len(message["embeds"]) == 1:
+        elif "embeds" in message and len(message["embeds"]) == 1:
             if "rawDescription" in message["embeds"][0]:
                 return message["embeds"][0]["rawDescription"]
             if "author" in message["embeds"][0]:
                 return message["embeds"][0]["author"]["name"]
-        elif 'attachments' in message and len(message["attachments"]) == 1:
+        elif "attachments" in message and len(message["attachments"]) == 1:
             return ""
         return ""
 
@@ -229,7 +229,7 @@ class DiscordConnector:
         Messages with attachments come in different forms, decide what is and is
         not an attachment
         """
-        if len(message["attachments"]) == 1:
+        if "attachments" in message and len(message["attachments"]) == 1:
             return message["attachments"]
         return None
 
