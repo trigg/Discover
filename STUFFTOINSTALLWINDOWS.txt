@@ -1,0 +1,11 @@
+https://www.gtk.org/docs/installations/windows#installation
+https://pygobject.readthedocs.io/en/latest/getting_started.html
+
+pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-python3 mingw-w64-x86_64-python3-gobject
+pacman -S mingw-w64-x86_64-python-pillow
+pacman -S mingw-w64-x86_64-gdk-pixbuf2
+pacman -S mingw-w64-x86_64-python-gobject
+pacman -S mingw-w64-x86_64-glib2
+pacman -S mingw-w64-x86_64-python-numpy
+
+pip install pygtk
