@@ -330,6 +330,9 @@ class VoiceOverlayWindow(OverlayWindow):
             else:
                 user["friendlyname"] = user["username"]
 
+            # FIX ELIMINATE LOBBY CODE AMONG US
+            user["friendlyname"] = re.sub(r'[\/|[\] -]+[A-Z]{6}[\/|[\] -]*(NA|EU|ASIA)*[\/|[\] -]?', '', user["friendlyname"])
+
             # Remove users that arent speaking
             if self.only_speaking:
                 speaking = "speaking" in user and user["speaking"]

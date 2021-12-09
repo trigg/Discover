@@ -78,8 +78,17 @@ class SurfaceGetter():
             )
             raw = resp.raw
             image = Image.open(raw)
-            surface = self.from_pil(image)
 
+            # Replace black with almost black
+            image = image.convert('RGBA')
+            data = np.array(image)  # "data" is a height x width x 4 numpy array
+            red, green, blue, alpha = data.T  # Temporarily unpack the bands for readability
+            # Replace black with "almost black"... (leaves alpha values alone...)
+            black_areas = (red == 0) & (blue == 0) & (green == 0)
+            data[..., :-1][black_areas.T] = (20, 20, 20)  # Transpose back needed
+            image2 = Image.fromarray(data)
+
+            surface = self.from_pil(image2)
             self.func(self.identifier, surface)
         except requests.HTTPError:
             logging.error("Unable to open %s", self.url)
