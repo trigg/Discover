@@ -22,7 +22,7 @@ class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
 
     def __init__(self, pos_x=0, pos_y=0, width=300, height=300, message="Message", settings=None):
-        Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
+        Gtk.Window.__init__(self) # , type=Gtk.WindowType.POPUP)
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.width = max(100, width)

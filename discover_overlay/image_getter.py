@@ -22,6 +22,7 @@ import PIL.Image as Image
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf
+import numpy as np
 
 
 class ImageGetter():

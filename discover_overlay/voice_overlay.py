@@ -22,6 +22,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo
+import re
 
 
 class VoiceOverlayWindow(OverlayWindow):
@@ -459,7 +460,6 @@ class VoiceOverlayWindow(OverlayWindow):
                     self.draw_deaf(context, pos_y, self.horz_edge_padding)
                 elif mute:
                     self.draw_mute(context, pos_y, self.horz_edge_padding)
-
         elif self.align_right:
             if not self.icon_only:
                 self.draw_text(

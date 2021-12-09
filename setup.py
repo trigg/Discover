@@ -27,7 +27,6 @@ setup(
         'websocket-client',
         'pyxdg',
         'requests',
-        'python-pidfile>=3.0.0',
         'pillow',
     ],
     entry_points={

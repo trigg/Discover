@@ -212,7 +212,7 @@ class TextSettingsWindow(SettingsWindow):
         self.guild = config.get("text", "guild", fallback=GUILD_DEFAULT_VALUE)
         self.font = config.get("text", "font", fallback=None)
         self.bg_col = json.loads(config.get(
-            "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
+            "text", "bg_col", fallback="[45,45,45,0.5]"))
         self.fg_col = json.loads(config.get(
             "text", "fg_col", fallback="[1.0,1.0,1.0,1.0]"))
         self.popup_style = config.getboolean(

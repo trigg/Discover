@@ -15,7 +15,6 @@ import os
 import sys
 import logging
 import gi
-import pidfile
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
@@ -210,12 +209,15 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     try:
-        with pidfile.PIDFile(pid_file):
-            logging.getLogger().setLevel(logging.INFO)
-            Discover(rpc_file, line)
-    except pidfile.AlreadyRunningError:
+        logging.getLogger().setLevel(logging.INFO)
+        Discover(rpc_file, line)
+    except:
         logging.warning("Discover overlay is currently running")
 
         with open(rpc_file, "w") as tfile:
             tfile.write(line)
             logging.warning("Sent RPC command")
+
+
+if __name__ == "__main__":
+    entrypoint()

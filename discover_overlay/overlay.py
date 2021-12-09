@@ -18,9 +18,6 @@ import sys
 import logging
 import gi
 import cairo
-import Xlib
-from Xlib.display import Display
-from Xlib import X, Xatom
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk
@@ -48,10 +45,12 @@ class OverlayWindow(Gtk.Window):
         if "Wayland" in screen_type:
             self.is_wayland = True
             return Gtk.WindowType.TOPLEVEL
-        return Gtk.WindowType.POPUP
+        # Return TOPLEVEL regardless (not POPUP) so OBS can capture
+        return Gtk.WindowType.TOPLEVEL
 
     def __init__(self, discover):
-        Gtk.Window.__init__(self, type=self.detect_type())
+        Gtk.Window.__init__(self, title="DiscoverOverlay", type=self.detect_type())
+        # Gtk.Window.show()
         self.discover = discover
         screen = self.get_screen()
         self.compositing = False
@@ -88,22 +87,22 @@ class OverlayWindow(Gtk.Window):
         self.set_wayland_state()
 
         self.show_all()
-        if discover.steamos:
-            display = Display()
-            atom = display.intern_atom("STEAM_EXTERNAL_OVERLAY")
-            opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
-
-            topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
-
-            topw.change_property(atom,
-                                 Xatom.CARDINAL,8,
-                                 [1], X.PropModeReplace)
-            topw.change_property(opaq,
-                                 Xatom.CARDINAL,32,
-                                 [0xffffffff], X.PropModeReplace)
-
-            logging.info("Setting STEAM_EXTERNAL_OVERLAY")
-            display.sync()
+        # if discover.steamos:
+        #     display = Display()
+        #     atom = display.intern_atom("STEAM_EXTERNAL_OVERLAY")
+        #     opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
+        #
+        #     topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
+        #
+        #     topw.change_property(atom,
+        #                          Xatom.CARDINAL,8,
+        #                          [1], X.PropModeReplace)
+        #     topw.change_property(opaq,
+        #                          Xatom.CARDINAL,32,
+        #                          [0xffffffff], X.PropModeReplace)
+        #
+        #     logging.info("Setting STEAM_EXTERNAL_OVERLAY")
+        #     display.sync()
         self.monitor = 0
         self.align_right = True
         self.align_vert = 1
