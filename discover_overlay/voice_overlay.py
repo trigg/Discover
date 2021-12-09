@@ -397,6 +397,13 @@ class VoiceOverlayWindow(OverlayWindow):
             self.needsredraw = True
             logging.info("recv_avatar redraw")
 
+    def delete_avatar(self, identifier):
+        """
+        Remove avatar image
+        """
+        if identifier in self.avatars:
+            del self.avatars[identifier]
+
 
     def draw_avatar(self, context, user, pos_y):
         """

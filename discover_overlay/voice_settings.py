@@ -426,7 +426,7 @@ class VoiceSettingsWindow(SettingsWindow):
         # TODO Append guilds
 
         guild_ids_scroll_window = Gtk.ScrolledWindow()
-        guild_ids_scroll_window.set_size_request(300,500)
+        guild_ids_scroll_window.set_size_request(300,150)
         guild_ids_tree = Gtk.TreeView(model=self.guild_ids_filter)
 
         guild_column = Gtk.TreeViewColumn("Guilds")

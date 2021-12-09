@@ -61,7 +61,7 @@ class OverlayWindow(Gtk.Window):
         self.pos_y = None
         self.width = None
         self.height = None
-        self.needsredraw = False
+        self.needsredraw = True
 
         self.set_size_request(50, 50)
         self.connect('draw', self.overlay_draw)
