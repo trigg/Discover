@@ -251,7 +251,14 @@ class DiscordConnector:
             if "lastspoken" not in user and "lastspoken" in olduser:
                 user["lastspoken"] = olduser["lastspoken"]
             if olduser["avatar"] != user["avatar"]:
-                self.voice_overlay.delete_avatar(user["id"])
+                # TODO bugs out sometimes
+                # line 254, in update_user
+                # self.voice_overlay.delete_avatar(user["id"])
+                # AttributeError: 'VoiceOverlayWindow' object has no attribute 'delete_avatar'
+                try:
+                    self.voice_overlay.delete_avatar(user["id"])
+                except:
+                    pass
         if "lastspoken" not in user:  # Still nothing?
             user["lastspoken"] = 0  # EEEEPOOCH EEEEEPOCH! BELIEVE MEEEE
         if "speaking" not in user:
