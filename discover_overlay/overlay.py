@@ -90,7 +90,7 @@ class OverlayWindow(Gtk.Window):
         self.show_all()
         if discover.steamos:
             display = Display()
-            atom = display.intern_atom("STEAM_EXTERNAL_OVERLAY")
+            atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
             opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
 
             topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
