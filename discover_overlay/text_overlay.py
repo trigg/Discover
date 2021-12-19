@@ -50,6 +50,8 @@ class TextOverlayWindow(OverlayWindow):
         self.img_finder = re.compile(r"`")
         self.warned_filetypes = []
         self.set_title("Discover Text")
+        self.redraw()
+
 
     def set_text_time(self, timer):
         """

@@ -219,7 +219,6 @@ class OverlayWindow(Gtk.Window):
             (width, height) = self.get_size()
             self.width = width
             self.height = height
-
         if gdkwin:
             if not self.compositing or self.force_xshape:
                 (width, height) = self.get_size()

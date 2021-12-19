@@ -64,6 +64,8 @@ class VoiceOverlayWindow(OverlayWindow):
                     "https://cdn.discordapp.com/embed/avatars/3.png",
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
+        self.redraw()
+
 
     def set_bg(self, background_colour):
         """
