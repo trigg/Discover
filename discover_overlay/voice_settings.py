@@ -222,10 +222,10 @@ class VoiceSettingsWindow(SettingsWindow):
         box = Gtk.Grid()
 
         # Autohide
-        autohide_label = Gtk.Label.new("Hide on mouseover")
-        autohide = Gtk.CheckButton.new()
-        autohide.set_active(self.autohide)
-        autohide.connect("toggled", self.change_hide_on_mouseover)
+        #autohide_label = Gtk.Label.new("Hide on mouseover")
+        #autohide = Gtk.CheckButton.new()
+        #autohide.set_active(self.autohide)
+        #autohide.connect("toggled", self.change_hide_on_mouseover)
 
         # Font chooser
         font_label = Gtk.Label.new("Font")
@@ -458,8 +458,8 @@ class VoiceSettingsWindow(SettingsWindow):
 
         guild_ids_scroll_window.add(guild_ids_tree)
 
-        box.attach(autohide_label, 0, 0, 1, 1)
-        box.attach(autohide, 1, 0, 1, 1)
+        #box.attach(autohide_label, 0, 0, 1, 1)
+        #box.attach(autohide, 1, 0, 1, 1)
         box.attach(font_label, 0, 1, 1, 1)
         box.attach(font, 1, 1, 1, 1)
         box.attach(bg_col_label, 0, 2, 1, 1)
