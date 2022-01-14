@@ -187,8 +187,8 @@ class OverlayWindow(Gtk.Window):
                 geometry = monitor.get_geometry()
                 scale_factor = monitor.get_scale_factor()
                 if not self.floating:
-                    width = scale_factor * geometry.width
-                    height = scale_factor * geometry.height
+                    width = geometry.width
+                    height = geometry.height
                     pos_x = geometry.x
                     pos_y = geometry.y
                     self.resize(width, height)
