@@ -231,6 +231,9 @@ class VoiceSettingsWindow(SettingsWindow):
         colour_box.set_row_spacing(8)
         colour_box.set_column_spacing(8)
 
+        avatar_box.set_column_spacing(8)
+        alignment_box.set_column_spacing(8)
+
         outer_box.attach(monitor_box,0,0,1,1)
         outer_box.attach(alignment_box,0,1,1,1)
         outer_box.attach(colour_box,1,0,1,1)
