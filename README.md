@@ -2,7 +2,7 @@
 Yet another Discord overlay for Linux written in Python using GTK3.
 
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
-![Screenshot](https://user-images.githubusercontent.com/964775/94065879-9c4e4480-fde3-11ea-9b8a-4688fd02ca17.png)
+![Screenshot](https://user-images.githubusercontent.com/535772/149630830-750f8af6-e935-44a6-ad1c-da1d204ee107.png)
 
 ## Installing
 
