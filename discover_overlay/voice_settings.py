@@ -224,9 +224,9 @@ class VoiceSettingsWindow(SettingsWindow):
         outer_box.set_column_spacing(64)
 
         monitor_box = Gtk.Grid()
-        alignment_box = Gtk.Grid()
-        colour_box = Gtk.Grid()
-        avatar_box = Gtk.Grid()
+        alignment_box = Gtk.Grid(row_homogeneous=True)
+        colour_box = Gtk.Grid(row_homogeneous=True)
+        avatar_box = Gtk.Grid(row_homogeneous=True)
 
         colour_box.set_row_spacing(8)
         colour_box.set_column_spacing(8)
