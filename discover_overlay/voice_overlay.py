@@ -61,7 +61,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.guild_ids = tuple()
         self.force_location()
         get_surface(self.recv_avatar,
-                    "https://cdn.discordapp.com/embed/avatars/3.png",
+                    "share/icons//hicolor/256x256/apps/discover-overlay-default.png",
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()

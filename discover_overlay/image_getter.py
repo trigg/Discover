@@ -19,6 +19,7 @@ import requests
 import cairo
 import PIL
 import PIL.Image as Image
+import os
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf
@@ -95,6 +96,23 @@ class SurfaceGetter():
         except PIL.UnidentifiedImageError:
             logging.error("Unknown image type")
 
+    def get_file(self):
+        locations = [os.path.expanduser('~/.local/'), '/usr/']
+        for prefix in locations:
+            try:
+                image = Image.open(os.path.join(prefix,self.url))
+                surface = self.from_pil(image)
+                self.func(self.identifier, surface)
+                return
+            except ValueError:
+                logging.error("Unable to read %s", self.url)
+            except TypeError:
+                logging.error("Unable to read %s", self.url)
+            except PIL.UnidentifiedImageError:
+                logging.error("Unknown image type")
+
+
+
     def from_pil(self, image, alpha=1.0):
         """
         :param im: Pillow Image
@@ -119,8 +137,12 @@ def get_image(func, identifier, ava, size):
 def get_surface(func, identifier, ava, size):
     """Download to cairo surface"""
     image_getter = SurfaceGetter(func, identifier, ava, size)
-    thread = threading.Thread(target=image_getter.get_url, args=())
-    thread.start()
+    if identifier.startswith('http'):
+        thread = threading.Thread(target=image_getter.get_url, args=())
+        thread.start()
+    else:
+        thread = threading.Thread(target=image_getter.get_file, args=())
+        thread.start()
 
 
 def get_aspected_size(img, width, height, anchor=0, hanchor=0):
