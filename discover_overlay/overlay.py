@@ -62,6 +62,8 @@ class OverlayWindow(Gtk.Window):
         self.width = None
         self.height = None
         self.needsredraw = True
+        self.hidden = False
+        self.enabled = False
 
         self.set_size_request(50, 50)
         self.connect('draw', self.overlay_draw)
@@ -232,6 +234,10 @@ class OverlayWindow(Gtk.Window):
                 gdkwin.shape_combine_region(None, 0, 0)
         self.queue_draw()
 
+    def set_hidden(self, hidden):
+        self.hidden = hidden
+        self.set_enabled(self.enabled)
+
     def set_monitor(self, idx=None, mon=None):
         """
         Set the monitor this overlay should display on.
@@ -285,7 +291,8 @@ class OverlayWindow(Gtk.Window):
         """
         Set if this overlay should be visible
         """
-        if enabled:
+        self.enabled = enabled
+        if enabled and not self.hidden:
             self.show_all()
         else:
             self.hide()

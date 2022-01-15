@@ -76,6 +76,8 @@ class Discover:
             print("  -x, --close            Close currently running instance")
             print("  -v, --debug            Verbose output for aid in debugging")
             print("  -h, --help             This screen")
+            print("      --hide             Hide overlay")
+            print("      --show             Show overlay")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
@@ -89,6 +91,16 @@ class Discover:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
             self.steamos=True
+        if "--hide" in data:
+            if self.voice_overlay:
+                self.voice_overlay.set_hidden(True)
+            if self.text_overlay:
+                self.text_overlay.set_hidden(True)
+        if "--show" in data:
+            if self.voice_overlay:
+                self.voice_overlay.set_hidden(False)
+            if self.text_overlay:
+                self.text_overlay.set_hidden(False)
         if "--debug" in data or "-v" in data:
             logging.getLogger().setLevel(0)
 
