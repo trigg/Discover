@@ -506,7 +506,6 @@ class DiscordConnector:
         Ask for information on all channels in a guild
         """
         for channel in self.guilds[guild]["channels"]:
-            self.request_text_rooms_awaiting += 1
             self.req_channel_details(channel["id"])
 
     def find_user(self):
@@ -666,7 +665,7 @@ class DiscordConnector:
         if guild_id in self.guilds:
             guild = self.guilds[guild_id]
             if "channels" in guild:
-                self.request_text_rooms_awaiting = 0
+                self.request_text_rooms_awaiting = len(guild["channels"])
                 self.request_text_rooms = guild_id
                 self.request_text_rooms_response = [None] * len(guild["channels"])
                 self.req_all_channel_details(guild_id)
