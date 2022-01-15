@@ -348,11 +348,11 @@ class VoiceOverlayWindow(OverlayWindow):
             needed_width = (len(self.users_to_draw) * self.avatar_size) + \
                 (len(self.users_to_draw) + 1) * self.icon_spacing
 
-            current_x = 0 + self.vert_edge_padding
+            current_x = 0 + self.horz_edge_padding
             if self.align_vert == 1:
                 current_x = (width / 2) - (needed_width) / 2
             elif self.align_vert == 2:
-                current_x = width - needed_width - self.vert_edge_padding
+                current_x = width - needed_width - self.horz_edge_padding
 
             for user in self.users_to_draw:
                 self.draw_avatar(context, user, current_x)
@@ -448,15 +448,15 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_avatar_pix(
                     context, pix,
                     pos_y,
-                    self.height - self.avatar_size - self.horz_edge_padding,
+                    self.height - self.avatar_size - self.vert_edge_padding,
                     colour
                 )
                 if deaf:
                     self.draw_deaf(context, pos_y, self.height - self.avatar_size -
-                                   self.horz_edge_padding)
+                                   self.vert_edge_padding)
                 elif mute:
                     self.draw_mute(context, pos_y, self.height - self.avatar_size -
-                                   self.horz_edge_padding)
+                                   self.vert_edge_padding)
             else:
                 self.draw_avatar_pix(
                     context, pix,

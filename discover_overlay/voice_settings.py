@@ -219,7 +219,22 @@ class VoiceSettingsWindow(SettingsWindow):
         """
         Prepare the gui
         """
-        box = Gtk.Grid()
+        outer_box = Gtk.Grid()
+        outer_box.set_row_spacing(64)
+        outer_box.set_column_spacing(64)
+
+        monitor_box = Gtk.Grid()
+        alignment_box = Gtk.Grid()
+        colour_box = Gtk.Grid()
+        avatar_box = Gtk.Grid()
+
+        colour_box.set_row_spacing(8)
+        colour_box.set_column_spacing(8)
+
+        outer_box.attach(monitor_box,0,0,1,1)
+        outer_box.attach(alignment_box,0,1,1,1)
+        outer_box.attach(colour_box,1,0,1,1)
+        outer_box.attach(avatar_box,1,1,1,1)
 
         # Autohide
         #autohide_label = Gtk.Label.new("Hide on mouseover")
@@ -235,26 +250,20 @@ class VoiceSettingsWindow(SettingsWindow):
         font.connect("font-set", self.change_font)
 
         # Colours
-        bg_col_label = Gtk.Label.new("Idle Background colour")
         bg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3]))
-        fg_col_label = Gtk.Label.new("Text colour")
         fg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.fg_col[0], self.fg_col[1], self.fg_col[2], self.fg_col[3]))
-        tk_col_label = Gtk.Label.new("Talking Border colour")
         tk_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.tk_col[0], self.tk_col[1], self.tk_col[2], self.tk_col[3]))
-        mt_col_label = Gtk.Label.new("Mute colour")
         mt_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.mt_col[0], self.mt_col[1], self.mt_col[2], self.mt_col[3]))
-        hi_col_label = Gtk.Label.new("Talking Background colour")
         hi_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(
                 self.hi_col[0],
                 self.hi_col[1],
                 self.hi_col[2],
                 self.hi_col[3]))
-        t_hi_col_label = Gtk.Label.new("Talking Text colour")
         t_hi_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(
                 self.t_hi_col[0],
@@ -274,12 +283,26 @@ class VoiceSettingsWindow(SettingsWindow):
         hi_col.connect("color-set", self.change_hi)
         t_hi_col.connect("color-set", self.change_t_hi)
 
-        # Avatar size
-        avatar_size_label = Gtk.Label.new("Avatar size")
-        avatar_adjustment = Gtk.Adjustment.new(
-            self.avatar_size, 8, 128, 1, 1, 8)
-        avatar_size = Gtk.SpinButton.new(avatar_adjustment, 0, 0)
-        avatar_size.connect("value-changed", self.change_avatar_size)
+        text_label = Gtk.Label.new("Text")
+        background_label = Gtk.Label.new("Label")
+        talking_label = Gtk.Label.new("Talking")
+        idle_label = Gtk.Label.new("Idle")
+        border_label = Gtk.Label.new("Border")
+        mute_label = Gtk.Label.new("Mute")
+
+        colour_box.attach(text_label,1,0,1,1)
+        colour_box.attach(background_label,2,0,1,1)
+        colour_box.attach(border_label,3,0,1,1)
+        colour_box.attach(talking_label,0,1,1,1)
+        colour_box.attach(idle_label,0,2,1,1)
+        colour_box.attach(mute_label,0,4,1,1)
+
+        colour_box.attach(bg_col, 2, 2, 1, 1)
+        colour_box.attach(hi_col, 2, 1, 1, 1)
+        colour_box.attach(fg_col, 1, 2, 1, 1)
+        colour_box.attach(t_hi_col, 1, 1, 1, 1)
+        colour_box.attach(tk_col, 3, 1, 1, 1)
+        colour_box.attach(mt_col, 1, 4, 1, 1)
 
         # Monitor & Alignment
         align_label = Gtk.Label.new("Overlay Location")
@@ -338,68 +361,68 @@ class VoiceSettingsWindow(SettingsWindow):
         self.align_monitor_widget = monitor
         self.align_placement_widget = align_placement_button
 
-        # Icon spacing
-        icon_spacing_label = Gtk.Label.new("Icon Spacing")
-        icon_spacing_adjustment = Gtk.Adjustment.new(
-            self.icon_spacing, 0, 64, 1, 1, 0)
-        icon_spacing = Gtk.SpinButton.new(icon_spacing_adjustment, 0, 0)
-        icon_spacing.connect("value-changed", self.change_icon_spacing)
+        monitor_box.attach(align_label, 0,0,2,1)
+        monitor_box.attach(align_type_box,1,1,1,1)
+        monitor_box.attach(monitor,1,2,1,1)
+        monitor_box.attach(align_x,1,3,1,1)
+        monitor_box.attach(align_y,1,4,1,1)
+        monitor_box.attach(align_placement_button,1,5,1,1)
 
-        # Text padding
-        text_padding_label = Gtk.Label.new("Text Padding")
-        text_padding_adjustment = Gtk.Adjustment.new(
-            self.text_padding, 0, 64, 1, 1, 0)
-        text_padding = Gtk.SpinButton.new(text_padding_adjustment, 0, 0)
-        text_padding.connect("value-changed", self.change_text_padding)
+        # Avatar size
+        avatar_size_label = Gtk.Label.new("Avatar size")
+        avatar_size_label.set_xalign(0)
+        avatar_adjustment = Gtk.Adjustment.new(
+            self.avatar_size, 8, 128, 1, 1, 8)
+        avatar_size = Gtk.SpinButton.new(avatar_adjustment, 0, 0)
+        avatar_size.connect("value-changed", self.change_avatar_size)
 
-        # Text Baseline Adjustment
-        text_baseline_label = Gtk.Label.new("Text Vertical Offset")
-        text_baseline_adjustment = Gtk.Adjustment.new(
-            self.text_baseline_adj, -32, 32, 1, 1, 0)
-        text_baseline = Gtk.SpinButton.new(text_baseline_adjustment, 0, 0)
-        text_baseline.connect("value-changed", self.change_text_baseline)
-
-        # Edge padding
-        vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
-        vert_edge_padding_adjustment = Gtk.Adjustment.new(
-            self.vert_edge_padding, 0, 1000, 1, 1, 0)
-        vert_edge_padding = Gtk.SpinButton.new(
-            vert_edge_padding_adjustment, 0, 0)
-        vert_edge_padding.connect(
-            "value-changed", self.change_vert_edge_padding)
-
-        horz_edge_padding_label = Gtk.Label.new("Horizontal Edge Padding")
-        horz_edge_padding_adjustment = Gtk.Adjustment.new(
-            self.horz_edge_padding, 0, 1000, 1, 1, 0)
-        horz_edge_padding = Gtk.SpinButton.new(
-            horz_edge_padding_adjustment, 0, 0)
-        horz_edge_padding.connect(
-            "value-changed", self.change_horz_edge_padding)
+        avatar_box.attach(avatar_size_label,0,0,1,1)
+        avatar_box.attach(avatar_size,1,0,1,1)
 
         # Avatar shape
         square_avatar_label = Gtk.Label.new("Square Avatar")
+        square_avatar_label.set_xalign(0)
         square_avatar = Gtk.CheckButton.new()
         square_avatar.set_active(self.square_avatar)
         square_avatar.connect("toggled", self.change_square_avatar)
 
-        only_speaking_label = Gtk.Label.new("Display Speakers Only")
-        only_speaking = Gtk.CheckButton.new()
-        only_speaking.set_active(self.only_speaking)
-        only_speaking.connect("toggled", self.change_only_speaking)
+        avatar_box.attach(square_avatar_label,0,2,1,1)
+        avatar_box.attach(square_avatar,1,2,1,1)
 
-        highlight_self_label = Gtk.Label.new("Highlight Self")
-        highlight_self = Gtk.CheckButton.new()
-        highlight_self.set_active(self.highlight_self)
-        highlight_self.connect("toggled", self.change_highlight_self)
 
         # Display icon only
         icon_only_label = Gtk.Label.new("Display Icon Only")
+        icon_only_label.set_xalign(0)
         icon_only = Gtk.CheckButton.new()
         icon_only.set_active(self.icon_only)
         icon_only.connect("toggled", self.change_icon_only)
 
+        avatar_box.attach(icon_only_label,0,1,1,1)
+        avatar_box.attach(icon_only,1,1,1,1)
+
+        # Display Speaker only
+        only_speaking_label = Gtk.Label.new("Display Speakers Only")
+        only_speaking_label.set_xalign(0)
+        only_speaking = Gtk.CheckButton.new()
+        only_speaking.set_active(self.only_speaking)
+        only_speaking.connect("toggled", self.change_only_speaking)
+
+        avatar_box.attach(only_speaking_label,0,3,1,1)
+        avatar_box.attach(only_speaking,1,3,1,1)
+
+        # Highlight self
+        highlight_self_label = Gtk.Label.new("Highlight Self")
+        highlight_self_label.set_xalign(0)
+        highlight_self = Gtk.CheckButton.new()
+        highlight_self.set_active(self.highlight_self)
+        highlight_self.connect("toggled", self.change_highlight_self)
+
+        avatar_box.attach(highlight_self_label,0,4,1,1)
+        avatar_box.attach(highlight_self,1,4,1,1)
+
         # Order avatars
         order_label = Gtk.Label.new("Order Avatars By")
+        order_label.set_xalign(0)
         order_store = Gtk.ListStore(str)
         order_store.append(["Alphabetically"])
         order_store.append(["ID"])
@@ -411,14 +434,78 @@ class VoiceSettingsWindow(SettingsWindow):
         order.pack_start(renderer_text, True)
         order.add_attribute(renderer_text, "text", 0)
 
+        avatar_box.attach(order_label, 0,5,1,1)
+        avatar_box.attach(order, 1,5,1,1)
+
+        # Icon spacing
+        icon_spacing_label = Gtk.Label.new("Icon Spacing")
+        icon_spacing_label.set_xalign(0)
+        icon_spacing_adjustment = Gtk.Adjustment.new(
+            self.icon_spacing, 0, 64, 1, 1, 0)
+        icon_spacing = Gtk.SpinButton.new(icon_spacing_adjustment, 0, 0)
+        icon_spacing.connect("value-changed", self.change_icon_spacing)
+
+        alignment_box.attach(icon_spacing_label,0,0,1,1)
+        alignment_box.attach(icon_spacing,1,0,1,1)
+
+        # Text padding
+        text_padding_label = Gtk.Label.new("Text Padding")
+        text_padding_label.set_xalign(0)
+        text_padding_adjustment = Gtk.Adjustment.new(
+            self.text_padding, 0, 64, 1, 1, 0)
+        text_padding = Gtk.SpinButton.new(text_padding_adjustment, 0, 0)
+        text_padding.connect("value-changed", self.change_text_padding)
+
+        alignment_box.attach(text_padding_label,0,1,1,1)
+        alignment_box.attach(text_padding,1,1,1,1)
+
+        # Text Baseline Adjustment
+        text_baseline_label = Gtk.Label.new("Text Vertical Offset")
+        text_baseline_label.set_xalign(0)
+        text_baseline_adjustment = Gtk.Adjustment.new(
+            self.text_baseline_adj, -32, 32, 1, 1, 0)
+        text_baseline = Gtk.SpinButton.new(text_baseline_adjustment, 0, 0)
+        text_baseline.connect("value-changed", self.change_text_baseline)
+
+        alignment_box.attach(text_baseline_label, 0, 2,1,1)
+        alignment_box.attach(text_baseline,1,2,1,1)
+
+        # Edge padding
+        vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
+        vert_edge_padding_label.set_xalign(0)
+        vert_edge_padding_adjustment = Gtk.Adjustment.new(
+            self.vert_edge_padding, 0, 1000, 1, 1, 0)
+        vert_edge_padding = Gtk.SpinButton.new(
+            vert_edge_padding_adjustment, 0, 0)
+        vert_edge_padding.connect(
+            "value-changed", self.change_vert_edge_padding)
+
+        alignment_box.attach(vert_edge_padding_label, 0,3,1,1)
+        alignment_box.attach(vert_edge_padding,1,3,1,1)
+
+        horz_edge_padding_label = Gtk.Label.new("Horizontal Edge Padding")
+        horz_edge_padding_adjustment = Gtk.Adjustment.new(
+            self.horz_edge_padding, 0, 1000, 1, 1, 0)
+        horz_edge_padding = Gtk.SpinButton.new(
+            horz_edge_padding_adjustment, 0, 0)
+        horz_edge_padding.connect(
+            "value-changed", self.change_horz_edge_padding)
+
+        alignment_box.attach(horz_edge_padding_label,0,4,1,1)
+        alignment_box.attach(horz_edge_padding,1,4,1,1)
+
         # Display icon horizontally
         horizontal_label = Gtk.Label.new("Display Horizontally")
+        horizontal_label.set_xalign(0)
         horizontal = Gtk.CheckButton.new()
         horizontal.set_active(self.horizontal)
         horizontal.connect("toggled", self.change_horizontal)
 
+        alignment_box.attach(horizontal_label, 0, 5, 1,1)
+        alignment_box.attach(horizontal, 1,5,1,1)
+
         # Guild ids to load:
-        guild_ids_label = Gtk.Label.new("Search Servers for User\n")
+        guild_ids_label = Gtk.Label.new("Search Servers for User")
         guild_ids_box = Gtk.VBox(homogeneous=False)
         self.guild_ids_list = Gtk.ListStore(bool, str, str, str)
         self.guild_ids_filter = self.guild_ids_list.filter_new()
@@ -453,65 +540,20 @@ class VoiceSettingsWindow(SettingsWindow):
         guild_filter.set_placeholder_text("Filter...")
         guild_filter.connect("changed", self.guild_filter_changed)
 
+        guild_ids_box.pack_start(guild_ids_label, False, False,0)
         guild_ids_box.pack_start(guild_filter, False, False, 0)
         guild_ids_box.pack_end(guild_ids_scroll_window, True, True, 0)
 
         guild_ids_scroll_window.add(guild_ids_tree)
 
-        #box.attach(autohide_label, 0, 0, 1, 1)
-        #box.attach(autohide, 1, 0, 1, 1)
-        box.attach(font_label, 0, 1, 1, 1)
-        box.attach(font, 1, 1, 1, 1)
-        box.attach(bg_col_label, 0, 2, 1, 1)
-        box.attach(bg_col, 1, 2, 1, 1)
-        box.attach(hi_col_label, 0, 3, 1, 1)
-        box.attach(hi_col, 1, 3, 1, 1)
-        box.attach(fg_col_label, 0, 4, 1, 1)
-        box.attach(fg_col, 1, 4, 1, 1)
-        box.attach(t_hi_col_label, 0, 5, 1, 1)
-        box.attach(t_hi_col, 1, 5, 1, 1)
-        box.attach(tk_col_label, 0, 6, 1, 1)
-        box.attach(tk_col, 1, 6, 1, 1)
-        box.attach(mt_col_label, 0, 7, 1, 1)
-        box.attach(mt_col, 1, 7, 1, 1)
-        box.attach(avatar_size_label, 0, 8, 1, 1)
-        box.attach(avatar_size, 1, 8, 1, 1)
-        box.attach(align_label, 0, 9, 1, 5)
-        box.attach(align_type_box, 1, 9, 1, 1)
-        box.attach(monitor, 1, 10, 1, 1)
-        box.attach(align_x, 1, 11, 1, 1)
-        box.attach(align_y, 1, 12, 1, 1)
-        box.attach(align_placement_button, 1, 13, 1, 1)
-        box.attach(icon_spacing_label, 0, 14, 1, 1)
-        box.attach(icon_spacing, 1, 14, 1, 1)
-        box.attach(text_padding_label, 0, 15, 1, 1)
-        box.attach(text_padding, 1, 15, 1, 1)
-        box.attach(text_baseline_label, 0, 16, 1, 1)
-        box.attach(text_baseline, 1, 16, 1, 1)
-        box.attach(vert_edge_padding_label, 0, 17, 1, 1)
-        box.attach(vert_edge_padding, 1, 17, 1, 1)
-        box.attach(horz_edge_padding_label, 0, 18, 1, 1)
-        box.attach(horz_edge_padding, 1, 18, 1, 1)
-        box.attach(square_avatar_label, 0, 19, 1, 1)
-        box.attach(square_avatar, 1, 19, 1, 1)
-        box.attach(only_speaking_label, 0, 20, 1, 1)
-        box.attach(only_speaking, 1, 20, 1, 1)
-        box.attach(highlight_self_label, 0, 21, 1, 1)
-        box.attach(highlight_self, 1, 21, 1, 1)
-        box.attach(icon_only_label, 0, 22, 1, 1)
-        box.attach(icon_only, 1, 22, 1, 1)
-        box.attach(order_label, 0, 23, 1, 1)
-        box.attach(order, 1, 23, 1, 1)
-        box.attach(horizontal_label, 0, 24, 1, 1)
-        box.attach(horizontal, 1, 24, 1, 1)
-        box.attach(guild_ids_label, 0, 25, 1, 1)
-        box.attach(guild_ids_box, 1, 25, 1, 1)
+        outer_box.attach(guild_ids_box,0,3,2,1)
 
-        self.add(box)
+
+        self.add(outer_box)
 
         self.set_orientated_names()
 
-
+        
     def change_font(self, button):
         """
         Font settings changed
