@@ -21,7 +21,7 @@ setup(
             'discover_overlay.desktop'
         ]),
         ('share/icons/hicolor/256x256/apps', ['discover-overlay.png', 'discover-overlay-tray.png']),
-        ('share/icons/hicolor/scalable/apps', ['discover-overlay.svg'])
+        ('share/icons/hicolor/scalable/apps', ['discover-overlay.svg', 'discover-overlay-tray.svg'])
     ],
     install_requires=[
         'PyGObject>=3.22',
