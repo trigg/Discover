@@ -73,7 +73,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.norm_col = background_colour
         self.needsredraw = True
-        logging.info("set_bg redraw")
 
 
     def set_fg(self, foreground_colour):
@@ -82,7 +81,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.text_col = foreground_colour
         self.needsredraw = True
-        logging.info("set_fg redraw")
 
 
     def set_tk(self, talking_colour):
@@ -91,7 +89,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.talk_col = talking_colour
         self.needsredraw = True
-        logging.info("set_tk redraw")
 
 
     def set_mt(self, mute_colour):
@@ -100,7 +97,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.mute_col = mute_colour
         self.needsredraw = True
-        logging.info("set_mt redraw")
 
 
     def set_hi(self, highlight_colour):
@@ -109,7 +105,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.hili_col = highlight_colour
         self.needsredraw = True
-        logging.info("set_hi redraw")
 
 
     def set_fg_hi(self, highlight_colour):
@@ -118,7 +113,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.text_hili_col = highlight_colour
         self.needsredraw = True
-        logging.info("set_fg_hi redraw")
 
 
     def set_avatar_size(self, size):
@@ -127,7 +121,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.avatar_size = size
         self.needsredraw = True
-        logging.info("set_avatar_size redraw")
 
 
     def set_icon_spacing(self, i):
@@ -136,7 +129,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.icon_spacing = i
         self.needsredraw = True
-        logging.info("set_icon_spacing redraw")
 
 
     def set_text_padding(self, i):
@@ -145,7 +137,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.text_pad = i
         self.needsredraw = True
-        logging.info("set_text_padding redraw")
 
 
     def set_text_baseline_adj(self, i):
@@ -154,7 +145,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.text_baseline_adj = i
         self.needsredraw = True
-        logging.info("set_text_baseline_adj redraw")
 
 
     def set_vert_edge_padding(self, i):
@@ -163,7 +153,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.vert_edge_padding = i
         self.needsredraw = True
-        logging.info("set_text_vert_edge_padding redraw")
 
 
     def set_horz_edge_padding(self, i):
@@ -172,7 +161,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.horz_edge_padding = i
         self.needsredraw = True
-        logging.info("set_horz_edge_padding redraw")
 
 
     def set_square_avatar(self, i):
@@ -181,7 +169,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.round_avatar = not i
         self.needsredraw = True
-        logging.info("set_square_avatar redraw")
 
 
     def set_only_speaking(self, only_speaking):
@@ -208,7 +195,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.icon_only = i
         self.needsredraw = True
-        logging.info("set_icon_only redraw")
 
     def set_horizontal(self, horizontal=False):
         self.horizontal = horizontal
@@ -272,7 +258,6 @@ class VoiceOverlayWindow(OverlayWindow):
             self.compositing = screen.is_composited()
         if alt:
             self.needsredraw = True
-            logging.info("set_user_list redraw")
 
 
     def set_connection(self, connection):
@@ -283,7 +268,6 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.connected != is_connected:
             self.connected = is_connected
             self.needsredraw = True
-            logging.info("set_connection redraw")
 
 
     def overlay_draw(self, _w, context, _data=None):
@@ -397,7 +381,6 @@ class VoiceOverlayWindow(OverlayWindow):
             self.avatars[identifier] = pix
         if self.context:
             self.needsredraw = True
-            logging.info("recv_avatar redraw")
 
     def delete_avatar(self, identifier):
         """
