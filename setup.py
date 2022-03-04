@@ -30,6 +30,7 @@ setup(
         'requests',
         'python-pidfile>=3.0.0',
         'pillow',
+        'python-xlib',
     ],
     entry_points={
         'console_scripts': [
