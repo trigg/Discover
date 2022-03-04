@@ -2,16 +2,16 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="17"
-   height="17"
-   viewBox="0 0 17 17"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666659 8.4666669"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
-   sodipodi:docname="discover-overlay.svg"
-   inkscape:export-filename="/home/nicola/Documents/svg/discover-overlay.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="discover-overlay-default.svg"
+   inkscape:export-filename="/home/voidbtw/Documents/Pictures/discover_icons/Discover/discover-overlay-default.png"
+   inkscape:export-xdpi="768.00006"
+   inkscape:export-ydpi="768.00006"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,69 +25,39 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
-     showgrid="false"
+     showgrid="true"
      units="px"
-     width="256px"
-     inkscape:snap-bbox="true"
-     inkscape:bbox-paths="true"
-     inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:bbox-nodes="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:zoom="1.8351571"
-     inkscape:cx="108.98249"
-     inkscape:cy="149.30602"
-     inkscape:window-width="1366"
-     inkscape:window-height="705"
+     inkscape:zoom="1"
+     inkscape:cx="-141.5"
+     inkscape:cy="-27"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="32"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer3" />
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid869"
+       empspacing="1" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
   <g
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer5"
-     inkscape:label="Logo"
-     style="display:inline">
-    <g
-       inkscape:groupmode="layer"
-       id="layer3"
-       inkscape:label="Avatars"
-       sodipodi:insensitive="true">
-      <rect
-         style="fill:#fec832;fill-opacity:1"
-         id="rect68"
-         width="17"
-         height="17"
-         x="0"
-         y="0" />
-      <circle
-         style="fill:#fec832;fill-opacity:1;stroke-width:0.264583"
-         id="path663"
-         cx="8.4666662"
-         cy="8.4666662"
-         r="8.4666662" />
-      <g
-         id="g606-6"
-         style="display:inline"
-         transform="translate(-4.2,-25)">
-        <path
-           id="rect132-6-2"
-           style="display:inline;fill:#ffffff;stroke-width:0.268097"
-           d="m 6.3499997,36.512498 v 2.946591 A 8.466666,8.466666 0 0 0 12.7,42.333331 8.466666,8.466666 0 0 0 19.05,39.458573 v -2.946075 z" />
-        <ellipse
-           style="fill:#ffffff;stroke-width:0.280016"
-           id="path258-9"
-           cx="12.7"
-           cy="36.512497"
-           rx="6.3499999"
-           ry="2.6458333" />
-        <circle
-           style="fill:#ffffff;stroke-width:0.264583"
-           id="path362-1"
-           cx="12.7"
-           cy="29.897917"
-           r="2.6458333" />
-      </g>
-    </g>
-
+     id="layer1">
+    <rect
+       style="fill:#fee75c;fill-opacity:1;stroke:none;stroke-width:0.343368;stroke-linecap:round;stroke-linejoin:round"
+       id="rect899"
+       width="8.4666662"
+       height="8.4666662"
+       x="0"
+       y="0" />
+    <path
+       d="M 6.0594824,4.8678253 A 0.71420035,0.71420035 0 0 1 6.7740003,5.5820256 V 5.8735489 A 0.87329968,0.87329968 0 0 1 6.6110901,6.381333 C 6.120137,7.0682228 5.3182892,7.4083333 4.232222,7.4083333 c -1.0867024,0 -1.8879152,-0.340428 -2.3775981,-1.027953 A 0.87329968,0.87329968 0 0 1 1.6926665,5.8738665 V 5.581708 A 0.71420035,0.71420035 0 0 1 2.4068668,4.8671901 H 6.0591649 Z M 4.232222,1.0583333 a 1.5878176,1.5878176 0 1 1 0,3.1756352 1.5878176,1.5878176 0 0 1 0,-3.1756352 z"
+       fill="#212121"
+       id="path860"
+       style="fill:#201c00;fill-opacity:1;stroke-width:0.317563" />
   </g>
 </svg>
