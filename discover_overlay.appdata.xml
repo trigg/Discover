@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component>
+  <id>io.github.trigg.discover_overlay</id>
+  <metadata_license>MIT</metadata_license>
+  <name>Discover Overlay</name>
+  <summary>A graphical overlay for Discord voice chat.</summary>
+  <icon type="remote" width="256" height="256">https://raw.githubusercontent.com/trigg/Discover/c716ea36ee28d70fbc0fb430d82c07d42a3edfda/discover-overlay.png</icon>
+  <categories>
+    <category>Utility</category>
+    <category>TelephonyTools</category>
+  </categories>
+  <requires>
+    <id>com.discordapp.Discord</id>
+  </requires>
+  <project_license>GPL-3.0-or-later</project_license>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Overlay shown over Steam big picture login</caption>
+      <image type="source" width="1290" height="834">https://user-images.githubusercontent.com/535772/149630830-750f8af6-e935-44a6-ad1c-da1d204ee107.png</image>
+    </screenshot>
+  </screenshots>
+  <developer_name>trigg</developer_name>
+</component>
