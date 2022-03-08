@@ -41,6 +41,10 @@ class Discover:
         self.settings = None
 
         self.do_args(args, True)
+        if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
+            logging.info("GameScope session detected. Enabling steam and gamescope integration")
+            self.steamos = True
+            self.show_settings_delay = True
 
         self.create_gui()
 
@@ -72,7 +76,6 @@ class Discover:
             print("from Discord client")
             print("")
             print("  -c, --configure        Open configuration window")
-            print("  -s, --steamos          Add X11 hint to overlay in gamescope")
             print("  -x, --close            Close currently running instance")
             print("  -v, --debug            Verbose output for aid in debugging")
             print("  -h, --help             This screen")
@@ -91,6 +94,7 @@ class Discover:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
             self.steamos=True
+            self.show_settings_delay=True
         if "--hide" in data:
             if self.voice_overlay:
                 self.voice_overlay.set_hidden(True)
