@@ -109,7 +109,7 @@ class Discover:
                 self.text_overlay.set_hidden(False)
         if "--debug" in data or "-v" in data:
             logging.getLogger().setLevel(0)
-            logging.basicConfig(filename=self.debug_file, encoding="UTF-8", level=logging.DEBUG)
+            logging.basicConfig(filename=self.debug_file, level=logging.DEBUG)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
