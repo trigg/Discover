@@ -63,9 +63,9 @@ class TextSettingsWindow(SettingsWindow):
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
-
-        self.init_config()
-        self.create_gui()
+        if overlay:
+            self.init_config()
+            self.create_gui()
 
     def update_channel_model(self):
         """
@@ -114,6 +114,8 @@ class TextSettingsWindow(SettingsWindow):
         """
         Show contents of tab and update lists
         """
+        if not self.overlay:
+            return
         self.show_all()
         if not self.floating:
             self.align_x_widget.show()
@@ -197,6 +199,8 @@ class TextSettingsWindow(SettingsWindow):
         """
         Read in the 'text' section of the config
         """
+        if not self.overlay:
+            return
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.enabled = config.getboolean("text", "enabled", fallback=False)

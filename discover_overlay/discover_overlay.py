@@ -46,7 +46,6 @@ class Discover:
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
             logging.info("GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
-            self.show_settings_delay = True
 
         self.create_gui()
 
@@ -96,7 +95,6 @@ class Discover:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
             self.steamos=True
-            self.show_settings_delay=True
         if "--hide" in data:
             if self.voice_overlay:
                 self.voice_overlay.set_hidden(True)
@@ -124,8 +122,11 @@ class Discover:
         """
         Create Systray & associated menu, overlays & settings windows
         """
+        if self.steamos:
+            self.text_overlay = None
+        else:
+            self.text_overlay = TextOverlayWindow(self)
         self.voice_overlay = VoiceOverlayWindow(self)
-        self.text_overlay = TextOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
         self.settings = MainSettingsWindow(self)
@@ -135,6 +136,8 @@ class Discover:
         Attempt to create an AppIndicator icon, failing that attempt to make
         a systemtray icon
         """
+        if self.steamos:
+            return
         try:
             gi.require_version('AppIndicator3', '0.1')
             # pylint: disable=import-outside-toplevel
@@ -196,7 +199,8 @@ class Discover:
         Set if XShape should be forced
         """
         self.voice_overlay.set_force_xshape(force)
-        self.text_overlay.set_force_xshape(force)
+        if self.text_overlay:
+            self.text_overlay.set_force_xshape(force)
 
     def set_sys_tray_icon_visible(self, visible):
         """

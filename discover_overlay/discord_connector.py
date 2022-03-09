@@ -424,9 +424,10 @@ class DiscordConnector:
         self.sub_server()
         self.find_user()
         self.voice_overlay.set_enabled(True)
-        self.text_overlay.set_enabled(self.text_settings.enabled)
-        if self.last_text_channel:
-            self.sub_text_channel(self.last_text_channel)
+        if self.text_overlay:
+            self.text_overlay.set_enabled(self.text_settings.enabled)
+            if self.last_text_channel:
+                self.sub_text_channel(self.last_text_channel)
 
     def on_error(self, error):
         """
@@ -440,7 +441,8 @@ class DiscordConnector:
         """
         logging.info("Connection closed")
         self.voice_overlay.hide()
-        self.text_overlay.hide()
+        if self.text_overlay:
+            self.text_overlay.hide()
         self.websocket = None
 
     def req_auth(self):
@@ -603,21 +605,22 @@ class DiscordConnector:
         self.voice_overlay.set_connection(self.last_connection)
         self.list_altered = False
         # Update text list
-        if self.text_overlay.popup_style:
-            self.text_altered = True
-        if self.text_altered:
-            self.text_overlay.set_text_list(self.text, self.text_altered)
-            self.text_altered = False
-        # Update guilds
-        self.text_settings.set_guilds(self.guilds)
-        # Check for changed channel
-        if self.authed:
-            self.set_text_channel(self.text_settings.get_channel())
+        if self.text_overlay:
+            if self.text_overlay.popup_style:
+                self.text_altered = True
+            if self.text_altered:
+                self.text_overlay.set_text_list(self.text, self.text_altered)
+                self.text_altered = False
+            # Update guilds
+            self.text_settings.set_guilds(self.guilds)
+            # Check for changed channel
+            if self.authed:
+                self.set_text_channel(self.text_settings.get_channel())
 
         if self.voice_overlay.needsredraw:
             self.voice_overlay.redraw()
 
-        if self.text_overlay.needsredraw:
+        if self.text_overlay and self.text_overlay.needsredraw:
             self.text_overlay.redraw()
 
         if len(self.rate_limited_channels) > 0:

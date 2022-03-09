@@ -98,11 +98,11 @@ class OverlayWindow(Gtk.Window):
             topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
 
             topw.change_property(atom,
-                                 Xatom.CARDINAL,8,
+                                 Xatom.CARDINAL,32,
                                  [1], X.PropModeReplace)
             topw.change_property(opaq,
-                                 Xatom.CARDINAL,32,
-                                 [0xffffffff], X.PropModeReplace)
+                                 Xatom.CARDINAL,16,
+                                 [0xffff], X.PropModeReplace)
 
             logging.info("Setting STEAM_EXTERNAL_OVERLAY")
             display.sync()
