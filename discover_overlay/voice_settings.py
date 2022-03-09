@@ -251,6 +251,8 @@ class VoiceSettingsWindow(SettingsWindow):
         if self.font:
             font.set_font(self.font)
         font.connect("font-set", self.change_font)
+        alignment_box.attach(font_label, 0,0,1,1)
+        alignment_box.attach(font, 1,0,1,1)
 
         # Colours
         bg_col = Gtk.ColorButton.new_with_rgba(
@@ -448,8 +450,8 @@ class VoiceSettingsWindow(SettingsWindow):
         icon_spacing = Gtk.SpinButton.new(icon_spacing_adjustment, 0, 0)
         icon_spacing.connect("value-changed", self.change_icon_spacing)
 
-        alignment_box.attach(icon_spacing_label,0,0,1,1)
-        alignment_box.attach(icon_spacing,1,0,1,1)
+        alignment_box.attach(icon_spacing_label,0,1,1,1)
+        alignment_box.attach(icon_spacing,1,1,1,1)
 
         # Text padding
         text_padding_label = Gtk.Label.new("Text Padding")
@@ -459,8 +461,8 @@ class VoiceSettingsWindow(SettingsWindow):
         text_padding = Gtk.SpinButton.new(text_padding_adjustment, 0, 0)
         text_padding.connect("value-changed", self.change_text_padding)
 
-        alignment_box.attach(text_padding_label,0,1,1,1)
-        alignment_box.attach(text_padding,1,1,1,1)
+        alignment_box.attach(text_padding_label,0,2,1,1)
+        alignment_box.attach(text_padding,1,2,1,1)
 
         # Text Baseline Adjustment
         text_baseline_label = Gtk.Label.new("Text Vertical Offset")
@@ -470,8 +472,8 @@ class VoiceSettingsWindow(SettingsWindow):
         text_baseline = Gtk.SpinButton.new(text_baseline_adjustment, 0, 0)
         text_baseline.connect("value-changed", self.change_text_baseline)
 
-        alignment_box.attach(text_baseline_label, 0, 2,1,1)
-        alignment_box.attach(text_baseline,1,2,1,1)
+        alignment_box.attach(text_baseline_label, 0, 3,1,1)
+        alignment_box.attach(text_baseline,1,3,1,1)
 
         # Edge padding
         vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
@@ -483,8 +485,8 @@ class VoiceSettingsWindow(SettingsWindow):
         vert_edge_padding.connect(
             "value-changed", self.change_vert_edge_padding)
 
-        alignment_box.attach(vert_edge_padding_label, 0,3,1,1)
-        alignment_box.attach(vert_edge_padding,1,3,1,1)
+        alignment_box.attach(vert_edge_padding_label, 0,4,1,1)
+        alignment_box.attach(vert_edge_padding,1,4,1,1)
 
         horz_edge_padding_label = Gtk.Label.new("Horizontal Edge Padding")
         horz_edge_padding_adjustment = Gtk.Adjustment.new(
@@ -494,8 +496,8 @@ class VoiceSettingsWindow(SettingsWindow):
         horz_edge_padding.connect(
             "value-changed", self.change_horz_edge_padding)
 
-        alignment_box.attach(horz_edge_padding_label,0,4,1,1)
-        alignment_box.attach(horz_edge_padding,1,4,1,1)
+        alignment_box.attach(horz_edge_padding_label,0,5,1,1)
+        alignment_box.attach(horz_edge_padding,1,5,1,1)
 
         # Display icon horizontally
         horizontal_label = Gtk.Label.new("Display Horizontally")
@@ -504,8 +506,8 @@ class VoiceSettingsWindow(SettingsWindow):
         horizontal.set_active(self.horizontal)
         horizontal.connect("toggled", self.change_horizontal)
 
-        alignment_box.attach(horizontal_label, 0, 5, 1,1)
-        alignment_box.attach(horizontal, 1,5,1,1)
+        alignment_box.attach(horizontal_label, 0, 6, 1,1)
+        alignment_box.attach(horizontal, 1,6,1,1)
 
         # Guild ids to load:
         guild_ids_label = Gtk.Label.new("Search Servers for User")

@@ -33,12 +33,14 @@ except ModuleNotFoundError:
 class Discover:
     """Main application class"""
 
-    def __init__(self, rpc_file, args):
+    def __init__(self, rpc_file, debug_file, args):
         self.ind = None
         self.tray = None
         self.steamos = False
         self.show_settings_delay=False
         self.settings = None
+
+        self.debug_file = debug_file
 
         self.do_args(args, True)
 
@@ -103,6 +105,7 @@ class Discover:
                 self.text_overlay.set_hidden(False)
         if "--debug" in data or "-v" in data:
             logging.getLogger().setLevel(0)
+            logging.basicConfig(filename=self.debug_file, encoding="UTF-8", level=logging.DEBUG)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -221,10 +224,11 @@ def entrypoint():
         line = "%s %s" % (line, arg)
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
+    debug_file = os.path.join(config_dir, "output.txt")
     try:
         with pidfile.PIDFile(pid_file):
             logging.getLogger().setLevel(logging.INFO)
-            Discover(rpc_file, line)
+            Discover(rpc_file, debug_file, line)
     except pidfile.AlreadyRunningError:
         logging.warning("Discover overlay is currently running")
 
