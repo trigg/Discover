@@ -84,7 +84,7 @@ To get around this, copy the main file created by discover-overlay with ``cp $(w
 
 ## Why do you keep making Discord Overlays?
 
-I feel like I shouldn't have to at all! Until we get an official one I might just create a new one every few months. Look forward to Rust/Vulkan version coming in a few months.
+I feel like I shouldn't have to at all! Until we get an official one I might just create a new one every few months. Look forward to Rust/Vulkan version coming in a few months. /s
 
 ### Are you serious?
 
