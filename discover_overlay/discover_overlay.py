@@ -46,6 +46,8 @@ class Discover:
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
             logging.info("GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
+            self.show_settings_delay = True
+            Gtk.Settings.get_default().set_property("gtk-application-prefer-dark-theme", Gtk.true)
 
         self.create_gui()
 
@@ -82,6 +84,7 @@ class Discover:
             print("  -h, --help             This screen")
             print("      --hide             Hide overlay")
             print("      --show             Show overlay")
+            print("      --nolock           Do not use Lock or RPC. Helps for running in unpriviledged container")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
@@ -107,7 +110,7 @@ class Discover:
                 self.text_overlay.set_hidden(False)
         if "--debug" in data or "-v" in data:
             logging.getLogger().setLevel(0)
-            logging.basicConfig(filename=self.debug_file, level=logging.DEBUG)
+            logging.basicConfig(filename=self.debug_file)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -130,6 +133,12 @@ class Discover:
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
         self.settings = MainSettingsWindow(self)
+
+        if self.steamos:
+            # Larger fonts needed
+            css = Gtk.CssProvider.new()
+            css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
+            self.settings.get_style_context().add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     def make_sys_tray_icon(self, menu):
         """
@@ -230,9 +239,15 @@ def entrypoint():
     line = ""
     for arg in sys.argv[1:]:
         line = "%s %s" % (line, arg)
+
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
+    if "--nolock" in sys.argv:
+        logging.getLogger().setLevel(logging.INFO)
+        logging.info("Nolock mode chosen")
+        Discover(rpc_file, debug_file, line)
+        return
     try:
         with pidfile.PIDFile(pid_file):
             logging.getLogger().setLevel(logging.INFO)

@@ -91,6 +91,7 @@ class OverlayWindow(Gtk.Window):
 
         self.show_all()
         if discover.steamos:
+            self.floating = False
             display = Display()
             atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
             opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
@@ -100,9 +101,10 @@ class OverlayWindow(Gtk.Window):
             topw.change_property(atom,
                                  Xatom.CARDINAL,32,
                                  [1], X.PropModeReplace)
-            topw.change_property(opaq,
-                                 Xatom.CARDINAL,16,
-                                 [0xffff], X.PropModeReplace)
+            # Keep for reference, but appears to be unnecessary
+            #topw.change_property(opaq,
+            #                     Xatom.CARDINAL,16,
+            #                     [0xffff], X.PropModeReplace)
 
             logging.info("Setting STEAM_EXTERNAL_OVERLAY")
             display.sync()
@@ -148,11 +150,14 @@ class OverlayWindow(Gtk.Window):
         """
         Set if the window is floating and what dimensions to use
         """
+        
         self.floating = floating
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.width = width
         self.height = height
+        if self.discover.steamos:
+            self.floating = False
         self.force_location()
 
     def set_untouchable(self):
