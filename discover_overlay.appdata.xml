@@ -21,4 +21,39 @@
     </screenshot>
   </screenshots>
   <developer_name>trigg</developer_name>
+  <releases>
+    <release version="0.4.5" date="2022-03-11" urgency="low">
+      <description>
+        - Fixed some app metadata
+      </description>
+      <url>https://github.com/trigg/Discover/releases/tag/v0.4.5</url>
+    </release>
+    <release version="0.4.4" date="2022-03-11" urgency="low">
+      <description>
+        - Fixed some app metadata
+      </description>
+      <url>https://github.com/trigg/Discover/releases/tag/v0.4.4</url>
+    </release>
+  </releases>
+  <content_rating type="oars-1.0">
+    <content_attribute id="violence-cartoon">intense</content_attribute>
+    <content_attribute id="violence-fantasy">intense</content_attribute>
+    <content_attribute id="violence-realistic">intense</content_attribute>
+    <content_attribute id="violence-bloodshed">intense</content_attribute>
+    <content_attribute id="violence-sexual">intense</content_attribute>
+    <content_attribute id="drugs-alcohol">moderate</content_attribute>
+    <content_attribute id="drugs-narcotics">moderate</content_attribute>
+    <content_attribute id="drugs-tobacco">moderate</content_attribute>
+    <content_attribute id="sex-nudity">intense</content_attribute>
+    <content_attribute id="sex-themes">intense</content_attribute>
+    <content_attribute id="language-profanity">intense</content_attribute>
+    <content_attribute id="language-humor">intense</content_attribute>
+    <content_attribute id="language-discrimination">intense</content_attribute>
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-info">intense</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+    <content_attribute id="social-location">intense</content_attribute>
+    <content_attribute id="social-contacts">intense</content_attribute>
+    <content_attribute id="money-advertising">intense</content_attribute>
+  </content_rating>
 </component>
