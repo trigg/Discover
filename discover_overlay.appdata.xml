@@ -25,6 +25,7 @@
     <release version="0.4.5" date="2022-03-11" urgency="low">
       <description>
         - Fixed some app metadata
+        - Added rating based on unmoderated nature of app
       </description>
       <url>https://github.com/trigg/Discover/releases/tag/v0.4.5</url>
     </release>
