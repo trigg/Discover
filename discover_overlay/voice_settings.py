@@ -96,7 +96,7 @@ class VoiceSettingsWindow(SettingsWindow):
         """
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
-        self.align_x = config.getboolean("main", "rightalign", fallback=True)
+        self.align_x = config.getboolean("main", "rightalign", fallback=False)
         self.align_y = config.getint("main", "topalign", fallback=1)
         self.bg_col = json.loads(config.get(
             "main", "bg_col", fallback="[0.0,0.0,0.0,0.5]"))
@@ -116,7 +116,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.text_baseline_adj = config.getint("main", "text_baseline_adj", fallback=0)
         self.font = config.get("main", "font", fallback=None)
         self.square_avatar = config.getboolean(
-            "main", "square_avatar", fallback=False)
+            "main", "square_avatar", fallback=True)
         self.only_speaking = config.getboolean(
             "main", "only_speaking", fallback=False)
         self.highlight_self = config.getboolean(
