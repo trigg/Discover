@@ -27,8 +27,8 @@ from gi.repository import Pango, PangoCairo
 class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
-    def __init__(self, discover):
-        OverlayWindow.__init__(self, discover)
+    def __init__(self, discover, piggyback = None):
+        OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
         self.content = []
         self.text_font = None
@@ -179,6 +179,8 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw the overlay
         """
+        if not self.enabled:
+            return
         self.context = context
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         (width, height) = self.get_size()
@@ -187,11 +189,11 @@ class TextOverlayWindow(OverlayWindow):
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.paint()
         context.save()
-        if self.is_wayland:
+        if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!
-            # The window is full-screen regardless of what the user has selected. Because Wayland
+            # The window is full-screen regardless of what the user has selected.
             # We need to set a clip and a transform to imitate original behaviour
-
+            # Used in wlroots & gamescope
             width = self.width
             height = self.height
             context.translate(self.pos_x, self.pos_y)
@@ -236,8 +238,8 @@ class TextOverlayWindow(OverlayWindow):
             if current_y <= 0:
                 # We've done enough
                 break
-        if self.is_wayland:
-            context.restore()
+        context.restore()
+        self.context = None
 
     def draw_attach(self, pos_y, url):
         """

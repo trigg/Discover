@@ -50,7 +50,7 @@ class OverlayWindow(Gtk.Window):
             return Gtk.WindowType.TOPLEVEL
         return Gtk.WindowType.POPUP
 
-    def __init__(self, discover):
+    def __init__(self, discover, piggyback=None):
         Gtk.Window.__init__(self, type=self.detect_type())
         self.discover = discover
         screen = self.get_screen()
@@ -88,26 +88,25 @@ class OverlayWindow(Gtk.Window):
         self.set_decorated(True)
         self.set_accept_focus(False)
         self.set_wayland_state()
+        if not piggyback:
+            self.show_all()
+            if discover.steamos:
+                display = Display()
+                atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
+                opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
 
-        self.show_all()
-        if discover.steamos:
-            self.floating = False
-            display = Display()
-            atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
-            opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
+                topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
 
-            topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
+                topw.change_property(atom,
+                                    Xatom.CARDINAL,32,
+                                    [1], X.PropModeReplace)
+                # Keep for reference, but appears to be unnecessary
+                #topw.change_property(opaq,
+                #                     Xatom.CARDINAL,16,
+                #                     [0xffff], X.PropModeReplace)
 
-            topw.change_property(atom,
-                                 Xatom.CARDINAL,32,
-                                 [1], X.PropModeReplace)
-            # Keep for reference, but appears to be unnecessary
-            #topw.change_property(opaq,
-            #                     Xatom.CARDINAL,16,
-            #                     [0xffff], X.PropModeReplace)
-
-            logging.info("Setting STEAM_EXTERNAL_OVERLAY")
-            display.sync()
+                logging.info("Setting STEAM_EXTERNAL_OVERLAY")
+                display.sync()
         self.monitor = 0
         self.align_right = True
         self.align_vert = 1
@@ -115,6 +114,10 @@ class OverlayWindow(Gtk.Window):
         self.force_xshape = False
         self.context = None
         self.autohide=False
+        self.piggyback=None
+        self.piggyback_parent=None
+        if piggyback:
+            self.set_piggyback(piggyback)
 
     def set_wayland_state(self):
         """
@@ -132,6 +135,10 @@ class OverlayWindow(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
+
+    def set_piggyback(self, other_overlay):
+        other_overlay.piggyback = self
+        self.piggyback_parent = other_overlay
 
     def overlay_draw(self, _w, context, data=None):
         """
@@ -156,8 +163,6 @@ class OverlayWindow(Gtk.Window):
         self.pos_y = pos_y
         self.width = width
         self.height = height
-        if self.discover.steamos:
-            self.floating = False
         self.force_location()
 
     def set_untouchable(self):
@@ -184,7 +189,19 @@ class OverlayWindow(Gtk.Window):
         """
         On X11 enforce the location and sane defaults
         On Wayland just store for later
+        On Gamescope enforce size of display but only if it's the primary overlay
         """
+        if self.discover.steamos and not self.piggyback_parent:
+            display = Gdk.Display.get_default()
+            if "get_monitor" in dir(display):
+                monitor = display.get_monitor(self.monitor)
+                geometry = monitor.get_geometry()
+                scale_factor = monitor.get_scale_factor()
+                width = geometry.width
+                height = geometry.height
+                self.resize(width, height)
+                self.needsredraw = True
+                return
         if not self.is_wayland:
             self.set_decorated(False)
             self.set_keep_above(True)
@@ -222,6 +239,9 @@ class OverlayWindow(Gtk.Window):
         """
         self.needsredraw = False
         gdkwin = self.get_window()
+        if self.piggyback_parent:
+            self.piggyback_parent.redraw()
+            return
         if not self.floating:
             (width, height) = self.get_size()
             self.width = width
@@ -297,7 +317,7 @@ class OverlayWindow(Gtk.Window):
         Set if this overlay should be visible
         """
         self.enabled = enabled
-        if enabled and not self.hidden:
+        if enabled and not self.hidden and not self.piggyback_parent:
             self.show_all()
         else:
             self.hide()
@@ -307,3 +327,7 @@ class OverlayWindow(Gtk.Window):
         Set Mouseover hide
         """
         self.autohide = hide
+
+    def set_task(self, visible):
+        self.set_skip_pager_hint(not visible)
+        self.set_skip_taskbar_hint(not visible)

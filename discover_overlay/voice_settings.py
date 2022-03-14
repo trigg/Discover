@@ -37,8 +37,8 @@ def guild_ids_to_string(guild_ids):
 class VoiceSettingsWindow(SettingsWindow):
     """Voice setting tab on settings window"""
 
-    def __init__(self, overlay):
-        SettingsWindow.__init__(self)
+    def __init__(self, overlay, discover):
+        SettingsWindow.__init__(self, discover)
         self.overlay = overlay
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
@@ -204,10 +204,10 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "horz_edge_padding", "%d" %
                    (self.horz_edge_padding))
         config.set("main", "floating", "%s" % (int(self.floating)))
-        config.set("main", "floating_x", "%s" % (self.floating_x))
-        config.set("main", "floating_y", "%s" % (self.floating_y))
-        config.set("main", "floating_w", "%s" % (self.floating_w))
-        config.set("main", "floating_h", "%s" % (self.floating_h))
+        config.set("main", "floating_x", "%s" % (int(self.floating_x)))
+        config.set("main", "floating_y", "%s" % (int(self.floating_y)))
+        config.set("main", "floating_w", "%s" % (int(self.floating_w)))
+        config.set("main", "floating_h", "%s" % (int(self.floating_h)))
         config.set("main", "order", "%s" % (self.order))
         config.set("main", "horizontal", "%s" % (self.horizontal))
         config.set("main", "guild_ids", "%s" % guild_ids_to_string(self.guild_ids))

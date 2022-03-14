@@ -27,8 +27,8 @@ from gi.repository import Pango, PangoCairo
 class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
-    def __init__(self, discover):
-        OverlayWindow.__init__(self, discover)
+    def __init__(self, discover, piggyback=None):
+        OverlayWindow.__init__(self, discover, piggyback)
 
         self.avatars = {}
 
@@ -270,7 +270,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.needsredraw = True
 
 
-    def overlay_draw(self, _w, context, _data=None):
+    def overlay_draw(self, w, context, data=None):
         """
         Draw the Overlay
         """
@@ -284,16 +284,19 @@ class VoiceOverlayWindow(OverlayWindow):
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.paint()
         context.save()
-        if self.is_wayland:
+        if self.piggyback:
+            self.piggyback.overlay_draw(w, context, data)
+        if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!
-            # The window is full-screen regardless of what the user has selected. Because Wayland
+            # The window is full-screen regardless of what the user has selected.
             # We need to set a clip and a transform to imitate original behaviour
-
+            # Used in wlroots & gamescope
             width = self.width
             height = self.height
-            context.translate(self.pos_x, self.pos_y)
-            context.rectangle(0, 0, width, height)
-            context.clip()
+            if self.floating:
+                context.translate(self.pos_x, self.pos_y)
+                context.rectangle(0, 0, width, height)
+                context.clip()
 
         context.set_operator(cairo.OPERATOR_OVER)
         if not self.connected:
@@ -342,12 +345,6 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_avatar(context, user, current_x)
                 # Shift the relative position down to next location
                 current_x += self.avatar_size + self.icon_spacing
-
-            if self.is_wayland:
-                context.restore()
-            # Don't hold a ref
-            self.context = None
-
         else:
             # Calculate height needed to show overlay
             needed_height = (len(self.users_to_draw) * self.avatar_size) + \
@@ -365,11 +362,8 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.draw_avatar(context, user, current_y)
                 # Shift the relative position down to next location
                 current_y += self.avatar_size + self.icon_spacing
-
-            if self.is_wayland:
-                context.restore()
-            # Don't hold a ref
-            self.context = None
+        context.restore()
+        self.context = None
 
     def recv_avatar(self, identifier, pix):
         """

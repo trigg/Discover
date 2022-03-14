@@ -28,8 +28,8 @@ GUILD_DEFAULT_VALUE = "0"
 class TextSettingsWindow(SettingsWindow):
     """Text setting tab on settings window"""
 
-    def __init__(self, overlay):
-        SettingsWindow.__init__(self)
+    def __init__(self, overlay, discover):
+        SettingsWindow.__init__(self, discover)
         self.overlay = overlay
 
         self.placement_window = None
@@ -134,6 +134,9 @@ class TextSettingsWindow(SettingsWindow):
         else:
             self.text_time_widget.hide()
             self.text_time_label_widget.hide()
+        self.update_guild_model()
+
+    def update_guild_model(self):
 
         g_model = Gtk.ListStore(str, bool)
         self.guild_lookup = []
@@ -189,11 +192,16 @@ class TextSettingsWindow(SettingsWindow):
         """
         Set the contents of list_guilds
         """
+        if self.list_guilds == in_list:
+            return
         self.list_guilds = in_list
         self.list_guilds_keys = []
+        logging.warn("Guild list")
+        logging.warn(in_list)
         for key in in_list.keys():
             self.list_guilds_keys.append(key)
         self.list_guilds_keys.sort()
+        self.update_guild_model()
 
     def read_config(self):
         """
@@ -472,7 +480,6 @@ class TextSettingsWindow(SettingsWindow):
         guild_id = self.guild_lookup[button.get_active()]
         self.guild = guild_id
         self.save_config()
-        # self.update_channel_model()
         self.connector.request_text_rooms_for_guild(self.guild)
 
     def change_popup_style(self, button):

@@ -67,6 +67,7 @@ class DiscordConnector:
         self.request_text_rooms = None
         self.request_text_rooms_response = None
         self.request_text_rooms_awaiting = 0
+        self.last_requested_guild = 0
 
         self.rate_limited_channels=[]
 
@@ -381,8 +382,13 @@ class DiscordConnector:
                         self.set_in_room(thisuser["id"], True)
             elif j["data"]["type"] == 0:  # Text channel
                 if self.request_text_rooms_response is not None:
+                    if len(self.request_text_rooms_response) <= j['data']['position']:
+                        # Error. The list of channels has changed since we requested last
+                        self.request_text_rooms_for_guild(self.last_requested_guild)
+                        pass
                     self.request_text_rooms_response[j['data']
-                                                     ['position']] = j['data']
+                                                    ['position']] = j['data']
+                    
                 if self.current_text == j["data"]["id"]:
                     self.text = []
                     for message in j["data"]["messages"]:
@@ -605,17 +611,16 @@ class DiscordConnector:
         self.voice_overlay.set_connection(self.last_connection)
         self.list_altered = False
         # Update text list
-        if self.text_overlay:
-            if self.text_overlay.popup_style:
-                self.text_altered = True
-            if self.text_altered:
-                self.text_overlay.set_text_list(self.text, self.text_altered)
-                self.text_altered = False
-            # Update guilds
-            self.text_settings.set_guilds(self.guilds)
-            # Check for changed channel
-            if self.authed:
-                self.set_text_channel(self.text_settings.get_channel())
+        if self.text_overlay.popup_style:
+            self.text_altered = True
+        if self.text_altered:
+            self.text_overlay.set_text_list(self.text, self.text_altered)
+            self.text_altered = False
+        # Update guilds
+        self.text_settings.set_guilds(self.guilds)
+        # Check for changed channel
+        if self.authed:
+            self.set_text_channel(self.text_settings.get_channel())
 
         if self.voice_overlay.needsredraw:
             self.voice_overlay.redraw()
@@ -665,6 +670,8 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
+        if(guild_id == 0):
+            return
         if guild_id in self.guilds:
             guild = self.guilds[guild_id]
             if "channels" in guild:

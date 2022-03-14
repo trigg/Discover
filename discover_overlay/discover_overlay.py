@@ -47,7 +47,9 @@ class Discover:
             logging.info("GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
             self.show_settings_delay = True
-            Gtk.Settings.get_default().set_property("gtk-application-prefer-dark-theme", Gtk.true)
+            settings = Gtk.Settings.get_default()
+            if settings:
+                settings.set_property("gtk-application-prefer-dark-theme", Gtk.true)
 
         self.create_gui()
 
@@ -125,11 +127,12 @@ class Discover:
         """
         Create Systray & associated menu, overlays & settings windows
         """
+        self.voice_overlay = VoiceOverlayWindow(self)
+        
         if self.steamos:
-            self.text_overlay = None
+            self.text_overlay = TextOverlayWindow(self, self.voice_overlay)
         else:
             self.text_overlay = TextOverlayWindow(self)
-        self.voice_overlay = VoiceOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
         self.settings = MainSettingsWindow(self)
@@ -197,6 +200,12 @@ class Discover:
         """
         self.settings.present_settings()
 
+    def hide_settings(self, _obj=None, _data=None):
+        """
+        Hide settings window
+        """
+        self.settings.close_window()
+
     def close(self, _a=None, _b=None, _c=None):
         """
         End of the program
@@ -210,6 +219,12 @@ class Discover:
         self.voice_overlay.set_force_xshape(force)
         if self.text_overlay:
             self.text_overlay.set_force_xshape(force)
+
+    def set_show_task(self, visible):
+        if self.voice_overlay:
+            self.voice_overlay.set_task(visible)
+        if self.text_overlay:
+            self.text_overlay.set_task(visible)
 
     def set_sys_tray_icon_visible(self, visible):
         """

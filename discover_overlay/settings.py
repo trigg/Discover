@@ -36,7 +36,7 @@ class SettingsWindow(Gtk.VBox):
     overlay types without copy-and-pasting too much code
     """
 
-    def __init__(self):
+    def __init__(self, discover):
         Gtk.VBox.__init__(self)
         self.placement_window = None
         self.config_dir = None
@@ -56,6 +56,7 @@ class SettingsWindow(Gtk.VBox):
         self.align_y = None
         self.enabled = None
         self.autohide = None
+        self.discover = discover
 
     def init_config(self):
         """
@@ -137,26 +138,32 @@ class SettingsWindow(Gtk.VBox):
             self.floating_y = pos_y
             self.floating_w = width
             self.floating_h = height
+
+            logging.info("Positioned overlay : %s , %s  %s x %s", self.floating_x, self.floating_y, self.floating_w, self.floating_h)
             self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
-            if not self.overlay.is_wayland:
+            if button:
                 button.set_label("Place Window")
-
             self.placement_window.close()
             self.placement_window = None
+            if self.discover.steamos:
+                self.discover.show_settings()
         else:
-            if self.overlay.is_wayland:
+            if self.discover.steamos:
+                self.discover.hide_settings()
+            if self.overlay.is_wayland or self.discover.steamos:
                 self.placement_window = DraggableWindowWayland(
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Green!", settings=self)
+                    message="Place & resize this window then press Green!", settings=self,
+                    steamos = self.discover.steamos)
             else:
                 self.placement_window = DraggableWindow(
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Save!", settings=self)
-            if not self.overlay.is_wayland:
-                button.set_label("Save this position")
+                if button:
+                    button.set_label("Save this position")
 
     def change_align_type_edge(self, button):
         """

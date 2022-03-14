@@ -24,10 +24,11 @@ class GeneralSettingsWindow(SettingsWindow):
     """Core Settings Tab"""
 
     def __init__(self, discover):
-        SettingsWindow.__init__(self)
+        SettingsWindow.__init__(self, discover)
         self.discover = discover
         self.xshape = None
         self.show_sys_tray_icon = None
+        self.show_task = None
         self.set_size_request(400, 200)
         self.connect("destroy", self.close_window)
         self.connect("delete-event", self.close_window)
@@ -45,6 +46,7 @@ class GeneralSettingsWindow(SettingsWindow):
         config.read(self.config_file)
         self.xshape = config.getboolean("general", "xshape", fallback=False)
         self.show_sys_tray_icon = config.getboolean("general", "showsystray", fallback=True)
+        self.show_task = config.getboolean("general", "showtask", fallback=False)
 
         # Pass all of our config over to the overlay
         self.discover.set_force_xshape(self.xshape)
@@ -61,6 +63,7 @@ class GeneralSettingsWindow(SettingsWindow):
 
         config.set("general", "xshape", "%d" % (int(self.xshape)))
         config.set("general", "showsystray", "yes" if self.show_sys_tray_icon else "no")
+        config.set("general", "showtask", "yes" if self.show_task else "no")
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -89,12 +92,20 @@ class GeneralSettingsWindow(SettingsWindow):
         show_sys_tray_icon.set_active(self.show_sys_tray_icon)
         show_sys_tray_icon.connect("toggled", self.change_show_sys_tray_icon)
 
+        # Show taskbar
+        show_task_label = Gtk.Label.new("Show on taskbar")
+        show_task = Gtk.CheckButton.new()
+        show_task.set_active(self.show_task)
+        show_task.connect("toggled", self.change_show_task)
+
         box.attach(autostart_label, 0, 0, 1, 1)
         box.attach(autostart, 1, 0, 1, 1)
         box.attach(xshape_label, 0, 1, 1, 1)
         box.attach(xshape, 1, 1, 1, 1)
         box.attach(show_sys_tray_icon_label, 0, 2, 1, 1)
         box.attach(show_sys_tray_icon, 1, 2, 1, 1)
+        box.attach(show_task_label, 0,3,1,1)
+        box.attach(show_task,1,3,1,1)
 
         self.add(box)
 
@@ -119,4 +130,12 @@ class GeneralSettingsWindow(SettingsWindow):
         """
         self.discover.set_sys_tray_icon_visible(button.get_active())
         self.show_sys_tray_icon = button.get_active()
+        self.save_config()
+
+    def change_show_task(self, button):
+        """
+        Show in task bar changed
+        """
+        self.discover.set_show_task(button.get_active())
+        self.show_task = button.get_active()
         self.save_config()

@@ -42,7 +42,6 @@ class MainSettingsWindow(Gtk.Window):
 
         if discover.steamos:
             notebook.set_tab_pos(Gtk.PositionType.LEFT)
-
             self.set_default_size(1280, 800)
 
         self.about_settings = AboutSettingsWindow(self.discover)
@@ -50,12 +49,12 @@ class MainSettingsWindow(Gtk.Window):
         notebook.append_page(self.about_settings)
         notebook.set_tab_label(self.about_settings, about_label)
 
-        self.voice_settings = VoiceSettingsWindow(self.voice_overlay)
+        self.voice_settings = VoiceSettingsWindow(self.voice_overlay, discover)
         voice_label = Gtk.Label.new("Voice")
         notebook.append_page(self.voice_settings)
         notebook.set_tab_label(self.voice_settings, voice_label)
 
-        self.text_settings = TextSettingsWindow(self.text_overlay)
+        self.text_settings = TextSettingsWindow(self.text_overlay, discover)
         text_label = Gtk.Label.new("Text")
         
         notebook.append_page(self.text_settings)
