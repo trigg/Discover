@@ -69,7 +69,7 @@ class DiscordConnector:
         self.request_text_rooms_awaiting = 0
         self.last_requested_guild = 0
 
-        self.rate_limited_channels=[]
+        self.rate_limited_channels = []
 
     def get_access_token_stage1(self):
         """
@@ -159,12 +159,11 @@ class DiscordConnector:
         except ValueError:
             utc_time = time.strptime(
                 message["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
-        
 
         epoch_time = calendar.timegm(utc_time)
         username = message["author"]["username"]
         if("nick" in message and message['nick'] and len(message["nick"]) > 1
-            and 'object Object' not in json.dumps(message["nick"]) ):
+                and 'object Object' not in json.dumps(message["nick"])):
             username = message["nick"]
         colour = "#ffffff"
         if "author_color" in message:
@@ -384,11 +383,13 @@ class DiscordConnector:
                 if self.request_text_rooms_response is not None:
                     if len(self.request_text_rooms_response) <= j['data']['position']:
                         # Error. The list of channels has changed since we requested last
-                        self.request_text_rooms_for_guild(self.last_requested_guild)
+                        self.request_text_rooms_for_guild(
+                            self.last_requested_guild)
                         pass
-                    self.request_text_rooms_response[j['data']
-                                                    ['position']] = j['data']
-                    
+                    else:
+                        self.request_text_rooms_response[j['data']
+                                                         ['position']] = j['data']
+
                 if self.current_text == j["data"]["id"]:
                     self.text = []
                     for message in j["data"]["messages"]:
@@ -423,7 +424,7 @@ class DiscordConnector:
                 for channel in guild["channels"]:
                     channels = channels + " " + channel["name"]
             else:
-                    channels = "Opted out"
+                channels = "Opted out"
             logging.info(
                 u"%s: %s", guild["name"], channels)
         self.voice_settings.set_guild_list(self.guilds)
@@ -487,14 +488,14 @@ class DiscordConnector:
                   self.guilds.get(guild))
         else:
             logging.info(f"Didn't find guild with id {guild}")
-        #cmd = {
+        # cmd = {
         #    "cmd": "GET_CHANNELS",
         #    "args": {
         #        "guild_id": guild
         #    },
         #    "nonce": guild
-        #}
-        #self.websocket.send(json.dumps(cmd))
+        # }
+        # self.websocket.send(json.dumps(cmd))
 
     def req_channel_details(self, channel):
         """message
@@ -639,7 +640,6 @@ class DiscordConnector:
             }
             self.websocket.send(json.dumps(cmd))
 
-
         # Poll socket for new information
         recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
         while recv:
@@ -677,7 +677,8 @@ class DiscordConnector:
             if "channels" in guild:
                 self.request_text_rooms_awaiting = len(guild["channels"])
                 self.request_text_rooms = guild_id
-                self.request_text_rooms_response = [None] * len(guild["channels"])
+                self.request_text_rooms_response = [
+                    None] * len(guild["channels"])
                 self.req_all_channel_details(guild_id)
             else:
                 logging.warning(
