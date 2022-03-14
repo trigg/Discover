@@ -672,6 +672,7 @@ class DiscordConnector:
         """
         if(guild_id == 0):
             return
+        self.last_requested_guild = guild_id
         if guild_id in self.guilds:
             guild = self.guilds[guild_id]
             if "channels" in guild:
