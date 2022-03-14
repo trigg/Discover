@@ -22,7 +22,7 @@ import PIL.Image as Image
 import os
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
-from gi.repository import Gio, GdkPixbuf
+from gi.repository import Gio, GdkPixbuf  # nopep8
 
 
 class ImageGetter():
@@ -100,7 +100,7 @@ class SurfaceGetter():
         locations = [os.path.expanduser('~/.local/'), '/usr/']
         for prefix in locations:
             try:
-                image = Image.open(os.path.join(prefix,self.url))
+                image = Image.open(os.path.join(prefix, self.url))
                 surface = self.from_pil(image)
                 self.func(self.identifier, surface)
                 return

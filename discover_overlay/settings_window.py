@@ -18,7 +18,7 @@ from .general_settings import GeneralSettingsWindow
 from .about_settings import AboutSettingsWindow
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk
+from gi.repository import Gtk  # nopep8
 
 
 class MainSettingsWindow(Gtk.Window):
@@ -56,7 +56,7 @@ class MainSettingsWindow(Gtk.Window):
 
         self.text_settings = TextSettingsWindow(self.text_overlay, discover)
         text_label = Gtk.Label.new("Text")
-        
+
         notebook.append_page(self.text_settings)
         notebook.set_tab_label(self.text_settings, text_label)
 

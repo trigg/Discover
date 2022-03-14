@@ -22,7 +22,7 @@ from .text_overlay import TextOverlayWindow
 from .discord_connector import DiscordConnector
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, GLib, Gio
+from gi.repository import Gtk, GLib, Gio  # nopep8
 
 try:
     from xdg.BaseDirectory import xdg_config_home
@@ -37,19 +37,21 @@ class Discover:
         self.ind = None
         self.tray = None
         self.steamos = False
-        self.show_settings_delay=False
+        self.show_settings_delay = False
         self.settings = None
 
         self.debug_file = debug_file
 
         self.do_args(args, True)
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
-            logging.info("GameScope session detected. Enabling steam and gamescope integration")
+            logging.info(
+                "GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
             self.show_settings_delay = True
             settings = Gtk.Settings.get_default()
             if settings:
-                settings.set_property("gtk-application-prefer-dark-theme", Gtk.true)
+                settings.set_property(
+                    "gtk-application-prefer-dark-theme", Gtk.true)
 
         self.create_gui()
 
@@ -86,7 +88,8 @@ class Discover:
             print("  -h, --help             This screen")
             print("      --hide             Hide overlay")
             print("      --show             Show overlay")
-            print("      --nolock           Do not use Lock or RPC. Helps for running in unpriviledged container")
+            print(
+                "      --nolock           Do not use Lock or RPC. Helps for running in unpriviledged container")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
@@ -99,7 +102,7 @@ class Discover:
         if "--close" in data or "-x" in data:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
-            self.steamos=True
+            self.steamos = True
         if "--hide" in data:
             if self.voice_overlay:
                 self.voice_overlay.set_hidden(True)
@@ -128,7 +131,7 @@ class Discover:
         Create Systray & associated menu, overlays & settings windows
         """
         self.voice_overlay = VoiceOverlayWindow(self)
-        
+
         if self.steamos:
             self.text_overlay = TextOverlayWindow(self, self.voice_overlay)
         else:
@@ -141,7 +144,8 @@ class Discover:
             # Larger fonts needed
             css = Gtk.CssProvider.new()
             css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
-            self.settings.get_style_context().add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+            self.settings.get_style_context().add_provider(
+                css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
     def make_sys_tray_icon(self, menu):
         """

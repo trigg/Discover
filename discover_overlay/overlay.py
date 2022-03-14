@@ -23,7 +23,7 @@ from Xlib.display import Display
 from Xlib import X, Xatom
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk  # nopep8
 try:
     gi.require_version('GtkLayerShell', '0.1')
     from gi.repository import GtkLayerShell
@@ -95,13 +95,14 @@ class OverlayWindow(Gtk.Window):
                 atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
                 opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
 
-                topw = display.create_resource_object("window", self.get_toplevel().get_window().get_xid())
+                topw = display.create_resource_object(
+                    "window", self.get_toplevel().get_window().get_xid())
 
                 topw.change_property(atom,
-                                    Xatom.CARDINAL,32,
-                                    [1], X.PropModeReplace)
+                                     Xatom.CARDINAL, 32,
+                                     [1], X.PropModeReplace)
                 # Keep for reference, but appears to be unnecessary
-                #topw.change_property(opaq,
+                # topw.change_property(opaq,
                 #                     Xatom.CARDINAL,16,
                 #                     [0xffff], X.PropModeReplace)
 
@@ -113,9 +114,9 @@ class OverlayWindow(Gtk.Window):
         self.floating = False
         self.force_xshape = False
         self.context = None
-        self.autohide=False
-        self.piggyback=None
-        self.piggyback_parent=None
+        self.autohide = False
+        self.piggyback = None
+        self.piggyback_parent = None
         if piggyback:
             self.set_piggyback(piggyback)
 
@@ -126,7 +127,8 @@ class OverlayWindow(Gtk.Window):
         """
         if self.is_wayland:
             if not GtkLayerShell.is_supported():
-                logging.info("GTK Layer Shell is not supported on this wayland compositor")
+                logging.info(
+                    "GTK Layer Shell is not supported on this wayland compositor")
                 logging.info("Currently not possible: Gnome, Plasma, Weston")
                 sys.exit(0)
             GtkLayerShell.init_for_window(self)
@@ -150,14 +152,14 @@ class OverlayWindow(Gtk.Window):
         Set the font used by the overlay
         """
         self.text_font = font
-        self.needsredraw=True
+        self.needsredraw = True
         logging.info("set_font redraw")
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
         """
         Set if the window is floating and what dimensions to use
         """
-        
+
         self.floating = floating
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -275,7 +277,6 @@ class OverlayWindow(Gtk.Window):
         self.needsredraw = True
         logging.info("set_monitor redraw")
 
-
     def set_align_x(self, align_right):
         """
         Set the alignment (True for right, False for left)
@@ -285,7 +286,6 @@ class OverlayWindow(Gtk.Window):
         self.needsredraw = True
         logging.info("set_align_x redraw")
 
-
     def set_align_y(self, align_vert):
         """
         Set the veritcal alignment
@@ -294,7 +294,6 @@ class OverlayWindow(Gtk.Window):
         self.force_location()
         self.needsredraw = True
         logging.info("set_align_y redraw")
-
 
     def col(self, col, alpha=1.0):
         """

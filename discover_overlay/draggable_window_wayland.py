@@ -15,7 +15,7 @@ import cairo
 import gi
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk  # nopep8
 try:
     gi.require_version('GtkLayerShell', '0.1')
     from gi.repository import GtkLayerShell
@@ -57,7 +57,6 @@ class DraggableWindowWayland(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
         if steamos:
             self.set_size_request(1280, 800)
-
 
         self.show_all()
         # self.force_location()

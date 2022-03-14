@@ -19,7 +19,7 @@ from .settings import SettingsWindow
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk  # nopep8
 
 
 GUILD_DEFAULT_VALUE = "0"

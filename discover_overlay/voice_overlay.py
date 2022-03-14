@@ -21,7 +21,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo
+from gi.repository import Pango, PangoCairo  # nopep8
 
 
 class VoiceOverlayWindow(OverlayWindow):
@@ -66,14 +66,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_title("Discover Voice")
         self.redraw()
 
-
     def set_bg(self, background_colour):
         """
         Set the background colour
         """
         self.norm_col = background_colour
         self.needsredraw = True
-
 
     def set_fg(self, foreground_colour):
         """
@@ -82,14 +80,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_col = foreground_colour
         self.needsredraw = True
 
-
     def set_tk(self, talking_colour):
         """
         Set the border colour for users who are talking
         """
         self.talk_col = talking_colour
         self.needsredraw = True
-
 
     def set_mt(self, mute_colour):
         """
@@ -98,14 +94,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.mute_col = mute_colour
         self.needsredraw = True
 
-
     def set_hi(self, highlight_colour):
         """
         Set the colour of background for speaking users
         """
         self.hili_col = highlight_colour
         self.needsredraw = True
-
 
     def set_fg_hi(self, highlight_colour):
         """
@@ -114,14 +108,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_hili_col = highlight_colour
         self.needsredraw = True
 
-
     def set_avatar_size(self, size):
         """
         Set the size of the avatar icons
         """
         self.avatar_size = size
         self.needsredraw = True
-
 
     def set_icon_spacing(self, i):
         """
@@ -130,14 +122,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_spacing = i
         self.needsredraw = True
 
-
     def set_text_padding(self, i):
         """
         Set padding between text and border
         """
         self.text_pad = i
         self.needsredraw = True
-
 
     def set_text_baseline_adj(self, i):
         """
@@ -146,14 +136,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.text_baseline_adj = i
         self.needsredraw = True
 
-
     def set_vert_edge_padding(self, i):
         """
         Set padding between top/bottom of screen and overlay contents
         """
         self.vert_edge_padding = i
         self.needsredraw = True
-
 
     def set_horz_edge_padding(self, i):
         """
@@ -162,14 +150,12 @@ class VoiceOverlayWindow(OverlayWindow):
         self.horz_edge_padding = i
         self.needsredraw = True
 
-
     def set_square_avatar(self, i):
         """
         Set if the overlay should crop avatars to a circle or show full square image
         """
         self.round_avatar = not i
         self.needsredraw = True
-
 
     def set_only_speaking(self, only_speaking):
         """
@@ -259,7 +245,6 @@ class VoiceOverlayWindow(OverlayWindow):
         if alt:
             self.needsredraw = True
 
-
     def set_connection(self, connection):
         """
         Set if discord has a clean connection to server
@@ -268,7 +253,6 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.connected != is_connected:
             self.connected = is_connected
             self.needsredraw = True
-
 
     def overlay_draw(self, w, context, data=None):
         """
@@ -382,7 +366,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         if identifier in self.avatars:
             del self.avatars[identifier]
-
 
     def draw_avatar(self, context, user, pos_y):
         """

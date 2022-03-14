@@ -17,7 +17,7 @@ from .settings import SettingsWindow
 from .autostart import Autostart
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk
+from gi.repository import Gtk  # nopep8
 
 
 class GeneralSettingsWindow(SettingsWindow):
@@ -45,8 +45,10 @@ class GeneralSettingsWindow(SettingsWindow):
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         self.xshape = config.getboolean("general", "xshape", fallback=False)
-        self.show_sys_tray_icon = config.getboolean("general", "showsystray", fallback=True)
-        self.show_task = config.getboolean("general", "showtask", fallback=False)
+        self.show_sys_tray_icon = config.getboolean(
+            "general", "showsystray", fallback=True)
+        self.show_task = config.getboolean(
+            "general", "showtask", fallback=False)
 
         # Pass all of our config over to the overlay
         self.discover.set_force_xshape(self.xshape)
@@ -62,7 +64,8 @@ class GeneralSettingsWindow(SettingsWindow):
             config.add_section("general")
 
         config.set("general", "xshape", "%d" % (int(self.xshape)))
-        config.set("general", "showsystray", "yes" if self.show_sys_tray_icon else "no")
+        config.set("general", "showsystray",
+                   "yes" if self.show_sys_tray_icon else "no")
         config.set("general", "showtask", "yes" if self.show_task else "no")
 
         with open(self.config_file, 'w') as file:
@@ -104,8 +107,8 @@ class GeneralSettingsWindow(SettingsWindow):
         box.attach(xshape, 1, 1, 1, 1)
         box.attach(show_sys_tray_icon_label, 0, 2, 1, 1)
         box.attach(show_sys_tray_icon, 1, 2, 1, 1)
-        box.attach(show_task_label, 0,3,1,1)
-        box.attach(show_task,1,3,1,1)
+        box.attach(show_task_label, 0, 3, 1, 1)
+        box.attach(show_task, 1, 3, 1, 1)
 
         self.add(box)
 

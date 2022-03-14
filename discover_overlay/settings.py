@@ -21,7 +21,7 @@ from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk  # nopep8
 
 
 try:
@@ -139,7 +139,8 @@ class SettingsWindow(Gtk.VBox):
             self.floating_w = width
             self.floating_h = height
 
-            logging.info("Positioned overlay : %s , %s  %s x %s", self.floating_x, self.floating_y, self.floating_w, self.floating_h)
+            logging.info("Positioned overlay : %s , %s  %s x %s", self.floating_x,
+                         self.floating_y, self.floating_w, self.floating_h)
             self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
             if button:
@@ -156,7 +157,7 @@ class SettingsWindow(Gtk.VBox):
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
                     message="Place & resize this window then press Green!", settings=self,
-                    steamos = self.discover.steamos)
+                    steamos=self.discover.steamos)
             else:
                 self.placement_window = DraggableWindow(
                     pos_x=self.floating_x, pos_y=self.floating_y,

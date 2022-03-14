@@ -21,13 +21,13 @@ from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo
+from gi.repository import Pango, PangoCairo  # nopep8
 
 
 class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
-    def __init__(self, discover, piggyback = None):
+    def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
         self.content = []
@@ -52,7 +52,6 @@ class TextOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
         self.redraw()
 
-
     def set_text_time(self, timer):
         """
         Set the duration that a message will be visible for.
@@ -68,7 +67,6 @@ class TextOverlayWindow(OverlayWindow):
             self.needsredraw = True
             logging.info("set_text_list redraw")
 
-
     def set_fg(self, fg_col):
         """
         Set default text colour
@@ -76,7 +74,6 @@ class TextOverlayWindow(OverlayWindow):
         self.fg_col = fg_col
         self.needsredraw = True
         logging.info("set_fg redraw")
-
 
     def set_bg(self, bg_col):
         """
@@ -86,7 +83,6 @@ class TextOverlayWindow(OverlayWindow):
         self.needsredraw = True
         logging.info("set_bg redraw")
 
-
     def set_show_attach(self, attachment):
         """
         Set if attachments should be shown inline
@@ -94,7 +90,6 @@ class TextOverlayWindow(OverlayWindow):
         self.show_attach = attachment
         self.needsredraw = True
         logging.info("set_show_attach redraw")
-
 
     def set_popup_style(self, boolean):
         """
@@ -114,7 +109,6 @@ class TextOverlayWindow(OverlayWindow):
         self.pango_rect.height = font.get_size() * Pango.SCALE
         self.needsredraw = True
         logging.info("set_font redraw")
-
 
     def make_line(self, message):
         """
@@ -174,7 +168,6 @@ class TextOverlayWindow(OverlayWindow):
         self.needsredraw = True
         logging.info("recv_attach redraw")
 
-
     def overlay_draw(self, _w, context, data=None):
         """
         Draw the overlay
@@ -226,7 +219,7 @@ class TextOverlayWindow(OverlayWindow):
                         get_surface(self.recv_attach,
                                     url,
                                     url, None)
-                        self.attachment[url] = None # Avoid asking repeatedly
+                        self.attachment[url] = None  # Avoid asking repeatedly
                 else:
                     logging.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
