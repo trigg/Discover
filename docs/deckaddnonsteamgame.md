@@ -1,6 +1,5 @@
 # Adding Discover Overlay and Discord as Non Steam Games on Steam Deck
 
-- If the device is not already in Developer mode, [Enable Developer Mode](deckenabledev)
 - If you're not in desktop mode, [Switch to Desktop Mode](deckswitchdesktop)
 - If they're not yet installed [Install them](install_flathub)
 - Click on the `Steam` icon on the desktop
