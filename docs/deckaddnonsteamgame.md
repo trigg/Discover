@@ -10,3 +10,4 @@
 - Right click (or left trigger if you're not using a mouse) with your cursor over `Discover Overlay`
 - in `Launch Options` put `DISPLAY=:0 %command% run --command=discover-overlay io.github.trigg.discover_overlay --nolock`
 - [Return to game mode](/deckswitchgame)
+- [Run Discover overlay & Deck on Game Mode](/deckusage)
