@@ -68,6 +68,7 @@ class DiscordConnector:
         self.request_text_rooms_response = None
         self.request_text_rooms_awaiting = 0
         self.last_requested_guild = 0
+        self.needs_guild_rerequest = -1
 
         self.rate_limited_channels = []
 
@@ -381,10 +382,10 @@ class DiscordConnector:
                         self.set_in_room(thisuser["id"], True)
             elif j["data"]["type"] == 0:  # Text channel
                 if self.request_text_rooms_response is not None:
-                    if len(self.request_text_rooms_response) <= j['data']['position']:
+                    if j['data']['position'] >= len(self.request_text_rooms_response) :
                         # Error. The list of channels has changed since we requested last
-                        self.request_text_rooms_for_guild(
-                            self.last_requested_guild)
+                        self.needs_guild_rerequest = 60 * 30
+                        logging.error("IndexError getting channel information. Starting again in 30 seconds")
                         pass
                     else:
                         self.request_text_rooms_response[j['data']
@@ -604,6 +605,11 @@ class DiscordConnector:
                     "Unable to connect to Discord client")
                 self.warn_connection = False
             return True
+        if self.needs_guild_rerequest == 0:
+            logging.error("Re-requesting guild list")
+            self.request_text_rooms_for_guild(self.last_requested_guild)
+        if self.needs_guild_rerequest >= 0:
+            self.needs_guild_rerequest -= 1
         # Recreate a list of users in current room
         newlist = []
         for userid in self.in_room:
