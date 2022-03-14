@@ -1,7 +1,7 @@
 # Adding Discover Overlay and Discord as Non Steam Games on Steam Deck
 
 - If you're not in desktop mode, [Switch to Desktop Mode](/deckswitchdesktop)
-- If they're not yet installed [Install them](/installflathub)
+- If they're not yet installed [Install them](/install_flathub)
 - Click on the `Steam` icon on the desktop
 - Select `Games` and then `Add a Non-Steam Game to My Library`
 - Tick `Discord` and `Discover Overlay`
