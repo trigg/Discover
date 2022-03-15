@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>io.github.trigg.discover_overlay</id>
   <metadata_license>MIT</metadata_license>
@@ -24,6 +24,23 @@
   </screenshots>
   <developer_name>trigg</developer_name>
   <releases>
+    <release version="0.4.7" date="2022-03-15" urgency="low">
+      <description>
+        - I strongly dislike appdata
+      </description>
+      <url>https://github.com/trigg/Discover/releases/tag/v0.4.7</url>
+    </release>
+    <release version="0.4.6" date="2022-03-15" urgency="low">
+      <description>
+        - Merged text and voice overlay's when only one window can be shown.
+        - Added "show on taskbar" option to core, which should allow screen capture of overlay in X11.
+        - Update guild list more frequently
+        - Reimplemented floating windows for gamescope
+        - Added desktop-application metadata for flatpak
+        - Various bug fixes 
+      </description>
+      <url>https://github.com/trigg/Discover/releases/tag/v0.4.6</url>
+    </release>
     <release version="0.4.5" date="2022-03-11" urgency="low">
       <description>
         - Fixed some app metadata
