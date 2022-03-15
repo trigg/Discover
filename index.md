@@ -7,6 +7,6 @@ Considerably lighter on system resources and less hack-and-slash included than d
 
 ![Screenshot](https://user-images.githubusercontent.com/535772/149630830-750f8af6-e935-44a6-ad1c-da1d204ee107.png)
 
-Try it on [Steam Deck](deckaddnonsteamgame) today!
+Try it on [Desktop](usage) or [Steam Deck](deckusage) today!
 
 Got a question about development or a feature request? [Join our Discord!](https://discord.gg/jRKWMuDy5V) or open an [issue on GitHub](https://github.com/trigg/Discover/issues)
