@@ -9,7 +9,7 @@ setup(
     name='discover-overlay',
     author='trigg',
     author_email='',
-    version='0.4.5',
+    version='0.4.6',
     description='Voice chat overlay',
     long_description=readme(),
     long_description_content_type='text/markdown',
@@ -20,10 +20,12 @@ setup(
         ('share/applications', [
             'discover_overlay.desktop'
         ]),
-        ('share/icons/hicolor/256x256/apps', ['discover-overlay.png', 'discover-overlay-tray.png', 'discover-overlay-default.png']),
-        ('share/icons/hicolor/scalable/apps', ['discover-overlay.svg', 'discover-overlay-tray.svg', 'discover-overlay-default.svg']),
+        ('share/icons/hicolor/256x256/apps',
+         ['discover-overlay.png', 'discover-overlay-tray.png', 'discover-overlay-default.png']),
+        ('share/icons/hicolor/scalable/apps',
+         ['discover-overlay.svg', 'discover-overlay-tray.svg', 'discover-overlay-default.svg']),
         ('share/metainfo', [
-            'discover_overlay.appdata.xml'
+            'discover_overlay.metainfo.xml'
         ])
     ],
     install_requires=[
