@@ -13,13 +13,23 @@ Got a question about development or a feature request? [Join our Discord!](https
 
 ## Installing
 
-### Stable
+### Flatpak via Flathub
+
+Visit our [Flathub page](https://flathub.org/apps/details/io.github.trigg.discover_overlay) or install via commandline
+
+```bash
+flatpak install io.github.trigg.discover_overlay
 ```
+
+
+
+### Stable
+```bash
 python3 -m pip install discover-overlay
 ```
 
 ### Latest Testing
-```
+```bash
 git clone https://github.com/trigg/Discover.git
 cd Discover
 python3 -m pip install .
@@ -75,6 +85,17 @@ with Wayland support
 Run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
 
 Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached either via System tray or by running `discover-overlay --configure`
+
+## Usage in Flatpak
+
+Due to a security feature of Flatpak we cannot currently detect an already-running process. Any call to `io.github.trigg.discover_overlay` will start a new overlay unless you also include `--rpc`.
+
+Examples:
+1) Start a new overlay and show configuration window
+`io.github.trigg.discover_overlay --configure`
+
+2) Show configuration window of already running overlay
+`io.github.trigg.discover_overlay --rpc --configure`
 
 ### Debugging
 If you are trying to debug on VS Code you are likely to get the following message:

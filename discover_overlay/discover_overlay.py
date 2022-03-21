@@ -88,8 +88,7 @@ class Discover:
             print("  -h, --help             This screen")
             print("      --hide             Hide overlay")
             print("      --show             Show overlay")
-            print(
-                "      --nolock           Do not use Lock or RPC. Helps for running in unpriviledged container")
+            print("      --rpc              Send command, not start new instance. Only needed if running in flatpak")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
@@ -262,11 +261,23 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
-    if "--nolock" in sys.argv:
-        logging.getLogger().setLevel(logging.INFO)
-        logging.info("Nolock mode chosen")
-        Discover(rpc_file, debug_file, line)
+
+
+    # Flatpak compat mode
+
+    if "container" in os.environ and os.environ["container"] == "flatpak":
+        if "--rpc" in sys.argv:
+            with open(rpc_file, "w") as tfile:
+                tfile.write(line)
+                logging.warning("Sent RPC command")
+        else:
+            logging.getLogger().setLevel(logging.INFO)
+            logging.info("Flatpak compat mode started")
+            Discover(rpc_file, debug_file, line)
         return
+
+    # Normal usage
+
     try:
         with pidfile.PIDFile(pid_file):
             logging.getLogger().setLevel(logging.INFO)
