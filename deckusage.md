@@ -3,8 +3,10 @@
 - Press `Steam`
 - Choose `Library`
 - Choose `Non-steam`
+![Non-Steam game list](non_steam_games.jpg)
 - Choose `Discover Overlay`
 - Choose `Play`
+![Info page for Discover overlay](play_discover_overlay.jpg)
 - Press `Steam`
 - Choose `Library`
 - Choose `Discord`
