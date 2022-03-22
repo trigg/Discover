@@ -5,7 +5,7 @@ Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to s
 
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
 
-![Screenshot](https://user-images.githubusercontent.com/535772/149630830-750f8af6-e935-44a6-ad1c-da1d204ee107.png)
+![Screenshot](overlay_on_deck.jpg)
 
 Try it on [Desktop](usage) or [Steam Deck](deckaddnonsteamgame) today!
 
