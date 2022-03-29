@@ -12,14 +12,19 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Main application class"""
 import os
+import time
 import sys
+import dbus
 import logging
 import gi
 import pidfile
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
+from .notification_overlay import NotificationOverlayWindow
 from .discord_connector import DiscordConnector
+from dbus.mainloop.glib import DBusGMainLoop  # integration into the main loop
+
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, GLib, Gio  # nopep8
@@ -39,6 +44,9 @@ class Discover:
         self.steamos = False
         self.show_settings_delay = False
         self.settings = None
+        self.notification_messages = []
+        self.dbus_notification = None
+        self.bus = None
 
         self.debug_file = debug_file
 
@@ -66,12 +74,58 @@ class Discover:
         self.settings.text_settings.add_connector(self.connection)
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)
+        GLib.timeout_add((1000 / 20), self.periodic_run)
         self.rpc_file = rpc_file
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
         monitor.connect("changed", self.rpc_changed)
 
         Gtk.main()
+
+    def set_dbus_notifications(self, enabled=False):
+        if not self.bus:
+            DBusGMainLoop(set_as_default=True)
+            self.bus = dbus.SessionBus()
+            self.bus.add_match_string_non_blocking(
+                "eavesdrop=true, interface='org.freedesktop.Notifications', member='Notify'")
+        if enabled:
+            if not self.dbus_notification:
+                self.bus.add_message_filter(self.add_notification_message)
+                self.dbus_notification = True
+
+    def periodic_run(self, data=None):
+        if self.voice_overlay.needsredraw:
+            self.voice_overlay.redraw()
+
+        if self.text_overlay and self.text_overlay.needsredraw:
+            self.text_overlay.redraw()
+
+        if self.notification_overlay:
+            if self.notification_overlay.enabled:
+                # This doesn't really belong in overlay or settings
+                now = time.time()
+                newlist = []
+                oldsize = len(self.notification_messages)
+                # Iterate over and remove messages older than 30s
+                for message in self.notification_messages:
+                    if message['time'] + self.settings.notification_settings.text_time > now:
+                        newlist.append(message)
+                self.notification_messages = newlist
+                # If the list is different than before
+                if oldsize != len(newlist):
+                    self.notification_overlay.set_content(
+                        self.notification_messages, True)
+            if self.notification_overlay.needsredraw:
+                self.notification_overlay.redraw()
+        return True
+
+    def add_notification_message(self, bus, message):
+        args = message.get_args_list()
+        logging.warning(args)
+        noti = {"title": "%s" % (args[3]), "body": "%s" % (args[4]),
+                "icon": "%s" % (args[2]), "cmd": "%s" % (args[0]), "time": time.time()}
+        self.notification_messages.append(noti)
+        self.notification_overlay.set_content(self.notification_messages, True)
 
     def do_args(self, data, normal_close):
         """
@@ -133,8 +187,11 @@ class Discover:
 
         if self.steamos:
             self.text_overlay = TextOverlayWindow(self, self.voice_overlay)
+            self.notification_overlay = NotificationOverlayWindow(
+                self, self.text_overlay)
         else:
             self.text_overlay = TextOverlayWindow(self)
+            self.notification_overlay = NotificationOverlayWindow(self)
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
         self.settings = MainSettingsWindow(self)
@@ -261,7 +318,6 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
-
 
     # Flatpak compat mode
 

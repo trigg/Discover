@@ -318,6 +318,7 @@ class OverlayWindow(Gtk.Window):
         self.enabled = enabled
         if enabled and not self.hidden and not self.piggyback_parent:
             self.show_all()
+            self.set_untouchable()
         else:
             self.hide()
 

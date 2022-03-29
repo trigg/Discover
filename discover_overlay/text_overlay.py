@@ -168,19 +168,21 @@ class TextOverlayWindow(OverlayWindow):
         self.needsredraw = True
         logging.info("recv_attach redraw")
 
-    def overlay_draw(self, _w, context, data=None):
+    def overlay_draw(self, w, context, data=None):
         """
         Draw the overlay
         """
+        if self.piggyback:
+            self.piggyback.overlay_draw(w, context, data)
         if not self.enabled:
             return
         self.context = context
-        context.set_antialias(cairo.ANTIALIAS_GOOD)
         (width, height) = self.get_size()
-        # Make background transparent
-        context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
-        context.set_operator(cairo.OPERATOR_SOURCE)
-        context.paint()
+        if not self.piggyback_parent:
+            context.set_antialias(cairo.ANTIALIAS_GOOD)
+            context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
+            context.set_operator(cairo.OPERATOR_SOURCE)
+            context.paint()
         context.save()
         if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!

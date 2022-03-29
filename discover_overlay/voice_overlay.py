@@ -357,8 +357,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.def_avatar = pix
         else:
             self.avatars[identifier] = pix
-        if self.context:
-            self.needsredraw = True
+        self.needsredraw = True
 
     def delete_avatar(self, identifier):
         """

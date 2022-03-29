@@ -382,10 +382,11 @@ class DiscordConnector:
                         self.set_in_room(thisuser["id"], True)
             elif j["data"]["type"] == 0:  # Text channel
                 if self.request_text_rooms_response is not None:
-                    if j['data']['position'] >= len(self.request_text_rooms_response) :
+                    if j['data']['position'] >= len(self.request_text_rooms_response):
                         # Error. The list of channels has changed since we requested last
                         self.needs_guild_rerequest = 60 * 30
-                        logging.error("IndexError getting channel information. Starting again in 30 seconds")
+                        logging.error(
+                            "IndexError getting channel information. Starting again in 30 seconds")
                         pass
                     else:
                         self.request_text_rooms_response[j['data']
@@ -628,12 +629,6 @@ class DiscordConnector:
         # Check for changed channel
         if self.authed:
             self.set_text_channel(self.text_settings.get_channel())
-
-        if self.voice_overlay.needsredraw:
-            self.voice_overlay.redraw()
-
-        if self.text_overlay and self.text_overlay.needsredraw:
-            self.text_overlay.redraw()
 
         if len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()

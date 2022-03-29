@@ -16,6 +16,7 @@ from .voice_settings import VoiceSettingsWindow
 from .text_settings import TextSettingsWindow
 from .general_settings import GeneralSettingsWindow
 from .about_settings import AboutSettingsWindow
+from .notification_settings import NotificationSettingsWindow
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk  # nopep8
@@ -33,6 +34,7 @@ class MainSettingsWindow(Gtk.Window):
         self.discover = discover
         self.text_overlay = discover.text_overlay
         self.voice_overlay = discover.voice_overlay
+        self.notification_overlay = discover.notification_overlay
         self.set_title("Discover Overlay Configuration")
         self.set_icon_name("discover-overlay")
         self.set_default_size(280, 180)
@@ -56,9 +58,14 @@ class MainSettingsWindow(Gtk.Window):
 
         self.text_settings = TextSettingsWindow(self.text_overlay, discover)
         text_label = Gtk.Label.new("Text")
-
         notebook.append_page(self.text_settings)
         notebook.set_tab_label(self.text_settings, text_label)
+
+        self.notification_settings = NotificationSettingsWindow(
+            self.notification_overlay, discover)
+        notification_label = Gtk.Label.new("Notifications")
+        notebook.append_page(self.notification_settings)
+        notebook.set_tab_label(self.notification_settings, notification_label)
 
         self.core_settings = GeneralSettingsWindow(self.discover)
         core_label = Gtk.Label.new("Core")
@@ -84,6 +91,7 @@ class MainSettingsWindow(Gtk.Window):
         self.about_settings.present_settings()
         self.voice_settings.present_settings()
         self.text_settings.present_settings()
+        self.notification_settings.present_settings()
         self.core_settings.present_settings()
         self.notebook.show()
         self.show()

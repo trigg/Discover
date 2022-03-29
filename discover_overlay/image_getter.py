@@ -97,21 +97,24 @@ class SurfaceGetter():
             logging.error("Unknown image type")
 
     def get_file(self):
-        locations = [os.path.expanduser('~/.local/'), '/usr/']
+        locations = [os.path.expanduser('~/.local/'), '/usr/', '/']
         for prefix in locations:
+            mixpath = os.path.join(prefix, self.url)
+            image = None
             try:
-                image = Image.open(os.path.join(prefix, self.url))
-                surface = self.from_pil(image)
+                image = Image.open(mixpath)
+            except ValueError:
+                logging.error("Value Erorr - Unable to read %s", mixpath)
+            except TypeError:
+                logging.error("Type Error - Unable to read %s", mixpath)
+            except PIL.UnidentifiedImageError:
+                logging.error("Unknown image type: %s", mixpath)
+            except FileNotFoundError:
+                logging.error("File not found: %s", mixpath)
+            surface = self.from_pil(image)
+            if surface:
                 self.func(self.identifier, surface)
                 return
-            except ValueError:
-                logging.error("Unable to read %s", self.url)
-            except TypeError:
-                logging.error("Unable to read %s", self.url)
-            except PIL.UnidentifiedImageError:
-                logging.error("Unknown image type")
-            except FileNotFoundError:
-                logging.error("Unable to load file %s", self.url)
 
     def from_pil(self, image, alpha=1.0):
         """
