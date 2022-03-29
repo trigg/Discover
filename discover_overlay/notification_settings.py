@@ -106,13 +106,13 @@ class NotificationSettingsWindow(SettingsWindow):
         self.fg_col = json.loads(config.get(
             "notification", "fg_col", fallback="[1.0,1.0,1.0,1.0]"))
         self.text_time = config.getint(
-            "notification", "text_time", fallback=30)
+            "notification", "text_time", fallback=10)
         self.show_icon = config.getboolean(
             "notification", "show_icon", fallback=True)
         self.reverse_order = config.getboolean(
             "notification", "rev", fallback=False)
         self.limit_width = config.getint(
-            "notification", "limit_width", fallback=100)
+            "notification", "limit_width", fallback=400)
         self.icon_left = config.getboolean(
             "notification", "icon_left", fallback=True)
         self.icon_padding = config.getint(
