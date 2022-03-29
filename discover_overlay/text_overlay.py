@@ -119,7 +119,7 @@ class TextOverlayWindow(OverlayWindow):
             for inner_message in message:
                 ret = "%s%s" % (ret, self.make_line(inner_message))
         elif isinstance(message, str):
-            ret = message
+            ret = self.sanitize_string(message)
         elif message['type'] == 'strong':
             ret = "<b>%s</b>" % (self.make_line(message['content']))
         elif message['type'] == 'text':
