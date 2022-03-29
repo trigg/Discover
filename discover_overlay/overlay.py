@@ -153,7 +153,6 @@ class OverlayWindow(Gtk.Window):
         """
         self.text_font = font
         self.needsredraw = True
-        logging.info("set_font redraw")
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
         """
@@ -275,7 +274,6 @@ class OverlayWindow(Gtk.Window):
                 GtkLayerShell.set_monitor(self, mon)
         self.force_location()
         self.needsredraw = True
-        logging.info("set_monitor redraw")
 
     def set_align_x(self, align_right):
         """
@@ -284,7 +282,6 @@ class OverlayWindow(Gtk.Window):
         self.align_right = align_right
         self.force_location()
         self.needsredraw = True
-        logging.info("set_align_x redraw")
 
     def set_align_y(self, align_vert):
         """
@@ -293,7 +290,6 @@ class OverlayWindow(Gtk.Window):
         self.align_vert = align_vert
         self.force_location()
         self.needsredraw = True
-        logging.info("set_align_y redraw")
 
     def col(self, col, alpha=1.0):
         """

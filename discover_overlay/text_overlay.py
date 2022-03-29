@@ -65,7 +65,6 @@ class TextOverlayWindow(OverlayWindow):
         self.content = tlist
         if altered:
             self.needsredraw = True
-            logging.info("set_text_list redraw")
 
     def set_fg(self, fg_col):
         """
@@ -73,7 +72,6 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.fg_col = fg_col
         self.needsredraw = True
-        logging.info("set_fg redraw")
 
     def set_bg(self, bg_col):
         """
@@ -81,7 +79,6 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.bg_col = bg_col
         self.needsredraw = True
-        logging.info("set_bg redraw")
 
     def set_show_attach(self, attachment):
         """
@@ -89,7 +86,6 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.show_attach = attachment
         self.needsredraw = True
-        logging.info("set_show_attach redraw")
 
     def set_popup_style(self, boolean):
         """
@@ -108,7 +104,6 @@ class TextOverlayWindow(OverlayWindow):
         self.pango_rect.width = font.get_size() * Pango.SCALE
         self.pango_rect.height = font.get_size() * Pango.SCALE
         self.needsredraw = True
-        logging.info("set_font redraw")
 
     def make_line(self, message):
         """
@@ -166,7 +161,6 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.attachment[identifier] = pix
         self.needsredraw = True
-        logging.info("recv_attach redraw")
 
     def overlay_draw(self, w, context, data=None):
         """
