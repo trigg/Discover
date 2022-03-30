@@ -16,8 +16,9 @@ import time
 import re
 import cairo
 import gi
-from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
+from .image_getter import get_surface, draw_img_to_rect, get_aspected_size, make_surface_from_raw
 from .overlay import OverlayWindow
+from .craig_birdy import birdy
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -34,7 +35,8 @@ class NotificationOverlayWindow(OverlayWindow):
         self.test_content = [{"icon": "next", "title": "Title1"},
                              {"title": "Title2", "body": "Body", "icon": None},
                              {"icon": "discord", "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
-                             {"icon": None, "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}]
+                             {"icon": None, "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+                             {"icon": None, "title": "PM", "body": "Birdy test", "icon_raw": birdy}]
         self.text_font = None
         self.text_size = 13
         self.text_time = None
@@ -122,6 +124,11 @@ class NotificationOverlayWindow(OverlayWindow):
             the_list = self.test_content
         for line in the_list:
             icon = line["icon"]
+            if "icon_raw" in line:
+                if "icon_surface" not in line:
+                    line["icon_surface"] = make_surface_from_raw(
+                        line["icon_raw"], self.icon_size)
+
             if icon and icon not in self.image_list:
                 icon_theme = Gtk.IconTheme.get_default()
                 icon_info = icon_theme.lookup_icon(
@@ -277,7 +284,15 @@ class NotificationOverlayWindow(OverlayWindow):
                 m_with_body = "<span foreground='%s'>%s</span>"
                 message = m_with_body % (self.sanitize_string(col),
                                          self.sanitize_string(line["title"]))
-            current_y = self.draw_text(current_y, message, line["icon"])
+
+            # If we've got an embedded image
+            if "icon_surface" in line and line["icon_surface"]:
+                icon = line["icon_surface"]
+            # If we're given an icon name, it's in the list of icons, and it's not none
+            elif line["icon"] and line["icon"] in self.image_list and self.image_list[line["icon"]]:
+                icon = self.image_list[line["icon"]]
+
+            current_y = self.draw_text(current_y, message, icon)
             if current_y <= 0:
                 # We've done enough
                 break
@@ -289,14 +304,11 @@ class NotificationOverlayWindow(OverlayWindow):
         Draw a text message, returning the Y position of the next message
         """
 
-        icon_width = 0
-        icon_pad = 0
-        if self.show_icon and icon and icon in self.image_list and self.image_list[icon]:
-            icon = self.image_list[icon]
-            icon_width = self.icon_size
-            icon_pad = self.icon_pad
-        else:
+        icon_width = self.icon_size
+        icon_pad = self.icon_pad
+        if not self.show_icon:
             icon = None
+            icon_pad = 0
 
         layout = self.create_pango_layout(text)
         layout.set_auto_dir(True)

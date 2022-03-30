@@ -124,6 +124,12 @@ class Discover:
         logging.warning(args)
         noti = {"title": "%s" % (args[3]), "body": "%s" % (args[4]),
                 "icon": "%s" % (args[2]), "cmd": "%s" % (args[0]), "time": time.time()}
+        if len(args) > 6:
+            dictionary = args[6]
+            if 'image-data' in dictionary:
+                noti['icon_raw'] = dictionary['image-data']
+            elif 'image_data' in dictionary:
+                noti['icon_raw'] = dictionary['image_data']
         self.notification_messages.append(noti)
         self.notification_overlay.set_content(self.notification_messages, True)
 

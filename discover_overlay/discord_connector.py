@@ -420,15 +420,6 @@ class DiscordConnector:
         """
         Called when connection is finalised
         """
-        for guild in self.guilds.values():
-            channels = ""
-            if "channels" in guild:
-                for channel in guild["channels"]:
-                    channels = channels + " " + channel["name"]
-            else:
-                channels = "Opted out"
-            logging.info(
-                u"%s: %s", guild["name"], channels)
         self.voice_settings.set_guild_list(self.guilds)
         self.sub_server()
         self.find_user()

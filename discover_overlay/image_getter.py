@@ -20,6 +20,7 @@ import cairo
 import PIL
 import PIL.Image as Image
 import os
+import io
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf  # nopep8
@@ -78,7 +79,7 @@ class SurfaceGetter():
             )
             raw = resp.raw
             image = Image.open(raw)
-            surface = self.from_pil(image)
+            surface = from_pil(image)
 
             self.func(self.identifier, surface)
         except requests.HTTPError:
@@ -111,23 +112,24 @@ class SurfaceGetter():
                 logging.error("Unknown image type: %s", mixpath)
             except FileNotFoundError:
                 logging.error("File not found: %s", mixpath)
-            surface = self.from_pil(image)
+            surface = from_pil(image)
             if surface:
                 self.func(self.identifier, surface)
                 return
 
-    def from_pil(self, image, alpha=1.0):
-        """
-        :param im: Pillow Image
-        :param alpha: 0..1 alpha to add to non-alpha images
-        :param format: Pixel format for output surface
-        """
-        if 'A' not in image.getbands():
-            image.putalpha(int(alpha * 256.))
-        arr = bytearray(image.tobytes('raw', 'BGRa'))
-        surface = cairo.ImageSurface.create_for_data(
-            arr, cairo.FORMAT_ARGB32, image.width, image.height)
-        return surface
+
+def from_pil(image, alpha=1.0):
+    """
+    :param im: Pillow Image
+    :param alpha: 0..1 alpha to add to non-alpha images
+    :param format: Pixel format for output surface
+    """
+    if 'A' not in image.getbands():
+        image.putalpha(int(alpha * 256.))
+    arr = bytearray(image.tobytes('raw', 'BGRa'))
+    surface = cairo.ImageSurface.create_for_data(
+        arr, cairo.FORMAT_ARGB32, image.width, image.height)
+    return surface
 
 
 def get_image(func, identifier, ava, size):
@@ -146,6 +148,25 @@ def get_surface(func, identifier, ava, size):
     else:
         thread = threading.Thread(target=image_getter.get_file, args=())
         thread.start()
+
+
+def make_surface_from_raw(raw, size):
+    """Create surface from raw notification data"""
+    width = raw[0]
+    height = raw[1]
+    rowstride = raw[2]
+    hasalpha = raw[3]
+    bitspersample = raw[4]
+    channels = raw[5]
+    image_raw_dbus = raw[6]
+    image_raw = bytes(image_raw_dbus)
+    image = None
+    if hasalpha:
+        image = Image.frombytes('RGBA', [width, height], image_raw, 'raw')
+    else:
+        image = Image.frombytes('RGB', [width, height], image_raw, 'raw')
+    surface = from_pil(image)
+    return surface
 
 
 def get_aspected_size(img, width, height, anchor=0, hanchor=0):
