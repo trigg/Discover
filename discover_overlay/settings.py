@@ -29,7 +29,7 @@ try:
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
-log = logging.getLogger("settings")
+log = logging.getLogger(__name__)
 
 class SettingsWindow(Gtk.VBox):
     """

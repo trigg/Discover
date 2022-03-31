@@ -40,7 +40,7 @@ try:
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
-log = logging.getLogger("discover_overlay")
+log = logging.getLogger(__name__)
 
 class Discover:
     """Main application class"""

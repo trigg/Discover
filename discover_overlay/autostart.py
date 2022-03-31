@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
     from xdg import XDG_DATA_HOME as xdg_data_home
 
-log = logging.getLogger("autostart")
+log = logging.getLogger(__name__)
 
 class Autostart:
     """A class to assist auto-start"""

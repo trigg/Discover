@@ -18,7 +18,7 @@ import gi
 import sys
 from .settings import SettingsWindow
 
-log = logging.getLogger("about_settings")
+log = logging.getLogger(__name__)
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order

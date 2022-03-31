@@ -23,7 +23,7 @@ from gi.repository import Gtk, Gdk  # nopep8
 
 
 GUILD_DEFAULT_VALUE = "0"
-log = logging.getLogger("text_settings")
+log = logging.getLogger(__name__)
 
 class TextSettingsWindow(SettingsWindow):
     """Text setting tab on settings window"""

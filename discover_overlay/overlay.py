@@ -30,7 +30,7 @@ try:
 except (ImportError, ValueError):
     pass
 
-log = logging.getLogger("overlay")
+log = logging.getLogger(__name__)
 
 class OverlayWindow(Gtk.Window):
     """

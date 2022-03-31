@@ -23,7 +23,7 @@ gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo  # nopep8
 
-log = logging.getLogger("voice_overlay")
+log = logging.getLogger(__name__)
 
 class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
@@ -188,13 +188,10 @@ class VoiceOverlayWindow(OverlayWindow):
         self.needsredraw = True
 
     def set_guild_ids(self, guild_ids=tuple()):
-        try:
+        if 'connection' in self.discover:
             for _id in guild_ids:
                 if _id not in self.guild_ids:
                     self.discover.connection.req_channels(_id)
-        except AttributeError as _e:
-            log.error(_e)
-            pass
         self.guild_ids = guild_ids
 
     def set_wind_col(self):

@@ -25,7 +25,7 @@ gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf  # nopep8
 
-log = logging.getLogger("image_getter")
+log = logging.getLogger(__name__)
 
 class ImageGetter():
     """Older attempt. Not advised as it can't manage anything but PNG. Loads to GDK Pixmap"""

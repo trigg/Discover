@@ -29,7 +29,7 @@ import calendar
 import websocket
 import requests
 
-log = logging.getLogger("discord_connector")
+log = logging.getLogger(__name__)
 
 class DiscordConnector:
     """

@@ -23,7 +23,7 @@ gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo  # nopep8
 
-log = logging.getLogger("text_overlay")
+log = logging.getLogger(__name__)
 
 class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
