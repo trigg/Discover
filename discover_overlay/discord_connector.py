@@ -104,7 +104,7 @@ class DiscordConnector:
             self.access_token = jsonresponse["access_token"]
             self.req_auth()
         else:
-            log.error("No access token in json response")\
+            log.error("No access token in json response")
             log.error(response.text)
             sys.exit(1)
 
