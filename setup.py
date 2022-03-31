@@ -33,6 +33,7 @@ setup(
         'python-pidfile>=3.0.0',
         'pillow',
         'python-xlib',
+        'dbus-python'
     ],
     entry_points={
         'console_scripts': [
