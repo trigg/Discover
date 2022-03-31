@@ -121,7 +121,6 @@ class Discover:
 
     def add_notification_message(self, bus, message):
         args = message.get_args_list()
-        logging.warning(args)
         noti = {"title": "%s" % (args[3]), "body": "%s" % (args[4]),
                 "icon": "%s" % (args[2]), "cmd": "%s" % (args[0]), "time": time.time()}
         if len(args) > 6:
