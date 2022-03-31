@@ -124,13 +124,13 @@ class OverlayWindow(Gtk.Window):
     def set_wayland_state(self):
         """
         If wayland is in use then attempt to set up a GtkLayerShell
-        I have no idea how this should register a fail for Weston/KDE/Gnome
+        I have no idea how this should register a fail for Weston/Gnome
         """
         if self.is_wayland:
             if not GtkLayerShell.is_supported():
                 log.info(
                     "GTK Layer Shell is not supported on this wayland compositor")
-                log.info("Currently not possible: Gnome, Plasma, Weston")
+                log.info("Currently not possible: Gnome, Weston")
                 sys.exit(0)
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
