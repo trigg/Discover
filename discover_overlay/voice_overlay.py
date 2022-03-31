@@ -23,6 +23,7 @@ gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo  # nopep8
 
+log = logging.getLogger("voice_overlay")
 
 class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
@@ -192,7 +193,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 if _id not in self.guild_ids:
                     self.discover.connection.req_channels(_id)
         except AttributeError as _e:
-            logging.error(_e)
+            log.error(_e)
             pass
         self.guild_ids = guild_ids
 

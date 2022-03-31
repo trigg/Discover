@@ -29,6 +29,7 @@ import calendar
 import websocket
 import requests
 
+log = logging.getLogger("discord_connector")
 
 class DiscordConnector:
     """
@@ -115,10 +116,10 @@ class DiscordConnector:
         if channel != self.current_voice:
             if channel in self.channels:
                 channel_name = self.channels[channel]['name']
-                logging.info(
+                log.info(
                     "Joined room: %s", channel_name)
             else:
-                logging.info("Joining private room")
+                log.info("Joining private room")
             self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
@@ -133,7 +134,7 @@ class DiscordConnector:
             return
         if channel != self.current_text:
             self.current_text = channel
-            logging.info(
+            log.info(
                 "Changing text room: %s", channel)
             if need_req:
                 self.req_channel_details(channel)
@@ -328,7 +329,7 @@ class DiscordConnector:
                 if self.current_text == j["data"]["channel_id"]:
                     self.delete_text(j["data"]["message"])
             else:
-                logging.info(j)
+                log.info(j)
             return
         elif j["cmd"] == "AUTHENTICATE":
             if j["evt"] == "ERROR":
@@ -337,9 +338,9 @@ class DiscordConnector:
             else:
                 self.req_guilds()
                 self.user = j["data"]["user"]
-                logging.info(
+                log.info(
                     "ID is %s", self.user["id"])
-                logging.info(
+                log.info(
                     "Logged in as %s", self.user["username"])
                 self.authed = True
                 return
@@ -364,7 +365,7 @@ class DiscordConnector:
         elif j["cmd"] == "GET_CHANNEL":
             self.request_text_rooms_awaiting -= 1
             if j["evt"] == "ERROR":
-                logging.info(
+                log.info(
                     "Could not get room")
                 return
             if j["data"]["type"] == 2:  # Voice channel
@@ -385,7 +386,7 @@ class DiscordConnector:
                     if j['data']['position'] >= len(self.request_text_rooms_response):
                         # Error. The list of channels has changed since we requested last
                         self.needs_guild_rerequest = 60 * 30
-                        logging.error(
+                        log.error(
                             "IndexError getting channel information. Starting again in 30 seconds")
                         pass
                     else:
@@ -404,7 +405,7 @@ class DiscordConnector:
                 self.request_text_rooms = None
 
             return
-        logging.info(j)
+        log.info(j)
 
     def check_guilds(self):
         """
@@ -433,13 +434,13 @@ class DiscordConnector:
         """
         Called when an error has occured
         """
-        logging.error("ERROR : %s", error)
+        log.error("ERROR : %s", error)
 
     def on_close(self):
         """
         Called when connection is closed
         """
-        logging.info("Connection closed")
+        log.info("Connection closed")
         self.voice_overlay.hide()
         if self.text_overlay:
             self.text_overlay.hide()
@@ -480,7 +481,7 @@ class DiscordConnector:
             print("Requesting channels for guild:",
                   self.guilds.get(guild))
         else:
-            logging.info(f"Didn't find guild with id {guild}")
+            log.info(f"Didn't find guild with id {guild}")
         # cmd = {
         #    "cmd": "GET_CHANNELS",
         #    "args": {
@@ -527,7 +528,7 @@ class DiscordConnector:
             if self.channels[channel]["type"] == 2:
                 self.req_channel_details(channel)
                 count += 1
-        logging.warning("Getting %s rooms", count)
+        log.warning("Getting %s rooms", count)
 
     def sub_raw(self, event, args, nonce):
         """
@@ -593,12 +594,12 @@ class DiscordConnector:
         if not self.websocket:
             self.connect()
             if self.warn_connection:
-                logging.info(
+                log.info(
                     "Unable to connect to Discord client")
                 self.warn_connection = False
             return True
         if self.needs_guild_rerequest == 0:
-            logging.error("Re-requesting guild list")
+            log.error("Re-requesting guild list")
             self.request_text_rooms_for_guild(self.last_requested_guild)
         if self.needs_guild_rerequest >= 0:
             self.needs_guild_rerequest -= 1
@@ -674,7 +675,7 @@ class DiscordConnector:
                     None] * len(guild["channels"])
                 self.req_all_channel_details(guild_id)
             else:
-                logging.warning(
+                log.warning(
                     f"Trying to request channel details for guild without "
                     f"cached channels. This is likely because the guild id is "
                     f"not in guild ids. Please add {guild_id} to the guild "
@@ -696,5 +697,5 @@ class DiscordConnector:
             )
         except ConnectionError as error:
             if self.error_connection:
-                logging.error(error)
+                log.error(error)
                 self.error_connection = False

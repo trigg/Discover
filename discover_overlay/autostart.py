@@ -19,6 +19,7 @@ except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
     from xdg import XDG_DATA_HOME as xdg_data_home
 
+log = logging.getLogger("autostart")
 
 class Autostart:
     """A class to assist auto-start"""
@@ -33,7 +34,7 @@ class Autostart:
             xdg_data_home, 'applications/'), '/usr/share/applications/']
         self.auto = self.find_auto()
         self.desktop = self.find_desktop()
-        logging.info("Autostart info : desktop %s auto %s",
+        log.info("Autostart info : desktop %s auto %s",
                      self.desktop, self.auto)
 
     def find_auto(self):

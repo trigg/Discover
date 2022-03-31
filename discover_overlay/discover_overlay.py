@@ -40,6 +40,7 @@ try:
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
+log = logging.getLogger("discover_overlay")
 
 class Discover:
     """Main application class"""
@@ -58,7 +59,7 @@ class Discover:
 
         self.do_args(args, True)
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
-            logging.info(
+            log.info(
                 "GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
             self.show_settings_delay = True
@@ -239,7 +240,7 @@ class Discover:
             self.ind.set_menu(menu)
         except (ImportError, ValueError) as exception:
             # Create System Tray
-            logging.info("Falling back to Systray : %s", exception)
+            log.info("Falling back to Systray : %s", exception)
             self.tray = Gtk.StatusIcon.new_from_icon_name(
                 "discover-overlay-tray")
             self.tray.connect('popup-menu', self.show_menu)
@@ -341,10 +342,10 @@ def entrypoint():
         if "--rpc" in sys.argv:
             with open(rpc_file, "w") as tfile:
                 tfile.write(line)
-                logging.warning("Sent RPC command")
+                log.warning("Sent RPC command")
         else:
             logging.getLogger().setLevel(logging.INFO)
-            logging.info("Flatpak compat mode started")
+            log.info("Flatpak compat mode started")
             Discover(rpc_file, debug_file, line)
         return
 
@@ -355,8 +356,8 @@ def entrypoint():
             logging.getLogger().setLevel(logging.INFO)
             Discover(rpc_file, debug_file, line)
     except pidfile.AlreadyRunningError:
-        logging.warning("Discover overlay is currently running")
+        log.warning("Discover overlay is currently running")
 
         with open(rpc_file, "w") as tfile:
             tfile.write(line)
-            logging.warning("Sent RPC command")
+            log.warning("Sent RPC command")

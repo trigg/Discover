@@ -23,6 +23,7 @@ gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo  # nopep8
 
+log = logging.getLogger("text_overlay")
 
 class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
@@ -151,7 +152,7 @@ class TextOverlayWindow(OverlayWindow):
             ret = '\n'
         else:
             if message["type"] not in self.warned_filetypes:
-                logging.error("Unknown text type : %s", message["type"])
+                log.error("Unknown text type : %s", message["type"])
                 self.warned_filetypes.append(message['type'])
         return ret
 
@@ -217,7 +218,7 @@ class TextOverlayWindow(OverlayWindow):
                                     url, None)
                         self.attachment[url] = None  # Avoid asking repeatedly
                 else:
-                    logging.warning("Unknown file extension '%s'", extension)
+                    log.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
             message = "<span foreground='%s'>%s</span>: %s" % (self.sanitize_string(col),
                                                                self.sanitize_string(
@@ -303,7 +304,7 @@ class TextOverlayWindow(OverlayWindow):
         """
         # print(shape.data, self.image_list, self.attachment)
         if shape.data >= len(self.image_list):
-            logging.warning(f"{shape.data} >= {len(self.image_list)}")
+            log.warning(f"{shape.data} >= {len(self.image_list)}")
             return
         # key is the url to the image
         key = self.image_list[shape.data]

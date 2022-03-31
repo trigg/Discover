@@ -23,7 +23,7 @@ from gi.repository import Gtk, Gdk  # nopep8
 
 
 GUILD_DEFAULT_VALUE = "0"
-
+log = logging.getLogger("text_settings")
 
 class TextSettingsWindow(SettingsWindow):
     """Text setting tab on settings window"""
@@ -196,8 +196,8 @@ class TextSettingsWindow(SettingsWindow):
             return
         self.list_guilds = in_list
         self.list_guilds_keys = []
-        logging.warn("Guild list")
-        logging.warn(in_list)
+        log.warn("Guild list")
+        log.warn(in_list)
         for key in in_list.keys():
             self.list_guilds_keys.append(key)
         self.list_guilds_keys.sort()
@@ -234,7 +234,7 @@ class TextSettingsWindow(SettingsWindow):
             "text", "show_attach", fallback=True)
         self.autohide = config.getboolean("text", "autohide", fallback=False)
 
-        logging.info(
+        log.info(
             "Loading saved channel %s", self.channel)
 
         # Pass all of our config over to the overlay

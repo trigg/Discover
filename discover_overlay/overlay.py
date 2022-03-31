@@ -30,6 +30,7 @@ try:
 except (ImportError, ValueError):
     pass
 
+log = logging.getLogger("overlay")
 
 class OverlayWindow(Gtk.Window):
     """
@@ -71,7 +72,7 @@ class OverlayWindow(Gtk.Window):
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
         if not self.get_display().supports_input_shapes():
-            logging.info(
+            log.info(
                 "Input shapes not available. Quitting")
             sys.exit(1)
         if visual:
@@ -106,7 +107,7 @@ class OverlayWindow(Gtk.Window):
                 #                     Xatom.CARDINAL,16,
                 #                     [0xffff], X.PropModeReplace)
 
-                logging.info("Setting STEAM_EXTERNAL_OVERLAY")
+                log.info("Setting STEAM_EXTERNAL_OVERLAY")
                 display.sync()
         self.monitor = 0
         self.align_right = True
@@ -127,9 +128,9 @@ class OverlayWindow(Gtk.Window):
         """
         if self.is_wayland:
             if not GtkLayerShell.is_supported():
-                logging.info(
+                log.info(
                     "GTK Layer Shell is not supported on this wayland compositor")
-                logging.info("Currently not possible: Gnome, Plasma, Weston")
+                log.info("Currently not possible: Gnome, Plasma, Weston")
                 sys.exit(0)
             GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)

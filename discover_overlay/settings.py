@@ -29,6 +29,7 @@ try:
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
+log = logging.getLogger("settings")
 
 class SettingsWindow(Gtk.VBox):
     """
@@ -95,7 +96,7 @@ class SettingsWindow(Gtk.VBox):
             for i in range(0, display.get_n_monitors()):
                 if display.get_monitor(i).get_model() == name:
                     return i
-        logging.info(
+        log.info(
             "Could not find monitor : %s", name)
         return 0
 
@@ -108,7 +109,7 @@ class SettingsWindow(Gtk.VBox):
             for i in range(0, display.get_n_monitors()):
                 if display.get_monitor(i).get_model() == name:
                     return display.get_monitor(i)
-        logging.info(
+        log.info(
             "Could not find monitor : %s", name)
         return None
 
@@ -139,7 +140,7 @@ class SettingsWindow(Gtk.VBox):
             self.floating_w = width
             self.floating_h = height
 
-            logging.info("Positioned overlay : %s , %s  %s x %s", self.floating_x,
+            log.info("Positioned overlay : %s , %s  %s x %s", self.floating_x,
                          self.floating_y, self.floating_w, self.floating_h)
             self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()

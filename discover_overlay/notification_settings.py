@@ -12,7 +12,6 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Notification setting tab on settings window"""
 import json
-import logging
 from configparser import ConfigParser
 import gi
 from .settings import SettingsWindow

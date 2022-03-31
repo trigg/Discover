@@ -18,6 +18,8 @@ import gi
 import sys
 from .settings import SettingsWindow
 
+log = logging.getLogger("about_settings")
+
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk, GLib  # nopep8
@@ -68,7 +70,7 @@ class AboutSettingsWindow(Gtk.Grid):
         self.set_column_homogeneous(True)
 
     def close_app(self, button):
-        logging.info("Quit pressed")
+        log.info("Quit pressed")
         sys.exit(0)
 
     def present_settings(self):

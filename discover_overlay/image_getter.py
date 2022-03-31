@@ -25,6 +25,7 @@ gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf  # nopep8
 
+log = logging.getLogger("image_getter")
 
 class ImageGetter():
     """Older attempt. Not advised as it can't manage anything but PNG. Loads to GDK Pixmap"""
@@ -54,9 +55,9 @@ class ImageGetter():
 
             self.func(self.identifier, pixbuf)
         except urllib.error.URLError as exception:
-            logging.error(
+            log.error(
                 "Could not access : %s", self.url)
-            logging.error(exception)
+            log.error(exception)
 
 
 class SurfaceGetter():
@@ -83,19 +84,19 @@ class SurfaceGetter():
 
             self.func(self.identifier, surface)
         except requests.HTTPError:
-            logging.error("Unable to open %s", self.url)
+            log.error("Unable to open %s", self.url)
         except requests.TooManyRedirects:
-            logging.error("Unable to open %s - Too many redirects", self.url)
+            log.error("Unable to open %s - Too many redirects", self.url)
         except requests.Timeout:
-            logging.error("Unable to open %s - Timeout", self.url)
+            log.error("Unable to open %s - Timeout", self.url)
         except requests.ConnectionError:
-            logging.error("Unable to open %s - Connection error", self.url)
+            log.error("Unable to open %s - Connection error", self.url)
         except ValueError:
-            logging.error("Unable to read %s", self.url)
+            log.error("Unable to read %s", self.url)
         except TypeError:
-            logging.error("Unable to read %s", self.url)
+            log.error("Unable to read %s", self.url)
         except PIL.UnidentifiedImageError:
-            logging.error("Unknown image type")
+            log.error("Unknown image type")
 
     def get_file(self):
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/']
@@ -105,13 +106,13 @@ class SurfaceGetter():
             try:
                 image = Image.open(mixpath)
             except ValueError:
-                logging.error("Value Erorr - Unable to read %s", mixpath)
+                log.error("Value Erorr - Unable to read %s", mixpath)
             except TypeError:
-                logging.error("Type Error - Unable to read %s", mixpath)
+                log.error("Type Error - Unable to read %s", mixpath)
             except PIL.UnidentifiedImageError:
-                logging.error("Unknown image type: %s", mixpath)
+                log.error("Unknown image type: %s", mixpath)
             except FileNotFoundError:
-                logging.error("File not found: %s", mixpath)
+                log.error("File not found: %s", mixpath)
             surface = from_pil(image)
             if surface:
                 self.func(self.identifier, surface)
