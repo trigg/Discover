@@ -188,7 +188,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.needsredraw = True
 
     def set_guild_ids(self, guild_ids=tuple()):
-        if 'connection' in self.discover:
+        if self.discover.connection:
             for _id in guild_ids:
                 if _id not in self.guild_ids:
                     self.discover.connection.req_channels(_id)

@@ -49,6 +49,7 @@ class Discover:
         self.ind = None
         self.tray = None
         self.steamos = False
+        self.connection = None
         self.show_settings_delay = False
         self.settings = None
         self.notification_messages = []
@@ -183,9 +184,6 @@ class Discover:
                 self.voice_overlay.set_hidden(False)
             if self.text_overlay:
                 self.text_overlay.set_hidden(False)
-        if "--debug" in data or "-v" in data:
-            logging.getLogger().setLevel(0)
-            logging.basicConfig(filename=self.debug_file)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -326,6 +324,9 @@ def entrypoint():
 
     Otherwise start up the overlay!
     """
+
+
+
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
     line = ""
@@ -335,29 +336,35 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
+    if "--debug" in arg or "-v" in arg:
+        logging.getLogger().setLevel(0)
+        logging.basicConfig(filename=debug_file)
 
     # Flatpak compat mode
+    try:
+        if "container" in os.environ and os.environ["container"] == "flatpak":
+            if "--rpc" in sys.argv:
+                with open(rpc_file, "w") as tfile:
+                    tfile.write(line)
+                    log.warning("Sent RPC command")
+            else:
+                logging.getLogger().setLevel(logging.INFO)
+                log.info("Flatpak compat mode started")
+                Discover(rpc_file, debug_file, line)
+            return
 
-    if "container" in os.environ and os.environ["container"] == "flatpak":
-        if "--rpc" in sys.argv:
+        # Normal usage
+
+        try:
+            with pidfile.PIDFile(pid_file):
+                logging.getLogger().setLevel(logging.INFO)
+                Discover(rpc_file, debug_file, line)
+        except pidfile.AlreadyRunningError:
+            log.warning("Discover overlay is currently running")
+
             with open(rpc_file, "w") as tfile:
                 tfile.write(line)
                 log.warning("Sent RPC command")
-        else:
-            logging.getLogger().setLevel(logging.INFO)
-            log.info("Flatpak compat mode started")
-            Discover(rpc_file, debug_file, line)
-        return
-
-    # Normal usage
-
-    try:
-        with pidfile.PIDFile(pid_file):
-            logging.getLogger().setLevel(logging.INFO)
-            Discover(rpc_file, debug_file, line)
-    except pidfile.AlreadyRunningError:
-        log.warning("Discover overlay is currently running")
-
-        with open(rpc_file, "w") as tfile:
-            tfile.write(line)
-            log.warning("Sent RPC command")
+    except Exception as ex:
+        log.error(ex)
+        sys.exit(1)
