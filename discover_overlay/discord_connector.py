@@ -105,7 +105,7 @@ class DiscordConnector:
             self.req_auth()
         else:
             log.error("No access token in json response")\
-            log.error(jsonresponse)
+            log.error(response.text)
             sys.exit(1)
 
     def set_channel(self, channel, need_req=True):
