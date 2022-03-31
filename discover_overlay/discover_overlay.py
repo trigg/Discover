@@ -336,7 +336,7 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
-    if "--debug" in arg or "-v" in arg:
+    if "--debug" in line or "-v" in line:
         logging.getLogger().setLevel(0)
         logging.basicConfig(filename=debug_file)
 
