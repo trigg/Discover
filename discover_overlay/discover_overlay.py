@@ -14,7 +14,14 @@
 import os
 import time
 import sys
-import dbus
+try:
+    # pylint: disable=wrong-import-position,wrong-import-order
+    import dbus # nopep8
+    # pylint: disable=wrong-import-position,wrong-import-order
+    from dbus.mainloop.glib import DBusGMainLoop # nopep8
+except:
+    dbus=None
+    pass
 import logging
 import gi
 import pidfile
@@ -23,7 +30,6 @@ from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .notification_overlay import NotificationOverlayWindow
 from .discord_connector import DiscordConnector
-from dbus.mainloop.glib import DBusGMainLoop  # integration into the main loop
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -81,8 +87,13 @@ class Discover:
         monitor.connect("changed", self.rpc_changed)
 
         Gtk.main()
+    
+    def set_about_warning(self, message):
+        self.settings.about_settings.set_warning(message)
 
     def set_dbus_notifications(self, enabled=False):
+        if not dbus:
+            return
         if not self.bus:
             DBusGMainLoop(set_as_default=True)
             self.bus = dbus.SessionBus()
@@ -100,7 +111,7 @@ class Discover:
         if self.text_overlay and self.text_overlay.needsredraw:
             self.text_overlay.redraw()
 
-        if self.notification_overlay:
+        if self.notification_overlay and dbus:
             if self.notification_overlay.enabled:
                 # This doesn't really belong in overlay or settings
                 now = time.time()

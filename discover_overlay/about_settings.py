@@ -32,6 +32,7 @@ class AboutSettingsWindow(Gtk.Grid):
     def __init__(self, discover):
         Gtk.Grid.__init__(self)
         self.discover = discover
+        self.warning = None
         self.create_gui()
 
     def create_gui(self):
@@ -55,9 +56,14 @@ class AboutSettingsWindow(Gtk.Grid):
         blurb.set_line_wrap(True)
         self.attach(blurb, 1, 3, 1, 1)
 
+        self.warning = Gtk.Label.new(None)
+        self.warning.set_markup("")
+        self.warning.set_line_wrap(True)
+        self.attach(self.warning, 1, 4, 1, 1)
+
         killapp = Gtk.Button.new_with_label("Close overlay")
         killapp.connect("pressed", self.close_app)
-        self.attach(killapp, 1, 4, 1, 1)
+        self.attach(killapp, 1, 5, 1, 1)
 
         self.set_column_homogeneous(True)
 
@@ -67,3 +73,6 @@ class AboutSettingsWindow(Gtk.Grid):
 
     def present_settings(self):
         self.show_all()
+
+    def set_warning(self, message):
+        self.warning.set_markup(message)
