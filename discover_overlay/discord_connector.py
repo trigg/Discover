@@ -72,6 +72,7 @@ class DiscordConnector:
         self.needs_guild_rerequest = -1
 
         self.rate_limited_channels = []
+        self.reconnect_delay = 0
 
     def get_access_token_stage1(self):
         """
@@ -106,7 +107,7 @@ class DiscordConnector:
         else:
             log.error("No access token in json response")
             log.error(response.text)
-            sys.exit(1)
+            self.on_close()
 
     def set_channel(self, channel, need_req=True):
         """
@@ -447,6 +448,7 @@ class DiscordConnector:
         if self.text_overlay:
             self.text_overlay.hide()
         self.websocket = None
+        self.reconnect_delay=60 * 5
 
     def req_auth(self):
         """
@@ -594,12 +596,18 @@ class DiscordConnector:
             self.discover.show_settings()
         # Ensure connection
         if not self.websocket:
-            self.connect()
-            if self.warn_connection:
-                log.info(
-                    "Unable to connect to Discord client")
-                self.warn_connection = False
-            return True
+            if self.reconnect_delay<=0:
+                # No timeout left, connect to discord again
+                self.connect()
+                if self.warn_connection:
+                    log.info(
+                        "Unable to connect to Discord client")
+                    self.warn_connection = False
+                return True
+            else:
+                # Timeout requested, wait it out
+                self.reconnect_delay-=1
+                return True
         if self.needs_guild_rerequest == 0:
             log.error("Re-requesting guild list")
             self.request_text_rooms_for_guild(self.last_requested_guild)
