@@ -650,6 +650,9 @@ class DiscordConnector:
                 # Receive & send to on_message
                 msg = self.websocket.recv()
                 self.on_message(msg)
+                if not self.websocket:
+                    # Connection was closed in the meantime
+                    return True
                 recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
             except websocket.WebSocketConnectionClosedException:
                 self.on_close()
