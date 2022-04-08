@@ -31,6 +31,7 @@ import requests
 
 log = logging.getLogger(__name__)
 
+
 class DiscordConnector:
     """
     The connector for discord.
@@ -366,7 +367,6 @@ class DiscordConnector:
         elif j["cmd"] == "SUBSCRIBE":
             return
         elif j["cmd"] == "GET_CHANNEL":
-            self.request_text_rooms_awaiting -= 1
             if j["evt"] == "ERROR":
                 log.info(
                     "Could not get room")
@@ -386,26 +386,20 @@ class DiscordConnector:
                         self.set_in_room(thisuser["id"], True)
             elif j["data"]["type"] == 0:  # Text channel
                 if self.request_text_rooms_response is not None:
-                    if j['data']['position'] >= len(self.request_text_rooms_response):
-                        # Error. The list of channels has changed since we requested last
-                        self.needs_guild_rerequest = 60 * 30
-                        log.error(
-                            "IndexError getting channel information. Starting again in 30 seconds")
-                        pass
+                    count = len(self.request_text_rooms_response)
+                    if count < self.request_text_rooms_awaiting:
+                        self.request_text_rooms_response.append(j['data'])
+                        if count == self.request_text_rooms_awaiting-1:  # Last one
+                            self.text_settings.set_channels(
+                                self.request_text_rooms_response)
                     else:
-                        self.request_text_rooms_response[j['data']
-                                                         ['position']] = j['data']
+                        self.request_text_rooms_awaiting = 0
+                        self.request_text_rooms_for_guild = None
 
                 if self.current_text == j["data"]["id"]:
                     self.text = []
                     for message in j["data"]["messages"]:
                         self.add_text(message)
-            if (self.request_text_rooms_awaiting == 0 and
-                    self.request_text_rooms is not None):
-                # Update text channels
-                self.text_settings.set_channels(
-                    self.request_text_rooms_response)
-                self.request_text_rooms = None
 
             return
         log.info(j)
@@ -448,7 +442,7 @@ class DiscordConnector:
         if self.text_overlay:
             self.text_overlay.hide()
         self.websocket = None
-        self.reconnect_delay=60 * 5
+        self.reconnect_delay = 60 * 5
 
     def req_auth(self):
         """
@@ -596,7 +590,7 @@ class DiscordConnector:
             self.discover.show_settings()
         # Ensure connection
         if not self.websocket:
-            if self.reconnect_delay<=0:
+            if self.reconnect_delay <= 0:
                 # No timeout left, connect to discord again
                 self.connect()
                 if self.warn_connection:
@@ -606,7 +600,7 @@ class DiscordConnector:
                 return True
             else:
                 # Timeout requested, wait it out
-                self.reconnect_delay-=1
+                self.reconnect_delay -= 1
                 return True
         if self.needs_guild_rerequest == 0:
             log.error("Re-requesting guild list")
@@ -682,18 +676,19 @@ class DiscordConnector:
         if guild_id in self.guilds:
             guild = self.guilds[guild_id]
             if "channels" in guild:
-                self.request_text_rooms_awaiting = len(guild["channels"])
                 self.request_text_rooms = guild_id
-                self.request_text_rooms_response = [
-                    None] * len(guild["channels"])
+                self.request_text_rooms_response = []
+                self.request_text_rooms_awaiting = 0
+                for channel in guild["channels"]:
+                    if channel["type"] == 0:
+                        self.request_text_rooms_awaiting += 1
                 self.req_all_channel_details(guild_id)
             else:
                 log.warning(
                     f"Trying to request channel details for guild without "
-                    f"cached channels. This is likely because the guild id is "
-                    f"not in guild ids. Please add {guild_id} to the guild "
-                    f"ids."
+                    f"cached channels. Retrying in 1 second"
                 )
+                self.needs_guild_rerequest = 60
 
     def connect(self):
         """
