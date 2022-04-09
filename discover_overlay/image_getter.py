@@ -113,10 +113,11 @@ class SurfaceGetter():
                 log.error("Unknown image type: %s", mixpath)
             except FileNotFoundError:
                 log.error("File not found: %s", mixpath)
-            surface = from_pil(image)
-            if surface:
-                self.func(self.identifier, surface)
-                return
+            if image:
+                surface = from_pil(image)
+                if surface:
+                    self.func(self.identifier, surface)
+                    return
 
 
 def from_pil(image, alpha=1.0):
