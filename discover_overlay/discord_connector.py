@@ -394,7 +394,7 @@ class DiscordConnector:
                                 self.request_text_rooms_response)
                     else:
                         self.request_text_rooms_awaiting = 0
-                        self.request_text_rooms_for_guild = None
+                        self.request_text_rooms_response = None
 
                 if self.current_text == j["data"]["id"]:
                     self.text = []
