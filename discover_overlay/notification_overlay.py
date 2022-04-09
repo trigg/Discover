@@ -285,6 +285,7 @@ class NotificationOverlayWindow(OverlayWindow):
                 message = m_with_body % (self.sanitize_string(col),
                                          self.sanitize_string(line["title"]))
 
+            icon = None
             # If we've got an embedded image
             if "icon_surface" in line and line["icon_surface"]:
                 icon = line["icon_surface"]
@@ -308,7 +309,9 @@ class NotificationOverlayWindow(OverlayWindow):
         icon_pad = self.icon_pad
         if not self.show_icon:
             icon = None
+        if not icon:
             icon_pad = 0
+            icon_width = 0
 
         layout = self.create_pango_layout(text)
         layout.set_auto_dir(True)
