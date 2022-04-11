@@ -476,8 +476,6 @@ class DiscordConnector:
 
         if guild in self.guilds:
             self.rate_limited_channels.append(guild)
-            print("Requesting channels for guild:",
-                  self.guilds.get(guild))
         else:
             log.info(f"Didn't find guild with id {guild}")
         # cmd = {

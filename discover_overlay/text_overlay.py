@@ -25,6 +25,7 @@ from gi.repository import Pango, PangoCairo  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class TextOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
@@ -302,7 +303,6 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw an inline image as a custom emoticon
         """
-        # print(shape.data, self.image_list, self.attachment)
         if shape.data >= len(self.image_list):
             log.warning(f"{shape.data} >= {len(self.image_list)}")
             return

@@ -25,6 +25,7 @@ from gi.repository import Gtk, Gdk  # nopep8
 GUILD_DEFAULT_VALUE = "0"
 log = logging.getLogger(__name__)
 
+
 class TextSettingsWindow(SettingsWindow):
     """Text setting tab on settings window"""
 
@@ -99,6 +100,7 @@ class TextSettingsWindow(SettingsWindow):
                 self.ignore_channel_change = False
                 break
             idx += 1
+        self.channel_widget.set_sensitive(True)
 
     def add_connector(self, conn):
         """
@@ -160,7 +162,8 @@ class TextSettingsWindow(SettingsWindow):
             idxg += 1
 
         if self.guild is not None:
-            self.connector.request_text_rooms_for_guild(self.guild)
+            self.refresh_channel_list()
+        self.guild_widget.set_sensitive(True)
 
     def guild_list(self):
         """
@@ -192,6 +195,7 @@ class TextSettingsWindow(SettingsWindow):
         """
         Set the contents of list_guilds
         """
+        self.guild_widget.set_sensitive(True)
         if self.list_guilds == in_list:
             return
         self.list_guilds = in_list
@@ -395,6 +399,9 @@ class TextSettingsWindow(SettingsWindow):
         channel.add_attribute(renderer_text, "text", 0)
         channel.add_attribute(renderer_text, 'sensitive', 1)
 
+        channel_refresh = Gtk.Button.new_with_label("Refresh list")
+        channel_refresh.connect("pressed", self.refresh_channel_list)
+
         guild_label = Gtk.Label.new("Server")
         guild = Gtk.ComboBox.new()
 
@@ -403,6 +410,9 @@ class TextSettingsWindow(SettingsWindow):
         guild.pack_start(renderer_text, True)
         guild.add_attribute(renderer_text, "text", 0)
         guild.add_attribute(renderer_text, 'sensitive', 1)
+
+        guild_refresh = Gtk.Button.new_with_label("Refresh list")
+        guild_refresh.connect("pressed", self.refresh_guild_list)
 
         # Show Attachments
         show_attach_label = Gtk.Label.new("Show Attachments")
@@ -429,9 +439,11 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(text_time, 1, 3, 1, 1)
         box.attach(guild_label, 0, 4, 1, 1)
         box.attach(guild, 1, 4, 1, 1)
+        box.attach(guild_refresh, 2, 4, 1, 1)
 
         box.attach(channel_label, 0, 5, 1, 1)
         box.attach(channel, 1, 5, 1, 1)
+        box.attach(channel_refresh, 2, 5, 1, 1)
         box.attach(font_label, 0, 6, 1, 1)
         box.attach(font, 1, 6, 1, 1)
         box.attach(fg_col_label, 0, 7, 1, 1)
@@ -480,6 +492,16 @@ class TextSettingsWindow(SettingsWindow):
         guild_id = self.guild_lookup[button.get_active()]
         self.guild = guild_id
         self.save_config()
+        self.refresh_channel_list()
+
+    def refresh_channel_list(self, _button=None):
+        self.channel_widget.set_sensitive(False)
+        self.connector.request_text_rooms_for_guild(self.guild)
+
+    def refresh_guild_list(self, _button=None):
+        self.guild_widget.set_sensitive(False)
+        self.channel_widget.set_sensitive(False)
+        self.connector.req_guilds()
         self.connector.request_text_rooms_for_guild(self.guild)
 
     def change_popup_style(self, button):

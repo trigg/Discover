@@ -403,7 +403,6 @@ class NotificationOverlayWindow(OverlayWindow):
         """
         Draw an inline image as a custom emoticon
         """
-        # print(shape.data, self.image_list, self.attachment)
         if shape.data >= len(self.image_list):
             logging.warning(f"{shape.data} >= {len(self.image_list)}")
             return
