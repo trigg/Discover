@@ -378,7 +378,8 @@ class NotificationSettingsWindow(SettingsWindow):
         box.attach(icon_size, 1, 17, 1, 1)
         box.attach(padding_label, 0, 18, 1, 1)
         box.attach(padding, 1, 18, 1, 1)
-
+        box.attach(border_radius_label, 0, 19, 1, 1)
+        box.attach(border_radius, 1, 19, 1, 1)
         box.attach(testing_label, 0, 20, 1, 1)
         box.attach(testing, 1, 20, 1, 1)
 

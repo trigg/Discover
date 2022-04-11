@@ -15,6 +15,7 @@ import logging
 import time
 import re
 import cairo
+import math
 import gi
 from .image_getter import get_surface, draw_img_to_rect, get_aspected_size, make_surface_from_raw
 from .overlay import OverlayWindow
@@ -344,11 +345,57 @@ class NotificationOverlayWindow(OverlayWindow):
         self.context.save()
         # Draw Background
         self.context.translate(left, top)
-        self.context.rectangle(self.border_radius, 0,
-                               shape_width - (self.border_radius*2), shape_height)
-        self.context.rectangle(0, self.border_radius,
-                               shape_width, shape_height - (self.border_radius * 2))
-        self.context.fill()
+        # self.context.rectangle(self.border_radius, 0,
+        #                       shape_width - (self.border_radius*2), shape_height)
+        # self.context.fill()
+        # self.context.rectangle(0, self.border_radius,
+        #                       shape_width, shape_height - (self.border_radius * 2))
+
+        #self.context.arc(0.7, 0.3, 0.035, 1.25 * math.pi, 2.25 * math.pi)
+        #self.context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
+        if self.border_radius == 0:
+
+            self.context.move_to(0.0, 0.0)
+            self.context.line_to(shape_width, 0.0)
+            self.context.line_to(shape_width, shape_height)
+            self.context.line_to(0.0, shape_height)
+            self.context.close_path()
+            self.context.fill()
+        else:
+            # Edge top
+            self.context.move_to(self.border_radius, 0.0)
+            self.context.line_to(shape_width - self.border_radius, 0.0)
+
+            # Arc topright
+            self.context.arc(shape_width - self.border_radius, self.border_radius,
+                             self.border_radius, 1.5 * math.pi, 2 * math.pi)
+
+            # Edge right
+            self.context.line_to(
+                shape_width, shape_height - self.border_radius)
+
+            # Arc bottomright
+            self.context.arc(shape_width - self.border_radius, shape_height - self.border_radius,
+                             self.border_radius, 0.0, 0.5 * math.pi)
+
+            # Edge bottom
+            self.context.line_to(self.border_radius, shape_height)
+
+            # Arch bottomleft
+            self.context.arc(self.border_radius, shape_height -
+                             self.border_radius, self.border_radius, 0.5 * math.pi, math.pi)
+
+            # Edge left
+            self.context.line_to(0.0, self.border_radius)
+
+            # Arc topleft
+            self.context.arc(self.border_radius, self.border_radius,
+                             self.border_radius, math.pi, 1.5 * math.pi)
+
+            # End
+            self.context.close_path()
+            self.context.fill()
+
         self.context.set_operator(cairo.OPERATOR_OVER)
         # Draw Image
         if icon:
