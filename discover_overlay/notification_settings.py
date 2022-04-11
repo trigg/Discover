@@ -399,7 +399,7 @@ class NotificationSettingsWindow(SettingsWindow):
         Border radius changed
         """
         self.overlay.set_border_radius(button.get_value())
-        self.padding = button.get_value()
+        self.border_radius = button.get_value()
 
         self.save_config()
 
