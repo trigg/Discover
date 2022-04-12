@@ -25,6 +25,7 @@ gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Pango, PangoCairo  # nopep8
 
+log = logging.getLogger(__name__)
 
 class NotificationOverlayWindow(OverlayWindow):
     """Overlay window for notifications"""
@@ -451,7 +452,7 @@ class NotificationOverlayWindow(OverlayWindow):
         Draw an inline image as a custom emoticon
         """
         if shape.data >= len(self.image_list):
-            logging.warning(f"{shape.data} >= {len(self.image_list)}")
+            log.warning(f"{shape.data} >= {len(self.image_list)}")
             return
         # key is the url to the image
         key = self.image_list[shape.data]

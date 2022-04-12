@@ -40,8 +40,6 @@ try:
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
-log = logging.getLogger(__name__)
-
 class Discover:
     """Main application class"""
 
@@ -337,9 +335,14 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
-    if "--debug" in line or "-v" in line:
-        logging.getLogger().setLevel(0)
-        logging.basicConfig(filename=debug_file)
+    logging.getLogger().setLevel(logging.WARNING)
+    FORMAT = "%(levelname)s - %(name)s - %(message)s"
+    if "--debug" in sys.argv or "-v" in sys.argv:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.basicConfig(filename=debug_file, format=FORMAT)
+    else:
+        logging.basicConfig(format=FORMAT)
+    log = logging.getLogger(__name__)
 
     # Flatpak compat mode
     try:
@@ -349,7 +352,6 @@ def entrypoint():
                     tfile.write(line)
                     log.warning("Sent RPC command")
             else:
-                logging.getLogger().setLevel(logging.INFO)
                 log.info("Flatpak compat mode started")
                 Discover(rpc_file, debug_file, line)
             return
@@ -358,7 +360,6 @@ def entrypoint():
 
         try:
             with pidfile.PIDFile(pid_file):
-                logging.getLogger().setLevel(logging.INFO)
                 Discover(rpc_file, debug_file, line)
         except pidfile.AlreadyRunningError:
             log.warning("Discover overlay is currently running")

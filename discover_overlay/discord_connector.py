@@ -275,7 +275,8 @@ class DiscordConnector:
                 deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
                 thisuser["mute"] = mute
                 thisuser["deaf"] = deaf
-                self.update_user(thisuser)
+                if self.current_voice!="0":
+                    self.update_user(thisuser)
                 self.set_in_room(thisuser["id"], True)
             elif j["evt"] == "VOICE_STATE_CREATE":
                 self.list_altered = True
@@ -375,7 +376,7 @@ class DiscordConnector:
             if 'data' in j and j['data'] and 'id' in j['data']:
                 self.set_channel(j['data']['id'])
                 self.list_altered = True
-
+                self.in_room=[]
                 for u in j['data']['voice_states']:
                     thisuser = u["user"]
                     nick = u["nick"]

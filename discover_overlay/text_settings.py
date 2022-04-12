@@ -200,8 +200,6 @@ class TextSettingsWindow(SettingsWindow):
             return
         self.list_guilds = in_list
         self.list_guilds_keys = []
-        log.warn("Guild list")
-        log.warn(in_list)
         for key in in_list.keys():
             self.list_guilds_keys.append(key)
         self.list_guilds_keys.sort()

@@ -96,8 +96,6 @@ class SettingsWindow(Gtk.VBox):
             for i in range(0, display.get_n_monitors()):
                 if display.get_monitor(i).get_model() == name:
                     return i
-        log.info(
-            "Could not find monitor : %s", name)
         return 0
 
     def get_monitor_obj(self, name):
@@ -109,8 +107,7 @@ class SettingsWindow(Gtk.VBox):
             for i in range(0, display.get_n_monitors()):
                 if display.get_monitor(i).get_model() == name:
                     return display.get_monitor(i)
-        log.info(
-            "Could not find monitor : %s", name)
+
         return None
 
     def present_settings(self):
