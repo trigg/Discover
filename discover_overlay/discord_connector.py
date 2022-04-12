@@ -64,13 +64,6 @@ class DiscordConnector:
         self.last_connection = ""
         self.text = []
         self.authed = False
-        self.last_text_channel = None
-
-        self.request_text_rooms = None
-        self.request_text_rooms_response = None
-        self.request_text_rooms_awaiting = 0
-        self.last_requested_guild = 0
-        self.needs_guild_rerequest = -1
 
         self.rate_limited_channels = []
         self.reconnect_delay = 0
@@ -124,6 +117,8 @@ class DiscordConnector:
                     "Joined room: %s", channel_name)
             else:
                 log.info("Joining private room")
+            if self.current_voice!="0":
+                self.unsub_voice_channel(self.current_voice)
             self.sub_voice_channel(channel)
             self.current_voice = channel
             if need_req:
@@ -137,9 +132,7 @@ class DiscordConnector:
             self.current_text = "0"
             return
         if channel != self.current_text:
-            self.current_text = channel
-            log.info(
-                "Changing text room: %s", channel)
+            self.start_listening_text(channel)
             if need_req:
                 self.req_channel_details(channel)
 
@@ -293,8 +286,7 @@ class DiscordConnector:
                 nick = j["data"]["nick"]
                 thisuser["nick"] = nick
                 self.update_user(thisuser)
-                # If someone joins any voice room grab it fresh from server
-                self.req_channel_details(self.current_voice)
+                # We've joined a room... but where?
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
             elif j["evt"] == "VOICE_STATE_DELETE":
@@ -302,7 +294,6 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
-                    # self.sub_all_voice()
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 # It's only possible to get alerts for the room you're in
@@ -332,8 +323,11 @@ class DiscordConnector:
             elif j["evt"] == "MESSAGE_DELETE":
                 if self.current_text == j["data"]["channel_id"]:
                     self.delete_text(j["data"]["message"])
+            elif j["evt"] == "CHANNEL_CREATE":
+                # We haven't been told what guild this is in
+                self.req_channel_details(j["data"]["id"], 'new')
             else:
-                log.info(j)
+                log.warning(j)
             return
         elif j["cmd"] == "AUTHENTICATE":
             if j["evt"] == "ERROR":
@@ -354,6 +348,13 @@ class DiscordConnector:
                 if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
                     self.req_channels(guild["id"])
             return
+        elif j["cmd"] == "GET_GUILD":
+            # We currently only get here because of a "CHANNEL_CREATE" event. Stupidly long winded way around
+            if j["data"]:
+                guild = j["data"]
+                if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
+                    self.req_channels(guild["id"])
+            return
         elif j["cmd"] == "GET_CHANNELS":
             self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
             for channel in j["data"]["channels"]:
@@ -362,47 +363,48 @@ class DiscordConnector:
                 self.channels[channel["id"]] = channel
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
+            if j["nonce"] == self.text_settings.get_guild():
+                self.text_settings.set_channels(j["data"]["channels"])
             self.check_guilds()
             return
         elif j["cmd"] == "SUBSCRIBE":
+            # Only log errors
+            if j['evt']:
+                log.warning(j)
+            return
+        elif j["cmd"] == "UNSUBSCRIBE":
+            return
+        elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
+            if 'data' in j and j['data'] and 'id' in j['data']:
+                self.set_channel(j['data']['id'])
+                self.list_altered = True
+
+                for u in j['data']['voice_states']:
+                    thisuser = u["user"]
+                    nick = u["nick"]
+                    thisuser["nick"] = nick
+                    mute = (u["voice_state"]["mute"] or
+                        u["voice_state"]["self_mute"] or
+                        u["voice_state"]["suppress"])
+                    deaf = u["voice_state"]["deaf"] or u["voice_state"]["self_deaf"]
+                    thisuser["mute"] = mute
+                    thisuser["deaf"] = deaf
+                    self.update_user(thisuser)
+                    self.set_in_room(thisuser["id"], True)
             return
         elif j["cmd"] == "GET_CHANNEL":
             if j["evt"] == "ERROR":
                 log.info(
                     "Could not get room")
                 return
-            if j["data"]["type"] == 2:  # Voice channel
-                for voice in j["data"]["voice_states"]:
-                    if voice["user"]["id"] == self.user["id"]:
-                        self.set_channel(j["data"]["id"], False)
-                if j["data"]["id"] == self.current_voice:
-                    self.list_altered = True
-                    self.in_room = []
-                    for voice in j["data"]["voice_states"]:
-                        thisuser = voice["user"]
-                        if "nick" in j["data"]:
-                            thisuser["nick"] = j["data"]["nick"]
-                        self.update_user(thisuser)
-                        self.set_in_room(thisuser["id"], True)
-            elif j["data"]["type"] == 0:  # Text channel
-                if self.request_text_rooms_response is not None:
-                    count = len(self.request_text_rooms_response)
-                    if count < self.request_text_rooms_awaiting:
-                        self.request_text_rooms_response.append(j['data'])
-                        if count == self.request_text_rooms_awaiting-1:  # Last one
-                            self.text_settings.set_channels(
-                                self.request_text_rooms_response)
-                    else:
-                        self.request_text_rooms_awaiting = 0
-                        self.request_text_rooms_response = None
-
+            if j["data"]["type"] == 0:  # Text channel
                 if self.current_text == j["data"]["id"]:
                     self.text = []
                     for message in j["data"]["messages"]:
                         self.add_text(message)
 
-            return
-        log.info(j)
+            return            
+        log.warning(j)
 
     def check_guilds(self):
         """
@@ -424,8 +426,8 @@ class DiscordConnector:
         self.voice_overlay.set_enabled(True)
         if self.text_overlay:
             self.text_overlay.set_enabled(self.text_settings.enabled)
-            if self.last_text_channel:
-                self.sub_text_channel(self.last_text_channel)
+            if self.current_text:
+                self.start_listening_text(self.current_text)
 
     def on_error(self, error):
         """
@@ -437,7 +439,7 @@ class DiscordConnector:
         """
         Called when connection is closed
         """
-        log.info("Connection closed")
+        log.warning("Connection closed")
         self.voice_overlay.hide()
         if self.text_overlay:
             self.text_overlay.hide()
@@ -454,6 +456,17 @@ class DiscordConnector:
                 "access_token": self.access_token
             },
             "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
+
+    def req_guild(self, guild_id,nonce):
+        """
+        Request info on one guild
+        """
+        cmd = {
+            "cmd": "GET_GUILD",
+            "args": {"guild_id": guild_id},
+            "nonce": nonce
         }
         self.websocket.send(json.dumps(cmd))
 
@@ -477,20 +490,14 @@ class DiscordConnector:
         if guild in self.guilds:
             self.rate_limited_channels.append(guild)
         else:
-            log.info(f"Didn't find guild with id {guild}")
-        # cmd = {
-        #    "cmd": "GET_CHANNELS",
-        #    "args": {
-        #        "guild_id": guild
-        #    },
-        #    "nonce": guild
-        # }
-        # self.websocket.send(json.dumps(cmd))
+            log.warning(f"Didn't find guild with id {guild}")
 
     def req_channel_details(self, channel):
         """message
         Request information about a specific channel
         """
+        if not self.websocket:
+            return
         cmd = {
             "cmd": "GET_CHANNEL",
             "args": {
@@ -500,31 +507,19 @@ class DiscordConnector:
         }
         self.websocket.send(json.dumps(cmd))
 
-    def req_all_channel_details(self, guild):
-        """
-        Ask for information on all channels in a guild
-        """
-        for channel in self.guilds[guild]["channels"]:
-            self.req_channel_details(channel["id"])
-
     def find_user(self):
         """
-        ***Potential overload issue***
-
-        Asks the server for information about every single voice channel (type==2)
-        in the hope that one of them will say the user is present
-
-        because if asks about every single one without waiting for reply it is heavy even
-        if the user is relatively simple to find
-
-        It might be worth limiting the usage of this
+        Find the user
         """
-        count = 0
-        for channel in self.channels:
-            if self.channels[channel]["type"] == 2:
-                self.req_channel_details(channel)
-                count += 1
-        log.warning("Getting %s rooms", count)
+
+        cmd = {
+            "cmd": "GET_SELECTED_VOICE_CHANNEL",
+            "args": {
+
+            },
+            "nonce": "test"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def sub_raw(self, event, args, nonce):
         """
@@ -532,6 +527,18 @@ class DiscordConnector:
         """
         cmd = {
             "cmd": "SUBSCRIBE",
+            "args": args,
+            "evt": event,
+            "nonce": nonce
+        }
+        self.websocket.send(json.dumps(cmd))
+
+    def unsub_raw(self, event, args, nonce):
+        """
+        Subscribe to event helper function
+        """
+        cmd = {
+            "cmd": "UNSUBSCRIBE",
             "args": args,
             "evt": event,
             "nonce": nonce
@@ -548,12 +555,20 @@ class DiscordConnector:
         """
         self.sub_raw("VOICE_CHANNEL_SELECT", {}, "VOICE_CHANNEL_SELECT")
         self.sub_raw("VOICE_CONNECTION_STATUS", {}, "VOICE_CONNECTION_STATUS")
+        self.sub_raw("GUILD_CREATE", {}, "GUILD_CREATE")
+        self.sub_raw("CHANNEL_CREATE", {}, "CHANNEL_CREATE")
 
     def sub_channel(self, event, channel):
         """
         Subscribe to event on channel
         """
         self.sub_raw(event, {"channel_id": channel}, channel)
+
+    def unsub_channel(self, event, channel):
+        """
+        Subscribe to event on channel
+        """
+        self.unsub_raw(event, {"channel_id": channel}, channel)
 
     def sub_text_channel(self, channel):
         """
@@ -562,6 +577,14 @@ class DiscordConnector:
         self.sub_channel("MESSAGE_CREATE", channel)
         self.sub_channel("MESSAGE_UPDATE", channel)
         self.sub_channel("MESSAGE_DELETE", channel)
+
+    def unsub_text_channel(self, channel):
+        """
+        Unsubscribe to text-based events.
+        """
+        self.unsub_channel("MESSAGE_CREATE", channel)
+        self.unsub_channel("MESSAGE_UPDATE", channel)
+        self.unsub_channel("MESSAGE_DELETE", channel)
 
     def sub_voice_channel(self, channel):
         """
@@ -572,6 +595,17 @@ class DiscordConnector:
         self.sub_channel("VOICE_STATE_DELETE", channel)
         self.sub_channel("SPEAKING_START", channel)
         self.sub_channel("SPEAKING_STOP", channel)
+
+    def unsub_voice_channel(self, channel):
+        """
+        Remove subscription to voice-based events
+        """
+        self.unsub_channel("VOICE_STATE_CREATE", channel)
+        self.unsub_channel("VOICE_STATE_UPDATE", channel)
+        self.unsub_channel("VOICE_STATE_DELETE", channel)
+        self.unsub_channel("SPEAKING_START", channel)
+        self.unsub_channel("SPEAKING_STOP", channel)
+
 
     def do_read(self):
         """
@@ -592,7 +626,7 @@ class DiscordConnector:
                 # No timeout left, connect to discord again
                 self.connect()
                 if self.warn_connection:
-                    log.info(
+                    log.warning(
                         "Unable to connect to Discord client")
                     self.warn_connection = False
                 return True
@@ -600,11 +634,6 @@ class DiscordConnector:
                 # Timeout requested, wait it out
                 self.reconnect_delay -= 1
                 return True
-        if self.needs_guild_rerequest == 0:
-            log.error("Re-requesting guild list")
-            self.request_text_rooms_for_guild(self.last_requested_guild)
-        if self.needs_guild_rerequest >= 0:
-            self.needs_guild_rerequest -= 1
         # Recreate a list of users in current room
         newlist = []
         for userid in self.in_room:
@@ -658,9 +687,12 @@ class DiscordConnector:
         Helper function to avoid race conditions of reading config vs connecting to websocket
         """
         if self.websocket:
-            self.sub_text_channel(channel)
-        else:
-            self.last_text_channel = channel
+            if self.current_text != "0":
+                self.unsub_text_channel(self.current_text)
+            if channel != "0":
+                self.sub_text_channel(channel)
+                self.req_channel_details(channel)
+        self.current_text = channel
 
     def request_text_rooms_for_guild(self, guild_id):
         """
@@ -670,23 +702,8 @@ class DiscordConnector:
         """
         if(guild_id == 0):
             return
-        self.last_requested_guild = guild_id
         if guild_id in self.guilds:
-            guild = self.guilds[guild_id]
-            if "channels" in guild:
-                self.request_text_rooms = guild_id
-                self.request_text_rooms_response = []
-                self.request_text_rooms_awaiting = 0
-                for channel in guild["channels"]:
-                    if channel["type"] == 0:
-                        self.request_text_rooms_awaiting += 1
-                self.req_all_channel_details(guild_id)
-            else:
-                log.warning(
-                    f"Trying to request channel details for guild without "
-                    f"cached channels. Retrying in 1 second"
-                )
-                self.needs_guild_rerequest = 60
+            self.req_guild(guild_id, "refresh")
 
     def connect(self):
         """

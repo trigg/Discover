@@ -110,7 +110,7 @@ class TextSettingsWindow(SettingsWindow):
         """
         self.connector = conn
         if self.channel:
-            self.connector.start_listening_text(self.channel)
+            self.connector.set_text_channel(self.channel)
 
     def present_settings(self):
         """
@@ -479,7 +479,7 @@ class TextSettingsWindow(SettingsWindow):
             return
 
         channel = self.channel_lookup[button.get_active()]
-        self.connector.start_listening_text(channel)
+        self.connector.set_text_channel(channel)
         self.channel = channel
         self.save_config()
 
@@ -535,6 +535,19 @@ class TextSettingsWindow(SettingsWindow):
         Return selected channel
         """
         return self.channel
+
+    def set_channel(self, channel="0"):
+        """
+        Change the stored channel
+        """
+        self.channel = channel
+        self.save_config()
+
+    def get_guild(self):
+        """
+        Return selected guild
+        """
+        return self.guild
 
     def change_bg(self, button):
         """
