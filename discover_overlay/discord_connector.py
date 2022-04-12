@@ -117,7 +117,7 @@ class DiscordConnector:
                     "Joined room: %s", channel_name)
             else:
                 log.info("Joining private room")
-            if self.current_voice!="0":
+            if self.current_voice != "0":
                 self.unsub_voice_channel(self.current_voice)
             self.sub_voice_channel(channel)
             self.current_voice = channel
@@ -384,8 +384,8 @@ class DiscordConnector:
                     nick = u["nick"]
                     thisuser["nick"] = nick
                     mute = (u["voice_state"]["mute"] or
-                        u["voice_state"]["self_mute"] or
-                        u["voice_state"]["suppress"])
+                            u["voice_state"]["self_mute"] or
+                            u["voice_state"]["suppress"])
                     deaf = u["voice_state"]["deaf"] or u["voice_state"]["self_deaf"]
                     thisuser["mute"] = mute
                     thisuser["deaf"] = deaf
@@ -397,13 +397,15 @@ class DiscordConnector:
                 log.info(
                     "Could not get room")
                 return
+            if j["nonce"] == "new":
+                self.req_channels(j["data"]["guild_id"])
             if j["data"]["type"] == 0:  # Text channel
                 if self.current_text == j["data"]["id"]:
                     self.text = []
                     for message in j["data"]["messages"]:
                         self.add_text(message)
 
-            return            
+            return
         log.warning(j)
 
     def check_guilds(self):
@@ -459,7 +461,7 @@ class DiscordConnector:
         }
         self.websocket.send(json.dumps(cmd))
 
-    def req_guild(self, guild_id,nonce):
+    def req_guild(self, guild_id, nonce):
         """
         Request info on one guild
         """
@@ -492,18 +494,20 @@ class DiscordConnector:
         else:
             log.warning(f"Didn't find guild with id {guild}")
 
-    def req_channel_details(self, channel):
+    def req_channel_details(self, channel, nonce=None):
         """message
         Request information about a specific channel
         """
         if not self.websocket:
             return
+        if not nonce:
+            nonce = channel
         cmd = {
             "cmd": "GET_CHANNEL",
             "args": {
                 "channel_id": channel
             },
-            "nonce": channel
+            "nonce": nonce
         }
         self.websocket.send(json.dumps(cmd))
 
@@ -605,7 +609,6 @@ class DiscordConnector:
         self.unsub_channel("VOICE_STATE_DELETE", channel)
         self.unsub_channel("SPEAKING_START", channel)
         self.unsub_channel("SPEAKING_STOP", channel)
-
 
     def do_read(self):
         """
