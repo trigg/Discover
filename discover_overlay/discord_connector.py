@@ -108,15 +108,11 @@ class DiscordConnector:
         Set currently active voice channel
         """
         if not channel:
+            if self.current_voice:
+                self.unsub_voice_channel(self.current_voice)
             self.current_voice = "0"
             return
         if channel != self.current_voice:
-            if channel in self.channels:
-                channel_name = self.channels[channel]['name']
-                log.info(
-                    "Joined room: %s", channel_name)
-            else:
-                log.info("Joining private room")
             if self.current_voice != "0":
                 self.unsub_voice_channel(self.current_voice)
             self.sub_voice_channel(channel)
@@ -280,6 +276,7 @@ class DiscordConnector:
                 thisuser["mute"] = mute
                 thisuser["deaf"] = deaf
                 self.update_user(thisuser)
+                self.set_in_room(thisuser["id"], True)
             elif j["evt"] == "VOICE_STATE_CREATE":
                 self.list_altered = True
                 thisuser = j["data"]["user"]
