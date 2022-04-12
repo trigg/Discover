@@ -406,6 +406,8 @@ class DiscordConnector:
                         self.add_text(message)
 
             return
+        elif j["cmd"] == "SELECT_VOICE_CHANNEL":
+            return
         log.warning(j)
 
     def check_guilds(self):
@@ -609,6 +611,33 @@ class DiscordConnector:
         self.unsub_channel("VOICE_STATE_DELETE", channel)
         self.unsub_channel("SPEAKING_START", channel)
         self.unsub_channel("SPEAKING_STOP", channel)
+
+    def change_voice_room(self, id):
+        """
+        Switch to another voice room
+        """
+        cmd = {
+            "cmd": "SELECT_VOICE_CHANNEL",
+            "args": {
+                "channel_id": id,
+                "force": True
+            },
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
+
+    def change_text_room(self, id):
+        """
+        Switch to another text room
+        """
+        cmd = {
+            "cmd": "SELECT_TEXT_CHANNEL",
+            "args": {
+                "channel_id": id
+            },
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def do_read(self):
         """
