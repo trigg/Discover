@@ -14,13 +14,14 @@
 import os
 import time
 import sys
+import re
 try:
     # pylint: disable=wrong-import-position,wrong-import-order
-    import dbus # nopep8
+    import dbus  # nopep8
     # pylint: disable=wrong-import-position,wrong-import-order
-    from dbus.mainloop.glib import DBusGMainLoop # nopep8
+    from dbus.mainloop.glib import DBusGMainLoop  # nopep8
 except:
-    dbus=None
+    dbus = None
     pass
 import logging
 import gi
@@ -39,6 +40,9 @@ try:
     from xdg.BaseDirectory import xdg_config_home
 except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
+
+log = logging.getLogger(__name__)
+
 
 class Discover:
     """Main application class"""
@@ -87,7 +91,7 @@ class Discover:
         monitor.connect("changed", self.rpc_changed)
 
         Gtk.main()
-    
+
     def set_about_warning(self, message):
         self.settings.about_settings.set_warning(message)
 
@@ -142,7 +146,8 @@ class Discover:
                 elif 'image_data' in dictionary:
                     noti['icon_raw'] = dictionary['image_data']
             self.notification_messages.append(noti)
-            self.notification_overlay.set_content(self.notification_messages, True)
+            self.notification_overlay.set_content(
+                self.notification_messages, True)
 
     def do_args(self, data, normal_close):
         """
@@ -160,6 +165,11 @@ class Discover:
             print("      --hide             Hide overlay")
             print("      --show             Show overlay")
             print("      --rpc              Send command, not start new instance. Only needed if running in flatpak")
+            print("      --mute             Set own user to mute")
+            print("      --unmute           Set unmuted")
+            print("      --deaf             Set own user to deafened")
+            print("      --undeaf           Unset user deafened state")
+            print("      --moveto=XX        Move the user into voice room, by Room ID")
             print("")
             print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
             if normal_close:
@@ -183,6 +193,22 @@ class Discover:
                 self.voice_overlay.set_hidden(False)
             if self.text_overlay:
                 self.text_overlay.set_hidden(False)
+        if "--mute" in data:
+            if self.connection:
+                self.connection.set_mute(True)
+        if "--unmute" in data:
+            if self.connection:
+                self.connection.set_mute(False)
+        if "--deaf" in data:
+            if self.connection:
+                self.connection.set_deaf(True)
+        if "--undeaf" in data:
+            if self.connection:
+                self.connection.set_deaf(False)
+        pattern = re.compile("--moveto=([0-9]+)")
+        if any((match := pattern.match(x)) for x in data):
+            if self.connection:
+                self.connection.change_voice_room(match.group(1))
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -191,7 +217,7 @@ class Discover:
         with open(self.rpc_file, "r") as tfile:
             data = tfile.readlines()
             if len(data) >= 1:
-                self.do_args(data[0], False)
+                self.do_args(data[0].split(" "), False)
 
     def create_gui(self):
         """
@@ -324,8 +350,6 @@ def entrypoint():
     Otherwise start up the overlay!
     """
 
-
-
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
     line = ""
@@ -353,14 +377,14 @@ def entrypoint():
                     log.warning("Sent RPC command")
             else:
                 log.info("Flatpak compat mode started")
-                Discover(rpc_file, debug_file, line)
+                Discover(rpc_file, debug_file, sys.argv[1:])
             return
 
         # Normal usage
 
         try:
             with pidfile.PIDFile(pid_file):
-                Discover(rpc_file, debug_file, line)
+                Discover(rpc_file, debug_file, sys.argv[1:])
         except pidfile.AlreadyRunningError:
             log.warning("Discover overlay is currently running")
 

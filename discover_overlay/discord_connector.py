@@ -275,7 +275,7 @@ class DiscordConnector:
                 deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
                 thisuser["mute"] = mute
                 thisuser["deaf"] = deaf
-                if self.current_voice!="0":
+                if self.current_voice != "0":
                     self.update_user(thisuser)
                 self.set_in_room(thisuser["id"], True)
             elif j["evt"] == "VOICE_STATE_CREATE":
@@ -376,7 +376,7 @@ class DiscordConnector:
             if 'data' in j and j['data'] and 'id' in j['data']:
                 self.set_channel(j['data']['id'])
                 self.list_altered = True
-                self.in_room=[]
+                self.in_room = []
                 for u in j['data']['voice_states']:
                     thisuser = u["user"]
                     nick = u["nick"]
@@ -405,6 +405,10 @@ class DiscordConnector:
 
             return
         elif j["cmd"] == "SELECT_VOICE_CHANNEL":
+            return
+        elif j["cmd"] == "SET_VOICE_SETTINGS":
+            return
+        elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
         log.warning(j)
 
@@ -609,6 +613,33 @@ class DiscordConnector:
         self.unsub_channel("VOICE_STATE_DELETE", channel)
         self.unsub_channel("SPEAKING_START", channel)
         self.unsub_channel("SPEAKING_STOP", channel)
+
+    def get_voice_settings(self):
+        """
+        Request a recent version of voice settings
+        """
+        cmd = {
+            "cmd": "GET_VOICE_SETTINGS",
+            "args": {},
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
+
+    def set_mute(self, muted):
+        cmd = {
+            "cmd": "SET_VOICE_SETTINGS",
+            "args": {"mute": muted},
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
+
+    def set_deaf(self, deaf):
+        cmd = {
+            "cmd": "SET_VOICE_SETTINGS",
+            "args": {"deaf": deaf},
+            "nonce": "deadbeef"
+        }
+        self.websocket.send(json.dumps(cmd))
 
     def change_voice_room(self, id):
         """
