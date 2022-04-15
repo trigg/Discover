@@ -74,8 +74,8 @@ class SettingsWindow(Gtk.VBox):
         Hide for later
         """
         if self.placement_window:
-            (pos_x, pos_y) = self.placement_window.get_position()
-            (width, height) = self.placement_window.get_size()
+            (pos_x, pos_y, width, height) = self.placement_window.get_coords()
+
             self.floating_x = pos_x
             self.floating_y = pos_y
             self.floating_w = width

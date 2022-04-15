@@ -13,10 +13,12 @@
 """An X11 window which can be moved and resized"""
 import gi
 import cairo
+import logging
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk  # nopep8
 
+log = logging.getLogger(__name__)
 
 class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
@@ -54,13 +56,12 @@ class DraggableWindow(Gtk.Window):
         self.drag_y = 0
         self.force_location()
         self.show_all()
-
+    
     def force_location(self):
         """
         Move the window to previously given co-ords.
         Also double check sanity on layer & decorations
         """
-
         self.set_decorated(False)
         self.set_keep_above(True)
         self.move(self.pos_x, self.pos_y)
@@ -137,6 +138,9 @@ class DraggableWindow(Gtk.Window):
 
     def get_coords(self):
         """Return window position and size"""
+        scale = self.get_scale_factor()
         (pos_x, pos_y) = self.get_position()
         (width, height) = self.get_size()
+        pos_x = pos_x / scale
+        pos_y = pos_y / scale
         return (pos_x, pos_y, width, height)
