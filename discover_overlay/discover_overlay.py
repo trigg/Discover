@@ -377,6 +377,8 @@ def entrypoint():
                     log.warning("Sent RPC command")
             else:
                 log.info("Flatpak compat mode started")
+                with open(rpc_file, "w") as tfile:
+                    tfile.write("--close")
                 Discover(rpc_file, debug_file, sys.argv[1:])
             return
 
