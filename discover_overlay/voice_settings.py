@@ -52,6 +52,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.tk_col = None
         self.mt_col = None
         self.hi_col = None
+        self.bo_col = None
         self.t_hi_col = None
         self.avatar_size = None
         self.icon_spacing = None
@@ -111,6 +112,8 @@ class VoiceSettingsWindow(SettingsWindow):
             "main", "mt_col", fallback="[0.6,0.0,0.0,1.0]"))
         self.hi_col = json.loads(config.get(
             "main", "hi_col", fallback="[0.0,0.0,0.0,0.5]"))
+        self.bo_col = json.loads(config.get(
+            "main", "bo_col", fallback="[0.0,0.0,0.0,0.0]"))
         self.avatar_size = config.getint("main", "avatar_size", fallback=48)
         self.icon_spacing = config.getint("main", "icon_spacing", fallback=8)
         self.text_padding = config.getint("main", "text_padding", fallback=6)
@@ -150,6 +153,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_tk(self.tk_col)
         self.overlay.set_mt(self.mt_col)
         self.overlay.set_hi(self.hi_col)
+        self.overlay.set_bo(self.bo_col)
         self.overlay.set_fg_hi(self.t_hi_col)
         self.overlay.set_avatar_size(self.avatar_size)
         self.overlay.set_icon_spacing(self.icon_spacing)
@@ -191,6 +195,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "mt_col", json.dumps(self.mt_col))
         config.set("main", "hi_col", json.dumps(self.hi_col))
         config.set("main", "fg_hi_col", json.dumps(self.t_hi_col))
+        config.set("main", "bo_col", json.dumps(self.bo_col))
 
         config.set("main", "avatar_size", "%d" % (self.avatar_size))
         config.set("main", "icon_spacing", "%d" % (self.icon_spacing))
@@ -281,18 +286,28 @@ class VoiceSettingsWindow(SettingsWindow):
                 self.t_hi_col[1],
                 self.t_hi_col[2],
                 self.t_hi_col[3]))
+        bo_col = Gtk.ColorButton.new_with_rgba(
+            Gdk.RGBA(
+                self.bo_col[0],
+                self.bo_col[1],
+                self.bo_col[2],
+                self.bo_col[3]
+            )
+        )
         bg_col.set_use_alpha(True)
         fg_col.set_use_alpha(True)
         tk_col.set_use_alpha(True)
         mt_col.set_use_alpha(True)
         hi_col.set_use_alpha(True)
         t_hi_col.set_use_alpha(True)
+        bo_col.set_use_alpha(True)
         bg_col.connect("color-set", self.change_bg)
         fg_col.connect("color-set", self.change_fg)
         tk_col.connect("color-set", self.change_tk)
         mt_col.connect("color-set", self.change_mt)
         hi_col.connect("color-set", self.change_hi)
         t_hi_col.connect("color-set", self.change_t_hi)
+        bo_col.connect("color-set", self.change_bo)
 
         text_label = Gtk.Label.new("Text")
         background_label = Gtk.Label.new("Label")
@@ -313,6 +328,8 @@ class VoiceSettingsWindow(SettingsWindow):
         colour_box.attach(fg_col, 1, 2, 1, 1)
         colour_box.attach(t_hi_col, 1, 1, 1, 1)
         colour_box.attach(tk_col, 3, 1, 1, 1)
+        colour_box.attach(bo_col, 3, 2, 1, 1)
+
         colour_box.attach(mt_col, 1, 4, 1, 1)
 
         # Monitor & Alignment
@@ -637,6 +654,17 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_fg_hi(colour)
 
         self.t_hi_col = colour
+        self.save_config()
+
+    def change_bo(self, button):
+        """
+        Idle border colour changed
+        """
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.overlay.set_bo(colour)
+
+        self.bo_col = colour
         self.save_config()
 
     def change_avatar_size(self, button):

@@ -15,6 +15,7 @@ import os
 import time
 import sys
 import re
+import traceback
 try:
     # pylint: disable=wrong-import-position,wrong-import-order
     import dbus  # nopep8
@@ -395,4 +396,5 @@ def entrypoint():
                 log.warning("Sent RPC command")
     except Exception as ex:
         log.error(ex)
+        log.error(traceback.format_exc())
         sys.exit(1)

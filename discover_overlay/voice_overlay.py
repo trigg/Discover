@@ -55,6 +55,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
         self.hili_col = [0.0, 0.0, 0.0, 0.9]
+        self.border_col = [0.0, 0.0, 0.0, 0.0]
         self.userlist = []
         self.users_to_draw = []
         self.connected = False
@@ -107,6 +108,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the colour of background for speaking users
         """
         self.text_hili_col = highlight_colour
+        self.needsredraw = True
+
+    def set_bo(self, border_colour):
+        """
+        Set the colour for idle border
+        """
+        self.border_col = border_colour
         self.needsredraw = True
 
     def set_avatar_size(self, size):
@@ -378,7 +386,7 @@ class VoiceOverlayWindow(OverlayWindow):
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
 
-        colour = None
+        colour = self.border_col
         mute = False
         deaf = False
         bg_col = None
