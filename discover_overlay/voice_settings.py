@@ -11,13 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Voice setting tab on settings window"""
+import gettext
 import json
+import pkg_resources
 from configparser import ConfigParser
 import gi
 from .settings import SettingsWindow
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk  # nopep8
+
+t = gettext.translation(
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+_ = t.gettext
 
 
 def parse_guild_ids(guild_ids_str):
@@ -257,7 +263,7 @@ class VoiceSettingsWindow(SettingsWindow):
         #autohide.connect("toggled", self.change_hide_on_mouseover)
 
         # Font chooser
-        font_label = Gtk.Label.new("Font")
+        font_label = Gtk.Label.new(_("Font"))
         font = Gtk.FontButton()
         if self.font:
             font.set_font(self.font)
@@ -309,12 +315,12 @@ class VoiceSettingsWindow(SettingsWindow):
         t_hi_col.connect("color-set", self.change_t_hi)
         bo_col.connect("color-set", self.change_bo)
 
-        text_label = Gtk.Label.new("Text")
-        background_label = Gtk.Label.new("Label")
-        talking_label = Gtk.Label.new("Talking")
-        idle_label = Gtk.Label.new("Idle")
-        border_label = Gtk.Label.new("Border")
-        mute_label = Gtk.Label.new("Mute")
+        text_label = Gtk.Label.new(_("Text"))
+        background_label = Gtk.Label.new(_("Label"))
+        talking_label = Gtk.Label.new(_("Talking"))
+        idle_label = Gtk.Label.new(_("Idle"))
+        border_label = Gtk.Label.new(_("Border"))
+        mute_label = Gtk.Label.new(_("Mute"))
 
         colour_box.attach(text_label, 1, 0, 1, 1)
         colour_box.attach(background_label, 2, 0, 1, 1)
@@ -333,13 +339,13 @@ class VoiceSettingsWindow(SettingsWindow):
         colour_box.attach(mt_col, 1, 4, 1, 1)
 
         # Monitor & Alignment
-        align_label = Gtk.Label.new("Overlay Location")
+        align_label = Gtk.Label.new(_("Overlay Location"))
 
         align_type_box = Gtk.HBox()
         align_type_edge = Gtk.RadioButton.new_with_label(
-            None, "Anchor to edge")
+            None, _("Anchor to edge"))
         align_type_floating = Gtk.RadioButton.new_with_label_from_widget(
-            align_type_edge, "Floating")
+            align_type_edge, _("Floating"))
         if self.floating:
             align_type_floating.set_active(True)
         align_type_box.add(align_type_edge)
@@ -358,8 +364,8 @@ class VoiceSettingsWindow(SettingsWindow):
         monitor.add_attribute(renderer_text, "text", 0)
 
         self.align_x_store = Gtk.ListStore(str)
-        self.align_x_store.append(["Left"])
-        self.align_x_store.append(["Right"])
+        self.align_x_store.append([_("Left")])
+        self.align_x_store.append([_("Right")])
         align_x = Gtk.ComboBox.new_with_model(self.align_x_store)
         align_x.set_active(True if self.align_x else False)
         align_x.connect("changed", self.change_align_x)
@@ -368,9 +374,9 @@ class VoiceSettingsWindow(SettingsWindow):
         align_x.add_attribute(renderer_text, "text", 0)
 
         self.align_y_store = Gtk.ListStore(str)
-        self.align_y_store.append(["Top"])
-        self.align_y_store.append(["Middle"])
-        self.align_y_store.append(["Bottom"])
+        self.align_y_store.append([_("Top")])
+        self.align_y_store.append([_("Middle")])
+        self.align_y_store.append([_("Bottom")])
         align_y = Gtk.ComboBox.new_with_model(self.align_y_store)
         align_y.set_active(self.align_y)
         align_y.connect("changed", self.change_align_y)
@@ -378,7 +384,7 @@ class VoiceSettingsWindow(SettingsWindow):
         align_y.pack_start(renderer_text, True)
         align_y.add_attribute(renderer_text, "text", 0)
 
-        align_placement_button = Gtk.Button.new_with_label("Place Window")
+        align_placement_button = Gtk.Button.new_with_label(_("Place Window"))
 
         align_type_edge.connect("toggled", self.change_align_type_edge)
         align_type_floating.connect("toggled", self.change_align_type_floating)
@@ -397,7 +403,7 @@ class VoiceSettingsWindow(SettingsWindow):
         monitor_box.attach(align_placement_button, 1, 5, 1, 1)
 
         # Avatar size
-        avatar_size_label = Gtk.Label.new("Avatar size")
+        avatar_size_label = Gtk.Label.new(_("Avatar size"))
         avatar_size_label.set_xalign(0)
         avatar_adjustment = Gtk.Adjustment.new(
             self.avatar_size, 8, 128, 1, 1, 8)
@@ -408,7 +414,7 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(avatar_size, 1, 0, 1, 1)
 
         # Avatar shape
-        square_avatar_label = Gtk.Label.new("Square Avatar")
+        square_avatar_label = Gtk.Label.new(_("Square Avatar"))
         square_avatar_label.set_xalign(0)
         square_avatar = Gtk.CheckButton.new()
         square_avatar.set_active(self.square_avatar)
@@ -418,7 +424,7 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(square_avatar, 1, 2, 1, 1)
 
         # Display icon only
-        icon_only_label = Gtk.Label.new("Display Icon Only")
+        icon_only_label = Gtk.Label.new(_("Display Icon Only"))
         icon_only_label.set_xalign(0)
         icon_only = Gtk.CheckButton.new()
         icon_only.set_active(self.icon_only)
@@ -428,7 +434,7 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(icon_only, 1, 1, 1, 1)
 
         # Display Speaker only
-        only_speaking_label = Gtk.Label.new("Display Speakers Only")
+        only_speaking_label = Gtk.Label.new(_("Display Speakers Only"))
         only_speaking_label.set_xalign(0)
         only_speaking = Gtk.CheckButton.new()
         only_speaking.set_active(self.only_speaking)
@@ -438,7 +444,7 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(only_speaking, 1, 3, 1, 1)
 
         # Highlight self
-        highlight_self_label = Gtk.Label.new("Highlight Self")
+        highlight_self_label = Gtk.Label.new(_("Highlight Self"))
         highlight_self_label.set_xalign(0)
         highlight_self = Gtk.CheckButton.new()
         highlight_self.set_active(self.highlight_self)
@@ -448,12 +454,12 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(highlight_self, 1, 4, 1, 1)
 
         # Order avatars
-        order_label = Gtk.Label.new("Order Avatars By")
+        order_label = Gtk.Label.new(_("Order Avatars By"))
         order_label.set_xalign(0)
         order_store = Gtk.ListStore(str)
-        order_store.append(["Alphabetically"])
-        order_store.append(["ID"])
-        order_store.append(["Last Spoken"])
+        order_store.append([_("Alphabetically")])
+        order_store.append([_("ID")])
+        order_store.append([_("Last Spoken")])
         order = Gtk.ComboBox.new_with_model(order_store)
         order.set_active(self.order)
         order.connect("changed", self.change_order)
@@ -465,7 +471,7 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(order, 1, 5, 1, 1)
 
         # Icon spacing
-        icon_spacing_label = Gtk.Label.new("Icon Spacing")
+        icon_spacing_label = Gtk.Label.new(_("Icon Spacing"))
         icon_spacing_label.set_xalign(0)
         icon_spacing_adjustment = Gtk.Adjustment.new(
             self.icon_spacing, 0, 64, 1, 1, 0)
@@ -476,7 +482,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(icon_spacing, 1, 1, 1, 1)
 
         # Text padding
-        text_padding_label = Gtk.Label.new("Text Padding")
+        text_padding_label = Gtk.Label.new(_("Text Padding"))
         text_padding_label.set_xalign(0)
         text_padding_adjustment = Gtk.Adjustment.new(
             self.text_padding, 0, 64, 1, 1, 0)
@@ -487,7 +493,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(text_padding, 1, 2, 1, 1)
 
         # Text Baseline Adjustment
-        text_baseline_label = Gtk.Label.new("Text Vertical Offset")
+        text_baseline_label = Gtk.Label.new(_("Text Vertical Offset"))
         text_baseline_label.set_xalign(0)
         text_baseline_adjustment = Gtk.Adjustment.new(
             self.text_baseline_adj, -32, 32, 1, 1, 0)
@@ -498,7 +504,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(text_baseline, 1, 3, 1, 1)
 
         # Edge padding
-        vert_edge_padding_label = Gtk.Label.new("Vertical Edge Padding")
+        vert_edge_padding_label = Gtk.Label.new(_("Vertical Edge Padding"))
         vert_edge_padding_label.set_xalign(0)
         vert_edge_padding_adjustment = Gtk.Adjustment.new(
             self.vert_edge_padding, 0, 1000, 1, 1, 0)
@@ -510,7 +516,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(vert_edge_padding_label, 0, 4, 1, 1)
         alignment_box.attach(vert_edge_padding, 1, 4, 1, 1)
 
-        horz_edge_padding_label = Gtk.Label.new("Horizontal Edge Padding")
+        horz_edge_padding_label = Gtk.Label.new(_("Horizontal Edge Padding"))
         horz_edge_padding_adjustment = Gtk.Adjustment.new(
             self.horz_edge_padding, 0, 1000, 1, 1, 0)
         horz_edge_padding = Gtk.SpinButton.new(
@@ -522,7 +528,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(horz_edge_padding, 1, 5, 1, 1)
 
         # Display icon horizontally
-        horizontal_label = Gtk.Label.new("Display Horizontally")
+        horizontal_label = Gtk.Label.new(_("Display Horizontally"))
         horizontal_label.set_xalign(0)
         horizontal = Gtk.CheckButton.new()
         horizontal.set_active(self.horizontal)
@@ -532,7 +538,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(horizontal, 1, 6, 1, 1)
 
         # Guild ids to load:
-        guild_ids_label = Gtk.Label.new("Search Servers for User")
+        guild_ids_label = Gtk.Label.new(_("Search Servers for User"))
         guild_ids_box = Gtk.VBox(homogeneous=False)
         self.guild_ids_list = Gtk.ListStore(bool, str, str, str)
         self.guild_ids_filter = self.guild_ids_list.filter_new()
@@ -543,7 +549,7 @@ class VoiceSettingsWindow(SettingsWindow):
         guild_ids_scroll_window.set_size_request(300, 150)
         guild_ids_tree = Gtk.TreeView(model=self.guild_ids_filter)
 
-        guild_column = Gtk.TreeViewColumn("Guilds")
+        guild_column = Gtk.TreeViewColumn(_("Guilds"))
 
         toggle = Gtk.CellRendererToggle()
         title = Gtk.CellRendererText()
@@ -565,7 +571,7 @@ class VoiceSettingsWindow(SettingsWindow):
             "row-activated", self.on_guild_selection_changed)
 
         guild_filter = Gtk.Entry()
-        guild_filter.set_placeholder_text("Filter...")
+        guild_filter.set_placeholder_text(_("Filter..."))
         guild_filter.connect("changed", self.guild_filter_changed)
 
         guild_ids_box.pack_start(guild_ids_label, False, False, 0)
@@ -846,22 +852,22 @@ class VoiceSettingsWindow(SettingsWindow):
         i = self.align_x_store.get_iter_first()
         i2 = self.align_y_store.get_iter_first()
         if self.horizontal:
-            self.align_x_store.set_value(i, 0, "Top")
+            self.align_x_store.set_value(i, 0, _("Top"))
             i = self.align_x_store.iter_next(i)
-            self.align_x_store.set_value(i, 0, "Bottom")
+            self.align_x_store.set_value(i, 0, _("Bottom"))
 
-            self.align_y_store.set_value(i2, 0, "Left")
+            self.align_y_store.set_value(i2, 0, _("Left"))
             i2 = self.align_y_store.iter_next(i2)
-            self.align_y_store.set_value(i2, 0, "Middle")
+            self.align_y_store.set_value(i2, 0, _("Middle"))
             i2 = self.align_y_store.iter_next(i2)
-            self.align_y_store.set_value(i2, 0, "Right")
+            self.align_y_store.set_value(i2, 0, _("Right"))
         else:
-            self.align_x_store.set_value(i, 0, "Left")
+            self.align_x_store.set_value(i, 0, _("Left"))
             i = self.align_x_store.iter_next(i)
-            self.align_x_store.set_value(i, 0, "Right")
+            self.align_x_store.set_value(i, 0, _("Right"))
 
-            self.align_y_store.set_value(i2, 0, "Top")
+            self.align_y_store.set_value(i2, 0, _("Top"))
             i2 = self.align_y_store.iter_next(i2)
-            self.align_y_store.set_value(i2, 0, "Middle")
+            self.align_y_store.set_value(i2, 0, _("Middle"))
             i2 = self.align_y_store.iter_next(i2)
-            self.align_y_store.set_value(i2, 0, "Bottom")
+            self.align_y_store.set_value(i2, 0, _("Bottom"))

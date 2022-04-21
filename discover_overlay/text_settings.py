@@ -11,8 +11,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Text setting tab on settings window"""
+import gettext
 import json
 import logging
+import pkg_resources
 from configparser import ConfigParser
 import gi
 from .settings import SettingsWindow
@@ -24,6 +26,9 @@ from gi.repository import Gtk, Gdk  # nopep8
 
 GUILD_DEFAULT_VALUE = "0"
 log = logging.getLogger(__name__)
+t = gettext.translation(
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+_ = t.gettext
 
 
 class TextSettingsWindow(SettingsWindow):
@@ -293,42 +298,42 @@ class TextSettingsWindow(SettingsWindow):
         box = Gtk.Grid()
 
         # Enabled
-        enabled_label = Gtk.Label.new("Enable")
+        enabled_label = Gtk.Label.new(_("Enable"))
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
 
         # Autohide
-        autohide_label = Gtk.Label.new("Hide on mouseover")
+        autohide_label = Gtk.Label.new(_("Hide on mouseover"))
         autohide = Gtk.CheckButton.new()
         autohide.set_active(self.autohide)
         autohide.connect("toggled", self.change_hide_on_mouseover)
 
         # Popup Style
-        popup_style_label = Gtk.Label.new("Popup Style")
+        popup_style_label = Gtk.Label.new(_("Popup Style"))
         popup_style = Gtk.CheckButton.new()
         popup_style.set_active(self.popup_style)
         popup_style.connect("toggled", self.change_popup_style)
 
         # Popup timer
-        text_time_label = Gtk.Label.new("Popup timer")
+        text_time_label = Gtk.Label.new(_("Popup timer"))
         text_time_adjustment = Gtk.Adjustment.new(
             self.text_time, 8, 9000, 1, 1, 8)
         text_time = Gtk.SpinButton.new(text_time_adjustment, 0, 0)
         text_time.connect("value-changed", self.change_text_time)
 
         # Font chooser
-        font_label = Gtk.Label.new("Font")
+        font_label = Gtk.Label.new(_("Font"))
         font = Gtk.FontButton()
         if self.font:
             font.set_font(self.font)
         font.connect("font-set", self.change_font)
 
         # Colours
-        bg_col_label = Gtk.Label.new("Background colour")
+        bg_col_label = Gtk.Label.new(_("Background colour"))
         bg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3]))
-        fg_col_label = Gtk.Label.new("Text colour")
+        fg_col_label = Gtk.Label.new(_("Text colour"))
         fg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.fg_col[0], self.fg_col[1], self.fg_col[2], self.fg_col[3]))
         bg_col.set_use_alpha(True)
@@ -337,13 +342,13 @@ class TextSettingsWindow(SettingsWindow):
         fg_col.connect("color-set", self.change_fg)
 
         # Monitor & Alignment
-        align_label = Gtk.Label.new("Overlay Location")
+        align_label = Gtk.Label.new(_("Overlay Location"))
 
         align_type_box = Gtk.HBox()
         align_type_edge = Gtk.RadioButton.new_with_label(
-            None, "Anchor to edge")
+            None, _("Anchor to edge"))
         align_type_floating = Gtk.RadioButton.new_with_label_from_widget(
-            align_type_edge, "Floating")
+            align_type_edge, _("Floating"))
         if self.floating:
             align_type_floating.set_active(True)
         align_type_box.add(align_type_edge)
@@ -362,8 +367,8 @@ class TextSettingsWindow(SettingsWindow):
         monitor.add_attribute(renderer_text, "text", 0)
 
         align_x_store = Gtk.ListStore(str)
-        align_x_store.append(["Left"])
-        align_x_store.append(["Right"])
+        align_x_store.append([_("Left")])
+        align_x_store.append([_("Right")])
         align_x = Gtk.ComboBox.new_with_model(align_x_store)
         align_x.set_active(True if self.align_x else False)
         align_x.connect("changed", self.change_align_x)
@@ -372,9 +377,9 @@ class TextSettingsWindow(SettingsWindow):
         align_x.add_attribute(renderer_text, "text", 0)
 
         align_y_store = Gtk.ListStore(str)
-        align_y_store.append(["Top"])
-        align_y_store.append(["Middle"])
-        align_y_store.append(["Bottom"])
+        align_y_store.append([_("Top")])
+        align_y_store.append([_("Middle")])
+        align_y_store.append([_("Bottom")])
         align_y = Gtk.ComboBox.new_with_model(align_y_store)
         align_y.set_active(self.align_y)
         align_y.connect("changed", self.change_align_y)
@@ -382,13 +387,13 @@ class TextSettingsWindow(SettingsWindow):
         align_y.pack_start(renderer_text, True)
         align_y.add_attribute(renderer_text, "text", 0)
 
-        align_placement_button = Gtk.Button.new_with_label("Place Window")
+        align_placement_button = Gtk.Button.new_with_label(_("Place Window"))
 
         align_type_edge.connect("toggled", self.change_align_type_edge)
         align_type_floating.connect("toggled", self.change_align_type_floating)
         align_placement_button.connect("pressed", self.change_placement)
 
-        channel_label = Gtk.Label.new("Channel")
+        channel_label = Gtk.Label.new(_("Channel"))
         channel = Gtk.ComboBox.new()
 
         channel.connect("changed", self.change_channel)
@@ -397,10 +402,10 @@ class TextSettingsWindow(SettingsWindow):
         channel.add_attribute(renderer_text, "text", 0)
         channel.add_attribute(renderer_text, 'sensitive', 1)
 
-        channel_refresh = Gtk.Button.new_with_label("Refresh list")
+        channel_refresh = Gtk.Button.new_with_label(_("Refresh list"))
         channel_refresh.connect("pressed", self.refresh_channel_list)
 
-        guild_label = Gtk.Label.new("Server")
+        guild_label = Gtk.Label.new(_("Server"))
         guild = Gtk.ComboBox.new()
 
         guild.connect("changed", self.change_guild)
@@ -409,11 +414,11 @@ class TextSettingsWindow(SettingsWindow):
         guild.add_attribute(renderer_text, "text", 0)
         guild.add_attribute(renderer_text, 'sensitive', 1)
 
-        guild_refresh = Gtk.Button.new_with_label("Refresh list")
+        guild_refresh = Gtk.Button.new_with_label(_("Refresh list"))
         guild_refresh.connect("pressed", self.refresh_guild_list)
 
         # Show Attachments
-        show_attach_label = Gtk.Label.new("Show Attachments")
+        show_attach_label = Gtk.Label.new(_("Show Attachments"))
         show_attach = Gtk.CheckButton.new()
         show_attach.set_active(self.show_attach)
         show_attach.connect("toggled", self.change_show_attach)

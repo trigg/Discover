@@ -11,13 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Core Settings Tab"""
+import gettext
 from configparser import ConfigParser
 import gi
+import pkg_resources
 from .settings import SettingsWindow
 from .autostart import Autostart
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk  # nopep8
+
+t = gettext.translation(
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+_ = t.gettext
 
 
 class GeneralSettingsWindow(SettingsWindow):
@@ -78,25 +84,25 @@ class GeneralSettingsWindow(SettingsWindow):
         box = Gtk.Grid()
 
         # Auto start
-        autostart_label = Gtk.Label.new("Autostart on boot")
+        autostart_label = Gtk.Label.new(_("Autostart on boot"))
         autostart = Gtk.CheckButton.new()
         autostart.set_active(self.autostart_helper.is_auto())
         autostart.connect("toggled", self.change_autostart)
 
         # Force XShape
-        xshape_label = Gtk.Label.new("Force XShape")
+        xshape_label = Gtk.Label.new(_("Force XShape"))
         xshape = Gtk.CheckButton.new()
         xshape.set_active(self.xshape)
         xshape.connect("toggled", self.change_xshape)
 
         # Show sys tray
-        show_sys_tray_icon_label = Gtk.Label.new("Show tray icon")
+        show_sys_tray_icon_label = Gtk.Label.new(_("Show tray icon"))
         show_sys_tray_icon = Gtk.CheckButton.new()
         show_sys_tray_icon.set_active(self.show_sys_tray_icon)
         show_sys_tray_icon.connect("toggled", self.change_show_sys_tray_icon)
 
         # Show taskbar
-        show_task_label = Gtk.Label.new("Show on taskbar")
+        show_task_label = Gtk.Label.new(_("Show on taskbar"))
         show_task = Gtk.CheckButton.new()
         show_task.set_active(self.show_task)
         show_task.connect("toggled", self.change_show_task)

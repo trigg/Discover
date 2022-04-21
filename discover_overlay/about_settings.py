@@ -11,14 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overview setting tab on settings window"""
+import gettext
 import json
 import logging
+import pkg_resources
 from configparser import ConfigParser
 import gi
 import sys
 from .settings import SettingsWindow
 
 log = logging.getLogger(__name__)
+t = gettext.translation('default', pkg_resources.resource_filename(
+    'discover_overlay', 'locales'))
+_ = t.gettext
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -54,7 +59,13 @@ class AboutSettingsWindow(Gtk.Grid):
         self.attach(spacing_box_2, 1, 2, 1, 1)
 
         blurb = Gtk.Label.new(None)
-        blurb.set_markup("<span size=\"larger\">Welcome to Discover Overlay</span>\n\nDiscover-Overlay is a GTK3 overlay written in Python3. It can be configured to show who is currently talking on discord or it can be set to display text and images from a preconfigured channel. It is fully customisable and can be configured to display anywhere on the screen. We fully support X11 and wlroots based environments. We felt the need to make this project due to the shortcomings in support on Linux by the official discord client.\n\nPlease visit our discord (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) for support. Or open an issue on our GitHub (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n")
+        message = "<span size=\"larger\">%s</span>\n\n%s\n\n%s (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) %s (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n" % (
+            _("Welcome to Discover Overlay"),
+            _("Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to show who is currently talking on discord or it can be set to display text and images from a preconfigured channel. It is fully customisable and can be configured to display anywhere on the screen. We fully support X11 and wlroots based environments. We felt the need to make this project due to the shortcomings in support on Linux by the official discord client."),
+            _("Please visit our discord"),
+            _(" for support. Or open an issue on our GitHub ")
+        )
+        blurb.set_markup(message)
         blurb.set_line_wrap(True)
         self.attach(blurb, 1, 3, 1, 1)
 
@@ -63,7 +74,7 @@ class AboutSettingsWindow(Gtk.Grid):
         self.warning.set_line_wrap(True)
         self.attach(self.warning, 1, 4, 1, 1)
 
-        killapp = Gtk.Button.new_with_label("Close overlay")
+        killapp = Gtk.Button.new_with_label(_("Close overlay"))
         killapp.connect("pressed", self.close_app)
         self.attach(killapp, 1, 5, 1, 1)
 

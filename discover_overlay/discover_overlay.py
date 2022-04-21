@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Main application class"""
+import gettext
 import os
 import time
 import sys
@@ -25,6 +26,7 @@ except:
     dbus = None
     pass
 import logging
+import pkg_resources
 import gi
 import pidfile
 from .settings_window import MainSettingsWindow
@@ -43,6 +45,9 @@ except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
 log = logging.getLogger(__name__)
+t = gettext.translation(
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+_ = t.gettext
 
 
 class Discover:
@@ -155,24 +160,28 @@ class Discover:
         Read in arg list from command or RPC and act accordingly
         """
         if "--help" in data or "-h" in data:
-            print("Usage: discover-overlay [OPTIONS]... ")
-            print("Show an X11 or wlroots overlay with information")
-            print("from Discord client")
+            print("%s: discover-overlay [OPTIONS]... " % (_("Usage")))
+            print(_("Show an X11 or wlroots overlay with information"))
+            print(_("from Discord client"))
             print("")
-            print("  -c, --configure        Open configuration window")
-            print("  -x, --close            Close currently running instance")
-            print("  -v, --debug            Verbose output for aid in debugging")
-            print("  -h, --help             This screen")
-            print("      --hide             Hide overlay")
-            print("      --show             Show overlay")
-            print("      --rpc              Send command, not start new instance. Only needed if running in flatpak")
-            print("      --mute             Set own user to mute")
-            print("      --unmute           Set unmuted")
-            print("      --deaf             Set own user to deafened")
-            print("      --undeaf           Unset user deafened state")
-            print("      --moveto=XX        Move the user into voice room, by Room ID")
+            print("  -c, --configure        ", _("Open configuration window"))
+            print("  -x, --close            ",
+                  _("Close currently running instance"))
+            print("  -v, --debug            ",
+                  _("Verbose output for aid in debugging"))
+            print("  -h, --help             ", _("This screen"))
+            print("      --hide             ", _("Hide overlay"))
+            print("      --show             ", _("Show overlay"))
+            print("      --rpc              ",
+                  _("Send command, not start new instance. Only needed if running in flatpak"))
+            print("      --mute             ", _("Set own user to mute"))
+            print("      --unmute           ", _("Set unmuted"))
+            print("      --deaf             ", _("Set own user to deafened"))
+            print("      --undeaf           ", _("Unset user deafened state"))
+            print("      --moveto=XX        ",
+                  _("Move the user into voice room, by Room ID"))
             print("")
-            print("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'")
+            print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
             if normal_close:
                 sys.exit(0)
         if "--configure" in data or "-c" in data:
@@ -276,8 +285,8 @@ class Discover:
         Create System Menu
         """
         menu = Gtk.Menu()
-        settings_opt = Gtk.MenuItem.new_with_label("Settings")
-        close_opt = Gtk.MenuItem.new_with_label("Close")
+        settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
+        close_opt = Gtk.MenuItem.new_with_label(_("Close"))
 
         menu.append(settings_opt)
         menu.append(close_opt)

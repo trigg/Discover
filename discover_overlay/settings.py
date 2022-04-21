@@ -14,8 +14,10 @@
 Settings tab parent class. Helpful if we need more
 overlay types without copy-and-pasting too much code
 """
+import gettext
 import os
 import logging
+import pkg_resources
 import gi
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
@@ -30,6 +32,10 @@ except ModuleNotFoundError:
     from xdg import XDG_CONFIG_HOME as xdg_config_home
 
 log = logging.getLogger(__name__)
+t = gettext.translation(
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+_ = t.gettext
+
 
 class SettingsWindow(Gtk.VBox):
     """
@@ -138,11 +144,11 @@ class SettingsWindow(Gtk.VBox):
             self.floating_h = height
 
             log.info("Positioned overlay : %s , %s  %s x %s", self.floating_x,
-                         self.floating_y, self.floating_w, self.floating_h)
+                     self.floating_y, self.floating_w, self.floating_h)
             self.overlay.set_floating(True, pos_x, pos_y, width, height)
             self.save_config()
             if button:
-                button.set_label("Place Window")
+                button.set_label(_("Place Window"))
             self.placement_window.close()
             self.placement_window = None
             if self.discover.steamos:
@@ -154,15 +160,15 @@ class SettingsWindow(Gtk.VBox):
                 self.placement_window = DraggableWindowWayland(
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Green!", settings=self,
+                    message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.discover.steamos)
             else:
                 self.placement_window = DraggableWindow(
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
-                    message="Place & resize this window then press Save!", settings=self)
+                    message=_("Place & resize this window then press Save!"), settings=self)
                 if button:
-                    button.set_label("Save this position")
+                    button.set_label(_("Save this position"))
 
     def change_align_type_edge(self, button):
         """

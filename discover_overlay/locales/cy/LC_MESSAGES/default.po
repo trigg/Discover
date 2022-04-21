@@ -1,0 +1,411 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-21 13:10+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: discover_overlay/about_settings.py:61
+msgid "Welcome to Discover Overlay"
+msgstr "Croeso i Discover Overlay"
+
+#: discover_overlay/about_settings.py:62
+msgid ""
+"Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
+"to show who is currently talking on discord or it can be set to display text "
+"and images from a preconfigured channel. It is fully customisable and can be "
+"configured to display anywhere on the screen. We fully support X11 and "
+"wlroots based environments. We felt the need to make this project due to the "
+"shortcomings in support on Linux by the official discord client."
+msgstr ""
+"Mae Discover-Overlay yn troslun GTK3 a ysgrifennwyd yn Python3. Gellir "
+"ei ffurfweddu i ddangos pwy sy'n siarad ar anghytgord ar hyn o bryd neu "
+"gellir ei osod i arddangos testun a delweddau o sianel wedi'i ffurfweddu "
+"ymlaen llaw. Mae'n gwbl addasadwy a gellir ei ffurfweddu i arddangos unrhyw "
+"le ar y sgrin. Rydym yn llwyr gefnogi amgylcheddau X11 a wlroots. Roeddem yn "
+"teimlo'r angen i wneud y prosiect hwn oherwydd y diffygion yn y gefnogaeth "
+"ar Linux gan y cleient anghytgord swyddogol."
+
+#: discover_overlay/about_settings.py:63
+msgid "Please visit our discord"
+msgstr "Ewch i'n Discord"
+
+#: discover_overlay/about_settings.py:64
+msgid " for support. Or open an issue on our GitHub "
+msgstr " am gymorth"
+
+#: discover_overlay/about_settings.py:75
+msgid "Close overlay"
+msgstr "Cau Overlay"
+
+#: discover_overlay/discover_overlay.py:161
+msgid "Usage"
+msgstr "Defnydd"
+
+#: discover_overlay/discover_overlay.py:162
+msgid "Show an X11 or wlroots overlay with information"
+msgstr "Dangos troslun X11 neu Wlroots gyda gwybodaeth"
+
+#: discover_overlay/discover_overlay.py:163
+msgid "from Discord client"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:165
+msgid "Open configuration window"
+msgstr "gan y cleient Discord"
+
+#: discover_overlay/discover_overlay.py:167
+msgid "Close currently running instance"
+msgstr "Cau'r achos sy'n rhedeg ar hyn o bryd"
+
+#: discover_overlay/discover_overlay.py:169
+msgid "Verbose output for aid in debugging"
+msgstr "Allbwn Verbose ar gyfer cymorth i ddadfygio"
+
+#: discover_overlay/discover_overlay.py:170
+msgid "This screen"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:171
+msgid "Hide overlay"
+msgstr "Mae'r sgrin hon"
+
+#: discover_overlay/discover_overlay.py:172
+msgid "Show overlay"
+msgstr "Dangos troslun"
+
+#: discover_overlay/discover_overlay.py:174
+msgid "Send command, not start new instance. Only needed if running in flatpak"
+msgstr "Anfon gorchymyn, nid dechrau achos newydd. Dim ond os yw'n rhedeg mewn flatpak"
+
+#: discover_overlay/discover_overlay.py:175
+msgid "Set own user to mute"
+msgstr "Gosod treiglad"
+
+#: discover_overlay/discover_overlay.py:176
+msgid "Set unmuted"
+msgstr "Gosod nid treiglo"
+
+#: discover_overlay/discover_overlay.py:177
+msgid "Set own user to deafened"
+msgstr "Gosod yn fyddar"
+
+#: discover_overlay/discover_overlay.py:178
+msgid "Unset user deafened state"
+msgstr "Gosod nid byddar"
+
+#: discover_overlay/discover_overlay.py:180
+msgid "Move the user into voice room, by Room ID"
+msgstr "Symud y defnyddiwr i ystafell lais, yn ôl ID Ystafell"
+
+#: discover_overlay/discover_overlay.py:182
+msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
+msgstr "Ar gyfer cydnawsedd gamescope sicrhau bod gan ENV 'GDK_BACKEND=x11'"
+
+#: discover_overlay/discover_overlay.py:286
+msgid "Settings"
+msgstr "Gosodiadau"
+
+#: discover_overlay/discover_overlay.py:287
+msgid "Close"
+msgstr "Cau"
+
+#: discover_overlay/general_settings.py:85
+msgid "Autostart on boot"
+msgstr "Dechrau ar bwt"
+
+#: discover_overlay/general_settings.py:91
+msgid "Force XShape"
+msgstr "Gorfodi XShape"
+
+#: discover_overlay/general_settings.py:97
+msgid "Show tray icon"
+msgstr "Dangos eicon hambwrdd"
+
+#: discover_overlay/general_settings.py:103
+msgid "Show on taskbar"
+msgstr "Dangos ar y bar tasgau"
+
+#: discover_overlay/notification_settings.py:198
+#: discover_overlay/text_settings.py:299
+msgid "Enable"
+msgstr "Galluogi"
+
+#: discover_overlay/notification_settings.py:204
+msgid "Show test content"
+msgstr "Dangos cynnwys y prawf"
+
+#: discover_overlay/notification_settings.py:209
+msgid "Reverse Order"
+msgstr "Gorchymyn Gwrthdroi"
+
+#: discover_overlay/notification_settings.py:215
+#: discover_overlay/text_settings.py:317
+msgid "Popup timer"
+msgstr "Amserydd naid"
+
+#: discover_overlay/notification_settings.py:222
+msgid "Limit popup width"
+msgstr "Cyfyngu lled naid"
+
+#: discover_overlay/notification_settings.py:229
+#: discover_overlay/text_settings.py:324 discover_overlay/voice_settings.py:264
+msgid "Font"
+msgstr "Ffont"
+
+#: discover_overlay/notification_settings.py:236
+msgid "Icon position"
+msgstr "Safbwynt eicon"
+
+#: discover_overlay/notification_settings.py:238
+#: discover_overlay/notification_settings.py:285
+#: discover_overlay/text_settings.py:368 discover_overlay/voice_settings.py:365
+#: discover_overlay/voice_settings.py:857
+#: discover_overlay/voice_settings.py:863
+msgid "Left"
+msgstr "Chwith"
+
+#: discover_overlay/notification_settings.py:239
+#: discover_overlay/notification_settings.py:286
+#: discover_overlay/text_settings.py:369 discover_overlay/voice_settings.py:366
+#: discover_overlay/voice_settings.py:861
+#: discover_overlay/voice_settings.py:865
+msgid "Right"
+msgstr "Dde"
+
+#: discover_overlay/notification_settings.py:248
+#: discover_overlay/text_settings.py:331
+msgid "Background colour"
+msgstr "Lliw cefndir"
+
+#: discover_overlay/notification_settings.py:251
+#: discover_overlay/text_settings.py:334
+msgid "Text colour"
+msgstr "Lliw'r testun"
+
+#: discover_overlay/notification_settings.py:260
+#: discover_overlay/text_settings.py:343 discover_overlay/voice_settings.py:340
+msgid "Overlay Location"
+msgstr "Lleoliad troslun"
+
+#: discover_overlay/notification_settings.py:264
+#: discover_overlay/text_settings.py:347 discover_overlay/voice_settings.py:344
+msgid "Anchor to edge"
+msgstr "Angor i ymyl"
+
+#: discover_overlay/notification_settings.py:266
+#: discover_overlay/text_settings.py:349 discover_overlay/voice_settings.py:346
+msgid "Floating"
+msgstr "Symudol"
+
+#: discover_overlay/notification_settings.py:295
+#: discover_overlay/text_settings.py:378 discover_overlay/voice_settings.py:375
+#: discover_overlay/voice_settings.py:853
+#: discover_overlay/voice_settings.py:867
+msgid "Top"
+msgstr "Brig"
+
+#: discover_overlay/notification_settings.py:296
+#: discover_overlay/text_settings.py:379 discover_overlay/voice_settings.py:376
+#: discover_overlay/voice_settings.py:859
+#: discover_overlay/voice_settings.py:869
+msgid "Middle"
+msgstr "Canol"
+
+#: discover_overlay/notification_settings.py:297
+#: discover_overlay/text_settings.py:380 discover_overlay/voice_settings.py:377
+#: discover_overlay/voice_settings.py:855
+#: discover_overlay/voice_settings.py:871
+msgid "Bottom"
+msgstr "Gwaelod"
+
+#: discover_overlay/notification_settings.py:305
+#: discover_overlay/settings.py:149 discover_overlay/text_settings.py:388
+#: discover_overlay/voice_settings.py:385
+msgid "Place Window"
+msgstr "Rhowch y ffenestr"
+
+#: discover_overlay/notification_settings.py:312
+msgid "Show Icon"
+msgstr "Dangos eicon"
+
+#: discover_overlay/notification_settings.py:318
+msgid "Icon padding"
+msgstr "Padio eiconau"
+
+#: discover_overlay/notification_settings.py:325
+msgid "Icon size"
+msgstr "Maint yr eicon"
+
+#: discover_overlay/notification_settings.py:332
+msgid "Notification padding"
+msgstr "Padio hysbysiadau"
+
+#: discover_overlay/notification_settings.py:339
+msgid "Border radius"
+msgstr "Radiws y ffin"
+
+#: discover_overlay/settings.py:161
+msgid "Place & resize this window then press Green!"
+msgstr "Rhowch ac ailfeintio'r ffenestr hon yna pwyswch wyrdd!"
+
+#: discover_overlay/settings.py:167
+msgid "Place & resize this window then press Save!"
+msgstr "Rhowch ac ailfeintio'r ffenestr hon yna pwyswch save!"
+
+#: discover_overlay/settings.py:169
+msgid "Save this position"
+msgstr "Cadw'r sefyllfa hon"
+
+#: discover_overlay/settings_window.py:42
+msgid "Discover Overlay Configuration"
+msgstr "Discover Overlay Cyfluniad"
+
+#: discover_overlay/settings_window.py:54
+msgid "Overview"
+msgstr "Trosolwg"
+
+#: discover_overlay/settings_window.py:59
+msgid "Voice"
+msgstr "LLais"
+
+#: discover_overlay/settings_window.py:64
+#: discover_overlay/voice_settings.py:316
+msgid "Text"
+msgstr "Testun"
+
+#: discover_overlay/settings_window.py:70
+msgid "Notifications"
+msgstr "Hysbysiadau"
+
+#: discover_overlay/settings_window.py:75
+msgid "Core"
+msgstr "Craidd"
+
+#: discover_overlay/text_settings.py:305
+msgid "Hide on mouseover"
+msgstr "Cuddio ar lygoden"
+
+#: discover_overlay/text_settings.py:311
+msgid "Popup Style"
+msgstr "Arddull naid"
+
+#: discover_overlay/text_settings.py:394
+msgid "Channel"
+msgstr "Sianel"
+
+#: discover_overlay/text_settings.py:403 discover_overlay/text_settings.py:415
+msgid "Refresh list"
+msgstr "Adnewyddu'r rhestr"
+
+#: discover_overlay/text_settings.py:406
+msgid "Server"
+msgstr "Gweinydd"
+
+#: discover_overlay/text_settings.py:419
+msgid "Show Attachments"
+msgstr "Dangos atodiadau"
+
+#: discover_overlay/voice_settings.py:317
+msgid "Label"
+msgstr "Label"
+
+#: discover_overlay/voice_settings.py:318
+msgid "Talking"
+msgstr "Siarad"
+
+#: discover_overlay/voice_settings.py:319
+msgid "Idle"
+msgstr "Segur"
+
+#: discover_overlay/voice_settings.py:320
+msgid "Border"
+msgstr "Ffin"
+
+#: discover_overlay/voice_settings.py:321
+msgid "Mute"
+msgstr "Treiglo"
+
+#: discover_overlay/voice_settings.py:404
+msgid "Avatar size"
+msgstr "Maint Avatar"
+
+#: discover_overlay/voice_settings.py:415
+msgid "Square Avatar"
+msgstr "Avatar Sgwâr"
+
+#: discover_overlay/voice_settings.py:425
+msgid "Display Icon Only"
+msgstr "Dangos eicon yn unig"
+
+#: discover_overlay/voice_settings.py:435
+msgid "Display Speakers Only"
+msgstr "Dangos siaradwyr yn unig"
+
+#: discover_overlay/voice_settings.py:445
+msgid "Highlight Self"
+msgstr "Tynnu sylw at eich hunan"
+
+#: discover_overlay/voice_settings.py:455
+msgid "Order Avatars By"
+msgstr "Archebu avatars yn ôl"
+
+#: discover_overlay/voice_settings.py:458
+msgid "Alphabetically"
+msgstr "Yn nhrefn yr wyddor"
+
+#: discover_overlay/voice_settings.py:459
+msgid "ID"
+msgstr "ID"
+
+#: discover_overlay/voice_settings.py:460
+msgid "Last Spoken"
+msgstr "Siaradwyd ddiwethaf"
+
+#: discover_overlay/voice_settings.py:472
+msgid "Icon Spacing"
+msgstr "Bylchiad eiconau"
+
+#: discover_overlay/voice_settings.py:483
+msgid "Text Padding"
+msgstr "Padio testun"
+
+#: discover_overlay/voice_settings.py:494
+msgid "Text Vertical Offset"
+msgstr "Gwrthbwysiad fertigol testun"
+
+#: discover_overlay/voice_settings.py:505
+msgid "Vertical Edge Padding"
+msgstr "Padio ymyl fertigol"
+
+#: discover_overlay/voice_settings.py:517
+msgid "Horizontal Edge Padding"
+msgstr "Padio ymyl llorweddol"
+
+#: discover_overlay/voice_settings.py:529
+msgid "Display Horizontally"
+msgstr "Arddangos yn llorweddol"
+
+#: discover_overlay/voice_settings.py:539
+msgid "Search Servers for User"
+msgstr "Chwilio gweinyddwyr ar gyfer y defnyddiwr"
+
+#: discover_overlay/voice_settings.py:550
+msgid "Guilds"
+msgstr "Guilds"
+
+#: discover_overlay/voice_settings.py:572
+msgid "Filter..."
+msgstr "Hidlo..."

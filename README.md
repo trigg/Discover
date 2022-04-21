@@ -105,6 +105,27 @@ If you are trying to debug on VS Code you are likely to get the following messag
 
 To get around this, copy the main file created by discover-overlay with ``cp $(which discover-overlay) /path/to/Discover/discover_overlay/__main__.py``
 
+### Translations
+
+in all cases `XX` should be replaced with the language code, in case of English `en`, Spanish `es` so on as per [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
+
+#### Adding a new translation
+
+First, find out what language code is required
+Copy discover_overlay/locales/base.pot to discover_overlay/locales/XX/LC_MESSAGES/default.po
+
+Change all lines starting with `msgstr` to contain the translated message in provided quotes, the line above should be a `msgid` which has the original word, sentence or fragment.
+
+#### Compiling updates
+
+`gettext` requires the `.po` files to be compiled into `.mo` before it can be used. Once a `.po` file is changed it can be compiled with 
+
+`msgfmt -o discover_overlay/locales/XX/LC_MESSAGES/default.mo discover_overlay/locales/XX/LC_MESSAGES/default.po`
+
+#### Incorrect translations and missing translations
+
+We welcome pull requests and bug reports about missing or wrong translations, but don't have the resources to get it all right. Please be patient with us and alert us if any translations are wildly inaccurate.
+
 ## Why do you keep making Discord Overlays?
 
 I feel like I shouldn't have to at all! Until we get an official one I might just create a new one every few months. Look forward to Rust/Vulkan version coming in a few months. /s

@@ -1,0 +1,404 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-21 13:10+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: discover_overlay/about_settings.py:61
+msgid "Welcome to Discover Overlay"
+msgstr ""
+
+#: discover_overlay/about_settings.py:62
+msgid ""
+"Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
+"to show who is currently talking on discord or it can be set to display text "
+"and images from a preconfigured channel. It is fully customisable and can be "
+"configured to display anywhere on the screen. We fully support X11 and "
+"wlroots based environments. We felt the need to make this project due to the "
+"shortcomings in support on Linux by the official discord client."
+msgstr ""
+
+#: discover_overlay/about_settings.py:63
+msgid "Please visit our discord"
+msgstr ""
+
+#: discover_overlay/about_settings.py:64
+msgid " for support. Or open an issue on our GitHub "
+msgstr ""
+
+#: discover_overlay/about_settings.py:75
+msgid "Close overlay"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:161
+msgid "Usage"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:162
+msgid "Show an X11 or wlroots overlay with information"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:163
+msgid "from Discord client"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:165
+msgid "Open configuration window"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:167
+msgid "Close currently running instance"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:169
+msgid "Verbose output for aid in debugging"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:170
+msgid "This screen"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:171
+msgid "Hide overlay"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:172
+msgid "Show overlay"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:174
+msgid "Send command, not start new instance. Only needed if running in flatpak"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:175
+msgid "Set own user to mute"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:176
+msgid "Set unmuted"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:177
+msgid "Set own user to deafened"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:178
+msgid "Unset user deafened state"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:180
+msgid "Move the user into voice room, by Room ID"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:182
+msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:286
+msgid "Settings"
+msgstr ""
+
+#: discover_overlay/discover_overlay.py:287
+msgid "Close"
+msgstr ""
+
+#: discover_overlay/general_settings.py:85
+msgid "Autostart on boot"
+msgstr ""
+
+#: discover_overlay/general_settings.py:91
+msgid "Force XShape"
+msgstr ""
+
+#: discover_overlay/general_settings.py:97
+msgid "Show tray icon"
+msgstr ""
+
+#: discover_overlay/general_settings.py:103
+msgid "Show on taskbar"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:198
+#: discover_overlay/text_settings.py:299
+msgid "Enable"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:204
+msgid "Show test content"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:209
+msgid "Reverse Order"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:215
+#: discover_overlay/text_settings.py:317
+msgid "Popup timer"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:222
+msgid "Limit popup width"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:229
+#: discover_overlay/text_settings.py:324 discover_overlay/voice_settings.py:264
+msgid "Font"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:236
+msgid "Icon position"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:238
+#: discover_overlay/notification_settings.py:285
+#: discover_overlay/text_settings.py:368 discover_overlay/voice_settings.py:365
+#: discover_overlay/voice_settings.py:857
+#: discover_overlay/voice_settings.py:863
+msgid "Left"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:239
+#: discover_overlay/notification_settings.py:286
+#: discover_overlay/text_settings.py:369 discover_overlay/voice_settings.py:366
+#: discover_overlay/voice_settings.py:861
+#: discover_overlay/voice_settings.py:865
+msgid "Right"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:248
+#: discover_overlay/text_settings.py:331
+msgid "Background colour"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:251
+#: discover_overlay/text_settings.py:334
+msgid "Text colour"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:260
+#: discover_overlay/text_settings.py:343 discover_overlay/voice_settings.py:340
+msgid "Overlay Location"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:264
+#: discover_overlay/text_settings.py:347 discover_overlay/voice_settings.py:344
+msgid "Anchor to edge"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:266
+#: discover_overlay/text_settings.py:349 discover_overlay/voice_settings.py:346
+msgid "Floating"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:295
+#: discover_overlay/text_settings.py:378 discover_overlay/voice_settings.py:375
+#: discover_overlay/voice_settings.py:853
+#: discover_overlay/voice_settings.py:867
+msgid "Top"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:296
+#: discover_overlay/text_settings.py:379 discover_overlay/voice_settings.py:376
+#: discover_overlay/voice_settings.py:859
+#: discover_overlay/voice_settings.py:869
+msgid "Middle"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:297
+#: discover_overlay/text_settings.py:380 discover_overlay/voice_settings.py:377
+#: discover_overlay/voice_settings.py:855
+#: discover_overlay/voice_settings.py:871
+msgid "Bottom"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:305
+#: discover_overlay/settings.py:149 discover_overlay/text_settings.py:388
+#: discover_overlay/voice_settings.py:385
+msgid "Place Window"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:312
+msgid "Show Icon"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:318
+msgid "Icon padding"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:325
+msgid "Icon size"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:332
+msgid "Notification padding"
+msgstr ""
+
+#: discover_overlay/notification_settings.py:339
+msgid "Border radius"
+msgstr ""
+
+#: discover_overlay/settings.py:161
+msgid "Place & resize this window then press Green!"
+msgstr ""
+
+#: discover_overlay/settings.py:167
+msgid "Place & resize this window then press Save!"
+msgstr ""
+
+#: discover_overlay/settings.py:169
+msgid "Save this position"
+msgstr ""
+
+#: discover_overlay/settings_window.py:42
+msgid "Discover Overlay Configuration"
+msgstr ""
+
+#: discover_overlay/settings_window.py:54
+msgid "Overview"
+msgstr ""
+
+#: discover_overlay/settings_window.py:59
+msgid "Voice"
+msgstr ""
+
+#: discover_overlay/settings_window.py:64
+#: discover_overlay/voice_settings.py:316
+msgid "Text"
+msgstr ""
+
+#: discover_overlay/settings_window.py:70
+msgid "Notifications"
+msgstr ""
+
+#: discover_overlay/settings_window.py:75
+msgid "Core"
+msgstr ""
+
+#: discover_overlay/text_settings.py:305
+msgid "Hide on mouseover"
+msgstr ""
+
+#: discover_overlay/text_settings.py:311
+msgid "Popup Style"
+msgstr ""
+
+#: discover_overlay/text_settings.py:394
+msgid "Channel"
+msgstr ""
+
+#: discover_overlay/text_settings.py:403 discover_overlay/text_settings.py:415
+msgid "Refresh list"
+msgstr ""
+
+#: discover_overlay/text_settings.py:406
+msgid "Server"
+msgstr ""
+
+#: discover_overlay/text_settings.py:419
+msgid "Show Attachments"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:317
+msgid "Label"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:318
+msgid "Talking"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:319
+msgid "Idle"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:320
+msgid "Border"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:321
+msgid "Mute"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:404
+msgid "Avatar size"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:415
+msgid "Square Avatar"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:425
+msgid "Display Icon Only"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:435
+msgid "Display Speakers Only"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:445
+msgid "Highlight Self"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:455
+msgid "Order Avatars By"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:458
+msgid "Alphabetically"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:459
+msgid "ID"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:460
+msgid "Last Spoken"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:472
+msgid "Icon Spacing"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:483
+msgid "Text Padding"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:494
+msgid "Text Vertical Offset"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:505
+msgid "Vertical Edge Padding"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:517
+msgid "Horizontal Edge Padding"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:529
+msgid "Display Horizontally"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:539
+msgid "Search Servers for User"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:550
+msgid "Guilds"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:572
+msgid "Filter..."
+msgstr ""
