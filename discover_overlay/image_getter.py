@@ -27,6 +27,7 @@ from gi.repository import Gio, GdkPixbuf  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class ImageGetter():
     """Older attempt. Not advised as it can't manage anything but PNG. Loads to GDK Pixmap"""
 
@@ -99,7 +100,7 @@ class SurfaceGetter():
             log.error("Unknown image type")
 
     def get_file(self):
-        locations = [os.path.expanduser('~/.local/'), '/usr/', '/']
+        locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
         for prefix in locations:
             mixpath = os.path.join(prefix, self.url)
             image = None

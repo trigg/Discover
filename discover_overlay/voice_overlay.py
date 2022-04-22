@@ -25,6 +25,7 @@ from gi.repository import Pango, PangoCairo  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class VoiceOverlayWindow(OverlayWindow):
     """Overlay window for voice"""
 
@@ -63,7 +64,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.guild_ids = tuple()
         self.force_location()
         get_surface(self.recv_avatar,
-                    "share/icons//hicolor/256x256/apps/discover-overlay-default.png",
+                    "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()
