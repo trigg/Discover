@@ -76,9 +76,12 @@ class VoiceSettingsWindow(SettingsWindow):
         self.order = None
         self.horizontal = None
         self.guild_ids = None
+        self.overflow = None
         self.init_config()
         self.guild_filter_string = ""
         self.warned = False
+        self.show_dummy = False
+        self.dummy_count = 10
 
         self.create_gui()
 
@@ -150,6 +153,7 @@ class VoiceSettingsWindow(SettingsWindow):
             "main", "horizontal", fallback=False)
         self.guild_ids = parse_guild_ids(
             config.get("main", "guild_ids", fallback=""))
+        self.overflow = config.getint("main", "overflow", fallback = 0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -177,6 +181,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_hide_on_mouseover(self.autohide)
         self.overlay.set_horizontal(self.horizontal)
         self.overlay.set_guild_ids(self.guild_ids)
+        self.overlay.set_overflow(self.overflow)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -228,6 +233,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "horizontal", "%s" % (self.horizontal))
         config.set("main", "guild_ids", "%s" %
                    guild_ids_to_string(self.guild_ids))
+        config.set("main", "overflow", "%s" % (int(self.overflow)))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -244,6 +250,7 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box = Gtk.Grid(row_homogeneous=True)
         colour_box = Gtk.Grid(row_homogeneous=True)
         avatar_box = Gtk.Grid(row_homogeneous=True)
+        dummy_box = Gtk.Grid(row_homogeneous=True)
 
         colour_box.set_row_spacing(8)
         colour_box.set_column_spacing(8)
@@ -255,6 +262,7 @@ class VoiceSettingsWindow(SettingsWindow):
         outer_box.attach(alignment_box, 0, 1, 1, 1)
         outer_box.attach(colour_box, 1, 0, 1, 1)
         outer_box.attach(avatar_box, 1, 1, 1, 1)
+        outer_box.attach(dummy_box,0,2,2,1)
 
         # Autohide
         #autohide_label = Gtk.Label.new("Hide on mouseover")
@@ -537,50 +545,45 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(horizontal_label, 0, 6, 1, 1)
         alignment_box.attach(horizontal, 1, 6, 1, 1)
 
-        # Guild ids to load:
-        guild_ids_label = Gtk.Label.new(_("Search Servers for User"))
-        guild_ids_box = Gtk.VBox(homogeneous=False)
-        self.guild_ids_list = Gtk.ListStore(bool, str, str, str)
-        self.guild_ids_filter = self.guild_ids_list.filter_new()
-        self.guild_ids_filter.set_visible_func(self.guild_filter_func)
-        # TODO Append guilds
+        # Overflow
+        overflow_label = Gtk.Label.new(_("Overflow style"))
+        overflow_label.set_xalign(0)
+        overflow_store = Gtk.ListStore(str)
+        overflow_store.append([_("None")])
+        overflow_store.append([_("Wrap")])
+        overflow_store.append([_("Shrink")])
+        overflow = Gtk.ComboBox.new_with_model(overflow_store)
+        overflow.set_active(self.overflow)
+        overflow.connect("changed", self.change_overflow)
+        renderer_text = Gtk.CellRendererText()
+        overflow.pack_start(renderer_text, True)
+        overflow.add_attribute(renderer_text, "text", 0)
 
-        guild_ids_scroll_window = Gtk.ScrolledWindow()
-        guild_ids_scroll_window.set_size_request(300, 150)
-        guild_ids_tree = Gtk.TreeView(model=self.guild_ids_filter)
+        avatar_box.attach(overflow_label, 0, 6, 1, 1)
+        avatar_box.attach(overflow, 1, 6, 1, 1)
 
-        guild_column = Gtk.TreeViewColumn(_("Guilds"))
+        # use dummy
+        dummy_label = Gtk.Label.new(_("Show test content"))
+        dummy_label.set_xalign(0)
+        dummy = Gtk.CheckButton.new()
+        dummy.set_active(self.show_dummy)
+        dummy.connect("toggled", self.change_dummy_data)
 
-        toggle = Gtk.CellRendererToggle()
-        title = Gtk.CellRendererText()
-        icon = Gtk.CellRendererPixbuf()
+        dummy_box.attach(dummy_label, 0, 0, 1, 1)
+        dummy_box.attach(dummy, 1, 0, 1, 1)
 
-        guild_column.pack_start(toggle, True)
-        guild_column.pack_start(icon, True)
-        guild_column.pack_start(title, True)
+        # Dummy count
+        dummy_count_label = Gtk.Label.new(_("Dummy count"))
+        dummy_count_label.set_xalign(0)
+        dummy_count_adjustment = Gtk.Adjustment.new(
+            self.dummy_count, 0, 100, 1, 1, 0)
+        dummy_count = Gtk.SpinButton.new(
+            dummy_count_adjustment, 0, 0)
+        dummy_count.connect(
+            "value-changed", self.change_dummy_count)
 
-        guild_column.add_attribute(toggle, "active", 0)
-        guild_column.add_attribute(icon, "icon_name", 1)
-        guild_column.add_attribute(title, "text", 2)
-
-        guild_ids_tree.append_column(guild_column)
-
-        guild_ids_tree.set_activate_on_single_click(True)
-
-        guild_ids_tree.connect(
-            "row-activated", self.on_guild_selection_changed)
-
-        guild_filter = Gtk.Entry()
-        guild_filter.set_placeholder_text(_("Filter..."))
-        guild_filter.connect("changed", self.guild_filter_changed)
-
-        guild_ids_box.pack_start(guild_ids_label, False, False, 0)
-        guild_ids_box.pack_start(guild_filter, False, False, 0)
-        guild_ids_box.pack_end(guild_ids_scroll_window, True, True, 0)
-
-        guild_ids_scroll_window.add(guild_ids_tree)
-
-        outer_box.attach(guild_ids_box, 0, 3, 2, 1)
+        dummy_box.attach(dummy_count_label, 2, 0, 1, 1)
+        dummy_box.attach(dummy_count, 3, 0, 1, 1)
 
         self.add(outer_box)
 
@@ -782,6 +785,19 @@ class VoiceSettingsWindow(SettingsWindow):
         self.save_config()
         self.set_orientated_names()
 
+    def change_dummy_data(self, button):
+        self.overlay.set_show_dummy(button.get_active())
+        self.show_dummy = button.get_active()
+
+    def change_dummy_count(self, button):
+        self.overlay.set_dummy_count(int(button.get_value()))
+        self.dummy_count = button.get_value()
+
+    def change_overflow(self, button):
+        self.overlay.set_overflow(button.get_active())
+        self.overflow = button.get_active()
+        self.save_config()
+
     def on_guild_selection_changed(self, tree, number, selection):
         model, treeiter = tree.get_selection().get_selected()
         if treeiter is not None:
@@ -823,30 +839,6 @@ class VoiceSettingsWindow(SettingsWindow):
         if self.guild_filter_string in model[iter][2]:
             return True
         return False
-
-    def set_guild_list(self, guild_list):
-        # Uncertain about image but it's ready incase
-        # guild['icon_url']
-        if len(guild_list) > 50 and len(self.guild_ids) == 0 and not self.warned:
-            # Trouble!
-            # Show warning message
-            if self.discover.steamos:
-                self.discover.set_about_warning(
-                    "Your Discord server count is too high. Using Discover with too many servers can cause (long!) temporary Discord bans.\nPlease opt-in to servers you wish to use voice chat in.")
-            else:
-                d = Gtk.Window(title="Server limit exceeded")
-                d.set_default_size(200, 150)
-                label = Gtk.Label(
-                    label="Your Discord server count is too high. Using Discover with too many servers can cause (long!) temporary Discord bans.\nPlease opt-in to servers you wish to use voice chat in.")
-                d.add(label)
-                d.show_all()
-                # TODO After ok, open Settings?
-            self.warned = True
-
-        self.guild_ids_list.clear()
-        for guild in guild_list.values():
-            self.guild_ids_list.append(
-                [guild["id"] in self.guild_ids, '', guild["name"], guild["id"]])
 
     def set_orientated_names(self):
         i = self.align_x_store.get_iter_first()

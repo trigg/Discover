@@ -14,6 +14,7 @@
 import logging
 import math
 import cairo
+import sys
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect
 # pylint: disable=wrong-import-order
@@ -22,6 +23,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Pango, PangoCairo  # nopep8
+import random
 
 log = logging.getLogger(__name__)
 
@@ -34,6 +36,25 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.avatars = {}
 
+        self.dummy_data = []
+        mostly_false = [False, False, False, False, False, False, False, True]
+        for i in range(0,100):
+            speaking = mostly_false[random.randint(0,7)]
+            scream = ''
+            if random.randint(0,20)==2:
+                scream = random.randint(8,15)*'a'
+            name = "Player %d %s" % (i, scream)
+            self.dummy_data.append({
+                "id": i,
+                "username": name,
+                "avatar": None,
+                "mute": False,
+                "deaf": mostly_false[random.randint(0,7)],
+                "mute": mostly_false[random.randint(0,7)],
+                "speaking": speaking ,
+                'lastspoken': random.randint(2000,2100) if speaking else random.randint(10,30),
+                'friendlyname': name,
+            })
         self.avatar_size = 48
         self.text_pad = 6
         self.text_font = None
@@ -46,6 +67,9 @@ class VoiceOverlayWindow(OverlayWindow):
         self.highlight_self = None
         self.order = None
         self.def_avatar = None
+        self.overflow = None
+        self.use_dummy = False
+        self.dummy_count = 10
 
         self.round_avatar = True
         self.icon_only = True
@@ -58,7 +82,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.hili_col = [0.0, 0.0, 0.0, 0.9]
         self.border_col = [0.0, 0.0, 0.0, 0.0]
         self.userlist = []
-        self.users_to_draw = []
         self.connected = False
         self.horizontal = False
         self.guild_ids = tuple()
@@ -68,6 +91,24 @@ class VoiceOverlayWindow(OverlayWindow):
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()
+
+    def set_show_dummy(self, show_dummy):
+        """
+        Toggle use of dummy userdata to help choose settings
+        """
+        self.use_dummy = show_dummy
+        self.needsredraw = True
+
+    def set_dummy_count(self, dummy_count):
+        self.dummy_count = dummy_count
+        self.needsredraw = True
+
+    def set_overflow(self, overflow):
+        """
+        How should excessive numbers of users be dealt with?
+        """
+        self.overflow = overflow
+        self.needsredraw = True
 
     def set_bg(self, background_colour):
         """
@@ -184,6 +225,8 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the method used to order avatar icons & names
         """
         self.order = i
+        self.sort_list(self.userlist)
+        self.needsredraw= True
 
     def set_icon_only(self, i):
         """
@@ -237,13 +280,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 user["friendlyname"] = user["nick"]
             else:
                 user["friendlyname"] = user["username"]
-        if self.order == 1:  # ID Sort
-            self.userlist.sort(key=lambda x: x["id"])
-        elif self.order == 2:  # Spoken sort
-            self.userlist.sort(key=lambda x: x["lastspoken"], reverse=True)
-            self.userlist.sort(key=lambda x: x["speaking"], reverse=True)
-        else:  # Name sort
-            self.userlist.sort(key=lambda x: x["friendlyname"])
+        self.sort_list(self.userlist)
         screen = self.get_screen()
         # Check if composite state has changed
         if not self.compositing == screen.is_composited():
@@ -260,6 +297,16 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.connected != is_connected:
             self.connected = is_connected
             self.needsredraw = True
+
+    def sort_list(self, in_list):
+        if self.order == 1:  # ID Sort
+            in_list.sort(key=lambda x: x["id"])
+        elif self.order == 2:  # Spoken sort
+            in_list.sort(key=lambda x: x["lastspoken"], reverse=True)
+            in_list.sort(key=lambda x: x["speaking"], reverse=True)
+        else:  # Name sort
+            in_list.sort(key=lambda x: x["friendlyname"])
+        return in_list
 
     def overlay_draw(self, w, context, data=None):
         """
@@ -290,15 +337,19 @@ class VoiceOverlayWindow(OverlayWindow):
                 context.clip()
 
         context.set_operator(cairo.OPERATOR_OVER)
-        if not self.connected:
+        if not self.connected and not self.use_dummy:
             return
 
         connection = self.discover.connection
         self_user = connection.user
 
         # Gather which users to draw
-        self.users_to_draw = self.userlist[:]
-        for user in self.userlist:
+        users_to_draw = self.userlist[:]
+        userlist = self.userlist
+        if self.use_dummy: # Sorting every frame is an awful idea. Maybe put this off elsewhere?
+            users_to_draw = self.sort_list(self.dummy_data[0:self.dummy_count])
+            userlist = self.dummy_data
+        for user in userlist:
             # Bad object equality here, so we need to reassign
             if user["id"] == self_user["id"]:
                 self_user = user
@@ -313,46 +364,105 @@ class VoiceOverlayWindow(OverlayWindow):
             if self.only_speaking:
                 speaking = "speaking" in user and user["speaking"]
                 if not speaking:
-                    self.users_to_draw.remove(user)
+                    if user in users_to_draw: 
+                        users_to_draw.remove(user)
 
         if self.highlight_self:
-            try:
-                self.users_to_draw.remove(self_user)
-            except ValueError:
-                pass  # Not in list
-            self.users_to_draw.insert(0, self_user)
+            if self_user in users_to_draw:
+                users_to_draw.remove(self_user)
+            users_to_draw.insert(0, self_user)
+
+        avatar_size = self.avatar_size
+        avatars_per_row = sys.maxsize
 
         if self.horizontal:
-            needed_width = (len(self.users_to_draw) * self.avatar_size) + \
-                (len(self.users_to_draw) + 1) * self.icon_spacing
+            needed_width = (len(users_to_draw) * self.avatar_size) + \
+                (len(users_to_draw) + 1) * self.icon_spacing
 
-            current_x = 0 + self.horz_edge_padding
-            if self.align_vert == 1:
-                current_x = (width / 2) - (needed_width) / 2
-            elif self.align_vert == 2:
-                current_x = width - needed_width - self.horz_edge_padding
+            if needed_width > width:
+                if self.overflow == 1: # Wrap
+                    avatars_per_row = int(width / (avatar_size+self.icon_spacing))
+                elif self.overflow == 2: # Shrink
+                    available_size = width / len(users_to_draw)
+                    avatar_size = available_size - self.icon_spacing
+                    if avatar_size<8:
+                        avatar_size = 8
 
-            for user in self.users_to_draw:
-                self.draw_avatar(context, user, current_x)
-                # Shift the relative position down to next location
-                current_x += self.avatar_size + self.icon_spacing
+            current_y = 0 + self.vert_edge_padding
+            offset_y = avatar_size + self.icon_spacing
+            if self.align_right: # A lie. Align bottom
+                current_y = self.height - avatar_size - self.vert_edge_padding
+                offset_y = -(avatar_size + self.icon_spacing)
+            rows_to_draw = []
+            while len(users_to_draw) > 0:
+                row = []
+                for i in range(0, min(avatars_per_row, len(users_to_draw))):
+                    row.append(users_to_draw.pop(0))
+                rows_to_draw.append(row)
+            for row in rows_to_draw:
+                needed_width = (len(row) * (avatar_size + self.icon_spacing))
+                current_x = 0 + self.horz_edge_padding
+                if self.align_vert == 1:
+                    current_x = (width / 2) - (needed_width) / 2
+                elif self.align_vert == 2:
+                    current_x = width - needed_width - self.horz_edge_padding
+
+                for user in row:
+                    self.draw_avatar(context, user, current_x, current_y, avatar_size)
+                    current_x += avatar_size + self.icon_spacing
+                current_y+=offset_y
         else:
             # Calculate height needed to show overlay
-            needed_height = (len(self.users_to_draw) * self.avatar_size) + \
-                (len(self.users_to_draw) + 1) * self.icon_spacing
+            needed_height = (len(users_to_draw) * self.avatar_size) + \
+                (len(users_to_draw) + 1) * self.icon_spacing
+
+            if needed_height > height:
+                if self.overflow == 1: # Wrap
+                    avatars_per_row = int(height / (avatar_size + self.icon_spacing))
+                elif self.overflow == 2: # Shrink
+                    available_size = height / len(users_to_draw)
+                    avatar_size = available_size - self.icon_spacing
+                    if avatar_size<8:
+                        avatar_size = 8
+
+            current_x = 0
+            offset_x_mult=1
+            offset_x = avatar_size + self.horz_edge_padding
+            if self.align_right:
+                offset_x_mult =-1
+                current_x = self.width - avatar_size - self.horz_edge_padding
 
             # Choose where to start drawing
             current_y = 0 + self.vert_edge_padding
             if self.align_vert == 1:
-                # Ignore padding?
                 current_y = (height / 2) - (needed_height / 2)
             elif self.align_vert == 2:
                 current_y = height - needed_height - self.vert_edge_padding
 
-            for user in self.users_to_draw:
-                self.draw_avatar(context, user, current_y)
-                # Shift the relative position down to next location
-                current_y += self.avatar_size + self.icon_spacing
+            cols_to_draw = []
+            while len(users_to_draw) > 0:
+                col = []
+                for i in range(0,min(avatars_per_row, len(users_to_draw))):
+                    col.append(users_to_draw.pop(0))
+                cols_to_draw.append(col)
+            for col in cols_to_draw:
+                needed_height = (len(col) * (avatar_size + self.icon_spacing))
+                current_y = 0 + self.vert_edge_padding
+                if self.align_vert == 1:
+                    current_y = (height/2) - (needed_height /2)
+                elif self.align_vert == 2:
+                    current_y = height - needed_height - self.vert_edge_padding
+                largest_text_width = 0
+                for user in col:
+                    text_width = self.draw_avatar(context, user, current_x, current_y, avatar_size)
+                    largest_text_width = max(text_width, largest_text_width)
+                    current_y += avatar_size + self.icon_spacing
+                if largest_text_width > 0:
+                    largest_text_width += self.text_pad
+                else:
+                    largest_text_width = self.icon_spacing
+                current_x += offset_x_mult* (offset_x + largest_text_width)
+
         context.restore()
         self.context = None
 
@@ -373,7 +483,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if identifier in self.avatars:
             del self.avatars[identifier]
 
-    def draw_avatar(self, context, user, pos_y):
+    def draw_avatar(self, context, user, pos_x, pos_y, avatar_size):
         """
         Draw avatar at given Y position. Includes both text and image based on settings
         """
@@ -392,6 +502,7 @@ class VoiceOverlayWindow(OverlayWindow):
         deaf = False
         bg_col = None
         fg_col = None
+        tw = 0 
 
         if "mute" in user and user["mute"]:
             mute = True
@@ -409,72 +520,24 @@ class VoiceOverlayWindow(OverlayWindow):
         pix = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
-        if self.horizontal:
-            if(self.align_right):
-                self.draw_avatar_pix(
-                    context, pix,
-                    pos_y,
-                    self.height - self.avatar_size - self.vert_edge_padding,
-                    colour
-                )
-                if deaf:
-                    self.draw_deaf(context, pos_y, self.height - self.avatar_size -
-                                   self.vert_edge_padding)
-                elif mute:
-                    self.draw_mute(context, pos_y, self.height - self.avatar_size -
-                                   self.vert_edge_padding)
-            else:
-                self.draw_avatar_pix(
-                    context, pix,
-                    pos_y,
-                    0,
-                    colour
-                )
-                if deaf:
-                    self.draw_deaf(context, pos_y, self.horz_edge_padding)
-                elif mute:
-                    self.draw_mute(context, pos_y, self.horz_edge_padding)
-
-        elif self.align_right:
+        if not self.horizontal:
             if not self.icon_only:
-                self.draw_text(
+                tw = self.draw_text(
                     context, user["friendlyname"],
-                    self.width - self.avatar_size - self.horz_edge_padding,
+                    pos_x,
                     pos_y,
                     fg_col,
-                    bg_col
+                    bg_col,
+                    avatar_size
                 )
-            self.draw_avatar_pix(
-                context, pix,
-                self.width - self.avatar_size - self.horz_edge_padding,
-                pos_y,
-                colour
-            )
-            if deaf:
-                self.draw_deaf(context, self.width - self.avatar_size -
-                               self.horz_edge_padding, pos_y)
-            elif mute:
-                self.draw_mute(context, self.width - self.avatar_size -
-                               self.horz_edge_padding, pos_y)
-        else:
-            if not self.icon_only:
-                self.draw_text(
-                    context,
-                    user["friendlyname"],
-                    self.avatar_size + self.horz_edge_padding,
-                    pos_y,
-                    fg_col,
-                    bg_col
-                )
-            self.draw_avatar_pix(
-                context, pix, self.horz_edge_padding, pos_y, colour
-            )
-            if deaf:
-                self.draw_deaf(context, self.horz_edge_padding, pos_y)
-            elif mute:
-                self.draw_mute(context, self.horz_edge_padding, pos_y)
+        self.draw_avatar_pix(context, pix,pos_x,pos_y,colour, avatar_size)
+        if deaf:
+            self.draw_deaf(context, pos_x, pos_y, avatar_size)
+        elif mute:
+            self.draw_mute(context, pos_x, pos_y, avatar_size)
+        return tw
 
-    def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col):
+    def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size):
         """
         Draw username & background at given position
         """
@@ -493,7 +556,7 @@ class VoiceOverlayWindow(OverlayWindow):
         text_width = logical_rect.width
 
         self.col(tx_col)
-        height_offset = (self.avatar_size / 2) - (text_height / 2)
+        height_offset = (avatar_size / 2) - (text_height / 2)
         text_y_offset = height_offset + self.text_baseline_adj
 
         if self.align_right:
@@ -517,7 +580,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.move_to(0, 0)
             self.col(bg_col)
             context.rectangle(
-                pos_x - (self.text_pad * 2),
+                pos_x - (self.text_pad * 2) + avatar_size,
                 pos_y + height_offset - self.text_pad,
                 text_width + (self.text_pad * 4),
                 text_height + (self.text_pad * 2)
@@ -526,14 +589,14 @@ class VoiceOverlayWindow(OverlayWindow):
 
             self.col(tx_col)
             context.move_to(
-                pos_x + self.text_pad,
+                pos_x + self.text_pad+ avatar_size,
                 pos_y + text_y_offset
             )
             PangoCairo.show_layout(self.context, layout)
 
-        return pos_y - text_height
+        return text_width
 
-    def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour):
+    def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour, avatar_size):
         """
         Draw avatar image at given position
         """
@@ -550,17 +613,17 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.set_norm_col()
         context.set_operator(cairo.OPERATOR_SOURCE)
-        context.rectangle(pos_x, pos_y, self.avatar_size, self.avatar_size)
+        context.rectangle(pos_x, pos_y, avatar_size, avatar_size)
         context.fill()
         draw_img_to_rect(pixbuf, context, pos_x, pos_y,
-                         self.avatar_size, self.avatar_size)
+                         avatar_size, avatar_size)
         context.restore()
         if border_colour:
             if self.round_avatar:
                 context.arc(
-                    pos_x + (self.avatar_size / 2),
-                    pos_y + (self.avatar_size / 2),
-                    self.avatar_size / 2,
+                    pos_x + (avatar_size / 2),
+                    pos_y + (avatar_size / 2),
+                    avatar_size / 2,
                     0, 2 * math.pi
                 )
                 self.col(border_colour)
@@ -568,18 +631,18 @@ class VoiceOverlayWindow(OverlayWindow):
             else:
                 context.rectangle(
                     pos_x, pos_y,
-                    self.avatar_size, self.avatar_size
+                    avatar_size, avatar_size
                 )
                 self.col(border_colour)
                 context.stroke()
 
-    def draw_mute(self, context, pos_x, pos_y):
+    def draw_mute(self, context, pos_x, pos_y, avatar_size):
         """
         Draw Mute logo
         """
         context.save()
         context.translate(pos_x, pos_y)
-        context.scale(self.avatar_size, self.avatar_size)
+        context.scale(avatar_size, avatar_size)
         self.set_mute_col()
         context.save()
 
@@ -630,13 +693,13 @@ class VoiceOverlayWindow(OverlayWindow):
 
         context.restore()
 
-    def draw_deaf(self, context, pos_x, pos_y):
+    def draw_deaf(self, context, pos_x, pos_y, avatar_size):
         """
         Draw deaf logo
         """
         context.save()
         context.translate(pos_x, pos_y)
-        context.scale(self.avatar_size, self.avatar_size)
+        context.scale(avatar_size, avatar_size)
         self.set_mute_col()
         context.save()
 

@@ -426,7 +426,6 @@ class DiscordConnector:
         """
         Called when connection is finalised
         """
-        self.voice_settings.set_guild_list(self.guilds)
         self.sub_server()
         self.find_user()
         self.voice_overlay.set_enabled(True)
