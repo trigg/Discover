@@ -98,9 +98,6 @@ class Discover:
 
         Gtk.main()
 
-    def set_about_warning(self, message):
-        self.settings.about_settings.set_warning(message)
-
     def set_dbus_notifications(self, enabled=False):
         if not dbus:
             return
