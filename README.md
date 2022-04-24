@@ -126,6 +126,14 @@ Change all lines starting with `msgstr` to contain the translated message in pro
 
 We welcome pull requests and bug reports about missing or wrong translations, but don't have the resources to get it all right. Please be patient with us and alert us if any translations are wildly inaccurate.
 
+#### Adding new phrases to the overlay app
+
+Once you've used `_('something')` in code somewhere the original `base.pot` and all translations need updating to include the new phrase.
+
+`xgettext -d base -o discover_overlay/locales/base.pot discover_overlay/*.py`
+
+and double check the line `"Content-Type: text/plain; charset=UTF-8\n"` and change from `CHARSET` if it has changed again
+
 ## Why do you keep making Discord Overlays?
 
 I feel like I shouldn't have to at all! Until we get an official one I might just create a new one every few months. Look forward to Rust/Vulkan version coming in a few months. /s

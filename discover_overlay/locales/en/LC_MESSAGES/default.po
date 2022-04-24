@@ -391,14 +391,22 @@ msgstr ""
 msgid "Display Horizontally"
 msgstr ""
 
-#: discover_overlay/voice_settings.py:539
-msgid "Search Servers for User"
+#: discover_overlay/voice_settings.py:549
+msgid "Overflow style"
 msgstr ""
 
-#: discover_overlay/voice_settings.py:550
-msgid "Guilds"
+#: discover_overlay/voice_settings.py:552
+msgid "None"
 msgstr ""
 
-#: discover_overlay/voice_settings.py:572
-msgid "Filter..."
+#: discover_overlay/voice_settings.py:553
+msgid "Wrap"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:554
+msgid "Shrink"
+msgstr ""
+
+#: discover_overlay/voice_settings.py:576
+msgid "Dummy count"
 msgstr ""

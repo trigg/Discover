@@ -398,14 +398,22 @@ msgstr "Padio ymyl llorweddol"
 msgid "Display Horizontally"
 msgstr "Arddangos yn llorweddol"
 
-#: discover_overlay/voice_settings.py:539
-msgid "Search Servers for User"
-msgstr "Chwilio gweinyddwyr ar gyfer y defnyddiwr"
+#: discover_overlay/voice_settings.py:549
+msgid "Overflow style"
+msgstr "Arddull gorlifo"
 
-#: discover_overlay/voice_settings.py:550
-msgid "Guilds"
-msgstr "Guilds"
+#: discover_overlay/voice_settings.py:552
+msgid "None"
+msgstr "Dim"
 
-#: discover_overlay/voice_settings.py:572
-msgid "Filter..."
-msgstr "Hidlo..."
+#: discover_overlay/voice_settings.py:553
+msgid "Wrap"
+msgstr "Lapio"
+
+#: discover_overlay/voice_settings.py:554
+msgid "Shrink"
+msgstr "Crebachu"
+
+#: discover_overlay/voice_settings.py:576
+msgid "Dummy count"
+msgstr "Cyfrif dymi"
