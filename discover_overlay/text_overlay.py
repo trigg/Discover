@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 
 class TextOverlayWindow(OverlayWindow):
-    """Overlay window for voice"""
+    """Overlay window for text"""
 
     def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
