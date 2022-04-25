@@ -73,7 +73,7 @@ It is advised to install python-gobject from your system's own package manager.
 
 #### Arch
 
-`pacman -S python-gobject`
+`pacman -S python-gobject libappindicator-gtk3`
 
 with Wayland support
 
