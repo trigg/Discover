@@ -259,6 +259,9 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_show_attach(self.show_attach)
         self.overlay.set_hide_on_mouseover(self.autohide)
 
+        if self.font:
+            self.overlay.set_font(self.font)
+
     def save_config(self):
         """
         Save the current settings to the 'text' section of the config

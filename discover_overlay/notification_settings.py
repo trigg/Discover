@@ -148,6 +148,8 @@ class NotificationSettingsWindow(SettingsWindow):
         self.overlay.set_padding(self.padding)
         self.overlay.set_border_radius(self.border_radius)
         self.discover.set_dbus_notifications(self.enabled)
+        if self.font:
+            self.overlay.set_font(self.font)
 
     def save_config(self):
         """
