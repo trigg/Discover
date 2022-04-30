@@ -27,40 +27,6 @@ from gi.repository import Gio, GdkPixbuf  # nopep8
 
 log = logging.getLogger(__name__)
 
-
-class ImageGetter():
-    """Older attempt. Not advised as it can't manage anything but PNG. Loads to GDK Pixmap"""
-
-    def __init__(self, func, url, identifier, size):
-        self.func = func
-        self.identifier = identifier
-        self.url = url
-        self.size = size
-
-    def get_url(self):
-        """
-        Download and decode
-        """
-        req = urllib.request.Request(self.url)
-        req.add_header(
-            'Referer', 'https://streamkit.discord.com/overlay/voice')
-        req.add_header('User-Agent', 'Mozilla/5.0')
-        try:
-            response = urllib.request.urlopen(req)
-            input_stream = Gio.MemoryInputStream.new_from_data(
-                response.read(), None)
-            pixbuf = GdkPixbuf.Pixbuf.new_from_stream(input_stream, None)
-            if self.size:
-                pixbuf = pixbuf.scale_simple(self.size, self.size,
-                                             GdkPixbuf.InterpType.BILINEAR)
-
-            self.func(self.identifier, pixbuf)
-        except urllib.error.URLError as exception:
-            log.error(
-                "Could not access : %s", self.url)
-            log.error(exception)
-
-
 class SurfaceGetter():
     """Download and decode image using PIL and store as a cairo surface"""
 
@@ -133,14 +99,6 @@ def from_pil(image, alpha=1.0):
     surface = cairo.ImageSurface.create_for_data(
         arr, cairo.FORMAT_ARGB32, image.width, image.height)
     return surface
-
-
-def get_image(func, identifier, ava, size):
-    """Download to GDK Pixmap"""
-    image_getter = ImageGetter(func, identifier, ava, size)
-    thread = threading.Thread(target=image_getter.get_url, args=())
-    thread.start()
-
 
 def get_surface(func, identifier, ava, size):
     """Download to cairo surface"""
