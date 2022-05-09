@@ -6,7 +6,7 @@ While development is focused on X11 and wlroots-based environments, Plasma + Way
 
 ## Configuration
 
-Once running, you should see the Discover-Overlay logo in your system tray. On desktop environments without a system tray you can instead type `discover-overlay --configure` into the terminal or make a shortcut icon to open it if you wish.
+Once running, you should see the Discover Overlay logo in your system tray. On desktop environments without a system tray you can instead type `discover-overlay --configure` into the terminal or make a shortcut icon to open it if you wish.
 
 ## Nothing shows up?
 
