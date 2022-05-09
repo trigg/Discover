@@ -11,6 +11,6 @@ Try it on [Desktop](usage) or [Steam Deck](deckaddnonsteamgame) today!
 
 Got a question about development or a feature request? [Join our Discord!](https://discord.gg/jRKWMuDy5V) or open an [issue on GitHub](https://github.com/trigg/Discover/issues)
 
-[![GamingOnLinux video showcasing Discover overlay](https://img.youtube.com/vi/9-Eu4o3AzMc/0.jpg)](https://www.youtube.com/watch?v=9-Eu4o3AzMc)
+[![GamingOnLinux video showcasing Discover overlay](youtube_preview.jpg)](https://www.youtube.com/watch?v=9-Eu4o3AzMc)
 
 Thank you to Liam from GamingOnLinux for showcasing our overlay and demonstrating how easy it is to install.
