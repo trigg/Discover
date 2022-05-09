@@ -1,10 +1,12 @@
 # Using Discover Overlay
 
-After installing with [Flathub](install_flathub), [Python PIP](install_pip) or from [another source](https://github.com/trigg/Discover) you should have a launcher icon in 'Utilities' for `Discover Overlay`
+After installing with [Flathub](install_flathub), [Python PIP](install_pip) or from [another source](https://github.com/trigg/Discover) you should have a launcher icon in 'Utilities' for `Discover Overlay`.
+
+While development is focused on X11 and wlroots-based environments, Plasma + Wayland is currently functional with Discover Overlay. (GNOME users need X11.)
 
 ## Configuration
 
-Once running, you should see the Discover Overlay logo in your system tray. On desktop environments without a system tray you can instead type `discover-overlay --configure` into the terminal or make a shortcut icon to open it if you wish.
+Once running, you should see the Discover-Overlay logo in your system tray. On desktop environments without a system tray you can instead type `discover-overlay --configure` into the terminal or make a shortcut icon to open it if you wish.
 
 ## Nothing shows up?
 
