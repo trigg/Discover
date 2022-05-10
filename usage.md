@@ -2,7 +2,7 @@
 
 After installing with [Flathub](install_flathub), [Python PIP](install_pip) or from [another source](https://github.com/trigg/Discover) you should have a launcher icon in 'Utilities' for `Discover Overlay`.
 
-While development is focused on X11 and wlroots-based environments, Plasma + Wayland is currently functional with Discover Overlay. (GNOME users need X11.)
+While development is focused on X11 and wlroots-based environments, user testing has shown Plasma + Wayland as currently functional with a non-Flatpak install of Discover Overlay. (GNOME users will need X11.)
 
 ## Configuration
 
