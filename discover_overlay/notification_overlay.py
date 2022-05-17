@@ -33,7 +33,6 @@ class NotificationOverlayWindow(OverlayWindow):
     def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
-        self.notification_messages = []
         self.content = []
         self.test_content = [{"icon": "https://cdn.discordapp.com/avatars/151774162749227008/75dd622dc9f5736f59f7ae1cfcf862a2.webp?size=128", "title": "Title1"},
                              {"title": "Title2", "body": "Body", "icon": None},
@@ -71,21 +70,21 @@ class NotificationOverlayWindow(OverlayWindow):
         # This doesn't really belong in overlay or settings
         now = time.time()
         newlist = []
-        oldsize = len(self.notification_messages)
+        oldsize = len(self.content)
         # Iterate over and remove messages older than 30s
-        for message in self.notification_messages:
+        for message in self.content:
             if message['time'] + self.text_time > now:
                 newlist.append(message)
-        self.notification_messages = newlist
+        self.content = newlist
         # If the list is different than before
         if oldsize != len(newlist):
-            self.set_content(self.notification_messages, True)
+            self.needsredraw = True
 
     def add_notification_message(self, data):
         noti = None
         data = data['data']
         message_id = data['message']['id']
-        for message in self.notification_messages:
+        for message in self.content:
             if message['id'] == message_id:
                 return
         if 'body' in data and 'title' in data:
@@ -100,8 +99,9 @@ class NotificationOverlayWindow(OverlayWindow):
                         "id": message_id}
 
         if noti:
-            self.notification_messages.append(noti)
-            self.set_content(self.notification_messages, True)
+            self.content.append(noti)
+            self.needsredraw = True
+            self.get_all_images()
 
     def set_padding(self, padding):
         """
@@ -148,15 +148,6 @@ class NotificationOverlayWindow(OverlayWindow):
         """
         self.limit_width = limit
         self.needsredraw = True
-
-    def set_content(self, content, altered):
-        """
-        Update the list of text messages to show
-        """
-        self.content = content
-        if altered:
-            self.needsredraw = True
-            self.get_all_images()
 
     def get_all_images(self):
         the_list = self.content
