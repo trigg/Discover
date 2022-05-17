@@ -38,6 +38,7 @@ class TextOverlayWindow(OverlayWindow):
         self.text_time = None
         self.show_attach = None
         self.popup_style = None
+        self.line_limit = 100
         # 0, 0, self.text_size, self.text_size)
         self.pango_rect = Pango.Rectangle()
         self.pango_rect.width = self.text_size * Pango.SCALE
@@ -54,17 +55,30 @@ class TextOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
         self.redraw()
 
+    def tick(self):
+        if len(self.attachment) > self.line_limit:
+            # We've probably got old images!
+            oldlist = self.attachment
+            self.attachment = {}
+            log.info("Cleaning old images")
+            for message in self.content:
+                if 'attach' in message and message['attach']:
+                    url = message['attach'][0]['url']
+                    log.info("keeping %s", url)
+                    self.attachment[url] = oldlist[url]
+
     def set_text_time(self, timer):
         """
         Set the duration that a message will be visible for.
         """
         self.text_time = timer
+        self.needsredraw = True
 
     def set_text_list(self, tlist, altered):
         """
         Update the list of text messages to show
         """
-        self.content = tlist
+        self.content = tlist[-self.line_limit:]
         if altered:
             self.needsredraw = True
 
@@ -106,6 +120,12 @@ class TextOverlayWindow(OverlayWindow):
         self.pango_rect.width = font.get_size() * Pango.SCALE
         self.pango_rect.height = font.get_size() * Pango.SCALE
         self.needsredraw = True
+
+    def set_line_limit(self, limit):
+        """
+        Change maximum number of lines in overlay
+        """
+        self.line_limit = limit
 
     def make_line(self, message):
         """

@@ -64,6 +64,7 @@ class TextSettingsWindow(SettingsWindow):
         self.popup_style = None
         self.text_time = None
         self.show_attach = None
+        self.line_limit = None
         self.enabled = None
 
         self.set_size_request(400, 200)
@@ -239,6 +240,7 @@ class TextSettingsWindow(SettingsWindow):
         self.text_time = config.getint("text", "text_time", fallback=30)
         self.show_attach = config.getboolean(
             "text", "show_attach", fallback=True)
+        self.line_limit = config.getint("text", "line_limit", fallback=20)
         self.autohide = config.getboolean("text", "autohide", fallback=False)
 
         log.info(
@@ -257,6 +259,7 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_popup_style(self.popup_style)
         self.overlay.set_text_time(self.text_time)
         self.overlay.set_show_attach(self.show_attach)
+        self.overlay.set_line_limit(self.line_limit)
         self.overlay.set_hide_on_mouseover(self.autohide)
 
         if self.font:
@@ -286,6 +289,7 @@ class TextSettingsWindow(SettingsWindow):
         config.set("text", "fg_col", json.dumps(self.fg_col))
         config.set("text", "popup_style", "%s" % (int(self.popup_style)))
         config.set("text", "text_time", "%s" % (int(self.text_time)))
+        config.set("text", "line_limit", "%s" % (int(self.line_limit)))
         config.set("text", "show_attach", "%s" % (int(self.show_attach)))
 
         if self.font:
@@ -426,6 +430,14 @@ class TextSettingsWindow(SettingsWindow):
         show_attach.set_active(self.show_attach)
         show_attach.connect("toggled", self.change_show_attach)
 
+        # Line Limit
+        line_limit_label = Gtk.Label.new(_("Line limit"))
+        line_limit_label.set_xalign(0)
+        line_limit_adjustment = Gtk.Adjustment.new(
+            self.line_limit, 10, 400, 1, 1, 8)
+        line_limit = Gtk.SpinButton.new(line_limit_adjustment, 0, 0)
+        line_limit.connect("value-changed", self.change_line_limit)
+
         self.align_x_widget = align_x
         self.align_y_widget = align_y
         self.align_monitor_widget = monitor
@@ -464,6 +476,8 @@ class TextSettingsWindow(SettingsWindow):
         box.attach(align_placement_button, 1, 13, 1, 1)
         box.attach(show_attach_label, 0, 14, 1, 1)
         box.attach(show_attach, 1, 14, 1, 1)
+        box.attach(line_limit_label, 0, 15, 1, 1)
+        box.attach(line_limit, 1, 15, 1, 1)
 
         self.add(box)
 
@@ -584,4 +598,13 @@ class TextSettingsWindow(SettingsWindow):
         self.overlay.set_show_attach(button.get_active())
 
         self.show_attach = button.get_active()
+        self.save_config()
+
+    def change_line_limit(self, button):
+        """
+        Line limit setting changed
+        """
+        self.overlay.set_line_limit(button.get_value())
+
+        self.line_limit = button.get_value()
         self.save_config()

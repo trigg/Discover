@@ -91,8 +91,10 @@ class Discover:
         if self.voice_overlay.needsredraw:
             self.voice_overlay.redraw()
 
-        if self.text_overlay and self.text_overlay.needsredraw:
-            self.text_overlay.redraw()
+        if self.text_overlay:
+            self.text_overlay.tick()
+            if self.text_overlay.needsredraw:
+                self.text_overlay.redraw()
 
         if self.notification_overlay and self.notification_overlay.enabled:
             self.notification_overlay.tick()
