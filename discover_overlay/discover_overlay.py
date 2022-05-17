@@ -316,7 +316,7 @@ def entrypoint():
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     debug_file = os.path.join(config_dir, "output.txt")
-    logging.getLogger().setLevel(logging.WARNING)
+    logging.getLogger().setLevel(logging.INFO)
     FORMAT = "%(levelname)s - %(name)s - %(message)s"
     if "--debug" in sys.argv or "-v" in sys.argv:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -324,6 +324,8 @@ def entrypoint():
     else:
         logging.basicConfig(format=FORMAT)
     log = logging.getLogger(__name__)
+    log.info("Starting Discover Overlay: %s",
+             pkg_resources.get_distribution('discover_overlay').version)
 
     # Flatpak compat mode
     try:

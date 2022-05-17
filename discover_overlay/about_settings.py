@@ -58,8 +58,9 @@ class AboutSettingsWindow(Gtk.Grid):
         self.attach(spacing_box_2, 1, 2, 1, 1)
 
         blurb = Gtk.Label.new(None)
-        message = "<span size=\"larger\">%s</span>\n\n%s\n\n%s (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) %s (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n" % (
+        message = "<span size=\"larger\">%s (%s)</span>\n\n%s\n\n%s (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) %s (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n" % (
             _("Welcome to Discover Overlay"),
+            pkg_resources.get_distribution('discover_overlay').version,
             _("Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to show who is currently talking on discord or it can be set to display text and images from a preconfigured channel. It is fully customisable and can be configured to display anywhere on the screen. We fully support X11 and wlroots based environments. We felt the need to make this project due to the shortcomings in support on Linux by the official discord client."),
             _("Please visit our discord"),
             _(" for support. Or open an issue on our GitHub ")
