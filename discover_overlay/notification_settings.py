@@ -147,7 +147,6 @@ class NotificationSettingsWindow(SettingsWindow):
         self.overlay.set_icon_pad(self.icon_padding)
         self.overlay.set_padding(self.padding)
         self.overlay.set_border_radius(self.border_radius)
-        self.discover.set_dbus_notifications(self.enabled)
         if self.font:
             self.overlay.set_font(self.font)
 
@@ -513,5 +512,4 @@ class NotificationSettingsWindow(SettingsWindow):
         """
         self.overlay.set_enabled(button.get_active())
         self.enabled = button.get_active()
-        self.discover.set_dbus_notifications(self.enabled)
         self.save_config()

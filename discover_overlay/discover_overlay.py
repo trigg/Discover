@@ -17,14 +17,6 @@ import time
 import sys
 import re
 import traceback
-try:
-    # pylint: disable=wrong-import-position,wrong-import-order
-    import dbus  # nopep8
-    # pylint: disable=wrong-import-position,wrong-import-order
-    from dbus.mainloop.glib import DBusGMainLoop  # nopep8
-except:
-    dbus = None
-    pass
 import logging
 import pkg_resources
 import gi
@@ -60,9 +52,6 @@ class Discover:
         self.connection = None
         self.show_settings_delay = False
         self.settings = None
-        self.notification_messages = []
-        self.dbus_notification = None
-        self.bus = None
 
         self.debug_file = debug_file
 
@@ -98,19 +87,6 @@ class Discover:
 
         Gtk.main()
 
-    def set_dbus_notifications(self, enabled=False):
-        if not dbus:
-            return
-        if not self.bus:
-            DBusGMainLoop(set_as_default=True)
-            self.bus = dbus.SessionBus()
-            self.bus.add_match_string_non_blocking(
-                "eavesdrop=true, interface='org.freedesktop.Notifications', member='Notify'")
-        if enabled:
-            if not self.dbus_notification:
-                self.bus.add_message_filter(self.add_notification_message)
-                self.dbus_notification = True
-
     def periodic_run(self, data=None):
         if self.voice_overlay.needsredraw:
             self.voice_overlay.redraw()
@@ -118,39 +94,11 @@ class Discover:
         if self.text_overlay and self.text_overlay.needsredraw:
             self.text_overlay.redraw()
 
-        if self.notification_overlay and dbus:
-            if self.notification_overlay.enabled:
-                # This doesn't really belong in overlay or settings
-                now = time.time()
-                newlist = []
-                oldsize = len(self.notification_messages)
-                # Iterate over and remove messages older than 30s
-                for message in self.notification_messages:
-                    if message['time'] + self.settings.notification_settings.text_time > now:
-                        newlist.append(message)
-                self.notification_messages = newlist
-                # If the list is different than before
-                if oldsize != len(newlist):
-                    self.notification_overlay.set_content(
-                        self.notification_messages, True)
+        if self.notification_overlay and self.notification_overlay.enabled:
+            self.notification_overlay.tick()
             if self.notification_overlay.needsredraw:
                 self.notification_overlay.redraw()
         return True
-
-    def add_notification_message(self, bus, message):
-        args = message.get_args_list()
-        if len(args) > 4:
-            noti = {"title": "%s" % (args[3]), "body": "%s" % (args[4]),
-                    "icon": "%s" % (args[2]), "cmd": "%s" % (args[0]), "time": time.time()}
-            if len(args) > 6:
-                dictionary = args[6]
-                if 'image-data' in dictionary:
-                    noti['icon_raw'] = dictionary['image-data']
-                elif 'image_data' in dictionary:
-                    noti['icon_raw'] = dictionary['image_data']
-            self.notification_messages.append(noti)
-            self.notification_overlay.set_content(
-                self.notification_messages, True)
 
     def do_args(self, data, normal_close):
         """

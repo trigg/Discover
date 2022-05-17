@@ -19,7 +19,6 @@ import math
 import gi
 from .image_getter import get_surface, draw_img_to_rect, get_aspected_size, make_surface_from_raw
 from .overlay import OverlayWindow
-from .craig_birdy import birdy
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -27,18 +26,21 @@ from gi.repository import Gtk, Pango, PangoCairo  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class NotificationOverlayWindow(OverlayWindow):
     """Overlay window for notifications"""
 
     def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
+        self.notification_messages = []
         self.content = []
-        self.test_content = [{"icon": "next", "title": "Title1"},
+        self.test_content = [{"icon": "https://cdn.discordapp.com/avatars/151774162749227008/75dd622dc9f5736f59f7ae1cfcf862a2.webp?size=128", "title": "Title1"},
                              {"title": "Title2", "body": "Body", "icon": None},
-                             {"icon": "discord", "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+                             {"icon": "https://cdn.discordapp.com/avatars/151774162749227008/75dd622dc9f5736f59f7ae1cfcf862a2.webp?size=128", "title": "Title 3",
+                                 "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
                              {"icon": None, "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
-                             {"icon": None, "title": "PM", "body": "Birdy test", "icon_raw": birdy}]
+                             {"icon": "https://cdn.discordapp.com/avatars/147077941317206016/0c0a10fa527c428e68fa527fe7a90bc5.webp?size=128", "title": "PM", "body": "Birdy test"}]
         self.text_font = None
         self.text_size = 13
         self.text_time = None
@@ -64,6 +66,42 @@ class NotificationOverlayWindow(OverlayWindow):
         self.warned_filetypes = []
         self.set_title("Discover Text")
         self.redraw()
+
+    def tick(self):
+        # This doesn't really belong in overlay or settings
+        now = time.time()
+        newlist = []
+        oldsize = len(self.notification_messages)
+        # Iterate over and remove messages older than 30s
+        for message in self.notification_messages:
+            if message['time'] + self.text_time > now:
+                newlist.append(message)
+        self.notification_messages = newlist
+        # If the list is different than before
+        if oldsize != len(newlist):
+            self.set_content(self.notification_messages, True)
+
+    def add_notification_message(self, data):
+        noti = None
+        data = data['data']
+        message_id = data['message']['id']
+        for message in self.notification_messages:
+            if message['id'] == message_id:
+                return
+        if 'body' in data and 'title' in data:
+            if 'icon_url' in data:
+                noti = {"icon": data['icon_url'],
+                        "title": data['title'],
+                        "body": data['body'], "time": time.time(),
+                        "id": message_id}
+            else:
+                noti = {"title": data['title'],
+                        "body": data['body'], "time": time.time(),
+                        "id": message_id}
+
+        if noti:
+            self.notification_messages.append(noti)
+            self.set_content(self.notification_messages, True)
 
     def set_padding(self, padding):
         """
@@ -126,18 +164,10 @@ class NotificationOverlayWindow(OverlayWindow):
             the_list = self.test_content
         for line in the_list:
             icon = line["icon"]
-            if "icon_raw" in line:
-                if "icon_surface" not in line:
-                    line["icon_surface"] = make_surface_from_raw(
-                        line["icon_raw"], self.icon_size)
 
             if icon and icon not in self.image_list:
-                icon_theme = Gtk.IconTheme.get_default()
-                icon_info = icon_theme.lookup_icon(
-                    icon, self.icon_size, Gtk.IconLookupFlags.FORCE_SIZE)
-                if icon_info:
-                    get_surface(self.recv_icon,
-                                icon_info.get_filename(), icon, self.icon_size)
+                get_surface(self.recv_icon, icon, icon,
+                            self.icon_size)
 
     def recv_icon(self, identifier, pix):
         """

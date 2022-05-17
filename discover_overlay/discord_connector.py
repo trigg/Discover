@@ -77,7 +77,7 @@ class DiscordConnector:
             "args":
             {
                 "client_id": self.oauth_token,
-                "scopes": ["rpc", "messages.read"],
+                "scopes": ["rpc", "messages.read", "rpc.notifications.read"],
                 "prompt": "none",
             },
             "nonce": "deadbeef"
@@ -324,6 +324,8 @@ class DiscordConnector:
             elif j["evt"] == "CHANNEL_CREATE":
                 # We haven't been told what guild this is in
                 self.req_channel_details(j["data"]["id"], 'new')
+            elif j["evt"] == "NOTIFICATION_CREATE":
+                self.discover.notification_overlay.add_notification_message(j)
             else:
                 log.warning(j)
             return
@@ -339,6 +341,7 @@ class DiscordConnector:
                 log.info(
                     "Logged in as %s", self.user["username"])
                 self.authed = True
+                self.on_connected()
                 return
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
@@ -419,8 +422,6 @@ class DiscordConnector:
         for guild in self.guilds.values():
             if len(self.voice_settings.guild_ids) > 0 and guild["id"] in self.voice_settings.guild_ids and "channels" not in guild:
                 return
-        # All guilds are filled!
-        self.on_connected()
 
     def on_connected(self):
         """
@@ -564,6 +565,7 @@ class DiscordConnector:
         self.sub_raw("VOICE_CONNECTION_STATUS", {}, "VOICE_CONNECTION_STATUS")
         self.sub_raw("GUILD_CREATE", {}, "GUILD_CREATE")
         self.sub_raw("CHANNEL_CREATE", {}, "CHANNEL_CREATE")
+        self.sub_raw("NOTIFICATION_CREATE", {}, "NOTIFICATION_CREATE")
 
     def sub_channel(self, event, channel):
         """
