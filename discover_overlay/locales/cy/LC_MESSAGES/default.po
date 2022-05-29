@@ -417,3 +417,6 @@ msgstr "Crebachu"
 #: discover_overlay/voice_settings.py:576
 msgid "Dummy count"
 msgstr "Cyfrif dymi"
+
+msgid "Line limit"
+msgstr "Terfyn Llinell"

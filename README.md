@@ -112,9 +112,14 @@ in all cases `XX` should be replaced with the language code, in case of English 
 #### Adding a new translation
 
 First, find out what language code is required
-Copy discover_overlay/locales/base.pot to discover_overlay/locales/XX/LC_MESSAGES/default.po
+Copy `discover_overlay/locales/base.pot` to `discover_overlay/locales/XX/LC_MESSAGES/default.po`
 
 Change all lines starting with `msgstr` to contain the translated message in provided quotes, the line above should be a `msgid` which has the original word, sentence or fragment.
+
+```
+msgid "Please visit our discord"
+msgstr "Ewch i'n Discord"
+```
 
 #### Compiling updates
 
