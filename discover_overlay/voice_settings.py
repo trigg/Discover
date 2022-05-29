@@ -22,7 +22,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk  # nopep8
 
 t = gettext.translation(
-    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'), fallback=True)
 _ = t.gettext
 
 

@@ -22,7 +22,7 @@ from .settings import SettingsWindow
 
 log = logging.getLogger(__name__)
 t = gettext.translation('default', pkg_resources.resource_filename(
-    'discover_overlay', 'locales'))
+    'discover_overlay', 'locales'), fallback=True)
 _ = t.gettext
 
 gi.require_version("Gtk", "3.0")
