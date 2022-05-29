@@ -38,7 +38,7 @@ except ModuleNotFoundError:
 
 log = logging.getLogger(__name__)
 t = gettext.translation(
-    'default', pkg_resources.resource_filename('discover_overlay', 'locales'))
+    'default', pkg_resources.resource_filename('discover_overlay', 'locales'), fallback=True)
 _ = t.gettext
 
 
