@@ -32,6 +32,7 @@ except (ImportError, ValueError):
 
 log = logging.getLogger(__name__)
 
+
 class OverlayWindow(Gtk.Window):
     """
     Overlay parent class. Helpful if we need more overlay
@@ -92,23 +93,7 @@ class OverlayWindow(Gtk.Window):
         if not piggyback:
             self.show_all()
             if discover.steamos:
-                display = Display()
-                atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
-                opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
-
-                topw = display.create_resource_object(
-                    "window", self.get_toplevel().get_window().get_xid())
-
-                topw.change_property(atom,
-                                     Xatom.CARDINAL, 32,
-                                     [1], X.PropModeReplace)
-                # Keep for reference, but appears to be unnecessary
-                # topw.change_property(opaq,
-                #                     Xatom.CARDINAL,16,
-                #                     [0xffff], X.PropModeReplace)
-
-                log.info("Setting STEAM_EXTERNAL_OVERLAY")
-                display.sync()
+                self.set_gamescope_xatom(1)
         self.monitor = 0
         self.align_right = True
         self.align_vert = 1
@@ -120,6 +105,23 @@ class OverlayWindow(Gtk.Window):
         self.piggyback_parent = None
         if piggyback:
             self.set_piggyback(piggyback)
+
+    def set_gamescope_xatom(self, enabled):
+        display = Display()
+        atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
+        opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
+
+        if self.get_toplevel().get_window():
+            topw = display.create_resource_object(
+                "window", self.get_toplevel().get_window().get_xid())
+
+            topw.change_property(atom,
+                                 Xatom.CARDINAL, 32,
+                                 [enabled], X.PropModeReplace)
+            log.info("Setting GAMESCOPE_EXTERNAL_OVERLAY to %s", enabled)
+            display.sync()
+        else:
+            log.warn("Unable to set GAMESCOPE_EXTERNAL_OVERLAY")
 
     def set_wayland_state(self):
         """
@@ -316,7 +318,11 @@ class OverlayWindow(Gtk.Window):
         if enabled and not self.hidden and not self.piggyback_parent:
             self.show_all()
             self.set_untouchable()
+            if self.discover.steamos:
+                self.set_gamescope_xatom(1)
         else:
+            if self.discover.steamos:
+                self.set_gamescope_xatom(0)
             self.hide()
 
     def set_hide_on_mouseover(self, hide):
