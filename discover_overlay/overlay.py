@@ -306,7 +306,7 @@ class OverlayWindow(Gtk.Window):
         """
         self.force_xshape = force
 
-        if self.is_wayland:
+        if self.is_wayland or self.discover.steamos:
             # Wayland and XShape are a bad idea unless you're a fan on artifacts
             self.force_xshape = False
 

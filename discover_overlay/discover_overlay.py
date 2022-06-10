@@ -276,12 +276,16 @@ class Discover:
         self.voice_overlay.set_force_xshape(force)
         if self.text_overlay:
             self.text_overlay.set_force_xshape(force)
+        if self.notification_overlay:
+            self.notification_overlay.set_force_xshape(force)
 
     def set_show_task(self, visible):
         if self.voice_overlay:
             self.voice_overlay.set_task(visible)
         if self.text_overlay:
             self.text_overlay.set_task(visible)
+        if self.notification_overlay:
+            self.notification_overlay.set_task(visible)
 
     def set_sys_tray_icon_visible(self, visible):
         """
@@ -326,7 +330,6 @@ def entrypoint():
     log = logging.getLogger(__name__)
     log.info("Starting Discover Overlay: %s",
              pkg_resources.get_distribution('discover_overlay').version)
-
     # Flatpak compat mode
     try:
         if "container" in os.environ and os.environ["container"] == "flatpak":
