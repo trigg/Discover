@@ -624,7 +624,8 @@ class DiscordConnector:
             "args": {},
             "nonce": "deadbeef"
         }
-        self.websocket.send(json.dumps(cmd))
+        if self.websocket:
+            self.websocket.send(json.dumps(cmd))
 
     def set_mute(self, muted):
         cmd = {
@@ -632,7 +633,8 @@ class DiscordConnector:
             "args": {"mute": muted},
             "nonce": "deadbeef"
         }
-        self.websocket.send(json.dumps(cmd))
+        if self.websocket:
+            self.websocket.send(json.dumps(cmd))
 
     def set_deaf(self, deaf):
         cmd = {
@@ -640,7 +642,8 @@ class DiscordConnector:
             "args": {"deaf": deaf},
             "nonce": "deadbeef"
         }
-        self.websocket.send(json.dumps(cmd))
+        if self.websocket:
+            self.websocket.send(json.dumps(cmd))
 
     def change_voice_room(self, id):
         """
@@ -654,7 +657,8 @@ class DiscordConnector:
             },
             "nonce": "deadbeef"
         }
-        self.websocket.send(json.dumps(cmd))
+        if self.websocket:
+            self.websocket.send(json.dumps(cmd))
 
     def change_text_room(self, id):
         """
@@ -667,7 +671,8 @@ class DiscordConnector:
             },
             "nonce": "deadbeef"
         }
-        self.websocket.send(json.dumps(cmd))
+        if self.websocket:
+            self.websocket.send(json.dumps(cmd))
 
     def do_read(self):
         """
