@@ -27,7 +27,7 @@ except (ImportError, ValueError):
 class DraggableWindowWayland(Gtk.Window):
     """A Wayland full-screen window which can be moved and resized"""
 
-    def __init__(self, pos_x=0, pos_y=0, width=300, height=300, message="Message", settings=None, steamos=False):
+    def __init__(self, pos_x=0, pos_y=0, width=300, height=300, message="Message", settings=None, steamos=False, monitor=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.TOPLEVEL)
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -43,13 +43,14 @@ class DraggableWindowWayland(Gtk.Window):
         self.connect('button-release-event', self.button_release)
 
         self.set_app_paintable(True)
-        self.monitor = 0
 
         self.drag_type = None
         self.drag_x = 0
         self.drag_y = 0
         if GtkLayerShell:
             GtkLayerShell.init_for_window(self)
+            if monitor:
+                GtkLayerShell.set_monitor(self,monitor)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)

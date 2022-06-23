@@ -161,7 +161,8 @@ class SettingsWindow(Gtk.VBox):
                     pos_x=self.floating_x, pos_y=self.floating_y,
                     width=self.floating_w, height=self.floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
-                    steamos=self.discover.steamos)
+                    steamos=self.discover.steamos,
+                    monitor=self.get_monitor_obj(self.monitor))
             else:
                 self.placement_window = DraggableWindow(
                     pos_x=self.floating_x, pos_y=self.floating_y,
@@ -197,7 +198,6 @@ class SettingsWindow(Gtk.VBox):
             self.save_config()
             self.align_x_widget.hide()
             self.align_y_widget.hide()
-            self.align_monitor_widget.hide()
             self.align_placement_widget.show()
 
     def change_monitor(self, button):
