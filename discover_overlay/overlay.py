@@ -275,6 +275,7 @@ class OverlayWindow(Gtk.Window):
         if self.is_wayland:
             if mon:
                 GtkLayerShell.set_monitor(self, mon)
+                self.set_untouchable()
         self.force_location()
         self.needsredraw = True
 
