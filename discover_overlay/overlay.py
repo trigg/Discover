@@ -334,3 +334,8 @@ class OverlayWindow(Gtk.Window):
     def set_task(self, visible):
         self.set_skip_pager_hint(not visible)
         self.set_skip_taskbar_hint(not visible)
+
+    def check_composite(self):
+        screen = self.get_screen()
+        if not self.compositing == screen.is_composited():
+            self.needsredraw = True

@@ -285,11 +285,6 @@ class VoiceOverlayWindow(OverlayWindow):
             else:
                 user["friendlyname"] = user["username"]
         self.sort_list(self.userlist)
-        screen = self.get_screen()
-        # Check if composite state has changed
-        if not self.compositing == screen.is_composited():
-            alt = True
-            self.compositing = screen.is_composited()
         if alt:
             self.needsredraw = True
 
