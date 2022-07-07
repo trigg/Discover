@@ -39,12 +39,8 @@ class DiscordConnector:
     communicates to get voice & text info to display
     """
 
-    def __init__(self, discover, text_settings, voice_settings, text_overlay, voice_overlay):
+    def __init__(self, discover):
         self.discover = discover
-        self.text_settings = text_settings
-        self.text_overlay = text_overlay
-        self.voice_settings = voice_settings
-        self.voice_overlay = voice_overlay
         self.websocket = None
         self.access_token = "none"
         self.oauth_token = "207646673902501888"
@@ -246,7 +242,7 @@ class DiscordConnector:
             if "lastspoken" not in user and "lastspoken" in olduser:
                 user["lastspoken"] = olduser["lastspoken"]
             if olduser["avatar"] != user["avatar"]:
-                self.voice_overlay.delete_avatar(user["id"])
+                self.discover.voice_overlay.delete_avatar(user["id"])
         if "lastspoken" not in user:  # Still nothing?
             user["lastspoken"] = 0  # EEEEPOOCH EEEEEPOCH! BELIEVE MEEEE
         if "speaking" not in user:
@@ -346,14 +342,14 @@ class DiscordConnector:
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
                 self.guilds[guild["id"]] = guild
-                if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
+                if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
                     self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_GUILD":
             # We currently only get here because of a "CHANNEL_CREATE" event. Stupidly long winded way around
             if j["data"]:
                 guild = j["data"]
-                if len(self.voice_settings.guild_ids) == 0 or guild["id"] in self.voice_settings.guild_ids:
+                if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
                     self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_CHANNELS":
@@ -364,8 +360,8 @@ class DiscordConnector:
                 self.channels[channel["id"]] = channel
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
-            if j["nonce"] == self.text_settings.get_guild():
-                self.text_settings.set_channels(j["data"]["channels"])
+            if j["nonce"] == self.discover.settings.text_settings.get_guild():
+                self.discover.settings.text_settings.set_channels(j["data"]["channels"])
             self.check_guilds()
             return
         elif j["cmd"] == "SUBSCRIBE":
@@ -420,7 +416,7 @@ class DiscordConnector:
         Check if all of the guilds contain a channel
         """
         for guild in self.guilds.values():
-            if len(self.voice_settings.guild_ids) > 0 and guild["id"] in self.voice_settings.guild_ids and "channels" not in guild:
+            if len(self.discover.settings.voice_settings.guild_ids) > 0 and guild["id"] in self.discover.settings.voice_settings.guild_ids and "channels" not in guild:
                 return
 
     def on_connected(self):
@@ -431,7 +427,7 @@ class DiscordConnector:
         self.find_user()
         if self.current_text:
             self.start_listening_text(self.current_text)
-            
+
     def on_error(self, error):
         """
         Called when an error has occured
@@ -704,20 +700,20 @@ class DiscordConnector:
         newlist = []
         for userid in self.in_room:
             newlist.append(self.userlist[userid])
-        self.voice_overlay.set_user_list(newlist, self.list_altered)
-        self.voice_overlay.set_connection(self.last_connection)
+        self.discover.voice_overlay.set_user_list(newlist, self.list_altered)
+        self.discover.voice_overlay.set_connection(self.last_connection)
         self.list_altered = False
         # Update text list
-        if self.text_overlay.popup_style:
+        if self.discover.text_overlay.popup_style:
             self.text_altered = True
         if self.text_altered:
-            self.text_overlay.set_text_list(self.text, self.text_altered)
+            self.discover.text_overlay.set_text_list(self.text, self.text_altered)
             self.text_altered = False
         # Update guilds
-        self.text_settings.set_guilds(self.guilds)
+        self.discover.settings.text_settings.set_guilds(self.guilds)
         # Check for changed channel
         if self.authed:
-            self.set_text_channel(self.text_settings.get_channel())
+            self.set_text_channel(self.discover.settings.text_settings.get_channel())
 
         if len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()
