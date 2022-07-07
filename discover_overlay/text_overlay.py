@@ -55,6 +55,10 @@ class TextOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
         self.redraw()
 
+    def set_blank(self):
+        self.content=[]
+        self.needsredraw=True
+
     def tick(self):
         if len(self.attachment) > self.line_limit:
             # We've probably got old images!

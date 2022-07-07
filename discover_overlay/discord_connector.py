@@ -429,12 +429,9 @@ class DiscordConnector:
         """
         self.sub_server()
         self.find_user()
-        self.voice_overlay.set_enabled(True)
-        if self.text_overlay:
-            self.text_overlay.set_enabled(self.text_settings.enabled)
-            if self.current_text:
-                self.start_listening_text(self.current_text)
-
+        if self.current_text:
+            self.start_listening_text(self.current_text)
+            
     def on_error(self, error):
         """
         Called when an error has occured
@@ -446,9 +443,11 @@ class DiscordConnector:
         Called when connection is closed
         """
         log.warning("Connection closed")
-        self.voice_overlay.hide()
-        if self.text_overlay:
-            self.text_overlay.hide()
+        self.discover.voice_overlay.set_blank()
+        if self.discover.text_overlay:
+            self.discover.text_overlay.set_blank()
+        if self.discover.notification_overlay:
+            self.discover.notification_overlay.set_blank()
         self.websocket = None
         self.reconnect_delay = 60 * 5
 

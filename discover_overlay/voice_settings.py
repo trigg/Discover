@@ -182,6 +182,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_horizontal(self.horizontal)
         self.overlay.set_guild_ids(self.guild_ids)
         self.overlay.set_overflow(self.overflow)
+        self.overlay.set_enabled(True)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -788,6 +789,9 @@ class VoiceSettingsWindow(SettingsWindow):
     def change_dummy_data(self, button):
         self.overlay.set_show_dummy(button.get_active())
         self.show_dummy = button.get_active()
+        if self.show_dummy:
+            self.overlay.set_enabled(True)
+            self.overlay.set_hidden(False)
 
     def change_dummy_count(self, button):
         self.overlay.set_dummy_count(int(button.get_value()))

@@ -66,6 +66,10 @@ class NotificationOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
         self.redraw()
 
+    def set_blank(self):
+        self.content=[]
+        self.needsredraw=True
+
     def tick(self):
         # This doesn't really belong in overlay or settings
         now = time.time()

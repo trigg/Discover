@@ -91,6 +91,10 @@ class VoiceOverlayWindow(OverlayWindow):
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()
+    
+    def set_blank(self):
+        self.userlist=[]
+        self.needsredraw=True
 
     def set_show_dummy(self, show_dummy):
         """
@@ -351,7 +355,7 @@ class VoiceOverlayWindow(OverlayWindow):
             userlist = self.dummy_data
         for user in userlist:
             # Bad object equality here, so we need to reassign
-            if user["id"] == self_user["id"]:
+            if "id" in self_user and user["id"] == self_user["id"]:
                 self_user = user
 
             # Update friendly name with nick if possible

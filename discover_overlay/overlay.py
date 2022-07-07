@@ -66,7 +66,6 @@ class OverlayWindow(Gtk.Window):
         self.needsredraw = True
         self.hidden = False
         self.enabled = False
-
         self.set_size_request(50, 50)
         self.connect('draw', self.overlay_draw)
         # Set RGBA
