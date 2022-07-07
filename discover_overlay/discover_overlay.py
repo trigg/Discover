@@ -139,11 +139,15 @@ class Discover:
                 self.voice_overlay.set_hidden(True)
             if self.text_overlay:
                 self.text_overlay.set_hidden(True)
+            if self.notification_overlay:
+                self.notification_overlay.set_hidden(True)
         if "--show" in data:
             if self.voice_overlay:
                 self.voice_overlay.set_hidden(False)
             if self.text_overlay:
                 self.text_overlay.set_hidden(False)
+            if self.notification_overlay:
+                self.notification_overlay.set_hidden(False)
         if "--mute" in data:
             if self.connection:
                 self.connection.set_mute(True)
@@ -227,12 +231,15 @@ class Discover:
         """
         menu = Gtk.Menu()
         settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
+        show_opt = Gtk.MenuItem.new_with_label(_("Toggle Hidden"))
         close_opt = Gtk.MenuItem.new_with_label(_("Close"))
 
         menu.append(settings_opt)
+        menu.append(show_opt)
         menu.append(close_opt)
 
         settings_opt.connect("activate", self.show_settings)
+        show_opt.connect("activate", self.toggle_show)
         close_opt.connect("activate", self.close)
         menu.show_all()
         return menu
@@ -244,6 +251,15 @@ class Discover:
         self.menu.show_all()
         self.menu.popup(
             None, None, Gtk.StatusIcon.position_menu, obj, button, time)
+
+    def toggle_show(self, _obj=None):
+        if self.voice_overlay:
+            hide = not self.voice_overlay.hidden
+            self.voice_overlay.set_hidden(hide)
+            if self.text_overlay:
+                self.text_overlay.set_hidden(hide)
+            if self.notification_overlay:
+                self.notification_overlay.set_hidden(hide)
 
     def show_settings(self, _obj=None, _data=None):
         """
