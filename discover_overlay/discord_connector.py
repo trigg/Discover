@@ -57,7 +57,6 @@ class DiscordConnector:
         self.current_text = "0"
         self.list_altered = False
         self.text_altered = False
-        self.last_connection = ""
         self.text = []
         self.authed = False
 
@@ -288,6 +287,8 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
+                    self.find_user()
+                    # User might have been forcibly moved room
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 # It's only possible to get alerts for the room you're in
@@ -306,8 +307,7 @@ class DiscordConnector:
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
                 self.set_channel(j["data"]["channel_id"])
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
-                # VOICE_CONNECTED > CONNECTING > AWAITING_ENDPOINT > DISCONNECTED
-                self.last_connection = j["data"]["state"]
+                self.discover.voice_overlay.set_connection_status(j["data"])
             elif j["evt"] == "MESSAGE_CREATE":
                 if self.current_text == j["data"]["channel_id"]:
                     self.add_text(j["data"]["message"])
@@ -374,6 +374,7 @@ class DiscordConnector:
         elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
             if 'data' in j and j['data'] and 'id' in j['data']:
                 self.set_channel(j['data']['id'])
+                self.discover.voice_overlay.set_channel_title(j["data"]["name"])
                 self.list_altered = True
                 self.in_room = []
                 for u in j['data']['voice_states']:
@@ -701,7 +702,6 @@ class DiscordConnector:
         for userid in self.in_room:
             newlist.append(self.userlist[userid])
         self.discover.voice_overlay.set_user_list(newlist, self.list_altered)
-        self.discover.voice_overlay.set_connection(self.last_connection)
         self.list_altered = False
         # Update text list
         if self.discover.text_overlay.popup_style:

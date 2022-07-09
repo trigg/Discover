@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-29 23:27+0000\n"
+"POT-Creation-Date: 2022-07-09 21:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,9 @@ msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
 msgstr ""
 
 msgid "Settings"
+msgstr ""
+
+msgid "Toggle Hidden"
 msgstr ""
 
 msgid "Close"
@@ -221,6 +224,39 @@ msgstr ""
 msgid "Line limit"
 msgstr ""
 
+msgid "DISCONNECTED"
+msgstr ""
+
+msgid "NO_ROUTE"
+msgstr ""
+
+msgid "VOICE_DISCONNECTED"
+msgstr ""
+
+msgid "ICE_CHECKING"
+msgstr ""
+
+msgid "AWAITING_ENDPOINT"
+msgstr ""
+
+msgid "AUTHENTICATING"
+msgstr ""
+
+msgid "CONNECTING"
+msgstr ""
+
+msgid "CONNECTED"
+msgstr ""
+
+msgid "VOICE_CONNECTING"
+msgstr ""
+
+msgid "VOICE_CONNECTED"
+msgstr ""
+
+msgid "Title Font"
+msgstr ""
+
 msgid "Label"
 msgstr ""
 
@@ -291,6 +327,15 @@ msgid "Wrap"
 msgstr ""
 
 msgid "Shrink"
+msgstr ""
+
+msgid "Show Title"
+msgstr ""
+
+msgid "Show Connection Status"
+msgstr ""
+
+msgid "Show while disconnected"
 msgstr ""
 
 msgid "Dummy count"

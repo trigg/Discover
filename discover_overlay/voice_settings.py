@@ -65,6 +65,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.text_padding = None
         self.text_baseline_adj = None
         self.font = None
+        self.title_font = None
         self.square_avatar = None
         self.only_speaking = None
         self.highlight_self = None
@@ -77,11 +78,14 @@ class VoiceSettingsWindow(SettingsWindow):
         self.horizontal = None
         self.guild_ids = None
         self.overflow = None
-        self.init_config()
         self.guild_filter_string = ""
         self.warned = False
         self.show_dummy = False
         self.dummy_count = 10
+        self.show_connection = None
+        self.show_title = None
+        self.show_disconnected = None
+        self.init_config()
 
         self.create_gui()
 
@@ -129,6 +133,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.text_baseline_adj = config.getint(
             "main", "text_baseline_adj", fallback=0)
         self.font = config.get("main", "font", fallback=None)
+        self.title_font = config.get("main", "title_font", fallback=None)
         self.square_avatar = config.getboolean(
             "main", "square_avatar", fallback=True)
         self.only_speaking = config.getboolean(
@@ -154,6 +159,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.guild_ids = parse_guild_ids(
             config.get("main", "guild_ids", fallback=""))
         self.overflow = config.getint("main", "overflow", fallback = 0)
+        self.show_connection = config.getboolean("main", "show_connection", fallback=False)
+        self.show_title = config.getboolean("main", "show_title", fallback=False)
+        self.show_disconnected = config.getboolean("main", "show_disconnected", fallback=False)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -183,12 +191,17 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_guild_ids(self.guild_ids)
         self.overlay.set_overflow(self.overflow)
         self.overlay.set_enabled(True)
+        self.overlay.set_show_connection(self.show_connection)
+        self.overlay.set_show_title(self.show_title)
+        self.overlay.set_show_disconnected(self.show_disconnected)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
 
         if self.font:
             self.overlay.set_font(self.font)
+        if self.title_font:
+            self.overlay.set_title_font(self.title_font)
 
     def save_config(self):
         """
@@ -216,6 +229,8 @@ class VoiceSettingsWindow(SettingsWindow):
                    (self.text_baseline_adj))
         if self.font:
             config.set("main", "font", self.font)
+        if self.title_font:
+            config.set("main", "title_font", self.title_font)
         config.set("main", "square_avatar", "%d" % (int(self.square_avatar)))
         config.set("main", "only_speaking", "%d" % (int(self.only_speaking)))
         config.set("main", "highlight_self", "%d" % (int(self.highlight_self)))
@@ -235,6 +250,9 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "guild_ids", "%s" %
                    guild_ids_to_string(self.guild_ids))
         config.set("main", "overflow", "%s" % (int(self.overflow)))
+        config.set("main", "show_connection", "%d" % (int(self.show_connection)))
+        config.set("main", "show_title", "%d" % (int(self.show_title)))
+        config.set("main", "show_disconnected", "%d" % (int(self.show_disconnected)))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -279,6 +297,15 @@ class VoiceSettingsWindow(SettingsWindow):
         font.connect("font-set", self.change_font)
         alignment_box.attach(font_label, 0, 0, 1, 1)
         alignment_box.attach(font, 1, 0, 1, 1)
+
+        # Title Font chooser
+        title_font_label = Gtk.Label.new(_("Title Font"))
+        title_font = Gtk.FontButton()
+        if self.title_font:
+            title_font.set_font(self.title_font)
+        title_font.connect("font-set", self.change_title_font)
+        alignment_box.attach(title_font_label, 0, 1, 1, 1)
+        alignment_box.attach(title_font, 1, 1, 1, 1)
 
         # Colours
         bg_col = Gtk.ColorButton.new_with_rgba(
@@ -487,8 +514,8 @@ class VoiceSettingsWindow(SettingsWindow):
         icon_spacing = Gtk.SpinButton.new(icon_spacing_adjustment, 0, 0)
         icon_spacing.connect("value-changed", self.change_icon_spacing)
 
-        alignment_box.attach(icon_spacing_label, 0, 1, 1, 1)
-        alignment_box.attach(icon_spacing, 1, 1, 1, 1)
+        alignment_box.attach(icon_spacing_label, 0, 2, 1, 1)
+        alignment_box.attach(icon_spacing, 1, 2, 1, 1)
 
         # Text padding
         text_padding_label = Gtk.Label.new(_("Text Padding"))
@@ -498,8 +525,8 @@ class VoiceSettingsWindow(SettingsWindow):
         text_padding = Gtk.SpinButton.new(text_padding_adjustment, 0, 0)
         text_padding.connect("value-changed", self.change_text_padding)
 
-        alignment_box.attach(text_padding_label, 0, 2, 1, 1)
-        alignment_box.attach(text_padding, 1, 2, 1, 1)
+        alignment_box.attach(text_padding_label, 0, 3, 1, 1)
+        alignment_box.attach(text_padding, 1, 3, 1, 1)
 
         # Text Baseline Adjustment
         text_baseline_label = Gtk.Label.new(_("Text Vertical Offset"))
@@ -509,8 +536,8 @@ class VoiceSettingsWindow(SettingsWindow):
         text_baseline = Gtk.SpinButton.new(text_baseline_adjustment, 0, 0)
         text_baseline.connect("value-changed", self.change_text_baseline)
 
-        alignment_box.attach(text_baseline_label, 0, 3, 1, 1)
-        alignment_box.attach(text_baseline, 1, 3, 1, 1)
+        alignment_box.attach(text_baseline_label, 0, 4, 1, 1)
+        alignment_box.attach(text_baseline, 1, 4, 1, 1)
 
         # Edge padding
         vert_edge_padding_label = Gtk.Label.new(_("Vertical Edge Padding"))
@@ -522,8 +549,8 @@ class VoiceSettingsWindow(SettingsWindow):
         vert_edge_padding.connect(
             "value-changed", self.change_vert_edge_padding)
 
-        alignment_box.attach(vert_edge_padding_label, 0, 4, 1, 1)
-        alignment_box.attach(vert_edge_padding, 1, 4, 1, 1)
+        alignment_box.attach(vert_edge_padding_label, 0, 5, 1, 1)
+        alignment_box.attach(vert_edge_padding, 1, 5, 1, 1)
 
         horz_edge_padding_label = Gtk.Label.new(_("Horizontal Edge Padding"))
         horz_edge_padding_adjustment = Gtk.Adjustment.new(
@@ -533,8 +560,8 @@ class VoiceSettingsWindow(SettingsWindow):
         horz_edge_padding.connect(
             "value-changed", self.change_horz_edge_padding)
 
-        alignment_box.attach(horz_edge_padding_label, 0, 5, 1, 1)
-        alignment_box.attach(horz_edge_padding, 1, 5, 1, 1)
+        alignment_box.attach(horz_edge_padding_label, 0, 6, 1, 1)
+        alignment_box.attach(horz_edge_padding, 1, 6, 1, 1)
 
         # Display icon horizontally
         horizontal_label = Gtk.Label.new(_("Display Horizontally"))
@@ -543,8 +570,8 @@ class VoiceSettingsWindow(SettingsWindow):
         horizontal.set_active(self.horizontal)
         horizontal.connect("toggled", self.change_horizontal)
 
-        alignment_box.attach(horizontal_label, 0, 6, 1, 1)
-        alignment_box.attach(horizontal, 1, 6, 1, 1)
+        alignment_box.attach(horizontal_label, 0, 7, 1, 1)
+        alignment_box.attach(horizontal, 1, 7, 1, 1)
 
         # Overflow
         overflow_label = Gtk.Label.new(_("Overflow style"))
@@ -562,6 +589,36 @@ class VoiceSettingsWindow(SettingsWindow):
 
         avatar_box.attach(overflow_label, 0, 6, 1, 1)
         avatar_box.attach(overflow, 1, 6, 1, 1)
+
+        # Show Title
+        show_title_label = Gtk.Label.new(_("Show Title"))
+        show_title_label.set_xalign(0)
+        show_title = Gtk.CheckButton.new()
+        show_title.set_active(self.show_title)
+        show_title.connect("toggled", self.change_show_title)
+        
+        avatar_box.attach(show_title_label, 0, 7, 1,1)
+        avatar_box.attach(show_title, 1, 7, 1,1)
+        
+        # Show Connection
+        show_connection_label = Gtk.Label.new(_("Show Connection Status"))
+        show_connection_label.set_xalign(0)
+        show_connection = Gtk.CheckButton.new()
+        show_connection.set_active(self.show_connection)
+        show_connection.connect("toggled", self.change_show_connection)
+
+        avatar_box.attach(show_connection_label, 0, 8, 1,1)
+        avatar_box.attach(show_connection, 1, 8, 1,1)
+
+        # Show Disconnected
+        show_disconnected_label = Gtk.Label.new(_("Show while disconnected"))
+        show_disconnected_label.set_xalign(0)
+        show_disconnected = Gtk.CheckButton.new()
+        show_disconnected.set_active(self.show_disconnected)
+        show_disconnected.connect("toggled", self.change_show_disconnected)
+
+        avatar_box.attach(show_disconnected_label, 0, 9, 1,1)
+        avatar_box.attach(show_disconnected, 1, 9, 1,1)
 
         # use dummy
         dummy_label = Gtk.Label.new(_("Show test content"))
@@ -598,6 +655,16 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_font(font)
 
         self.font = font
+        self.save_config()
+
+    def change_title_font(self, button):
+        """
+        Font settings changed
+        """
+        title_font = button.get_font()
+        self.overlay.set_title_font(title_font)
+
+        self.title_font = title_font
         self.save_config()
 
     def change_bg(self, button):
@@ -800,6 +867,21 @@ class VoiceSettingsWindow(SettingsWindow):
     def change_overflow(self, button):
         self.overlay.set_overflow(button.get_active())
         self.overflow = button.get_active()
+        self.save_config()
+
+    def change_show_title(self, button):
+        self.overlay.set_show_title(button.get_active())
+        self.show_title = button.get_active()
+        self.save_config()
+
+    def change_show_connection(self, button):
+        self.overlay.set_show_connection(button.get_active())
+        self.show_connection = button.get_active()
+        self.save_config()
+
+    def change_show_disconnected(self, button):
+        self.overlay.set_show_disconnected(button.get_active())
+        self.show_disconnected =  button.get_active()
         self.save_config()
 
     def on_guild_selection_changed(self, tree, number, selection):
