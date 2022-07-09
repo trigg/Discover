@@ -53,6 +53,7 @@ class DiscordConnector:
         self.user = {}
         self.userlist = {}
         self.in_room = []
+        self.current_guild = "0"
         self.current_voice = "0"
         self.current_text = "0"
         self.list_altered = False
@@ -98,7 +99,7 @@ class DiscordConnector:
             log.error(response.text)
             self.on_close()
 
-    def set_channel(self, channel, need_req=True):
+    def set_channel(self, channel, guild, need_req=True):
         """
         Set currently active voice channel
         """
@@ -106,12 +107,14 @@ class DiscordConnector:
             if self.current_voice:
                 self.unsub_voice_channel(self.current_voice)
             self.current_voice = "0"
+            self.current_guild = "0"
             return
         if channel != self.current_voice:
             if self.current_voice != "0":
                 self.unsub_voice_channel(self.current_voice)
             self.sub_voice_channel(channel)
             self.current_voice = channel
+            self.current_guild = guild
             if need_req:
                 self.req_channel_details(channel)
 
@@ -291,21 +294,20 @@ class DiscordConnector:
                     # User might have been forcibly moved room
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
-                # It's only possible to get alerts for the room you're in
-                self.set_channel(j["data"]["channel_id"])
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
                 self.userlist[j["data"]["user_id"]]["lastspoken"] = time.time()
                 self.list_altered = True
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True
-                # It's only possible to get alerts for the room you're in
-                self.set_channel(j["data"]["channel_id"])
                 if j["data"]["user_id"] in self.userlist:
                     self.userlist[j["data"]["user_id"]]["speaking"] = False
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
-                self.set_channel(j["data"]["channel_id"])
+                if j["data"]["channel_id"]:
+                    self.set_channel(j["data"]["channel_id"], j["data"]["guild_id"])
+                else:
+                    self.set_channel(None, None)
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
                 self.discover.voice_overlay.set_connection_status(j["data"])
             elif j["evt"] == "MESSAGE_CREATE":
@@ -373,8 +375,12 @@ class DiscordConnector:
             return
         elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
             if 'data' in j and j['data'] and 'id' in j['data']:
-                self.set_channel(j['data']['id'])
+                self.set_channel(j['data']['id'],j['data']['guild_id'])
                 self.discover.voice_overlay.set_channel_title(j["data"]["name"])
+                if self.current_guild in self.guilds and 'icon_url' in self.guilds[self.current_guild]:
+                    self.discover.voice_overlay.set_channel_icon(self.guilds[self.current_guild]['icon_url'])
+                else:
+                    self.discover.voice_overlay.set_channel_icon(None)
                 self.list_altered = True
                 self.in_room = []
                 for u in j['data']['voice_states']:

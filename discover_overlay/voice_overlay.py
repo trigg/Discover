@@ -74,6 +74,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.highlight_self = None
         self.order = None
         self.def_avatar = None
+        self.channel_icon = None
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
@@ -307,6 +308,17 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.channel_title = channel_title
 
+    def set_channel_icon(self, url):
+        """
+        Change the icon for channel
+        """
+        print("set_channel_icon : %s" % (url))
+        if not url:
+            self.channel_icon = None
+        else:
+            get_surface(self.recv_avatar, url, "channel",
+                self.avatar_size)
+
     def set_user_list(self, userlist, alt):
         """
         Set the users in list to draw
@@ -525,8 +537,11 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Called when image_getter has downloaded an image
         """
+        print(identifier)
         if identifier == 'def':
             self.def_avatar = pix
+        elif identifier == 'channel':
+            self.channel_icon = pix
         else:
             self.avatars[identifier] = pix
         self.needsredraw = True
@@ -554,6 +569,8 @@ class VoiceOverlayWindow(OverlayWindow):
                 avatar_size,
                 self.title_font
             )
+        if self.channel_icon:
+            self.draw_avatar_pix(context, self.channel_icon,pos_x,pos_y,None, avatar_size)
         return tw
 
     def unused_fn_needed_translations(self):
