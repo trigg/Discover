@@ -600,6 +600,22 @@ class VoiceOverlayWindow(OverlayWindow):
                 avatar_size,
                 self.text_font
             )
+
+        # Blank out space for avatar
+        context.save()
+        context.move_to(pos_x, pos_y)
+
+        if self.round_avatar:
+            context.arc(pos_x + (self.avatar_size / 2), pos_y +
+                        (self.avatar_size / 2), self.avatar_size / 2, 0, 2 * math.pi)
+            context.clip()
+
+        self.col([0.0, 0.0, 0.0, 0.0])
+        context.set_operator(cairo.OPERATOR_SOURCE)
+        context.rectangle(pos_x, pos_y, avatar_size, avatar_size)
+        context.fill()
+        context.restore()
+
         self.draw_connection_icon(context, pos_x, pos_y, avatar_size)
         return tw
 
@@ -720,10 +736,6 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw avatar image at given position
         """
-        if not pixbuf:
-            pixbuf = self.def_avatar
-            if not pixbuf:
-                return
         context.move_to(pos_x, pos_y)
         context.save()
         if self.round_avatar:
@@ -735,6 +747,10 @@ class VoiceOverlayWindow(OverlayWindow):
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.rectangle(pos_x, pos_y, avatar_size, avatar_size)
         context.fill()
+        if not pixbuf:
+            pixbuf = self.def_avatar
+            if not pixbuf:
+                return
         draw_img_to_rect(pixbuf, context, pos_x, pos_y,
                          avatar_size, avatar_size)
         context.restore()
