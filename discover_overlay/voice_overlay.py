@@ -652,10 +652,10 @@ class VoiceOverlayWindow(OverlayWindow):
                     self.text_font
                 )
         self.draw_avatar_pix(context, pix,pos_x,pos_y,colour, avatar_size)
-        if mute:
-            self.draw_mute(context, pos_x, pos_y, [0.0, 0.0, 0.0, 0.5], avatar_size)
-        elif deaf:
+        if deaf:
             self.draw_deaf(context, pos_x, pos_y, [0.0, 0.0, 0.0, 0.5], avatar_size)
+        elif mute:
+            self.draw_mute(context, pos_x, pos_y, [0.0, 0.0, 0.0, 0.5], avatar_size)
         return tw
 
     def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, font):
