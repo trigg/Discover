@@ -384,6 +384,8 @@ class VoiceOverlayWindow(OverlayWindow):
             return
 
         connection = self.discover.connection
+        if not connection:
+            return
         self_user = connection.user
 
         # Gather which users to draw
@@ -651,9 +653,9 @@ class VoiceOverlayWindow(OverlayWindow):
                 )
         self.draw_avatar_pix(context, pix,pos_x,pos_y,colour, avatar_size)
         if mute:
-            self.draw_mute(context, pos_x, pos_y, bg_col, avatar_size)
+            self.draw_mute(context, pos_x, pos_y, [0.0, 0.0, 0.0, 0.5], avatar_size)
         elif deaf:
-            self.draw_deaf(context, pos_x, pos_y, bg_col, avatar_size)
+            self.draw_deaf(context, pos_x, pos_y, [0.0, 0.0, 0.0, 0.5], avatar_size)
         return tw
 
     def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, font):
@@ -763,9 +765,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.scale(avatar_size, avatar_size)
         
         # Add a dark background
-        if self.round_avatar:
-            context.arc(0.5, 0.5, 0.5, 0, 2 * math.pi)
-            context.clip()
+        context.set_operator(cairo.OPERATOR_ATOP)
         context.rectangle(0.0, 0.0, 1.0, 1.0)
         self.col(bg_col)
         context.fill()
@@ -829,9 +829,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.scale(avatar_size, avatar_size)
         
         # Add a dark background
-        if self.round_avatar:
-            context.arc(0.5, 0.5, 0.5, 0, 2 * math.pi)
-            context.clip()
+        context.set_operator(cairo.OPERATOR_ATOP)
         context.rectangle(0.0, 0.0, 1.0, 1.0)
         self.col(bg_col)
         context.fill()
