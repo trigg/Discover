@@ -650,10 +650,10 @@ class VoiceOverlayWindow(OverlayWindow):
                     self.text_font
                 )
         self.draw_avatar_pix(context, pix,pos_x,pos_y,colour, avatar_size)
-        if deaf:
-            self.draw_deaf(context, pos_x, pos_y, avatar_size)
-        elif mute:
-            self.draw_mute(context, pos_x, pos_y, avatar_size)
+        if mute:
+            self.draw_mute(context, pos_x, pos_y, bg_col, avatar_size)
+        elif deaf:
+            self.draw_deaf(context, pos_x, pos_y, bg_col, avatar_size)
         return tw
 
     def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, font):
@@ -754,13 +754,22 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.col(border_colour)
                 context.stroke()
 
-    def draw_mute(self, context, pos_x, pos_y, avatar_size):
+    def draw_mute(self, context, pos_x, pos_y, bg_col, avatar_size):
         """
         Draw Mute logo
         """
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(avatar_size, avatar_size)
+        
+        # Add a dark background
+        if self.round_avatar:
+            context.arc(0.5, 0.5, 0.5, 0, 2 * math.pi)
+            context.clip()
+        context.rectangle(0.0, 0.0, 1.0, 1.0)
+        self.col(bg_col)
+        context.fill()
+        
         self.set_mute_col()
         context.save()
 
@@ -811,13 +820,22 @@ class VoiceOverlayWindow(OverlayWindow):
 
         context.restore()
 
-    def draw_deaf(self, context, pos_x, pos_y, avatar_size):
+    def draw_deaf(self, context, pos_x, pos_y, bg_col, avatar_size):
         """
         Draw deaf logo
         """
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(avatar_size, avatar_size)
+        
+        # Add a dark background
+        if self.round_avatar:
+            context.arc(0.5, 0.5, 0.5, 0, 2 * math.pi)
+            context.clip()
+        context.rectangle(0.0, 0.0, 1.0, 1.0)
+        self.col(bg_col)
+        context.fill()
+        
         self.set_mute_col()
         context.save()
 
