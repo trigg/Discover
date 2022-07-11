@@ -27,6 +27,7 @@ from gi.repository import Gio, GdkPixbuf  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class SurfaceGetter():
     """Download and decode image using PIL and store as a cairo surface"""
 
@@ -99,6 +100,7 @@ def from_pil(image, alpha=1.0):
     surface = cairo.ImageSurface.create_for_data(
         arr, cairo.FORMAT_ARGB32, image.width, image.height)
     return surface
+
 
 def get_surface(func, identifier, ava, size):
     """Download to cairo surface"""
@@ -186,5 +188,36 @@ def draw_img_to_rect(img, ctx,
     ctx.rectangle(0, 0, img.get_width(), img.get_height())
     if not path:
         ctx.fill()
+    ctx.restore()
+    return (width, height)
+
+
+def draw_img_to_mask(img, ctx,
+                     pos_x, pos_y,
+                     width, height,
+                     path=False, aspect=False,
+                     anchor=0, hanchor=0):
+    """Draw cairo surface as mask into context
+
+    Path - only add the path do not fill : True/False
+    Aspect - keep aspect ratio : True/False
+    Anchor - with aspect : 0=left 1=middle 2=right
+    HAnchor - with apect : 0=bottom 1=middle 2=top
+    """
+
+    ctx.save()
+    offset_x = 0
+    offset_y = 0
+    if aspect:
+        (offset_x, offset_y, width, height) = get_aspected_size(
+            img, width, height, anchor=anchor, hanchor=hanchor)
+
+    ctx.translate(pos_x + offset_x, pos_y + offset_y)
+    ctx.scale(width, height)
+    ctx.scale(1 / img.get_width(), 1 / img.get_height())
+
+    ctx.rectangle(0, 0, img.get_width(), img.get_height())
+    if not path:
+        ctx.mask_surface(img, 0, 0)
     ctx.restore()
     return (width, height)

@@ -85,8 +85,9 @@ class VoiceSettingsWindow(SettingsWindow):
         self.show_connection = None
         self.show_title = None
         self.show_disconnected = None
-        self.init_config()
+        self.border_width = 2
 
+        self.init_config()
         self.create_gui()
 
     def present_settings(self):
@@ -158,10 +159,14 @@ class VoiceSettingsWindow(SettingsWindow):
             "main", "horizontal", fallback=False)
         self.guild_ids = parse_guild_ids(
             config.get("main", "guild_ids", fallback=""))
-        self.overflow = config.getint("main", "overflow", fallback = 0)
-        self.show_connection = config.getboolean("main", "show_connection", fallback=False)
-        self.show_title = config.getboolean("main", "show_title", fallback=False)
-        self.show_disconnected = config.getboolean("main", "show_disconnected", fallback=False)
+        self.overflow = config.getint("main", "overflow", fallback=0)
+        self.show_connection = config.getboolean(
+            "main", "show_connection", fallback=False)
+        self.show_title = config.getboolean(
+            "main", "show_title", fallback=False)
+        self.show_disconnected = config.getboolean(
+            "main", "show_disconnected", fallback=False)
+        self.border_width = config.getint("main", "border_width", fallback=2)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -194,6 +199,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_show_connection(self.show_connection)
         self.overlay.set_show_title(self.show_title)
         self.overlay.set_show_disconnected(self.show_disconnected)
+        self.overlay.set_border_width(self.border_width)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -250,9 +256,12 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "guild_ids", "%s" %
                    guild_ids_to_string(self.guild_ids))
         config.set("main", "overflow", "%s" % (int(self.overflow)))
-        config.set("main", "show_connection", "%d" % (int(self.show_connection)))
+        config.set("main", "show_connection", "%d" %
+                   (int(self.show_connection)))
         config.set("main", "show_title", "%d" % (int(self.show_title)))
-        config.set("main", "show_disconnected", "%d" % (int(self.show_disconnected)))
+        config.set("main", "show_disconnected", "%d" %
+                   (int(self.show_disconnected)))
+        config.set("main", "border_width", "%s" % (int(self.border_width)))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -281,7 +290,7 @@ class VoiceSettingsWindow(SettingsWindow):
         outer_box.attach(alignment_box, 0, 1, 1, 1)
         outer_box.attach(colour_box, 1, 0, 1, 1)
         outer_box.attach(avatar_box, 1, 1, 1, 1)
-        outer_box.attach(dummy_box,0,2,2,1)
+        outer_box.attach(dummy_box, 0, 2, 2, 1)
 
         # Autohide
         #autohide_label = Gtk.Label.new("Hide on mouseover")
@@ -563,6 +572,17 @@ class VoiceSettingsWindow(SettingsWindow):
         alignment_box.attach(horz_edge_padding_label, 0, 6, 1, 1)
         alignment_box.attach(horz_edge_padding, 1, 6, 1, 1)
 
+        # Border width
+        border_width_label = Gtk.Label.new(_("Talking border width"))
+        border_width_label.set_xalign(0)
+        border_width_adjustment = Gtk.Adjustment.new(
+            self.border_width, 2, 100, 1, 1, 0)
+        border_width = Gtk.SpinButton.new(border_width_adjustment, 0, 0)
+        border_width.connect("value-changed", self.change_border_width)
+
+        avatar_box.attach(border_width_label, 0, 6, 1, 1)
+        avatar_box.attach(border_width, 1, 6, 1, 1)
+
         # Display icon horizontally
         horizontal_label = Gtk.Label.new(_("Display Horizontally"))
         horizontal_label.set_xalign(0)
@@ -587,8 +607,8 @@ class VoiceSettingsWindow(SettingsWindow):
         overflow.pack_start(renderer_text, True)
         overflow.add_attribute(renderer_text, "text", 0)
 
-        avatar_box.attach(overflow_label, 0, 6, 1, 1)
-        avatar_box.attach(overflow, 1, 6, 1, 1)
+        avatar_box.attach(overflow_label, 0, 7, 1, 1)
+        avatar_box.attach(overflow, 1, 7, 1, 1)
 
         # Show Title
         show_title_label = Gtk.Label.new(_("Show Title"))
@@ -596,10 +616,10 @@ class VoiceSettingsWindow(SettingsWindow):
         show_title = Gtk.CheckButton.new()
         show_title.set_active(self.show_title)
         show_title.connect("toggled", self.change_show_title)
-        
-        avatar_box.attach(show_title_label, 0, 7, 1,1)
-        avatar_box.attach(show_title, 1, 7, 1,1)
-        
+
+        avatar_box.attach(show_title_label, 0, 8, 1, 1)
+        avatar_box.attach(show_title, 1, 8, 1, 1)
+
         # Show Connection
         show_connection_label = Gtk.Label.new(_("Show Connection Status"))
         show_connection_label.set_xalign(0)
@@ -607,8 +627,8 @@ class VoiceSettingsWindow(SettingsWindow):
         show_connection.set_active(self.show_connection)
         show_connection.connect("toggled", self.change_show_connection)
 
-        avatar_box.attach(show_connection_label, 0, 8, 1,1)
-        avatar_box.attach(show_connection, 1, 8, 1,1)
+        avatar_box.attach(show_connection_label, 0, 9, 1, 1)
+        avatar_box.attach(show_connection, 1, 9, 1, 1)
 
         # Show Disconnected
         show_disconnected_label = Gtk.Label.new(_("Show while disconnected"))
@@ -617,8 +637,8 @@ class VoiceSettingsWindow(SettingsWindow):
         show_disconnected.set_active(self.show_disconnected)
         show_disconnected.connect("toggled", self.change_show_disconnected)
 
-        avatar_box.attach(show_disconnected_label, 0, 9, 1,1)
-        avatar_box.attach(show_disconnected, 1, 9, 1,1)
+        avatar_box.attach(show_disconnected_label, 0, 10, 1, 1)
+        avatar_box.attach(show_disconnected, 1, 10, 1, 1)
 
         # use dummy
         dummy_label = Gtk.Label.new(_("Show test content"))
@@ -881,7 +901,12 @@ class VoiceSettingsWindow(SettingsWindow):
 
     def change_show_disconnected(self, button):
         self.overlay.set_show_disconnected(button.get_active())
-        self.show_disconnected =  button.get_active()
+        self.show_disconnected = button.get_active()
+        self.save_config()
+
+    def change_border_width(self, button):
+        self.overlay.set_border_width(button.get_value())
+        self.border_width = button.get_value()
         self.save_config()
 
     def on_guild_selection_changed(self, tree, number, selection):
