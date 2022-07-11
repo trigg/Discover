@@ -86,6 +86,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.channel_title = ""
         self.border_width = 2
         self.icon_transparency = 0.0
+        self.fancy_border = False
 
         self.round_avatar = True
         self.icon_only = True
@@ -256,6 +257,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set if the overlay should crop avatars to a circle or show full square image
         """
         self.round_avatar = not i
+        self.needsredraw = True
+
+    def set_fancy_border(self, border):
+        """
+        Sets if border should wrap around non-square avatar images
+        """
+        self.fancy_border = border
         self.needsredraw = True
 
     def set_only_speaking(self, only_speaking):
@@ -789,20 +797,35 @@ class VoiceOverlayWindow(OverlayWindow):
                 return
 
         # Draw the "border" by doing a scaled-up copy in a flat colour
-        if border_colour:
+        if border_colour: 
             self.col(border_colour)
-            context.set_operator(cairo.OPERATOR_SOURCE)
-            for off_x in range(-self.border_width, self.border_width+1):
-                for off_y in range(-self.border_width, self.border_width+1):
-                    context.save()
-                    if self.round_avatar:
-                        context.new_path()
-                        context.arc(pos_x + off_x + (avatar_size / 2), pos_y+ off_y +
-                            (avatar_size / 2), avatar_size / 2, 0, 2 * math.pi)
-                        context.clip()
-                    draw_img_to_mask(mask, context, pos_x + off_x, pos_y + off_y,
+            if self.fancy_border:
+                context.set_operator(cairo.OPERATOR_SOURCE)
+                for off_x in range(-self.border_width, self.border_width+1):
+                    for off_y in range(-self.border_width, self.border_width+1):
+                        context.save()
+                        if self.round_avatar:
+                            context.new_path()
+                            context.arc(pos_x + off_x + (avatar_size / 2), pos_y+ off_y +
+                                (avatar_size / 2), avatar_size / 2, 0, 2 * math.pi)
+                            context.clip()
+                        draw_img_to_mask(mask, context, pos_x + off_x, pos_y + off_y,
                              avatar_size, avatar_size)
-                    context.restore()
+                        context.restore()
+            else:
+                if self.round_avatar:
+                    context.new_path()
+                    context.arc(pos_x + (avatar_size / 2), pos_y+
+                                (avatar_size / 2), avatar_size / 2 + (self.border_width/2.0), 0, 2 * math.pi)
+                    context.set_line_width(self.border_width)
+                    context.stroke()
+                else:
+                    context.new_path()
+                    context.rectangle(pos_x - (self.border_width/2), pos_y - (self.border_width/2), avatar_size + self.border_width, avatar_size + self.border_width)
+                    context.set_line_width(self.border_width)
+
+                    context.stroke()
+
             # Cut the image back out
             context.save()
             if self.round_avatar:

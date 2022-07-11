@@ -87,6 +87,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.show_disconnected = None
         self.border_width = 2
         self.icon_transparency = 1.0
+        self.fancy_border = False
 
         self.init_config()
         self.create_gui()
@@ -170,6 +171,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.border_width = config.getint("main", "border_width", fallback=2)
         self.icon_transparency = config.getfloat(
             "main", "icon_transparency", fallback=1.0)
+        self.fancy_border = config.getboolean("main",
+            "fancy_border", fallback=True)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -204,6 +207,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_show_disconnected(self.show_disconnected)
         self.overlay.set_border_width(self.border_width)
         self.overlay.set_icon_transparency(self.icon_transparency)
+        self.overlay.set_fancy_border(self.fancy_border)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -268,6 +272,7 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "border_width", "%s" % (int(self.border_width)))
         config.set("main", "icon_transparency", "%.2f" %
                    (self.icon_transparency))
+        config.set("main", "fancy_border", "%d" % (int(self.fancy_border)))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -474,6 +479,16 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box.attach(square_avatar_label, 0, 3, 1, 1)
         avatar_box.attach(square_avatar, 1, 3, 1, 1)
 
+        # Fancy Avatar shapes
+        fancy_avatar_label = Gtk.Label.new(_("Fancy Avatar shapes"))
+        fancy_avatar_label.set_xalign(0)
+        fancy_avatar = Gtk.CheckButton.new()
+        fancy_avatar.set_active(self.fancy_border)
+        fancy_avatar.connect("toggled", self.change_fancy_avatar)
+
+        avatar_box.attach(fancy_avatar_label, 0, 4, 1, 1)
+        avatar_box.attach(fancy_avatar, 1 , 4, 1, 1)
+
         # Display icon only
         icon_only_label = Gtk.Label.new(_("Display Icon Only"))
         icon_only_label.set_xalign(0)
@@ -491,8 +506,8 @@ class VoiceSettingsWindow(SettingsWindow):
         only_speaking.set_active(self.only_speaking)
         only_speaking.connect("toggled", self.change_only_speaking)
 
-        alignment_box.attach(only_speaking_label, 0, 8, 1, 1)
-        alignment_box.attach(only_speaking, 1, 8, 1, 1)
+        alignment_box.attach(only_speaking_label, 0, 9, 1, 1)
+        alignment_box.attach(only_speaking, 1, 9, 1, 1)
 
         # Highlight self
         highlight_self_label = Gtk.Label.new(_("Highlight Self"))
@@ -501,8 +516,8 @@ class VoiceSettingsWindow(SettingsWindow):
         highlight_self.set_active(self.highlight_self)
         highlight_self.connect("toggled", self.change_highlight_self)
 
-        avatar_box.attach(highlight_self_label, 0, 5, 1, 1)
-        avatar_box.attach(highlight_self, 1, 5, 1, 1)
+        alignment_box.attach(highlight_self_label, 0, 8, 1, 1)
+        alignment_box.attach(highlight_self, 1, 8, 1, 1)
 
         # Order avatars
         order_label = Gtk.Label.new(_("Order Avatars By"))
@@ -844,6 +859,14 @@ class VoiceSettingsWindow(SettingsWindow):
 
         self.square_avatar = button.get_active()
         self.save_config()
+
+    def change_fancy_avatar(self, button):
+        """
+        Fancy avatar border shapes changed
+        """
+        self.overlay.set_fancy_border(button.get_active())
+        self.fancy_avatar = button.get_active()
+        self.save_config() 
 
     def change_only_speaking(self, button):
         """
