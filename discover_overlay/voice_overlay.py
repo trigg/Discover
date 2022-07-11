@@ -41,6 +41,7 @@ class VoiceOverlayWindow(OverlayWindow):
         OverlayWindow.__init__(self, discover, piggyback)
 
         self.avatars = {}
+        self.avatar_masks = {}
 
         self.dummy_data = []
         mostly_false = [False, False, False, False, False, False, False, True]
@@ -75,6 +76,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.order = None
         self.def_avatar = None
         self.channel_icon = None
+        self.channel_mask = None
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
@@ -83,6 +85,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.show_disconnected = True
         self.channel_title = ""
         self.border_width = 2
+        self.icon_transparency = 0.0
 
         self.round_avatar = True
         self.icon_only = True
@@ -101,9 +104,23 @@ class VoiceOverlayWindow(OverlayWindow):
         self.force_location()
         get_surface(self.recv_avatar,
                     "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
-                    'def', self.avatar_size)
+                    'def', self.avatar_size, self.icon_transparency)
         self.set_title("Discover Voice")
         self.redraw()
+
+    def set_icon_transparency(self, trans):
+        self.icon_transparency = trans
+        get_surface(self.recv_avatar,
+                    "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
+                    'def', self.avatar_size, self.icon_transparency)
+
+        self.avatars = {}
+        self.avatar_masks = {}
+
+        self.channel_icon = None
+        self.channel_mask = None
+
+        self.needsredraw = True
 
     def set_blank(self):
         self.userlist = []
@@ -317,12 +334,11 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Change the icon for channel
         """
-        print("set_channel_icon : %s" % (url))
         if not url:
             self.channel_icon = None
         else:
             get_surface(self.recv_avatar, url, "channel",
-                        self.avatar_size)
+                        self.avatar_size, self.icon_transparency)
 
     def set_user_list(self, userlist, alt):
         """
@@ -550,17 +566,19 @@ class VoiceOverlayWindow(OverlayWindow):
         context.restore()
         self.context = None
 
-    def recv_avatar(self, identifier, pix):
+    def recv_avatar(self, identifier, pix, mask):
         """
         Called when image_getter has downloaded an image
         """
-        print(identifier)
         if identifier == 'def':
             self.def_avatar = pix
+            self.def_avatar_mask = mask
         elif identifier == 'channel':
             self.channel_icon = pix
+            self.channel_mask = mask
         else:
             self.avatars[identifier] = pix
+            self.avatar_masks[identifier] = mask
         self.needsredraw = True
 
     def delete_avatar(self, identifier):
@@ -587,7 +605,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.title_font
         )
         if self.channel_icon:
-            self.draw_avatar_pix(context, self.channel_icon,
+            self.draw_avatar_pix(context, self.channel_icon, self.channel_mask,
                                  pos_x, pos_y, None, avatar_size)
         return tw
 
@@ -629,12 +647,13 @@ class VoiceOverlayWindow(OverlayWindow):
             url = "https://cdn.discordapp.com/avatars/%s/%s.png" % (
                 user['id'], user['avatar'])
             get_surface(self.recv_avatar, url, user["id"],
-                        self.avatar_size)
+                        self.avatar_size, self.icon_transparency)
 
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
+            self.avatar_masks[user["id"]] = None
 
-        colour = self.border_col
+        colour = None
         mute = False
         deaf = False
         bg_col = None
@@ -655,8 +674,10 @@ class VoiceOverlayWindow(OverlayWindow):
             fg_col = self.text_col
 
         pix = None
+        mask = None
         if user["id"] in self.avatars:
             pix = self.avatars[user["id"]]
+            mask = self.avatar_masks[user["id"]]
         if not self.horizontal:
             if not self.icon_only:
                 tw = self.draw_text(
@@ -668,7 +689,8 @@ class VoiceOverlayWindow(OverlayWindow):
                     avatar_size,
                     self.text_font
                 )
-        self.draw_avatar_pix(context, pix, pos_x, pos_y, colour, avatar_size)
+        self.draw_avatar_pix(context, pix, mask, pos_x,
+                             pos_y, colour, avatar_size)
         if deaf:
             self.draw_deaf(context, pos_x, pos_y, [
                            0.0, 0.0, 0.0, 0.5], avatar_size)
@@ -748,16 +770,25 @@ class VoiceOverlayWindow(OverlayWindow):
         context.fill()
         context.restore()
 
-    def draw_avatar_pix(self, context, pixbuf, pos_x, pos_y, border_colour, avatar_size):
+    def draw_avatar_pix(self, context, pixbuf, mask, pos_x, pos_y, border_colour, avatar_size):
         """
         Draw avatar image at given position
         """
+
+        # Empty the space for this
         self.blank_avatar(context, pos_x, pos_y, avatar_size)
+
+        # fallback default or fallback further to no image here
         if not pixbuf:
             pixbuf = self.def_avatar
             if not pixbuf:
                 return
-        context.set_operator(cairo.OPERATOR_OVER)
+        if not mask:
+            mask = self.def_avatar_mask
+            if not mask:
+                return
+
+        # Draw the "border" by doing a scaled-up copy in a flat colour
         if border_colour:
             border_size = avatar_size + (self.border_width * 2)
             border_x = pos_x - self.border_width
@@ -769,17 +800,30 @@ class VoiceOverlayWindow(OverlayWindow):
                             (border_size / 2), border_size / 2, 0, 2 * math.pi)
                 context.clip()
             self.col(border_colour)
-            draw_img_to_mask(pixbuf, context, border_x, border_y,
+            context.set_operator(cairo.OPERATOR_OVER)
+            draw_img_to_mask(mask, context, border_x, border_y,
                              border_size, border_size)
             context.restore()
-
+            # Cut the image back out
+            context.save()
+            if self.round_avatar:
+                context.new_path()
+                context.arc(pos_x + (avatar_size / 2), pos_y +
+                            (avatar_size / 2), avatar_size / 2, 0, 2 * math.pi)
+                context.clip()
+            self.col([0.0, 0.0, 0.0, 0.0])
+            context.set_operator(cairo.OPERATOR_SOURCE)
+            draw_img_to_mask(mask, context, pos_x, pos_y,
+                             avatar_size, avatar_size)
+            context.restore()
+        # Draw the image
         context.save()
         if self.round_avatar:
             context.new_path()
             context.arc(pos_x + (avatar_size / 2), pos_y +
                         (avatar_size / 2), avatar_size / 2, 0, 2 * math.pi)
             context.clip()
-
+        context.set_operator(cairo.OPERATOR_OVER)
         draw_img_to_rect(pixbuf, context, pos_x, pos_y,
                          avatar_size, avatar_size)
         context.restore()
@@ -797,6 +841,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.rectangle(0.0, 0.0, 1.0, 1.0)
         self.col(bg_col)
         context.fill()
+        context.set_operator(cairo.OPERATOR_OVER)
 
         self.set_mute_col()
         context.save()
@@ -846,6 +891,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
         context.close_path()
         context.fill()
+        context.set_fill_rule(cairo.FILL_RULE_WINDING)
 
         context.restore()
 
@@ -862,6 +908,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.rectangle(0.0, 0.0, 1.0, 1.0)
         self.col(bg_col)
         context.fill()
+        context.set_operator(cairo.OPERATOR_OVER)
 
         self.set_mute_col()
         context.save()
@@ -904,6 +951,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
         context.close_path()
         context.fill()
+        context.set_fill_rule(cairo.FILL_RULE_WINDING)
 
         context.restore()
 

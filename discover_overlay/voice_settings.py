@@ -86,6 +86,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.show_title = None
         self.show_disconnected = None
         self.border_width = 2
+        self.icon_transparency = 1.0
 
         self.init_config()
         self.create_gui()
@@ -167,6 +168,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.show_disconnected = config.getboolean(
             "main", "show_disconnected", fallback=False)
         self.border_width = config.getint("main", "border_width", fallback=2)
+        self.icon_transparency = config.getfloat(
+            "main", "icon_transparency", fallback=1.0)
 
         # Pass all of our config over to the overlay
         self.overlay.set_align_x(self.align_x)
@@ -200,6 +203,7 @@ class VoiceSettingsWindow(SettingsWindow):
         self.overlay.set_show_title(self.show_title)
         self.overlay.set_show_disconnected(self.show_disconnected)
         self.overlay.set_border_width(self.border_width)
+        self.overlay.set_icon_transparency(self.icon_transparency)
 
         self.overlay.set_floating(
             self.floating, self.floating_x, self.floating_y, self.floating_w, self.floating_h)
@@ -262,6 +266,8 @@ class VoiceSettingsWindow(SettingsWindow):
         config.set("main", "show_disconnected", "%d" %
                    (int(self.show_disconnected)))
         config.set("main", "border_width", "%s" % (int(self.border_width)))
+        config.set("main", "icon_transparency", "%.2f" %
+                   (self.icon_transparency))
 
         with open(self.config_file, 'w') as file:
             config.write(file)
@@ -293,10 +299,10 @@ class VoiceSettingsWindow(SettingsWindow):
         outer_box.attach(dummy_box, 0, 2, 2, 1)
 
         # Autohide
-        #autohide_label = Gtk.Label.new("Hide on mouseover")
-        #autohide = Gtk.CheckButton.new()
+        # autohide_label = Gtk.Label.new("Hide on mouseover")
+        # autohide = Gtk.CheckButton.new()
         # autohide.set_active(self.autohide)
-        #autohide.connect("toggled", self.change_hide_on_mouseover)
+        # autohide.connect("toggled", self.change_hide_on_mouseover)
 
         # Font chooser
         font_label = Gtk.Label.new(_("Font"))
@@ -455,8 +461,8 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_size = Gtk.SpinButton.new(avatar_adjustment, 0, 0)
         avatar_size.connect("value-changed", self.change_avatar_size)
 
-        avatar_box.attach(avatar_size_label, 0, 0, 1, 1)
-        avatar_box.attach(avatar_size, 1, 0, 1, 1)
+        avatar_box.attach(avatar_size_label, 0, 1, 1, 1)
+        avatar_box.attach(avatar_size, 1, 1, 1, 1)
 
         # Avatar shape
         square_avatar_label = Gtk.Label.new(_("Square Avatar"))
@@ -465,8 +471,8 @@ class VoiceSettingsWindow(SettingsWindow):
         square_avatar.set_active(self.square_avatar)
         square_avatar.connect("toggled", self.change_square_avatar)
 
-        avatar_box.attach(square_avatar_label, 0, 2, 1, 1)
-        avatar_box.attach(square_avatar, 1, 2, 1, 1)
+        avatar_box.attach(square_avatar_label, 0, 3, 1, 1)
+        avatar_box.attach(square_avatar, 1, 3, 1, 1)
 
         # Display icon only
         icon_only_label = Gtk.Label.new(_("Display Icon Only"))
@@ -475,8 +481,8 @@ class VoiceSettingsWindow(SettingsWindow):
         icon_only.set_active(self.icon_only)
         icon_only.connect("toggled", self.change_icon_only)
 
-        avatar_box.attach(icon_only_label, 0, 1, 1, 1)
-        avatar_box.attach(icon_only, 1, 1, 1, 1)
+        avatar_box.attach(icon_only_label, 0, 2, 1, 1)
+        avatar_box.attach(icon_only, 1, 2, 1, 1)
 
         # Display Speaker only
         only_speaking_label = Gtk.Label.new(_("Display Speakers Only"))
@@ -485,8 +491,8 @@ class VoiceSettingsWindow(SettingsWindow):
         only_speaking.set_active(self.only_speaking)
         only_speaking.connect("toggled", self.change_only_speaking)
 
-        avatar_box.attach(only_speaking_label, 0, 3, 1, 1)
-        avatar_box.attach(only_speaking, 1, 3, 1, 1)
+        alignment_box.attach(only_speaking_label, 0, 8, 1, 1)
+        alignment_box.attach(only_speaking, 1, 8, 1, 1)
 
         # Highlight self
         highlight_self_label = Gtk.Label.new(_("Highlight Self"))
@@ -495,8 +501,8 @@ class VoiceSettingsWindow(SettingsWindow):
         highlight_self.set_active(self.highlight_self)
         highlight_self.connect("toggled", self.change_highlight_self)
 
-        avatar_box.attach(highlight_self_label, 0, 4, 1, 1)
-        avatar_box.attach(highlight_self, 1, 4, 1, 1)
+        avatar_box.attach(highlight_self_label, 0, 5, 1, 1)
+        avatar_box.attach(highlight_self, 1, 5, 1, 1)
 
         # Order avatars
         order_label = Gtk.Label.new(_("Order Avatars By"))
@@ -512,8 +518,8 @@ class VoiceSettingsWindow(SettingsWindow):
         order.pack_start(renderer_text, True)
         order.add_attribute(renderer_text, "text", 0)
 
-        avatar_box.attach(order_label, 0, 5, 1, 1)
-        avatar_box.attach(order, 1, 5, 1, 1)
+        avatar_box.attach(order_label, 0, 6, 1, 1)
+        avatar_box.attach(order, 1, 6, 1, 1)
 
         # Icon spacing
         icon_spacing_label = Gtk.Label.new(_("Icon Spacing"))
@@ -580,8 +586,20 @@ class VoiceSettingsWindow(SettingsWindow):
         border_width = Gtk.SpinButton.new(border_width_adjustment, 0, 0)
         border_width.connect("value-changed", self.change_border_width)
 
-        avatar_box.attach(border_width_label, 0, 6, 1, 1)
-        avatar_box.attach(border_width, 1, 6, 1, 1)
+        avatar_box.attach(border_width_label, 0, 7, 1, 1)
+        avatar_box.attach(border_width, 1, 7, 1, 1)
+
+        # Icon Transparency
+        icon_transparency_label = Gtk.Label.new(_("Icon Opacity"))
+        icon_transparency_label.set_xalign(0)
+        icon_transparency_adjustment = Gtk.Adjustment.new(
+            self.icon_transparency, 0.5, 1.0, 0.01, 0.1, 0.0)
+        icon_transparency = Gtk.HScale.new(icon_transparency_adjustment)
+        icon_transparency.connect(
+            "value-changed", self.change_icon_transparency)
+
+        avatar_box.attach(icon_transparency_label, 0, 0, 1, 1)
+        avatar_box.attach(icon_transparency, 1, 0, 1, 1)
 
         # Display icon horizontally
         horizontal_label = Gtk.Label.new(_("Display Horizontally"))
@@ -607,8 +625,8 @@ class VoiceSettingsWindow(SettingsWindow):
         overflow.pack_start(renderer_text, True)
         overflow.add_attribute(renderer_text, "text", 0)
 
-        avatar_box.attach(overflow_label, 0, 7, 1, 1)
-        avatar_box.attach(overflow, 1, 7, 1, 1)
+        avatar_box.attach(overflow_label, 0, 8, 1, 1)
+        avatar_box.attach(overflow, 1, 8, 1, 1)
 
         # Show Title
         show_title_label = Gtk.Label.new(_("Show Title"))
@@ -617,8 +635,8 @@ class VoiceSettingsWindow(SettingsWindow):
         show_title.set_active(self.show_title)
         show_title.connect("toggled", self.change_show_title)
 
-        avatar_box.attach(show_title_label, 0, 8, 1, 1)
-        avatar_box.attach(show_title, 1, 8, 1, 1)
+        avatar_box.attach(show_title_label, 0, 9, 1, 1)
+        avatar_box.attach(show_title, 1, 9, 1, 1)
 
         # Show Connection
         show_connection_label = Gtk.Label.new(_("Show Connection Status"))
@@ -627,8 +645,8 @@ class VoiceSettingsWindow(SettingsWindow):
         show_connection.set_active(self.show_connection)
         show_connection.connect("toggled", self.change_show_connection)
 
-        avatar_box.attach(show_connection_label, 0, 9, 1, 1)
-        avatar_box.attach(show_connection, 1, 9, 1, 1)
+        avatar_box.attach(show_connection_label, 0, 10, 1, 1)
+        avatar_box.attach(show_connection, 1, 10, 1, 1)
 
         # Show Disconnected
         show_disconnected_label = Gtk.Label.new(_("Show while disconnected"))
@@ -637,8 +655,8 @@ class VoiceSettingsWindow(SettingsWindow):
         show_disconnected.set_active(self.show_disconnected)
         show_disconnected.connect("toggled", self.change_show_disconnected)
 
-        avatar_box.attach(show_disconnected_label, 0, 10, 1, 1)
-        avatar_box.attach(show_disconnected, 1, 10, 1, 1)
+        avatar_box.attach(show_disconnected_label, 0, 11, 1, 1)
+        avatar_box.attach(show_disconnected, 1, 11, 1, 1)
 
         # use dummy
         dummy_label = Gtk.Label.new(_("Show test content"))
@@ -907,6 +925,11 @@ class VoiceSettingsWindow(SettingsWindow):
     def change_border_width(self, button):
         self.overlay.set_border_width(button.get_value())
         self.border_width = button.get_value()
+        self.save_config()
+
+    def change_icon_transparency(self, button):
+        self.overlay.set_icon_transparency(button.get_value())
+        self.icon_transparency = button.get_value()
         self.save_config()
 
     def on_guild_selection_changed(self, tree, number, selection):

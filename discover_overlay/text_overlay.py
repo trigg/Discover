@@ -56,8 +56,8 @@ class TextOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_blank(self):
-        self.content=[]
-        self.needsredraw=True
+        self.content = []
+        self.needsredraw = True
 
     def tick(self):
         if len(self.attachment) > self.line_limit:
@@ -181,7 +181,7 @@ class TextOverlayWindow(OverlayWindow):
                 self.warned_filetypes.append(message['type'])
         return ret
 
-    def recv_attach(self, identifier, pix):
+    def recv_attach(self, identifier, pix, mask):
         """
         Called when an image has been downloaded by image_getter
         """

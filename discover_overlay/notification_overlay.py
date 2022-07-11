@@ -17,7 +17,7 @@ import re
 import cairo
 import math
 import gi
-from .image_getter import get_surface, draw_img_to_rect, get_aspected_size, make_surface_from_raw
+from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
 from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
@@ -67,8 +67,8 @@ class NotificationOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_blank(self):
-        self.content=[]
-        self.needsredraw=True
+        self.content = []
+        self.needsredraw = True
 
     def tick(self):
         # This doesn't really belong in overlay or settings
@@ -164,7 +164,7 @@ class NotificationOverlayWindow(OverlayWindow):
                 get_surface(self.recv_icon, icon, icon,
                             self.icon_size)
 
-    def recv_icon(self, identifier, pix):
+    def recv_icon(self, identifier, pix, mask):
         """
         Called when image_getter has downloaded an image
         """

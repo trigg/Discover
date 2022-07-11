@@ -21,6 +21,7 @@ import PIL
 import PIL.Image as Image
 import os
 import io
+import copy
 gi.require_version('GdkPixbuf', '2.0')
 # pylint: disable=wrong-import-position
 from gi.repository import Gio, GdkPixbuf  # nopep8
@@ -37,7 +38,7 @@ class SurfaceGetter():
         self.url = url
         self.size = size
 
-    def get_url(self):
+    def get_url(self, alpha):
         """Downloads and decodes"""
         try:
             resp = requests.get(
@@ -48,9 +49,9 @@ class SurfaceGetter():
             )
             raw = resp.raw
             image = Image.open(raw)
-            surface = from_pil(image)
+            (surface, mask) = from_pil(image, alpha)
 
-            self.func(self.identifier, surface)
+            self.func(self.identifier, surface, mask)
         except requests.HTTPError:
             log.error("Unable to open %s", self.url)
         except requests.TooManyRedirects:
@@ -66,7 +67,7 @@ class SurfaceGetter():
         except PIL.UnidentifiedImageError:
             log.error("Unknown image type")
 
-    def get_file(self):
+    def get_file(self, alpha):
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
         for prefix in locations:
             mixpath = os.path.join(prefix, self.url)
@@ -82,54 +83,51 @@ class SurfaceGetter():
             except FileNotFoundError:
                 log.error("File not found: %s", mixpath)
             if image:
-                surface = from_pil(image)
+                (surface, mask) = from_pil(image, alpha)
                 if surface:
-                    self.func(self.identifier, surface)
+                    self.func(self.identifier, surface, mask)
                     return
 
 
-def from_pil(image, alpha=1.0):
+def from_pil(image, alpha):
     """
     :param im: Pillow Image
     :param alpha: 0..1 alpha to add to non-alpha images
     :param format: Pixel format for output surface
     """
+    arr = bytearray()
+    mask = bytearray()
     if 'A' not in image.getbands():
-        image.putalpha(int(alpha * 256.))
-    arr = bytearray(image.tobytes('raw', 'BGRa'))
+        image.putalpha(int(alpha * 255.0))
+        arr = bytearray(image.tobytes('raw', 'BGRa'))
+        mask = arr
+    else:
+        arr = bytearray(image.tobytes('raw', 'BGRa'))
+        mask = copy.deepcopy((arr))
+        idx = 3
+        while idx < len(arr):
+            if arr[idx] > 0:
+                mask[idx] = 255
+            else:
+                mask[idx] = 0
+            arr[idx] = int(arr[idx] * alpha)
+            idx += 4
     surface = cairo.ImageSurface.create_for_data(
         arr, cairo.FORMAT_ARGB32, image.width, image.height)
-    return surface
+    mask = cairo.ImageSurface.create_for_data(
+        mask, cairo.FORMAT_ARGB32, image.width, image.height)
+    return (surface, mask)
 
 
-def get_surface(func, identifier, ava, size):
+def get_surface(func, identifier, ava, size, alpha=1.0):
     """Download to cairo surface"""
     image_getter = SurfaceGetter(func, identifier, ava, size)
     if identifier.startswith('http'):
-        thread = threading.Thread(target=image_getter.get_url, args=())
+        thread = threading.Thread(target=image_getter.get_url, args=[alpha])
         thread.start()
     else:
-        thread = threading.Thread(target=image_getter.get_file, args=())
+        thread = threading.Thread(target=image_getter.get_file, args=[alpha])
         thread.start()
-
-
-def make_surface_from_raw(raw, size):
-    """Create surface from raw notification data"""
-    width = raw[0]
-    height = raw[1]
-    rowstride = raw[2]
-    hasalpha = raw[3]
-    bitspersample = raw[4]
-    channels = raw[5]
-    image_raw_dbus = raw[6]
-    image_raw = bytes(image_raw_dbus)
-    image = None
-    if hasalpha:
-        image = Image.frombytes('RGBA', [width, height], image_raw, 'raw')
-    else:
-        image = Image.frombytes('RGB', [width, height], image_raw, 'raw')
-    surface = from_pil(image)
-    return surface
 
 
 def get_aspected_size(img, width, height, anchor=0, hanchor=0):
