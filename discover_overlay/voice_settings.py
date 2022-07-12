@@ -327,7 +327,7 @@ class VoiceSettingsWindow(SettingsWindow):
         advanced_button = Gtk.Button.new_with_label(_("Show Advanced Options"))
         advanced_button.connect("pressed", self.toggle_advanced)
 
-        monitor_box.attach(advanced_button, 0, 4, 2,1)
+        monitor_box.attach(advanced_button, 0, 10, 2,1)
 
         # Autohide
         # autohide_label = Gtk.Label.new("Hide on mouseover")
