@@ -306,6 +306,7 @@ class TextSettingsWindow(SettingsWindow):
 
         # Enabled
         enabled_label = Gtk.Label.new(_("Enable"))
+        enabled_label.set_xalign(0)
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
@@ -318,12 +319,14 @@ class TextSettingsWindow(SettingsWindow):
 
         # Popup Style
         popup_style_label = Gtk.Label.new(_("Popup Style"))
+        popup_style_label.set_xalign(0)
         popup_style = Gtk.CheckButton.new()
         popup_style.set_active(self.popup_style)
         popup_style.connect("toggled", self.change_popup_style)
 
         # Popup timer
         text_time_label = Gtk.Label.new(_("Popup timer"))
+        text_time_label.set_xalign(0)
         text_time_adjustment = Gtk.Adjustment.new(
             self.text_time, 8, 9000, 1, 1, 8)
         text_time = Gtk.SpinButton.new(text_time_adjustment, 0, 0)
@@ -331,6 +334,7 @@ class TextSettingsWindow(SettingsWindow):
 
         # Font chooser
         font_label = Gtk.Label.new(_("Font"))
+        font_label.set_xalign(0)
         font = Gtk.FontButton()
         if self.font:
             font.set_font(self.font)
@@ -338,9 +342,11 @@ class TextSettingsWindow(SettingsWindow):
 
         # Colours
         bg_col_label = Gtk.Label.new(_("Background colour"))
+        bg_col_label.set_xalign(0)
         bg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3]))
         fg_col_label = Gtk.Label.new(_("Text colour"))
+        fg_col_label.set_xalign(0)
         fg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.fg_col[0], self.fg_col[1], self.fg_col[2], self.fg_col[3]))
         bg_col.set_use_alpha(True)
@@ -350,6 +356,7 @@ class TextSettingsWindow(SettingsWindow):
 
         # Monitor & Alignment
         align_label = Gtk.Label.new(_("Overlay Location"))
+        align_label.set_xalign(0)
 
         align_type_box = Gtk.HBox()
         align_type_edge = Gtk.RadioButton.new_with_label(
@@ -401,6 +408,7 @@ class TextSettingsWindow(SettingsWindow):
         align_placement_button.connect("pressed", self.change_placement)
 
         channel_label = Gtk.Label.new(_("Channel"))
+        channel_label.set_xalign(0)
         channel = Gtk.ComboBox.new()
 
         channel.connect("changed", self.change_channel)
@@ -413,6 +421,7 @@ class TextSettingsWindow(SettingsWindow):
         channel_refresh.connect("pressed", self.refresh_channel_list)
 
         guild_label = Gtk.Label.new(_("Server"))
+        guild_label.set_xalign(0)
         guild = Gtk.ComboBox.new()
 
         guild.connect("changed", self.change_guild)
@@ -426,6 +435,7 @@ class TextSettingsWindow(SettingsWindow):
 
         # Show Attachments
         show_attach_label = Gtk.Label.new(_("Show Attachments"))
+        show_attach_label.set_xalign(0)
         show_attach = Gtk.CheckButton.new()
         show_attach.set_active(self.show_attach)
         show_attach.connect("toggled", self.change_show_attach)

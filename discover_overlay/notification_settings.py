@@ -199,23 +199,27 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Enabled
         enabled_label = Gtk.Label.new(_("Enable"))
+        enabled_label.set_xalign(0)
         enabled = Gtk.CheckButton.new()
         enabled.set_active(self.enabled)
         enabled.connect("toggled", self.change_enabled)
 
         # Enabled
         testing_label = Gtk.Label.new(_("Show test content"))
+        testing_label.set_xalign(0)
         testing = Gtk.CheckButton.new()
         testing.connect("toggled", self.change_testing)
 
         # Order
         reverse_label = Gtk.Label.new(_("Reverse Order"))
+        reverse_label.set_xalign(0)
         reverse = Gtk.CheckButton.new()
         reverse.set_active(self.reverse_order)
         reverse.connect("toggled", self.change_reverse_order)
 
         # Popup timer
         text_time_label = Gtk.Label.new(_("Popup timer"))
+        text_time_label.set_xalign(0)
         text_time_adjustment = Gtk.Adjustment.new(
             self.text_time, 8, 9000, 1, 1, 8)
         text_time = Gtk.SpinButton.new(text_time_adjustment, 0, 0)
@@ -223,6 +227,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Limit width
         limit_width_label = Gtk.Label.new(_("Limit popup width"))
+        limit_width_label.set_xalign(0)
         limit_width_adjustment = Gtk.Adjustment.new(
             self.limit_width, 100, 9000, 1, 1, 8)
         limit_width = Gtk.SpinButton.new(limit_width_adjustment, 0, 0)
@@ -230,6 +235,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Font chooser
         font_label = Gtk.Label.new(_("Font"))
+        font_label.set_xalign(0)
         font = Gtk.FontButton()
         if self.font:
             font.set_font(self.font)
@@ -237,6 +243,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Icon alignment
         align_icon_label = Gtk.Label.new(_("Icon position"))
+        align_icon_label.set_xalign(0)
         align_icon_store = Gtk.ListStore(str)
         align_icon_store.append([_("Left")])
         align_icon_store.append([_("Right")])
@@ -249,9 +256,11 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Colours
         bg_col_label = Gtk.Label.new(_("Background colour"))
+        bg_col_label.set_xalign(0)
         bg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.bg_col[0], self.bg_col[1], self.bg_col[2], self.bg_col[3]))
         fg_col_label = Gtk.Label.new(_("Text colour"))
+        fg_col_label.set_xalign(0)
         fg_col = Gtk.ColorButton.new_with_rgba(
             Gdk.RGBA(self.fg_col[0], self.fg_col[1], self.fg_col[2], self.fg_col[3]))
         bg_col.set_use_alpha(True)
@@ -261,7 +270,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Monitor & Alignment
         align_label = Gtk.Label.new(_("Overlay Location"))
-
+        align_label.set_xalign(0)
         align_type_box = Gtk.HBox()
         align_type_edge = Gtk.RadioButton.new_with_label(
             None, _("Anchor to edge"))
@@ -313,12 +322,14 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Show Icons
         show_icon_label = Gtk.Label.new(_("Show Icon"))
+        show_icon_label.set_xalign(0)
         show_icon = Gtk.CheckButton.new()
         show_icon.set_active(self.show_icon)
         show_icon.connect("toggled", self.change_show_icon)
 
         # Icon Padding
         icon_padding_label = Gtk.Label.new(_("Icon padding"))
+        icon_padding_label.set_xalign(0)
         icon_padding_adjustment = Gtk.Adjustment.new(
             self.icon_padding, 0, 150, 1, 1, 8)
         icon_padding = Gtk.SpinButton.new(icon_padding_adjustment, 0, 0)
@@ -326,6 +337,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Icon Size
         icon_size_label = Gtk.Label.new(_("Icon size"))
+        icon_size_label.set_xalign(0)
         icon_size_adjustment = Gtk.Adjustment.new(
             self.icon_size, 0, 128, 1, 1, 8)
         icon_size = Gtk.SpinButton.new(icon_size_adjustment, 0, 0)
@@ -333,6 +345,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Padding
         padding_label = Gtk.Label.new(_("Notification padding"))
+        padding_label.set_xalign(0)
         padding_adjustment = Gtk.Adjustment.new(
             self.padding, 0, 150, 1, 1, 8)
         padding = Gtk.SpinButton.new(padding_adjustment, 0, 0)
@@ -340,6 +353,7 @@ class NotificationSettingsWindow(SettingsWindow):
 
         # Border Radius
         border_radius_label = Gtk.Label.new(_("Border radius"))
+        border_radius_label.set_xalign(0)
         border_radius_adjustment = Gtk.Adjustment.new(
             self.border_radius, 0, 50, 1, 1, 8)
         border_radius = Gtk.SpinButton.new(border_radius_adjustment, 0, 0)

@@ -85,24 +85,28 @@ class GeneralSettingsWindow(SettingsWindow):
 
         # Auto start
         autostart_label = Gtk.Label.new(_("Autostart on boot"))
+        autostart_label.set_xalign(0)
         autostart = Gtk.CheckButton.new()
         autostart.set_active(self.autostart_helper.is_auto())
         autostart.connect("toggled", self.change_autostart)
 
         # Force XShape
         xshape_label = Gtk.Label.new(_("Force XShape"))
+        xshape_label.set_xalign(0)
         xshape = Gtk.CheckButton.new()
         xshape.set_active(self.xshape)
         xshape.connect("toggled", self.change_xshape)
 
         # Show sys tray
         show_sys_tray_icon_label = Gtk.Label.new(_("Show tray icon"))
+        show_sys_tray_icon_label.set_xalign(0)
         show_sys_tray_icon = Gtk.CheckButton.new()
         show_sys_tray_icon.set_active(self.show_sys_tray_icon)
         show_sys_tray_icon.connect("toggled", self.change_show_sys_tray_icon)
 
         # Show taskbar
         show_task_label = Gtk.Label.new(_("Show on taskbar"))
+        show_task_label.set_xalign(0)
         show_task = Gtk.CheckButton.new()
         show_task.set_active(self.show_task)
         show_task.connect("toggled", self.change_show_task)

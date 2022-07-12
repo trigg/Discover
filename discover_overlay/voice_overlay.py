@@ -96,8 +96,10 @@ class VoiceOverlayWindow(OverlayWindow):
         self.norm_col = [0.0, 0.0, 0.0, 0.5]
         self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
+        self.mute_bg_col = [0.0, 0.0, 0.0, 0.5]
         self.hili_col = [0.0, 0.0, 0.0, 0.9]
         self.border_col = [0.0, 0.0, 0.0, 0.0]
+        self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
         self.userlist = []
         self.connection_status = "DISCONNECTED"
         self.horizontal = False
@@ -187,6 +189,20 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the colour of mute and deafen logos
         """
         self.mute_col = mute_colour
+        self.needsredraw = True
+
+    def set_mute_bg(self, mute_bg_col):
+        """
+        Set the background colour for mute/deafen icon
+        """
+        self.mute_bg_col = mute_bg_col
+        self.needsredraw = True
+
+    def set_avatar_bg_col(self, avatar_bg_col):
+        """
+        Set Avatar background colour
+        """
+        self.avatar_bg_col = avatar_bg_col
         self.needsredraw = True
 
     def set_hi(self, highlight_colour):
@@ -716,11 +732,9 @@ class VoiceOverlayWindow(OverlayWindow):
         self.draw_avatar_pix(context, pix, mask, pos_x,
                              pos_y, colour, avatar_size)
         if deaf:
-            self.draw_deaf(context, pos_x, pos_y, [
-                           0.0, 0.0, 0.0, 0.5], avatar_size)
+            self.draw_deaf(context, pos_x, pos_y, self.mute_bg_col, avatar_size)
         elif mute:
-            self.draw_mute(context, pos_x, pos_y, [
-                           0.0, 0.0, 0.0, 0.5], avatar_size)
+            self.draw_mute(context, pos_x, pos_y, self.mute_bg_col, avatar_size)
         return tw
 
     def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, font):
@@ -788,7 +802,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.arc(pos_x + (avatar_size / 2), pos_y +
                         (avatar_size / 2), avatar_size / 2, 0, 2 * math.pi)
             context.clip()
-        self.col([0.0, 0.0, 0.0, 0.0])
+        self.col(self.avatar_bg_col)
         context.set_operator(cairo.OPERATOR_SOURCE)
         context.rectangle(pos_x, pos_y, avatar_size, avatar_size)
         context.fill()
