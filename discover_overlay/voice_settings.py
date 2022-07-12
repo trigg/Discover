@@ -91,6 +91,8 @@ class VoiceSettingsWindow(SettingsWindow):
         self.icon_transparency = 1.0
         self.fancy_border = False
 
+        self.show_advanced = False
+
         self.init_config()
         self.create_gui()
 
@@ -109,6 +111,10 @@ class VoiceSettingsWindow(SettingsWindow):
             self.align_y_widget.hide()
             self.align_monitor_widget.show()
             self.align_placement_widget.show()
+        if not self.show_advanced:
+            self.avatar_box.hide()
+            self.dummy_box.hide()
+            self.alignment_box.hide()
 
     def read_config(self):
         """
@@ -301,6 +307,10 @@ class VoiceSettingsWindow(SettingsWindow):
         avatar_box = Gtk.Grid(row_homogeneous=True)
         dummy_box = Gtk.Grid(row_homogeneous=True)
 
+        self.avatar_box = avatar_box
+        self.dummy_box = dummy_box
+        self.alignment_box = alignment_box
+
         colour_box.set_row_spacing(8)
         colour_box.set_column_spacing(8)
 
@@ -312,6 +322,12 @@ class VoiceSettingsWindow(SettingsWindow):
         outer_box.attach(colour_box, 1, 0, 1, 1)
         outer_box.attach(avatar_box, 1, 1, 1, 1)
         outer_box.attach(dummy_box, 0, 2, 2, 1)
+
+        # Advanced
+        advanced_button = Gtk.Button.new_with_label(_("Show Advanced Options"))
+        advanced_button.connect("pressed", self.toggle_advanced)
+
+        monitor_box.attach(advanced_button, 0, 4, 2,1)
 
         # Autohide
         # autohide_label = Gtk.Label.new("Hide on mouseover")
@@ -1072,3 +1088,10 @@ class VoiceSettingsWindow(SettingsWindow):
             self.align_y_store.set_value(i2, 0, _("Middle"))
             i2 = self.align_y_store.iter_next(i2)
             self.align_y_store.set_value(i2, 0, _("Bottom"))
+
+    def toggle_advanced(self, button):
+        """
+        Toggle advanced options
+        """
+        self.show_advanced = not self.show_advanced
+        self.present_settings()
