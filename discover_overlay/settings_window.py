@@ -101,3 +101,4 @@ class MainSettingsWindow(Gtk.Window):
         self.core_settings.present_settings()
         self.notebook.show()
         self.show()
+        self.notebook.set_current_page(0)
