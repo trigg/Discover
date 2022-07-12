@@ -615,6 +615,8 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.channel_icon:
             self.draw_avatar_pix(context, self.channel_icon, self.channel_mask,
                                  pos_x, pos_y, None, avatar_size)
+        else:
+            self.blank_avatar(context,pos_x, pos_y, avatar_size)
         return tw
 
     def unused_fn_needed_translations(self):
