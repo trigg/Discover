@@ -450,6 +450,16 @@ class VoiceOverlayWindow(OverlayWindow):
         avatar_size = self.avatar_size
         avatars_per_row = sys.maxsize
 
+        # Calculate height needed to show overlay
+        doTitle = False
+        doConnection = False
+        if self.show_connection:
+            users_to_draw.insert(0, None)
+            doConnection = True
+        if self.show_title:
+            users_to_draw.insert(0, None)
+            doTitle = True
+
         if self.horizontal:
             needed_width = (len(users_to_draw) * self.avatar_size) + \
                 (len(users_to_draw) + 1) * self.icon_spacing
@@ -484,21 +494,21 @@ class VoiceOverlayWindow(OverlayWindow):
                     current_x = width - needed_width - self.horz_edge_padding
 
                 for user in row:
-                    self.draw_avatar(context, user, current_x,
+                    if not user:
+                        if doTitle:
+                            doTitle=False
+                            text_width = self.draw_title(
+                                context, current_x, current_y, avatar_size)
+                        elif doConnection:
+                            text_width = self.draw_connection(
+                                context, current_x, current_y, avatar_size)
+                            doConnection=False
+                    else:
+                        self.draw_avatar(context, user, current_x,
                                      current_y, avatar_size)
                     current_x += avatar_size + self.icon_spacing
                 current_y += offset_y
         else:
-            # Calculate height needed to show overlay
-            doTitle = False
-            doConnection = False
-            if self.show_connection:
-                users_to_draw.insert(0, None)
-                doConnection = True
-            if self.show_title:
-                users_to_draw.insert(0, None)
-                doTitle = True
-
             needed_height = ((len(users_to_draw)+0) * self.avatar_size) + \
                 (len(users_to_draw) + 1) * self.icon_spacing
 
@@ -600,18 +610,20 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw title at given Y position. Includes both text and image based on settings
         """
-        title = self.channel_title
-        if self.use_dummy:
-            title = "Dummy Title"
-        tw = self.draw_text(
-            context, title,
-            pos_x,
-            pos_y,
-            self.text_col,
-            self.norm_col,
-            avatar_size,
-            self.title_font
-        )
+        tw=0
+        if not self.horizontal:
+            title = self.channel_title
+            if self.use_dummy:
+                title = "Dummy Title"
+            tw = self.draw_text(
+                context, title,
+                pos_x,
+                pos_y,
+                self.text_col,
+                self.norm_col,
+                avatar_size,
+                self.title_font
+            )
         if self.channel_icon:
             self.draw_avatar_pix(context, self.channel_icon, self.channel_mask,
                                  pos_x, pos_y, None, avatar_size)
@@ -635,15 +647,17 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw title at given Y position. Includes both text and image based on settings
         """
-        tw = self.draw_text(
-            context, _(self.connection_status),
-            pos_x,
-            pos_y,
-            self.text_col,
-            self.norm_col,
-            avatar_size,
-            self.text_font
-        )
+        tw=0
+        if not self.horizontal:
+            tw = self.draw_text(
+                context, _(self.connection_status),
+                pos_x,
+                pos_y,
+                self.text_col,
+                self.norm_col,
+                avatar_size,
+                self.text_font
+            )
         self.blank_avatar(context, pos_x, pos_y, avatar_size)
         self.draw_connection_icon(context, pos_x, pos_y, avatar_size)
         return tw
@@ -1002,11 +1016,11 @@ class VoiceOverlayWindow(OverlayWindow):
 
         if bars >= 1:
             context.move_to(0.3, 0.8)
-            context.line_to(0.3, 0.7)
+            context.line_to(0.3, 0.6)
             context.stroke()
         if bars >= 2:
             context.move_to(0.5, 0.8)
-            context.line_to(0.5, 0.5)
+            context.line_to(0.5, 0.4)
             context.stroke()
         if bars == 3:
             context.move_to(0.7, 0.8)
