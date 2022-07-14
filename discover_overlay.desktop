@@ -11,7 +11,7 @@ Keywords=Discord
 
 [Desktop Action close]
 Name=Close
-Exec=discover-overlay --close
+Exec=discover-overlay --rpc --close
 
 [Desktop Action configure]
 Name=Settings
