@@ -266,15 +266,17 @@ class OverlayWindow(Gtk.Window):
         self.hidden = hidden
         self.set_enabled(self.enabled)
 
-    def set_monitor(self, idx=None, mon=None):
+    def set_monitor(self, idx=None):
         """
         Set the monitor this overlay should display on.
         """
         self.monitor = idx
         if self.is_wayland:
-            if mon:
-                GtkLayerShell.set_monitor(self, mon)
-                self.set_untouchable()
+            display = Gdk.Display.get_default()
+            if "get_monitor" in dir(display):
+                monitor = display.get_monitor(self.monitor)
+                GtkLayerShell.set_monitor(self, monitor)
+            self.set_untouchable()
         self.force_location()
         self.needsredraw = True
 

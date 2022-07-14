@@ -126,6 +126,7 @@ class DiscordConnector:
             self.current_text = "0"
             return
         if channel != self.current_text:
+            self.current_text = channel
             self.start_listening_text(channel)
             if need_req:
                 self.req_channel_details(channel)
@@ -305,7 +306,8 @@ class DiscordConnector:
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
                 if j["data"]["channel_id"]:
-                    self.set_channel(j["data"]["channel_id"], j["data"]["guild_id"])
+                    self.set_channel(j["data"]["channel_id"],
+                                     j["data"]["guild_id"])
                 else:
                     self.set_channel(None, None)
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
@@ -344,15 +346,18 @@ class DiscordConnector:
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
                 self.guilds[guild["id"]] = guild
-                if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
-                    self.req_channels(guild["id"])
+                # TODO Update settings window with guild/channel list
+                # self.discover.settings.add_guild(guild["id"])
+                # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
+                #    self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_GUILD":
             # We currently only get here because of a "CHANNEL_CREATE" event. Stupidly long winded way around
             if j["data"]:
                 guild = j["data"]
-                if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
-                    self.req_channels(guild["id"])
+                # TODO Check if this is the guild in text settings, if so request an update list
+                # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
+                #    self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_CHANNELS":
             self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
@@ -362,9 +367,10 @@ class DiscordConnector:
                 self.channels[channel["id"]] = channel
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
-            if j["nonce"] == self.discover.settings.text_settings.get_guild():
-                self.discover.settings.text_settings.set_channels(j["data"]["channels"])
-            self.check_guilds()
+            # TODO At this point change the channel list in settings
+            # if j["nonce"] == self.discover.settings.text_settings.get_guild():
+            #    self.discover.settings.text_settings.set_channels(
+            #        j["data"]["channels"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             # Only log errors
@@ -375,10 +381,12 @@ class DiscordConnector:
             return
         elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
             if 'data' in j and j['data'] and 'id' in j['data']:
-                self.set_channel(j['data']['id'],j['data']['guild_id'])
-                self.discover.voice_overlay.set_channel_title(j["data"]["name"])
+                self.set_channel(j['data']['id'], j['data']['guild_id'])
+                self.discover.voice_overlay.set_channel_title(
+                    j["data"]["name"])
                 if self.current_guild in self.guilds and 'icon_url' in self.guilds[self.current_guild]:
-                    self.discover.voice_overlay.set_channel_icon(self.guilds[self.current_guild]['icon_url'])
+                    self.discover.voice_overlay.set_channel_icon(
+                        self.guilds[self.current_guild]['icon_url'])
                 else:
                     self.discover.voice_overlay.set_channel_icon(None)
                 self.list_altered = True
@@ -417,14 +425,6 @@ class DiscordConnector:
         elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
         log.warning(j)
-
-    def check_guilds(self):
-        """
-        Check if all of the guilds contain a channel
-        """
-        for guild in self.guilds.values():
-            if len(self.discover.settings.voice_settings.guild_ids) > 0 and guild["id"] in self.discover.settings.voice_settings.guild_ids and "channels" not in guild:
-                return
 
     def on_connected(self):
         """
@@ -686,9 +686,6 @@ class DiscordConnector:
 
         Called at 60Hz approximately but has near zero bearing on rendering
         """
-        if self.discover.show_settings_delay:
-            self.discover.show_settings_delay = False
-            self.discover.show_settings()
         # Ensure connection
         if not self.websocket:
             if self.reconnect_delay <= 0:
@@ -713,13 +710,9 @@ class DiscordConnector:
         if self.discover.text_overlay.popup_style:
             self.text_altered = True
         if self.text_altered:
-            self.discover.text_overlay.set_text_list(self.text, self.text_altered)
+            self.discover.text_overlay.set_text_list(
+                self.text, self.text_altered)
             self.text_altered = False
-        # Update guilds
-        self.discover.settings.text_settings.set_guilds(self.guilds)
-        # Check for changed channel
-        if self.authed:
-            self.set_text_channel(self.discover.settings.text_settings.get_channel())
 
         if len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()

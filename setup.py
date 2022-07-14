@@ -50,7 +50,7 @@ setup(
         'Topic :: Communications :: Conferencing',
     ],
     package_data={
-        'discover_overlay': ['locales/*/LC_MESSAGES/*.mo']
+        'discover_overlay': ['locales/*/LC_MESSAGES/*.mo', 'glade/*']
     },
     keywords='discord overlay voice linux',
     license='GPLv3+',

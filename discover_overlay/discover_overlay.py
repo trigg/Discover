@@ -19,8 +19,11 @@ import re
 import traceback
 import logging
 import pkg_resources
+import json
 import gi
 import pidfile
+from configparser import ConfigParser
+
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
@@ -29,7 +32,7 @@ from .discord_connector import DiscordConnector
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, GLib, Gio  # nopep8
+from gi.repository import Gtk, GLib, Gio, Gdk  # nopep8
 
 try:
     from xdg.BaseDirectory import xdg_config_home
@@ -45,7 +48,8 @@ _ = t.gettext
 class Discover:
     """Main application class"""
 
-    def __init__(self, rpc_file, debug_file, args):
+    def __init__(self, rpc_file, config_file, debug_file, args):
+        self.mix_settings = False
         self.ind = None
         self.tray = None
         self.steamos = False
@@ -61,6 +65,7 @@ class Discover:
                 "GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
             self.show_settings_delay = True
+            self.mix_settings = True
             settings = Gtk.Settings.get_default()
             if settings:
                 settings.set_property(
@@ -68,16 +73,23 @@ class Discover:
 
         self.create_gui()
 
-        self.connection = DiscordConnector( self )
+        self.connection = DiscordConnector(self)
 
-        self.settings.text_settings.add_connector(self.connection)
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)
         GLib.timeout_add((1000 / 20), self.periodic_run)
         self.rpc_file = rpc_file
+        self.config_file = config_file
+
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
         monitor.connect("changed", self.rpc_changed)
+
+        config_file = Gio.File.new_for_path(config_file)
+        monitor_config = config_file.monitor_file(0, None)
+        monitor_config.connect("changed", self.config_changed)
+
+        self.config_changed()
 
         Gtk.main()
 
@@ -117,7 +129,7 @@ class Discover:
             print("      --hide             ", _("Hide overlay"))
             print("      --show             ", _("Show overlay"))
             print("      --rpc              ",
-                  _("Send command, not start new instance. Only needed if running in flatpak"))
+                  _("Send command, not start new instance."))
             print("      --mute             ", _("Set own user to mute"))
             print("      --unmute           ", _("Set unmuted"))
             print("      --deaf             ", _("Set own user to deafened"))
@@ -128,11 +140,6 @@ class Discover:
             print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
             if normal_close:
                 sys.exit(0)
-        if "--configure" in data or "-c" in data:
-            if self.settings:
-                self.show_settings()
-            else:
-                self.show_settings_delay = True
         if "--close" in data or "-x" in data:
             sys.exit(0)
         if "--steamos" in data or "-s" in data:
@@ -175,7 +182,230 @@ class Discover:
         with open(self.rpc_file, "r") as tfile:
             data = tfile.readlines()
             if len(data) >= 1:
-                self.do_args(data[0].split(" "), False)
+                self.do_args(data[0].strip().split(" "), False)
+
+    def config_changed(self, _a=None, _b=None, _c=None, _d=None):
+        """
+        Called when the config file has been altered
+        """
+        # Read new config
+        config = ConfigParser(interpolation=None)
+        config.read(self.config_file)
+
+        # Set Voice overlay options
+        self.voice_overlay.set_align_x(config.getboolean(
+            "main", "rightalign", fallback=False))
+        self.voice_overlay.set_align_y(
+            config.getint("main", "topalign", fallback=1))
+        self.voice_overlay.set_bg(json.loads(config.get(
+            "main", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.voice_overlay.set_fg(json.loads(config.get(
+            "main", "fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.voice_overlay.set_fg_hi(json.loads(config.get(
+            "main", "fg_hi_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.voice_overlay.set_tk(json.loads(config.get(
+            "main", "tk_col", fallback="[0.0,0.7,0.0,1.0]")))
+        self.voice_overlay.set_mt(json.loads(config.get(
+            "main", "mt_col", fallback="[0.6,0.0,0.0,1.0]")))
+        self.voice_overlay.set_mute_bg(json.loads(config.get(
+            "main", "mt_bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.voice_overlay.set_hi(json.loads(config.get(
+            "main", "hi_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.voice_overlay.set_bo(json.loads(config.get(
+            "main", "bo_col", fallback="[0.0,0.0,0.0,0.0]")))
+        self.voice_overlay.set_avatar_bg_col(json.loads(config.get(
+            "main", "avatar_bg_col", fallback="[0.0,0.0,0.0,0.0]")))
+        self.voice_overlay.set_avatar_size(
+            config.getint("main", "avatar_size", fallback=48))
+        self.voice_overlay.set_icon_spacing(
+            config.getint("main", "icon_spacing", fallback=8))
+        self.voice_overlay.set_text_padding(
+            config.getint("main", "text_padding", fallback=6))
+        self.voice_overlay.set_text_baseline_adj(config.getint(
+            "main", "text_baseline_adj", fallback=0))
+        font = config.get("main", "font", fallback=None)
+        title_font = config.get("main", "title_font", fallback=None)
+        self.voice_overlay.set_square_avatar(config.getboolean(
+            "main", "square_avatar", fallback=True))
+        self.voice_overlay.set_only_speaking(config.getboolean(
+            "main", "only_speaking", fallback=False))
+        self.voice_overlay.set_highlight_self(config.getboolean(
+            "main", "highlight_self", fallback=False))
+        self.voice_overlay.set_icon_only(config.getboolean(
+            "main", "icon_only", fallback=False))
+        monitor = config.get("main", "monitor", fallback="None")
+        self.voice_overlay.set_vert_edge_padding(config.getint(
+            "main", "vert_edge_padding", fallback=0))
+        self.voice_overlay.set_horz_edge_padding(config.getint(
+            "main", "horz_edge_padding", fallback=0))
+        floating = config.getboolean("main", "floating", fallback=False)
+        floating_x = config.getint("main", "floating_x", fallback=0)
+        floating_y = config.getint("main", "floating_y", fallback=0)
+        floating_w = config.getint("main", "floating_w", fallback=400)
+        floating_h = config.getint("main", "floating_h", fallback=400)
+        self.voice_overlay.set_order(
+            config.getint("main", "order", fallback=0))
+        self.voice_overlay.set_hide_on_mouseover(
+            config.getboolean("text", "autohide", fallback=False))
+        self.voice_overlay.set_horizontal(config.getboolean(
+            "main", "horizontal", fallback=False))
+        self.voice_overlay.set_guild_ids(self.parse_guild_ids(
+            config.get("main", "guild_ids", fallback="")))
+        self.voice_overlay.set_overflow(
+            config.getint("main", "overflow", fallback=0))
+        self.voice_overlay.set_show_connection(config.getboolean(
+            "main", "show_connection", fallback=False))
+        self.voice_overlay.set_show_title(config.getboolean(
+            "main", "show_title", fallback=False))
+        self.voice_overlay.set_show_disconnected(config.getboolean(
+            "main", "show_disconnected", fallback=False))
+        self.voice_overlay.set_border_width(
+            config.getint("main", "border_width", fallback=2))
+        self.voice_overlay.set_icon_transparency(config.getfloat(
+            "main", "icon_transparency", fallback=1.0))
+        self.voice_overlay.set_fancy_border(config.getboolean("main",
+                                                              "fancy_border", fallback=True))
+        self.voice_overlay.set_show_dummy(config.getboolean("main",
+                                                            "show_dummy", fallback=False))
+        self.voice_overlay.set_dummy_count(config.getint("main",
+                                                         "dummy_count", fallback=10))
+
+        self.voice_overlay.set_monitor(self.get_monitor_index(
+            monitor))
+
+        self.voice_overlay.set_enabled(True)
+
+        self.voice_overlay.set_floating(
+            floating, floating_x, floating_y, floating_w, floating_h)
+
+        if font:
+            self.voice_overlay.set_font(font)
+        if title_font:
+            self.voice_overlay.set_title_font(title_font)
+
+        # Set Text overlay options
+        self.text_overlay.set_enabled(config.getboolean(
+            "text", "enabled", fallback=False))
+        self.text_overlay.set_align_x(config.getboolean(
+            "text", "rightalign", fallback=True))
+        self.text_overlay.set_align_y(
+            config.getint("text", "topalign", fallback=2))
+        monitor = config.get("text", "monitor", fallback="None")
+        self.floating = config.getboolean("text", "floating", fallback=True)
+        self.floating_x = config.getint("text", "floating_x", fallback=0)
+        self.floating_y = config.getint("text", "floating_y", fallback=0)
+        self.floating_w = config.getint("text", "floating_w", fallback=400)
+        self.floating_h = config.getint("text", "floating_h", fallback=400)
+        self.channel = config.get("text", "channel", fallback="0")
+        self.guild = config.get("text", "guild", fallback="0")
+        self.font = config.get("text", "font", fallback=None)
+        self.text_overlay.set_bg(json.loads(config.get(
+            "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.text_overlay.set_fg(json.loads(config.get(
+            "text", "fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.text_overlay.set_popup_style(config.getboolean(
+            "text", "popup_style", fallback=False))
+        self.text_overlay.set_text_time(
+            config.getint("text", "text_time", fallback=30))
+        self.text_overlay.set_show_attach(config.getboolean(
+            "text", "show_attach", fallback=True))
+        self.text_overlay.set_line_limit(
+            config.getint("text", "line_limit", fallback=20))
+        self.text_overlay.set_hide_on_mouseover(
+            config.getboolean("text", "autohide", fallback=False))
+
+        self.text_overlay.set_monitor(self.get_monitor_index(
+            monitor))
+        self.text_overlay.set_floating(
+            floating, floating_x, floating_y, floating_w, floating_h)
+
+        if self.font:
+            self.text_overlay.set_font(self.font)
+
+        # Set Notification overlay options
+        self.notification_overlay.set_enabled(config.getboolean(
+            "notification", "enabled", fallback=False))
+        self.notification_overlay.set_align_x(config.getboolean(
+            "notification", "rightalign", fallback=True))
+        self.notification_overlay.set_align_y(
+            config.getint("notification", "topalign", fallback=2))
+        monitor = config.get("notification", "monitor", fallback="None")
+        floating = config.getboolean(
+            "notification", "floating", fallback=False)
+        floating_x = config.getint(
+            "notification", "floating_x", fallback=0)
+        floating_y = config.getint(
+            "notification", "floating_y", fallback=0)
+        floating_w = config.getint(
+            "notification", "floating_w", fallback=400)
+        floating_h = config.getint(
+            "notification", "floating_h", fallback=400)
+        font = config.get("notification", "font", fallback=None)
+        self.notification_overlay.set_bg(json.loads(config.get(
+            "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.notification_overlay.set_fg(json.loads(config.get(
+            "notification", "fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.notification_overlay.set_text_time(config.getint(
+            "notification", "text_time", fallback=10))
+        self.notification_overlay.set_show_icon(config.getboolean(
+            "notification", "show_icon", fallback=True))
+        self.notification_overlay.set_reverse_order(config.getboolean(
+            "notification", "rev", fallback=False))
+        self.notification_overlay.set_limit_width(config.getint(
+            "notification", "limit_width", fallback=400))
+        self.notification_overlay.set_icon_left(config.getboolean(
+            "notification", "icon_left", fallback=True))
+        self.notification_overlay.set_icon_pad(config.getint(
+            "notification", "icon_padding", fallback=8))
+        self.notification_overlay.set_icon_size(config.getint(
+            "notification", "icon_size", fallback=32))
+        self.notification_overlay.set_padding(config.getint(
+            "notification", "padding", fallback=8))
+        self.notification_overlay.set_border_radius(config.getint(
+            "notification", "border_radius", fallback=8))
+
+        self.notification_overlay.set_monitor(self.get_monitor_index(
+            monitor))
+        self.notification_overlay.set_floating(
+            floating, floating_x, floating_y, floating_w, floating_h)
+        if self.font:
+            self.notification_overlay.set_font(self.font)
+
+        # Set Core settings
+        self.set_force_xshape(
+            config.getboolean("general", "xshape", fallback=False))
+
+    def get_monitor_index(self, name):
+        """
+        Helper function to find the index number of the monitor
+        """
+        display = Gdk.Display.get_default()
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                if display.get_monitor(i).get_model() == name:
+                    return i
+        return 0
+
+    def get_monitor_obj(self, name):
+        """
+        Helper function to find the monitor object of the monitor
+        """
+        display = Gdk.Display.get_default()
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                if display.get_monitor(i).get_model() == name:
+                    return display.get_monitor(i)
+
+        return None
+
+    def parse_guild_ids(self, guild_ids_str):
+        """Parse the guild_ids from a str and return them in a list"""
+        guild_ids = []
+        for guild_id in guild_ids_str.split(","):
+            guild_id = guild_id.strip()
+            if guild_id != "":
+                guild_ids.append(guild_id)
+        return guild_ids
 
     def create_gui(self):
         """
@@ -190,62 +420,9 @@ class Discover:
         else:
             self.text_overlay = TextOverlayWindow(self)
             self.notification_overlay = NotificationOverlayWindow(self)
-        self.menu = self.make_menu()
-        self.make_sys_tray_icon(self.menu)
-        self.settings = MainSettingsWindow(self)
 
-        if self.steamos:
-            # Larger fonts needed
-            css = Gtk.CssProvider.new()
-            css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
-            self.settings.get_style_context().add_provider(
-                css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-    def make_sys_tray_icon(self, menu):
-        """
-        Attempt to create an AppIndicator icon, failing that attempt to make
-        a systemtray icon
-        """
-        if self.steamos:
-            return
-        try:
-            gi.require_version('AppIndicator3', '0.1')
-            # pylint: disable=import-outside-toplevel
-            from gi.repository import AppIndicator3
-            self.ind = AppIndicator3.Indicator.new(
-                "discover_overlay",
-                "discover-overlay-tray",
-                AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
-            # Hide for now since we don't know if it should be shown yet
-            self.ind.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
-            self.ind.set_menu(menu)
-        except (ImportError, ValueError) as exception:
-            # Create System Tray
-            log.info("Falling back to Systray : %s", exception)
-            self.tray = Gtk.StatusIcon.new_from_icon_name(
-                "discover-overlay-tray")
-            self.tray.connect('popup-menu', self.show_menu)
-            # Hide for now since we don't know if it should be shown yet
-            self.tray.set_visible(False)
-
-    def make_menu(self):
-        """
-        Create System Menu
-        """
-        menu = Gtk.Menu()
-        settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
-        show_opt = Gtk.MenuItem.new_with_label(_("Toggle Hidden"))
-        close_opt = Gtk.MenuItem.new_with_label(_("Close"))
-
-        menu.append(settings_opt)
-        menu.append(show_opt)
-        menu.append(close_opt)
-
-        settings_opt.connect("activate", self.show_settings)
-        show_opt.connect("activate", self.toggle_show)
-        close_opt.connect("activate", self.close)
-        menu.show_all()
-        return menu
+        if self.mix_settings:
+            MainSettingsWindow(self.config_file)
 
     def show_menu(self, obj, button, time):
         """
@@ -263,18 +440,6 @@ class Discover:
                 self.text_overlay.set_hidden(hide)
             if self.notification_overlay:
                 self.notification_overlay.set_hidden(hide)
-
-    def show_settings(self, _obj=None, _data=None):
-        """
-        Show settings window
-        """
-        self.settings.present_settings()
-
-    def hide_settings(self, _obj=None, _data=None):
-        """
-        Hide settings window
-        """
-        self.settings.close_window()
 
     def close(self, _a=None, _b=None, _c=None):
         """
@@ -300,18 +465,6 @@ class Discover:
         if self.notification_overlay:
             self.notification_overlay.set_task(visible)
 
-    def set_sys_tray_icon_visible(self, visible):
-        """
-        Sets whether the tray icon is visible
-        """
-        if self.ind is not None:
-            # pylint: disable=import-outside-toplevel
-            from gi.repository import AppIndicator3
-            self.ind.set_status(
-                AppIndicator3.IndicatorStatus.ACTIVE if visible else AppIndicator3.IndicatorStatus.PASSIVE)
-        elif self.tray is not None:
-            self.tray.set_visible(visible)
-
 
 def entrypoint():
     """
@@ -332,6 +485,7 @@ def entrypoint():
 
     pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
+    config_file = os.path.join(config_dir, "config.ini")
     debug_file = os.path.join(config_dir, "output.txt")
     logging.getLogger().setLevel(logging.INFO)
     FORMAT = "%(levelname)s - %(name)s - %(message)s"
@@ -343,31 +497,21 @@ def entrypoint():
     log = logging.getLogger(__name__)
     log.info("Starting Discover Overlay: %s",
              pkg_resources.get_distribution('discover_overlay').version)
-    # Flatpak compat mode
     try:
-        if "container" in os.environ and os.environ["container"] == "flatpak":
-            if "--rpc" in sys.argv:
-                with open(rpc_file, "w") as tfile:
-                    tfile.write(line)
-                    log.warning("Sent RPC command")
-            else:
-                log.info("Flatpak compat mode started")
-                with open(rpc_file, "w") as tfile:
-                    tfile.write("--close")
-                Discover(rpc_file, debug_file, sys.argv[1:])
-            return
-
-        # Normal usage
-
-        try:
-            with pidfile.PIDFile(pid_file):
-                Discover(rpc_file, debug_file, sys.argv[1:])
-        except pidfile.AlreadyRunningError:
-            log.warning("Discover overlay is currently running")
-
+        if "--rpc" in sys.argv:
             with open(rpc_file, "w") as tfile:
                 tfile.write(line)
                 log.warning("Sent RPC command")
+        else:
+            if "-c" in sys.argv or "--configure" in sys.argv:
+                settings = MainSettingsWindow(config_file)
+                Gtk.main()
+                sys.exit(0)
+            with open(rpc_file, "w") as tfile:
+                tfile.write("--close")
+            Discover(rpc_file, config_file, debug_file, sys.argv[1:])
+        return
+
     except Exception as ex:
         log.error(ex)
         log.error(traceback.format_exc())
