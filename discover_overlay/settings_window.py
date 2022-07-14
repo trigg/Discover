@@ -41,6 +41,8 @@ class MainSettingsWindow():
         self.voice_placement_window = None
         self.text_placement_window = None
         self.voice_advanced = False
+        self.tray = None # Systemtray as fallback
+        self.ind = None # AppIndicator
         self.autostart_helper = Autostart("discover_overlay")
         self.autostart_helper_conf = Autostart("discover_overlay_configure")
         self.ind = None
@@ -185,7 +187,17 @@ class MainSettingsWindow():
         Hide the settings window for use at a later date
         """
         self.window.hide()
+        if self.ind == None and self.tray == None:
+            sys.exit(0)
+        if self.ind != None:
+            # pylint: disable=import-outside-toplevel
+            from gi.repository import AppIndicator3
+            if self.ind.get_status()==AppIndicator3.IndicatorStatus.PASSIVE:
+                sys.exit(0)
         return True
+
+    def close_app(self, widget=None, event=None):
+        sys.exit(0)
 
     def present_settings(self, _a = None):
         """
@@ -507,7 +519,7 @@ class MainSettingsWindow():
         menu.append(close_opt)
 
         settings_opt.connect("activate", self.present_settings)
-        close_opt.connect("activate", self.close_window)
+        close_opt.connect("activate", self.close_app)
         menu.show_all()
         return menu
 
