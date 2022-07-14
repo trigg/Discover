@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Discover Overlay Configure
+Comment=Voice chat overlay configuration
+Exec=discover-overlay --configure
+Icon=discover-overlay
+Terminal=false
+Type=Application
+Actions=close;configure
+Categories=Utility;TelephonyTools
+Keywords=Discord

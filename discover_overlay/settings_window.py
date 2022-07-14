@@ -42,6 +42,7 @@ class MainSettingsWindow():
         self.text_placement_window = None
         self.voice_advanced = False
         self.autostart_helper = Autostart("discover_overlay")
+        self.autostart_helper_conf = Autostart("discover_overlay_configure")
         self.ind = None
         self.guild_ids = []
         self.channel_ids = []
@@ -411,6 +412,8 @@ class MainSettingsWindow():
         # Read Core section
 
         self.widget['core_run_on_startup'].set_active(self.autostart_helper.is_auto())
+
+        self.widget['core_run_conf_on_startup'].set_active(self.autostart_helper_conf.is_auto())
 
         self.widget['core_force_xshape'].set_active(config.getboolean("general", "xshape", fallback=False))
 
@@ -864,6 +867,9 @@ class MainSettingsWindow():
 
     def core_run_on_startup_changed(self, button):
         self.autostart_helper.set_autostart(button.get_active())
+
+    def core_run_conf_on_startup_changed(self, button):
+        self.autostart_helper_conf.set_autostart(button.get_active())
 
     def core_force_xshape_changed(self, button):
         self.config_set("general", "xshape", "%s" % (button.get_active()))
