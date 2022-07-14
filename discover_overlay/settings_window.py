@@ -864,7 +864,7 @@ class MainSettingsWindow():
 
     def core_run_on_startup_changed(self, button):
         # TODO Startup
-        pass
+        self.autostart_helper.set_autostart(button.get_active())
 
     def core_force_xshape_changed(self, button):
         self.config_set("general", "xshape", "%s" % (button.get_active()))
