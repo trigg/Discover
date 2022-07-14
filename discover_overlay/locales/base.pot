@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-09 21:08+0100\n"
+"POT-Creation-Date: 2022-07-14 17:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,27 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-msgid "Welcome to Discover Overlay"
-msgstr ""
-
-msgid ""
-"Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
-"to show who is currently talking on discord or it can be set to display text "
-"and images from a preconfigured channel. It is fully customisable and can be "
-"configured to display anywhere on the screen. We fully support X11 and "
-"wlroots based environments. We felt the need to make this project due to the "
-"shortcomings in support on Linux by the official discord client."
-msgstr ""
-
-msgid "Please visit our discord"
-msgstr ""
-
-msgid " for support. Or open an issue on our GitHub "
-msgstr ""
-
-msgid "Close overlay"
-msgstr ""
 
 msgid "Usage"
 msgstr ""
@@ -65,7 +44,7 @@ msgstr ""
 msgid "Show overlay"
 msgstr ""
 
-msgid "Send command, not start new instance. Only needed if running in flatpak"
+msgid "Send command, not start new instance."
 msgstr ""
 
 msgid "Set own user to mute"
@@ -84,15 +63,6 @@ msgid "Move the user into voice room, by Room ID"
 msgstr ""
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "Toggle Hidden"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Autostart on boot"
@@ -185,22 +155,28 @@ msgstr ""
 msgid "Save this position"
 msgstr ""
 
-msgid "Discover Overlay Configuration"
+msgid "Welcome to Discover Overlay"
 msgstr ""
 
-msgid "Overview"
+msgid ""
+"Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
+"to show who is currently talking on discord or it can be set to display text "
+"and images from a preconfigured channel. It is fully customisable and can be "
+"configured to display anywhere on the screen. We fully support X11 and "
+"wlroots based environments. We felt the need to make this project due to the "
+"shortcomings in support on Linux by the official discord client."
 msgstr ""
 
-msgid "Voice"
+msgid "Please visit our discord"
 msgstr ""
 
-msgid "Text"
+msgid " for support. Or open an issue on our GitHub "
 msgstr ""
 
-msgid "Notifications"
+msgid "Settings"
 msgstr ""
 
-msgid "Core"
+msgid "Close"
 msgstr ""
 
 msgid "Hide on mouseover"
@@ -254,10 +230,16 @@ msgstr ""
 msgid "VOICE_CONNECTED"
 msgstr ""
 
+msgid "Show Advanced Options"
+msgstr ""
+
 msgid "Title Font"
 msgstr ""
 
-msgid "Label"
+msgid "Foreground"
+msgstr ""
+
+msgid "Background"
 msgstr ""
 
 msgid "Talking"
@@ -272,10 +254,16 @@ msgstr ""
 msgid "Mute"
 msgstr ""
 
+msgid "Avatar"
+msgstr ""
+
 msgid "Avatar size"
 msgstr ""
 
 msgid "Square Avatar"
+msgstr ""
+
+msgid "Fancy Avatar shapes"
 msgstr ""
 
 msgid "Display Icon Only"
@@ -314,6 +302,12 @@ msgstr ""
 msgid "Horizontal Edge Padding"
 msgstr ""
 
+msgid "Talking border width"
+msgstr ""
+
+msgid "Icon Opacity"
+msgstr ""
+
 msgid "Display Horizontally"
 msgstr ""
 
@@ -339,4 +333,94 @@ msgid "Show while disconnected"
 msgstr ""
 
 msgid "Dummy count"
+msgstr ""
+
+msgid "Discover Overlay Configuration"
+msgstr ""
+
+msgid "INTRO TEXT"
+msgstr ""
+
+msgid "Close overlay"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Anchor to Edge"
+msgstr ""
+
+msgid "Place window"
+msgstr ""
+
+msgid "Verticle Edge Padding"
+msgstr ""
+
+msgid "Highlight self"
+msgstr ""
+
+msgid "Display speakers only"
+msgstr ""
+
+msgid "Avatar Opacity"
+msgstr ""
+
+msgid "Avatar Size"
+msgstr ""
+
+msgid "Fancy Avatar Shapes"
+msgstr ""
+
+msgid "Border width"
+msgstr ""
+
+msgid "Show title"
+msgstr ""
+
+msgid "Show while Disconnected"
+msgstr ""
+
+msgid "Dummy Count"
+msgstr ""
+
+msgid "Voice"
+msgstr ""
+
+msgid "Text Colour"
+msgstr ""
+
+msgid "Background Colour"
+msgstr ""
+
+msgid "Show attachments"
+msgstr ""
+
+msgid "Refresh List"
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Overlay location"
+msgstr ""
+
+msgid "Padding between notifications"
+msgstr ""
+
+msgid "Icon Size"
+msgstr ""
+
+msgid "Icon Padding"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Notification"
+msgstr ""
+
+msgid "Run on startup"
+msgstr ""
+
+msgid "Core"
 msgstr ""

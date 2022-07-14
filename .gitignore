@@ -7,4 +7,3 @@ env
 __pycache__
 venv
 .idea
-remake_base_pot.sh
