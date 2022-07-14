@@ -203,13 +203,6 @@ class MainSettingsWindow():
         """
         Show the settings window
         """
-        # self.about_settings.present_settings()
-        # self.voice_settings.present_settings()
-        # self.text_settings.present_settings()
-        # self.notification_settings.present_settings()
-        # self.core_settings.present_settings()
-        # self.notebook.show()
-        # self.show()
         self.widget['notebook'].set_current_page(0)
         self.window.show()
 
