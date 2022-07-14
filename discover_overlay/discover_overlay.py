@@ -94,18 +94,15 @@ class Discover:
         Gtk.main()
 
     def periodic_run(self, data=None):
-        self.voice_overlay.check_composite()
         if self.voice_overlay.needsredraw:
             self.voice_overlay.redraw()
 
         if self.text_overlay:
-            self.text_overlay.check_composite()
             self.text_overlay.tick()
             if self.text_overlay.needsredraw:
                 self.text_overlay.redraw()
 
         if self.notification_overlay:
-            self.notification_overlay.check_composite()
             self.notification_overlay.tick()
             if self.notification_overlay.enabled and self.notification_overlay.needsredraw:
                 self.notification_overlay.redraw()

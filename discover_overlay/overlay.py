@@ -56,7 +56,6 @@ class OverlayWindow(Gtk.Window):
         Gtk.Window.__init__(self, type=self.detect_type())
         self.discover = discover
         screen = self.get_screen()
-        self.compositing = False
         self.text_font = None
         self.text_size = None
         self.pos_x = None
@@ -78,8 +77,6 @@ class OverlayWindow(Gtk.Window):
         if visual:
             # Set the visual even if we can't use it right now
             self.set_visual(visual)
-        if screen.is_composited():
-            self.compositing = True
 
         self.set_app_paintable(True)
         self.set_untouchable()
@@ -104,6 +101,8 @@ class OverlayWindow(Gtk.Window):
         self.piggyback_parent = None
         if piggyback:
             self.set_piggyback(piggyback)
+
+        self.get_screen().connect("composited-changed", self.check_composite)
 
     def set_gamescope_xatom(self, enabled):
         display = Display()
@@ -250,7 +249,8 @@ class OverlayWindow(Gtk.Window):
             self.width = width
             self.height = height
         if gdkwin:
-            if not self.compositing or self.force_xshape:
+            compositing = self.get_screen().is_composited()
+            if not compositing or self.force_xshape:
                 (width, height) = self.get_size()
                 surface = cairo.ImageSurface(
                     cairo.FORMAT_ARGB32, width, height)
@@ -337,7 +337,5 @@ class OverlayWindow(Gtk.Window):
         self.set_skip_pager_hint(not visible)
         self.set_skip_taskbar_hint(not visible)
 
-    def check_composite(self):
-        screen = self.get_screen()
-        if not self.compositing == screen.is_composited():
-            self.needsredraw = True
+    def check_composite(self, _a=None, _b=None):
+        self.redraw()

@@ -18,6 +18,7 @@ import pkg_resources
 import sys
 import os
 import json
+from .autostart import Autostart
 
 from configparser import ConfigParser
 gi.require_version("Gtk", "3.0")
@@ -34,6 +35,12 @@ class MainSettingsWindow():
     """Settings class"""
 
     def __init__(self, config_file):
+
+        self.autostart_helper = Autostart("discover_overlay")
+        self.ind = None
+
+        self.menu = self.make_menu()
+        self.make_sys_tray_icon(self.menu)
 
         self.config_file = config_file
 
@@ -85,13 +92,29 @@ class MainSettingsWindow():
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         self.window = window
 
+        # Fill monitor menus
+        self.populate_monitor_menus()
+        window.get_screen().connect("monitors-changed", self.populate_monitor_menus)
+
         self.read_config()
-
+        builder.connect_signals(self)
         window.show()
-        self.menu = self.make_menu()
-        self.make_sys_tray_icon(self.menu)
 
-        # builder.connect_signals(self)
+    def populate_monitor_menus(self, _a = None, _b = None):
+        v= self.widget['voice_monitor']
+        t= self.widget['text_monitor']
+        m= self.widget['notification_monitor']
+
+        v.remove_all()
+        t.remove_all()
+        m.remove_all()
+
+        display = Gdk.Display.get_default()
+        if "get_n_monitors" in dir(display):
+            for i in range(0, display.get_n_monitors()):
+                v.append_text(display.get_monitor(i).get_model())
+                t.append_text(display.get_monitor(i).get_model())
+                m.append_text(display.get_monitor(i).get_model())
 
     def close_window(self, widget=None, event=None):
         """
@@ -100,7 +123,7 @@ class MainSettingsWindow():
         self.window.hide()
         return True
 
-    def present_settings(self):
+    def present_settings(self, _a = None):
         """
         Show the settings window
         """
@@ -266,8 +289,61 @@ class MainSettingsWindow():
             config.getint("text", "line_limit", fallback=20))
 
         # Read Notification section
+        self.widget['notification_enable'].set_active(config.getboolean("notification", "enabled", fallback=False))
+
+        self.widget['notification_reverse_order'].set_active(config.getboolean("notification", "rev", fallback=False))
+
+        self.widget['notification_popup_timer'].set_value(config.getint("notification", "text_time", fallback=10))
+
+        self.widget['notification_limit_popup_width'].set_value(config.getint("notification", "limit_width", fallback=400))
+
+        font = config.get("notification", "font", fallback=None)
+        if font:
+            self.widget['notification_font'].set_font(font)
+
+        self.widget['notification_text_colour'].set_rgba(self.make_colour(config.get(
+            "notification", "fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.widget['notification_background_colour'].set_rgba(self.make_colour(config.get(
+            "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+
+        self.widget['notification_monitor'].set_active(self.get_monitor_index(
+            config.get("notification", "monitor", fallback="None")))
+
+        self.widget['notification_align_1'].set_active(config.getboolean(
+            "notification", "rightalign", fallback=True))
+
+        self.widget['notification_align_2'].set_active(config.getint("notification", "topalign", fallback=2))
+
+        self.widget['notification_show_icon'].set_active(config.getboolean("notification", "show_icon", fallback=True))
+
+        self.widget['notification_icon_position'].set_active(config.getboolean(
+            "notification", "icon_left", fallback=True))
+
+        self.widget['notification_icon_padding'].set_value(config.getint(
+            "notification", "icon_padding", fallback=8))
+
+        self.widget['notification_icon_size'].set_value(config.getint(
+            "notification", "icon_size", fallback=32))
+
+        self.widget['notification_padding_between'].set_value(config.getint(
+            "notification", "padding", fallback=8))
+
+        self.widget['notification_border_radius'].set_value(config.getint(
+            "notification", "border_radius", fallback=8))
+
+        self.widget['notification_show_test_content'].set_active(config.getboolean(
+            "notification", "show_dummy", fallback=False))
 
         # Read Core section
+
+        self.widget['core_run_on_startup'].set_active(self.autostart_helper.is_auto())
+
+        self.widget['core_force_xshape'].set_active(config.getboolean("general", "xshape", fallback=False))
+
+        self.show_sys_tray_icon = config.getboolean(
+            "general", "showsystray", fallback=True)
+        self.set_sys_tray_icon_visible(self.show_sys_tray_icon)
+        self.widget['core_show_tray_icon'].set_active(self.show_sys_tray_icon)
 
     def make_colour(self, col):
         col = json.loads(col)
