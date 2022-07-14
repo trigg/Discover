@@ -2107,7 +2107,7 @@
                 <property name="name">core_run_on_startup_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Run overlay on startup</property>
+                <property name="label" translatable="yes">Run Overlay on Startup</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -2187,7 +2187,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Run configuration on startup</property>
+                <property name="label" translatable="yes">Run Configuration on Startup</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
