@@ -35,7 +35,7 @@ class MainSettingsWindow():
     """Settings class"""
 
     def __init__(self, config_file):
-
+        self.voice_advanced = False
         self.autostart_helper = Autostart("discover_overlay")
         self.ind = None
 
@@ -138,6 +138,8 @@ class MainSettingsWindow():
         self.window.show()
 
     def read_config(self):
+        self.widget['voice_advanced_grid'].hide()
+
         # Read config and put into gui
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
@@ -193,6 +195,9 @@ class MainSettingsWindow():
 
         self.widget['voice_display_speakers_only'].set_active(
             config.getboolean("main", "only_speaking", fallback=False))
+
+        self.widget['voice_show_test_content'].set_active(
+            config.getboolean("main", "show_dummy", fallback=False))
 
         self.widget['voice_talking_foreground'].set_rgba(self.make_colour(config.get(
             "main", "fg_hi_col", fallback="[1.0,1.0,1.0,1.0]")))
@@ -253,6 +258,8 @@ class MainSettingsWindow():
 
         self.widget['voice_show_disconnected'].set_active(config.getboolean(
             "main", "show_disconnected", fallback=False))
+
+        self.widget['voice_dummy_count'].set_value(config.getint("main", "dummy_count", fallback=50))
 
         # Read Text section
 
@@ -451,12 +458,6 @@ class MainSettingsWindow():
     def text_place_window(self, button):
         pass
 
-    def voice_floating_changed(self, button):
-        pass
-
-    def voice_monitor_changed(self, button):
-        pass
-
     def text_server_refresh(self, button):
         # TODO Implement refresh request via RPC
         pass
@@ -472,5 +473,250 @@ class MainSettingsWindow():
         with open(self.config_file, 'w') as file:
             config.write(file)
 
+    def voice_anchor_to_edge_changed(self, button):
+        self.config_set("main", "floating", 0)
+
+    def voice_floating_changed(self, button):
+        self.config_set("main", "floating", 1)
+
+    def voice_monitor_changed(self,button):
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            mon = display.get_monitor(button.get_active())
+            m_s = mon.get_model()
+            self.config_set("main", "monitor", m_s)
+
+    def voice_align_1_changed(self, button):
+        self.config_set("main", "rightalign", "%s" % (button.get_active()))
+
+    def voice_align_2_changed(self, button):
+        self.config_set("main", "topalign", "%s" % (button.get_active()))
+
+    def voice_show_advanced_options_button_changed(self, button):
+        self.voice_advanced = not self.voice_advanced
+        if self.voice_advanced:
+            self.widget['voice_advanced_grid'].show()
+        else:
+            self.widget['voice_advanced_grid'].hide()
+
     def voice_font_changed(self, button):
         self.config_set("main", "font", button.get_font())
+
+    def voice_title_font_changed(self, button):
+        self.config_set("main", "title_font", button.get_font())
+
+    def voice_icon_spacing_changed(self, button):
+        self.config_set("main", "icon_spacing", "%s" % (int(button.get_value())))
+
+    def voice_text_padding_changed(self, button):
+        self.config_set("main", "text_padding", "%s" % (int(button.get_value())))
+
+    def voice_text_vertical_offset_changed(self, button):
+        self.config_set("main", "text_baseline_adj", "%s" % (int(button.get_value())))
+
+    def voice_vertical_padding_changed(self, button):
+        self.config_set("main", "vert_edge_padding", "%s" % (int(button.get_value())))
+
+    def voice_horizontal_padding_changed(self, button):
+        self.config_set("main", "horz_edge_padding", "%s" % (int(button.get_value())))
+
+    def voice_display_horizontally_changed(self, button):
+        self.config_set("main", "horizontal", "%s" % (button.get_active()))
+
+    def voice_highlight_self_changed(self, button):
+        self.config_set("main", "highlight_self", "%s" % (button.get_active()))
+
+    def voice_display_speakers_only(self, button):
+        self.config_set("main", "only_speaking", "%s" % (button.get_active()))
+
+    def voice_toggle_test_content(self, button):
+        self.config_set("main", "show_dummy", "%s" % (button.get_active()))
+
+    def voice_talking_foreground_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "fg_hi_col", json.dumps(colour))
+
+    def voice_talking_background_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "hi_col", json.dumps(colour))
+
+    def voice_talking_border_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "tk_col", json.dumps(colour))
+
+    def voice_idle_foreground_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "fg_col", json.dumps(colour))
+
+    def voice_idle_background_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "bg_col", json.dumps(colour))
+
+    def voice_idle_border_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "bo_col", json.dumps(colour))
+
+    def voice_mute_foreground_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "mt_col", json.dumps(colour))
+
+    def voice_mute_background_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "mt_bg_col", json.dumps(colour))
+        
+    def voice_avatar_background_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("main", "avatar_bg_col", json.dumps(colour))
+
+    def voice_avatar_opacity_changed(self, button):
+        self.config_set("main", "icon_transparency", "%.2f" % (button.get_value()))
+
+    def voice_avatar_size_changed(self, button):
+        self.config_set("main", "avatar_size", "%s" % (int(button.get_value())))
+
+    def voice_display_icon_only_changed(self, button):
+        self.config_set("main", "icon_only", "%s" % (button.get_active()))
+
+    def voice_square_avatar_changed(self,button):
+        self.config_set("main", "square_avatar", "%s" % (button.get_active())) 
+    
+    def voice_fancy_avatar_shapes_changed(self, button):
+        self.config_set("main", "fancy_border", "%s" % (button.get_active()))
+
+    def voice_order_avatars_by_changed(self, button):
+        self.config_set("main", "order", "%s" % (button.get_active()))
+
+    def voice_border_width_changed(self, button):
+        self.config_set("main", "border_width", "%s" % (int(button.get_value())))
+
+    def voice_overflow_style_changed(self, button):
+        self.config_set("main", "overflow", "%s" % (int(button.get_active())))
+
+    def voice_show_title_changed(self, button):
+        self.config_set("main", "show_title", "%s" % (button.get_active()))
+
+    def voice_show_connection_status_changed(self, button):
+        self.config_set("main", "show_connection", "%s" % (button.get_active()))
+
+    def voice_show_disconnected_changed(self, button):
+        self.config_set("main", "show_disconnected", "%s" % (button.get_active()))
+
+    def voice_dummy_count_changed(self, button):
+        self.config_set("main", "dummy_count", "%s" % (int(button.get_value())))
+
+    def text_enable_changed(self, button):
+        self.config_set("text", "enabled", "%s" % (button.get_active()))
+
+    def text_popup_style_changed(self, button):
+        self.config_set("text", "popup_style", "%s" % (button.get_active()))
+
+    def text_server_changed(self, button):
+        self.config_set("text", "guild", button.get_active_text())
+
+    def text_channel_changed(self, button):
+        self.config_set("text", "channel", button.get_active_text())
+
+    def text_font_changed(self, button):
+        self.config_set("text", "font", button.get_font())
+
+    def text_colour_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("text", "fg_col", json.dumps(colour))
+
+    def text_background_colour_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("text", "bg_col", json.dumps(colour))
+
+    def text_monitor_changed(self, button):
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            mon = display.get_monitor(button.get_active())
+            m_s = mon.get_model()
+            self.config_set("text", "monitor", m_s)
+
+    def text_show_attachments_changed(self, button):
+        self.config_set("text", "show_attach", "%s" % (button.get_active()))
+
+    def text_line_limit_changed(self, button):
+        self.config_set("text", "line_limit", "%s" % (int(button.get_active())))
+
+    def notification_enable_changed(self, button):
+        self.config_set("notification", "enabled", "%s" % (button.get_active()))
+
+    def notification_reverse_order_changed(self, button):
+        self.config_set("notification", "rev", "%s" % (button.get_active()))
+    
+    def notification_popup_timer_changed(self, button):
+        self.config_set("notification", "text_time", "%s" % (int(button.get_value())))
+
+    def notification_limit_popup_width_changed(self,button):
+        self.config_set("notification", "limit_width", "%s" % (int(button.get_value())))
+
+    def notification_font_changed(self, button):
+        self.config_set("notification", "font", button.get_font())
+
+    def notification_text_colour_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("notification", "fg_col", json.dumps(colour))
+    
+    def notification_background_colour_changed(self, button):
+        colour = button.get_rgba()
+        colour = [colour.red, colour.green, colour.blue, colour.alpha]
+        self.config_set("notification", "bg_col", json.dumps(colour))
+
+    def notification_monitor_changed(self, button):
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            mon = display.get_monitor(button.get_active())
+            m_s = mon.get_model()
+            self.config_set("notification", "monitor", m_s)
+
+    def notification_align_1_changed(self, button):
+        self.config_set("notification", "rightalign", "%s" % (button.get_active()))
+
+    def notification_align_2_changed(self, button):
+        self.config_set("notification", "topalign", "%s" % (button.get_active()))
+
+    def notification_show_icon(self, button):
+        self.config_set("notification", "show_icon", "%s" % (button.get_active()))
+
+    def notification_icon_position_changed(self, button):
+        self.config_set("notification", "icon_left", "%s" % (int(button.get_active()!=1)))
+
+    def notification_icon_padding_changed(self, button):
+        self.config_set("notification", "icon_padding", "%s" % (int(button.get_value())))
+
+    def notification_icon_size_changed(self, button):
+        self.config_set("notification", "icon_size", "%s" % (int(button.get_value())))
+
+    def notification_padding_between_changed(self, button):
+        self.config_set("notification", "padding", "%s" % (int(button.get_value())))
+
+    def notification_border_radius_changed(self, button):
+        self.config_set("notification", "border_radius", "%s" % (int(button.get_value())))
+
+    def notification_show_test_content_changed(self, button):
+        self.config_set("notification", "show_dummy", "%s" % (button.get_active()))
+
+    def core_run_on_startup_changed(self, button):
+        # TODO Startup
+        pass
+
+    def core_force_xshape_changed(self, button):
+        self.config_set("general", "xshape", "%s" % (button.get_active()))
+
+    def core_show_tray_icon_changed(self, button):
+        self.set_sys_tray_icon_visible(button.get_active())
+        self.config_set("general", "showsystray", "%s" % (button.get_active()))

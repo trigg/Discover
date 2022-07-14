@@ -360,6 +360,7 @@ class Discover:
             "notification", "padding", fallback=8))
         self.notification_overlay.set_border_radius(config.getint(
             "notification", "border_radius", fallback=8))
+        self.notification_overlay.set_testing(config.getboolean("notification", "show_dummy", fallback=False))
 
         self.notification_overlay.set_monitor(self.get_monitor_index(
             monitor))

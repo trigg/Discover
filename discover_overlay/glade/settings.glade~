@@ -311,6 +311,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <signal name="pressed" handler="voice_show_advanced_options_button_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -347,7 +348,7 @@
                       <item translatable="yes">Middle</item>
                       <item translatable="yes">Bottom</item>
                     </items>
-                    <signal name="changed" handler="voice_align_2-changed" swapped="no"/>
+                    <signal name="changed" handler="voice_align_2_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -613,6 +614,7 @@
             <child>
               <!-- n-columns=4 n-rows=12 -->
               <object class="GtkGrid">
+                <property name="name">voice_advanced_grid</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="row-homogeneous">True</property>
@@ -1080,7 +1082,7 @@
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_highlight_self" swapped="no"/>
+                    <signal name="toggled" handler="voice_highlight_self_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -1120,7 +1122,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="adjustment">voice_vertical_padding_adj</property>
-                    <signal name="value-changed" handler="voce_vertical_padding_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_vertical_padding_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -2024,7 +2026,6 @@
                 <property name="active">0</property>
                 <items>
                   <item translatable="yes">Left</item>
-                  <item translatable="yes">Middle</item>
                   <item translatable="yes">Right</item>
                 </items>
                 <signal name="changed" handler="notification_align_1_changed" swapped="no"/>
@@ -2042,6 +2043,7 @@
                 <property name="active">0</property>
                 <items>
                   <item translatable="yes">Top</item>
+                  <item translatable="yes">Middle</item>
                   <item translatable="yes">Bottom</item>
                 </items>
                 <signal name="changed" handler="notification_align_2_changed" swapped="no"/>
