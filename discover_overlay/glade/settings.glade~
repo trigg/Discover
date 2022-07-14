@@ -1449,20 +1449,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Refresh List</property>
-                <property name="name">text_refresh_channel_button</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="pressed" handler="text_channel_refresh" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkFontButton">
                 <property name="name">text_font</property>
                 <property name="visible">True</property>
@@ -1484,6 +1470,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
                 <signal name="color-set" handler="text_colour_changed" swapped="no"/>
               </object>
               <packing>
@@ -1497,6 +1484,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
                 <signal name="color-set" handler="text_background_colour_changed" swapped="no"/>
               </object>
               <packing>
@@ -1580,6 +1568,9 @@
                 <property name="left-attach">1</property>
                 <property name="top-attach">7</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>
@@ -1837,6 +1828,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
                 <signal name="color-set" handler="notification_text_colour_changed" swapped="no"/>
               </object>
               <packing>
@@ -1850,6 +1842,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
                 <signal name="color-set" handler="notification_background_colour_changed" swapped="no"/>
               </object>
               <packing>

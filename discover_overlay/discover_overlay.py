@@ -48,7 +48,7 @@ _ = t.gettext
 class Discover:
     """Main application class"""
 
-    def __init__(self, rpc_file, config_file, debug_file, args):
+    def __init__(self, rpc_file, config_file, channel_file, debug_file, args):
         self.mix_settings = False
         self.ind = None
         self.tray = None
@@ -58,6 +58,7 @@ class Discover:
         self.settings = None
 
         self.debug_file = debug_file
+        self.channel_file = channel_file
 
         self.do_args(args, True)
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
@@ -167,10 +168,17 @@ class Discover:
         if "--undeaf" in data:
             if self.connection:
                 self.connection.set_deaf(False)
+        if "--refresh-guilds" in data:
+            if self.connection:
+                self.connection.req_guilds()
         pattern = re.compile("--moveto=([0-9]+)")
         if any((match := pattern.match(x)) for x in data):
             if self.connection:
                 self.connection.change_voice_room(match.group(1))
+        guild_pattern = re.compile("--guild-request=([0-9]+)")
+        if any((match := guild_pattern.match(x)) for x in data):
+            if self.connection:
+                self.connection.request_text_rooms_for_guild(match.group(1))
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -288,13 +296,16 @@ class Discover:
         self.text_overlay.set_align_y(
             config.getint("text", "topalign", fallback=2))
         monitor = config.get("text", "monitor", fallback="None")
-        self.floating = config.getboolean("text", "floating", fallback=True)
-        self.floating_x = config.getint("text", "floating_x", fallback=0)
-        self.floating_y = config.getint("text", "floating_y", fallback=0)
-        self.floating_w = config.getint("text", "floating_w", fallback=400)
-        self.floating_h = config.getint("text", "floating_h", fallback=400)
-        self.channel = config.get("text", "channel", fallback="0")
-        self.guild = config.get("text", "guild", fallback="0")
+        floating = config.getboolean("text", "floating", fallback=True)
+        floating_x = config.getint("text", "floating_x", fallback=0)
+        floating_y = config.getint("text", "floating_y", fallback=0)
+        floating_w = config.getint("text", "floating_w", fallback=400)
+        floating_h = config.getint("text", "floating_h", fallback=400)
+        
+        channel = config.get("text", "channel", fallback="0")
+        guild = config.get("text", "guild", fallback="0")
+        self.connection.set_text_channel(channel, guild)
+
         self.font = config.get("text", "font", fallback=None)
         self.text_overlay.set_bg(json.loads(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
@@ -481,8 +492,8 @@ def entrypoint():
     for arg in sys.argv[1:]:
         line = "%s %s" % (line, arg)
 
-    pid_file = os.path.join(config_dir, "discover_overlay.pid")
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
+    channel_file = os.path.join(config_dir, "channels.rpc")
     config_file = os.path.join(config_dir, "config.ini")
     debug_file = os.path.join(config_dir, "output.txt")
     logging.getLogger().setLevel(logging.INFO)
@@ -502,12 +513,12 @@ def entrypoint():
                 log.warning("Sent RPC command")
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
-                settings = MainSettingsWindow(config_file)
+                settings = MainSettingsWindow(config_file, rpc_file, channel_file)
                 Gtk.main()
                 sys.exit(0)
             with open(rpc_file, "w") as tfile:
                 tfile.write("--close")
-            Discover(rpc_file, config_file, debug_file, sys.argv[1:])
+            Discover(rpc_file, config_file, channel_file, debug_file, sys.argv[1:])
         return
 
     except Exception as ex:

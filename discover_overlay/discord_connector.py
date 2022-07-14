@@ -56,6 +56,7 @@ class DiscordConnector:
         self.current_guild = "0"
         self.current_voice = "0"
         self.current_text = "0"
+        self.current_text_guild = "0"
         self.list_altered = False
         self.text_altered = False
         self.text = []
@@ -118,15 +119,20 @@ class DiscordConnector:
             if need_req:
                 self.req_channel_details(channel)
 
-    def set_text_channel(self, channel, need_req=True):
+    def set_text_channel(self, channel, guild, need_req=True):
         """
         Set currently active text channel
         """
         if not channel:
             self.current_text = "0"
+            self.current_text_guild = "0"
             return
+        if guild != self.current_text_guild:
+            self.current_text_guild = guild
+            self.request_text_rooms_for_guild(guild)
         if channel != self.current_text:
             self.current_text = channel
+            self.current_text_guild = guild
             self.start_listening_text(channel)
             if need_req:
                 self.req_channel_details(channel)
@@ -346,6 +352,7 @@ class DiscordConnector:
         elif j["cmd"] == "GET_GUILDS":
             for guild in j["data"]["guilds"]:
                 self.guilds[guild["id"]] = guild
+                self.dump_channel_data()
                 # TODO Update settings window with guild/channel list
                 # self.discover.settings.add_guild(guild["id"])
                 # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
@@ -358,6 +365,8 @@ class DiscordConnector:
                 # TODO Check if this is the guild in text settings, if so request an update list
                 # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
                 #    self.req_channels(guild["id"])
+            self.dump_channel_data()
+
             return
         elif j["cmd"] == "GET_CHANNELS":
             self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
@@ -367,6 +376,8 @@ class DiscordConnector:
                 self.channels[channel["id"]] = channel
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
+            self.dump_channel_data()
+
             # TODO At this point change the channel list in settings
             # if j["nonce"] == self.discover.settings.text_settings.get_guild():
             #    self.discover.settings.text_settings.set_channels(
@@ -425,6 +436,10 @@ class DiscordConnector:
         elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
         log.warning(j)
+    
+    def dump_channel_data(self):
+        with open(self.discover.channel_file, 'w') as f:
+            f.write(json.dumps({'channels': self.channels, 'guild': self.guilds})) 
 
     def on_connected(self):
         """
@@ -714,8 +729,9 @@ class DiscordConnector:
                 self.text, self.text_altered)
             self.text_altered = False
 
-        if len(self.rate_limited_channels) > 0:
+        if self.authed and len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()
+
             cmd = {
                 "cmd": "GET_CHANNELS",
                 "args": {
@@ -763,8 +779,8 @@ class DiscordConnector:
         """
         if(guild_id == 0):
             return
-        if guild_id in self.guilds:
-            self.req_guild(guild_id, "refresh")
+        self.rate_limited_channels.append(guild_id)
+
 
     def connect(self):
         """

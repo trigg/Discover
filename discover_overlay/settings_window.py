@@ -23,7 +23,7 @@ from .autostart import Autostart
 from configparser import ConfigParser
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk  # nopep8
+from gi.repository import Gtk, Gdk ,Gio # nopep8
 
 log = logging.getLogger(__name__)
 t = gettext.translation(
@@ -34,15 +34,21 @@ _ = t.gettext
 class MainSettingsWindow():
     """Settings class"""
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, rpc_file, channel_file):
         self.voice_advanced = False
         self.autostart_helper = Autostart("discover_overlay")
         self.ind = None
+        self.guild_ids = []
+        self.channel_ids = []
+        self.current_guild = "0"
+        self.current_channel="0"
 
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
 
         self.config_file = config_file
+        self.rpc_file = rpc_file
+        self.channel_file = channel_file
 
         builder = Gtk.Builder.new_from_file(pkg_resources.resource_filename(
             'discover_overlay', 'glade/settings.glade'))
@@ -92,13 +98,58 @@ class MainSettingsWindow():
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         self.window = window
 
-        # Fill monitor menus
+        # Fill monitor & guild menus
         self.populate_monitor_menus()
         window.get_screen().connect("monitors-changed", self.populate_monitor_menus)
 
+        channel_file = Gio.File.new_for_path(channel_file)
+        self.monitor_channel = channel_file.monitor_file(0, None)
+        self.monitor_channel.connect("changed", self.populate_guild_menu)
+
         self.read_config()
+        self.server_handler = self.widget['text_server'].connect('changed', self.text_server_changed)
+        self.channel_handler = self.widget['text_channel'].connect('changed', self.text_channel_changed)
+
+        self.populate_guild_menu()
+
         builder.connect_signals(self)
+
         window.show()
+
+    def request_channels_from_guild(self, guild_id):
+         with open(self.rpc_file, 'w') as f:
+            f.write('--rpc --guild-request=%s' % (guild_id))
+
+    def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None):
+        g = self.widget['text_server']
+        c = self.widget['text_channel']
+        g.handler_block(self.server_handler)
+        c.handler_block(self.channel_handler)
+        with open(self.channel_file, "r") as tfile:
+            data = tfile.readlines()
+            if len(data) >= 1:
+                data = json.loads(data[0])
+                self.guild_ids = []
+                self.channel_ids = []
+                g.remove_all()
+                c.remove_all()
+                for guild in data['guild'].values():
+                    g.append_text(guild['name'])
+                    self.guild_ids.append(guild['id'])
+                    if guild['id'] == self.current_guild and 'channels' in guild:
+                        for channel in guild['channels']:
+                            c.append_text(channel['name'])
+                            self.channel_ids.append(channel['id'])
+
+
+        if self.current_guild != "0" and self.current_guild in self.guild_ids:
+            g.set_active(self.guild_ids.index(self.current_guild))
+
+        if self.current_channel != "0" and self.current_channel in self.channel_ids:
+            c.set_active(self.channel_ids.index(self.current_channel))
+
+        g.handler_unblock(self.server_handler)
+        c.handler_unblock(self.channel_handler)
 
     def populate_monitor_menus(self, _a = None, _b = None):
         v= self.widget['voice_monitor']
@@ -269,12 +320,9 @@ class MainSettingsWindow():
         self.widget['text_popup_style'].set_active(
             config.getboolean("text", "popup_style", fallback=False))
 
-        # TODO Find server & channel in lists. TODO Have lists
-        self.voice_guild = config.get("text", "guild", fallback="0")
-        self.widget['text_server'].set_active(0)
+        self.current_guild = config.get("text", "guild", fallback="0")
 
-        self.voice_channel = config.get("text", "channel", fallback="0")
-        self.widget['text_channel'].set_active(0)
+        self.current_channel = config.get("text", "channel", fallback="0")
 
         font = config.get("text", "font", fallback=None)
         if font:
@@ -459,12 +507,8 @@ class MainSettingsWindow():
         pass
 
     def text_server_refresh(self, button):
-        # TODO Implement refresh request via RPC
-        pass
-
-    def text_channel_refresh(self, button):
-        # TODO Implement refresh request via RPC
-        pass
+        with open(self.rpc_file, 'w') as f:
+            f.write('--rpc --refresh-guilds')
 
     def config_set(self, context, key, value):
         config = ConfigParser(interpolation=None)
@@ -620,10 +664,23 @@ class MainSettingsWindow():
         self.config_set("text", "popup_style", "%s" % (button.get_active()))
 
     def text_server_changed(self, button):
-        self.config_set("text", "guild", button.get_active_text())
+        if button.get_active() < 0:
+            self.config_set("text", "guild", "0")
+            return
+        guild = self.guild_ids[button.get_active()]
+        if guild and self.current_guild!=guild:
+            self.current_guild = guild
+            self.config_set("text", "guild", guild)
+            self.request_channels_from_guild(guild)
 
     def text_channel_changed(self, button):
-        self.config_set("text", "channel", button.get_active_text())
+        if button.get_active() < 0:
+            self.config_set("text", "channel", "0")
+            return
+        channel = self.channel_ids[button.get_active()]
+        if channel:
+            self.current_channel = channel
+            self.config_set("text", "channel", channel)
 
     def text_font_changed(self, button):
         self.config_set("text", "font", button.get_font())
@@ -649,7 +706,7 @@ class MainSettingsWindow():
         self.config_set("text", "show_attach", "%s" % (button.get_active()))
 
     def text_line_limit_changed(self, button):
-        self.config_set("text", "line_limit", "%s" % (int(button.get_active())))
+        self.config_set("text", "line_limit", "%s" % (int(button.get_value())))
 
     def notification_enable_changed(self, button):
         self.config_set("notification", "enabled", "%s" % (button.get_active()))
