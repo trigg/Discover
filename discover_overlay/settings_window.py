@@ -863,7 +863,6 @@ class MainSettingsWindow():
         self.config_set("notification", "show_dummy", "%s" % (button.get_active()))
 
     def core_run_on_startup_changed(self, button):
-        # TODO Startup
         self.autostart_helper.set_autostart(button.get_active())
 
     def core_force_xshape_changed(self, button):
