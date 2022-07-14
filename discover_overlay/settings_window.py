@@ -19,6 +19,8 @@ import sys
 import os
 import json
 from .autostart import Autostart
+from .draggable_window import DraggableWindow
+from .draggable_window_wayland import DraggableWindowWayland
 
 from configparser import ConfigParser
 gi.require_version("Gtk", "3.0")
@@ -35,6 +37,9 @@ class MainSettingsWindow():
     """Settings class"""
 
     def __init__(self, config_file, rpc_file, channel_file):
+        self.steamos = False
+        self.voice_placement_window = None
+        self.text_placement_window = None
         self.voice_advanced = False
         self.autostart_helper = Autostart("discover_overlay")
         self.ind = None
@@ -80,6 +85,7 @@ class MainSettingsWindow():
         ))
 
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
+            self.steamos = True
             log.info(
                 "GameScope session detected. Enabling steam and gamescope integration")
             self.steamos = True
@@ -96,6 +102,12 @@ class MainSettingsWindow():
             css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
             self.window.get_style_context().add_provider(
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+        screen = window.get_screen()
+        screen_type = "%s" % (screen)
+        self.is_wayland = False
+        if "Wayland" in screen_type:
+            self.is_wayland = True
         self.window = window
 
         # Fill monitor & guild menus
@@ -314,6 +326,13 @@ class MainSettingsWindow():
 
         # Read Text section
 
+        self.text_floating_x = config.getint("text", "floating_x", fallback=0)
+        self.text_floating_y = config.getint("text", "floating_y", fallback=0)
+        self.text_floating_w = config.getint(
+            "text", "floating_w", fallback=400)
+        self.text_floating_h = config.getint(
+            "text", "floating_h", fallback=400)
+
         self.widget['text_enable'].set_active(
             config.getboolean("text", "enabled", fallback=False))
 
@@ -501,10 +520,86 @@ class MainSettingsWindow():
         sys.exit(0)
 
     def voice_place_window(self, button):
-        pass
+        if self.voice_placement_window:
+            (pos_x, pos_y, width, height) = self.voice_placement_window.get_coords()
+            self.voice_floating_x = pos_x
+            self.voice_floating_y = pos_y
+            self.voice_floating_w = width
+            self.voice_floating_h = height
+
+            config = ConfigParser(interpolation=None)
+            config.read(self.config_file)
+            config.set("main", "floating_x", "%s" % (int(self.voice_floating_x)))
+            config.set("main", "floating_y", "%s" % (int(self.voice_floating_y)))
+            config.set("main", "floating_w", "%s" % (int(self.voice_floating_w)))
+            config.set("main", "floating_h", "%s" % (int(self.voice_floating_h)))
+
+            with open(self.config_file, 'w') as file:
+                config.write(file)
+            if button:
+                button.set_label(_("Place Window"))
+            self.voice_placement_window.close()
+            self.voice_placement_window = None
+            if self.steamos:
+                self.window.show()
+        else:
+            if self.steamos:
+                self.window.hide()
+            if self.is_wayland or self.steamos:
+                self.voice_placement_window = DraggableWindowWayland(
+                    pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
+                    width=self.voice_floating_w, height=self.voice_floating_h,
+                    message=_("Place & resize this window then press Green!"), settings=self,
+                    steamos=self.steamos,
+                    monitor=self.get_monitor_obj(self.monitor))
+            else:
+                self.voice_placement_window = DraggableWindow(
+                    pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
+                    width=self.voice_floating_w, height=self.voice_floating_h,
+                    message=_("Place & resize this window then press Save!"), settings=self)
+                if button:
+                    button.set_label(_("Save this position"))
 
     def text_place_window(self, button):
-        pass
+        if self.text_placement_window:
+            (pos_x, pos_y, width, height) = self.text_placement_window.get_coords()
+            self.text_floating_x = pos_x
+            self.text_floating_y = pos_y
+            self.text_floating_w = width
+            self.text_floating_h = height
+
+            config = ConfigParser(interpolation=None)
+            config.read(self.config_file)
+            config.set("text", "floating_x", "%s" % (int(self.text_floating_x)))
+            config.set("text", "floating_y", "%s" % (int(self.text_floating_y)))
+            config.set("text", "floating_w", "%s" % (int(self.text_floating_w)))
+            config.set("text", "floating_h", "%s" % (int(self.text_floating_h)))
+
+            with open(self.config_file, 'w') as file:
+                config.write(file)
+            if button:
+                button.set_label(_("Place Window"))
+            self.text_placement_window.close()
+            self.text_placement_window = None
+            if self.steamos:
+                self.window.show()
+        else:
+            if self.steamos:
+                self.window.hide()
+            if self.is_wayland or self.steamos:
+                self.text_placement_window = DraggableWindowWayland(
+                    pos_x=self.text_floating_x, pos_y=self.text_floating_y,
+                    width=self.text_floating_w, height=self.text_floating_h,
+                    message=_("Place & resize this window then press Green!"), settings=self,
+                    steamos=self.steamos,
+                    monitor=self.get_monitor_obj(self.monitor))
+            else:
+                self.text_placement_window = DraggableWindow(
+                    pos_x=self.text_floating_x, pos_y=self.text_floating_y,
+                    width=self.text_floating_w, height=self.text_floating_h,
+                    message=_("Place & resize this window then press Save!"), settings=self)
+                if button:
+                    button.set_label(_("Save this position"))
 
     def text_server_refresh(self, button):
         with open(self.rpc_file, 'w') as f:
@@ -518,10 +613,10 @@ class MainSettingsWindow():
             config.write(file)
 
     def voice_anchor_to_edge_changed(self, button):
-        self.config_set("main", "floating", 0)
+        self.config_set("main", "floating", "False")
 
     def voice_floating_changed(self, button):
-        self.config_set("main", "floating", 1)
+        self.config_set("main", "floating", "True")
 
     def voice_monitor_changed(self,button):
         display = Gdk.Display.get_default()
