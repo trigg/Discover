@@ -166,6 +166,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-bottom">10</property>
+                <property name="pixel-size">0</property>
                 <property name="icon-name">discover-overlay</property>
                 <property name="icon_size">6</property>
               </object>
@@ -237,12 +238,25 @@
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="halign">baseline</property>
+            <property name="valign">baseline</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="row-spacing">1</property>
+            <property name="column-spacing">1</property>
+            <property name="column-homogeneous">True</property>
             <child>
               <!-- n-columns=2 n-rows=7 -->
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-bottom">40</property>
+                <property name="row-spacing">1</property>
+                <property name="column-spacing">1</property>
+                <property name="row-homogeneous">True</property>
+                <property name="column-homogeneous">True</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="name">voice_overlay_location_label</property>
@@ -258,7 +272,7 @@
                 </child>
                 <child>
                   <object class="GtkRadioButton">
-                    <property name="label" translatable="yes">Anchor to Edge</property>
+                    <property name="label" translatable="yes">Anchor To Edge</property>
                     <property name="name">voice_anchor_to_edge</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -291,7 +305,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="voice_place_window_button">
-                    <property name="label" translatable="yes">Place window</property>
+                    <property name="label" translatable="yes">Place Window</property>
                     <property name="name">voice_place_window_button</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -380,7 +394,10 @@
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">end</property>
                 <property name="margin-bottom">40</property>
+                <property name="row-spacing">1</property>
+                <property name="column-spacing">1</property>
                 <property name="row-homogeneous">True</property>
                 <property name="column-homogeneous">True</property>
                 <child>
@@ -388,6 +405,8 @@
                     <property name="name">voice_foreground_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
                     <property name="label" translatable="yes">Foreground</property>
                   </object>
                   <packing>
@@ -400,6 +419,8 @@
                     <property name="name">voice_background_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
                     <property name="label" translatable="yes">Background</property>
                   </object>
                   <packing>
@@ -412,6 +433,8 @@
                     <property name="name">voice_border_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
                     <property name="label" translatable="yes">Border</property>
                   </object>
                   <packing>
@@ -617,6 +640,8 @@
                 <property name="name">voice_advanced_grid</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="row-spacing">1</property>
+                <property name="column-spacing">5</property>
                 <property name="row-homogeneous">True</property>
                 <property name="column-homogeneous">True</property>
                 <child>
@@ -786,7 +811,7 @@
                     <property name="name">voice_highlight_self_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Highlight self</property>
+                    <property name="label" translatable="yes">Highlight Self</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -799,7 +824,7 @@
                     <property name="name">voice_display_speakers_only_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Display speakers only</property>
+                    <property name="label" translatable="yes">Display Speakers Only</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -903,7 +928,7 @@
                     <property name="name">voice_overflow_style_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Overflow style</property>
+                    <property name="label" translatable="yes">Overflow Style</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -916,7 +941,7 @@
                     <property name="name">voice_show_title_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show title</property>
+                    <property name="label" translatable="yes">Show Title</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -1039,7 +1064,7 @@
                     <property name="name">voice_show_disconnected_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show while Disconnected</property>
+                    <property name="label" translatable="yes">Show While Disconnected</property>
                     <property name="xalign">0</property>
                   </object>
                   <packing>
@@ -1147,7 +1172,8 @@
                     <property name="name">voice_show_test_content_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show test content</property>
+                    <property name="label" translatable="yes">Show Test Content</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -1174,6 +1200,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Dummy Count</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">2</property>
@@ -1271,10 +1298,17 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=3 n-rows=11 -->
+          <!-- n-columns=2 n-rows=12 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="row-spacing">1</property>
+            <property name="column-spacing">1</property>
+            <property name="column-homogeneous">True</property>
             <child>
               <object class="GtkLabel">
                 <property name="name">text_enable_label</property>
@@ -1352,7 +1386,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">4</property>
               </packing>
             </child>
             <child>
@@ -1365,7 +1399,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">4</property>
+                <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
@@ -1378,7 +1412,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">5</property>
+                <property name="top-attach">6</property>
               </packing>
             </child>
             <child>
@@ -1391,7 +1425,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">6</property>
+                <property name="top-attach">7</property>
               </packing>
             </child>
             <child>
@@ -1404,7 +1438,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">7</property>
+                <property name="top-attach">8</property>
                 <property name="height">2</property>
               </packing>
             </child>
@@ -1413,20 +1447,7 @@
                 <property name="name">text_show_attachments_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show attachments</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_line_limit_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Line limit</property>
+                <property name="label" translatable="yes">Show Attachments</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1435,17 +1456,16 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Refresh List</property>
-                <property name="name">text_refresh_server_button</property>
+              <object class="GtkLabel">
+                <property name="name">text_line_limit_label</property>
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Line Limit</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">2</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">11</property>
               </packing>
             </child>
             <child>
@@ -1461,7 +1481,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">4</property>
+                <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
@@ -1475,7 +1495,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">5</property>
+                <property name="top-attach">6</property>
               </packing>
             </child>
             <child>
@@ -1489,7 +1509,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">6</property>
+                <property name="top-attach">7</property>
               </packing>
             </child>
             <child>
@@ -1503,7 +1523,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">8</property>
+                <property name="top-attach">9</property>
               </packing>
             </child>
             <child>
@@ -1517,7 +1537,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">9</property>
+                <property name="top-attach">10</property>
               </packing>
             </child>
             <child>
@@ -1530,7 +1550,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">10</property>
+                <property name="top-attach">11</property>
               </packing>
             </child>
             <child>
@@ -1552,7 +1572,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">4</property>
               </packing>
             </child>
             <child>
@@ -1564,35 +1584,22 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">7</property>
+                <property name="top-attach">8</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Refresh List</property>
+                <property name="name">text_refresh_server_button</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">3</property>
+              </packing>
             </child>
             <child>
               <placeholder/>
@@ -1619,6 +1626,13 @@
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="row-spacing">1</property>
+            <property name="column-spacing">1</property>
+            <property name="column-homogeneous">True</property>
             <child>
               <object class="GtkLabel">
                 <property name="name">notification_enable_label</property>
@@ -1650,7 +1664,7 @@
                 <property name="name">notification_popup_timer_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Popup timer</property>
+                <property name="label" translatable="yes">Popup Timer</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1663,7 +1677,7 @@
                 <property name="name">notification_limit_popup_width_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Limit popup width</property>
+                <property name="label" translatable="yes">Limit Popup Width</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1715,7 +1729,7 @@
                 <property name="name">notification_overlay_location_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Overlay location</property>
+                <property name="label" translatable="yes">Overlay Location</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1742,7 +1756,7 @@
                 <property name="name">notification_icon_position_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Icon position</property>
+                <property name="label" translatable="yes">Icon Position</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1881,7 +1895,7 @@
                 <property name="name">notification_show_test_content_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show test content</property>
+                <property name="label" translatable="yes">Show Test Content</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1894,7 +1908,7 @@
                 <property name="name">notification_border_radius_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Border radius</property>
+                <property name="label" translatable="yes">Border Radius</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -1907,7 +1921,7 @@
                 <property name="name">notification_padding_between_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Padding between notifications</property>
+                <property name="label" translatable="yes">Padding Between Notifications</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -2082,12 +2096,18 @@
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="row-spacing">2</property>
+            <property name="column-spacing">8</property>
             <child>
               <object class="GtkLabel">
                 <property name="name">core_run_on_startup_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Run on startup</property>
+                <property name="label" translatable="yes">Run on Startup</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
@@ -2141,7 +2161,8 @@
                 <property name="name">core_show_tray_icon_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show tray icon</property>
+                <property name="label" translatable="yes">Show Tray Icon</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
