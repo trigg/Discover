@@ -102,9 +102,12 @@ class MainSettingsWindow():
 
             # Larger fonts needed
             css = Gtk.CssProvider.new()
-            css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
+            css.load_from_data(bytes("* { font-size:18px; }", "utf-8"))
             window.get_style_context().add_provider(
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+            # Space is premium. Sorry Craig
+            self.widget['voice_advanced_grid'].set_column_homogeneous(False)
 
         screen = window.get_screen()
         screen_type = "%s" % (screen)
