@@ -59,6 +59,8 @@ class Discover:
 
         self.debug_file = debug_file
         self.channel_file = channel_file
+        self.config_file = config_file
+        self.rpc_file = rpc_file
 
         self.do_args(args, True)
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
@@ -79,8 +81,6 @@ class Discover:
         self.connection.connect()
         GLib.timeout_add((1000 / 60), self.connection.do_read)
         GLib.timeout_add((1000 / 20), self.periodic_run)
-        self.rpc_file = rpc_file
-        self.config_file = config_file
 
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
@@ -301,7 +301,7 @@ class Discover:
         floating_y = config.getint("text", "floating_y", fallback=0)
         floating_w = config.getint("text", "floating_w", fallback=400)
         floating_h = config.getint("text", "floating_h", fallback=400)
-        
+
         channel = config.get("text", "channel", fallback="0")
         guild = config.get("text", "guild", fallback="0")
         self.connection.set_text_channel(channel, guild)
@@ -371,7 +371,8 @@ class Discover:
             "notification", "padding", fallback=8))
         self.notification_overlay.set_border_radius(config.getint(
             "notification", "border_radius", fallback=8))
-        self.notification_overlay.set_testing(config.getboolean("notification", "show_dummy", fallback=False))
+        self.notification_overlay.set_testing(config.getboolean(
+            "notification", "show_dummy", fallback=False))
 
         self.notification_overlay.set_monitor(self.get_monitor_index(
             monitor))
@@ -431,15 +432,8 @@ class Discover:
             self.notification_overlay = NotificationOverlayWindow(self)
 
         if self.mix_settings:
-            MainSettingsWindow(self.config_file)
-
-    def show_menu(self, obj, button, time):
-        """
-        Show menu when System Tray icon is clicked
-        """
-        self.menu.show_all()
-        self.menu.popup(
-            None, None, Gtk.StatusIcon.position_menu, obj, button, time)
+            MainSettingsWindow(
+                self.config_file, self.rpc_file, self.channel_file)
 
     def toggle_show(self, _obj=None):
         if self.voice_overlay:
@@ -513,12 +507,14 @@ def entrypoint():
                 log.warning("Sent RPC command")
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
-                settings = MainSettingsWindow(config_file, rpc_file, channel_file)
+                settings = MainSettingsWindow(
+                    config_file, rpc_file, channel_file)
                 Gtk.main()
                 sys.exit(0)
             with open(rpc_file, "w") as tfile:
                 tfile.write("--close")
-            Discover(rpc_file, config_file, channel_file, debug_file, sys.argv[1:])
+            Discover(rpc_file, config_file, channel_file,
+                     debug_file, sys.argv[1:])
         return
 
     except Exception as ex:

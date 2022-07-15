@@ -25,7 +25,7 @@ from .draggable_window_wayland import DraggableWindowWayland
 from configparser import ConfigParser
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk ,Gio # nopep8
+from gi.repository import Gtk, Gdk, Gio  # nopep8
 
 log = logging.getLogger(__name__)
 t = gettext.translation(
@@ -41,15 +41,15 @@ class MainSettingsWindow():
         self.voice_placement_window = None
         self.text_placement_window = None
         self.voice_advanced = False
-        self.tray = None # Systemtray as fallback
-        self.ind = None # AppIndicator
+        self.tray = None  # Systemtray as fallback
+        self.ind = None  # AppIndicator
         self.autostart_helper = Autostart("discover_overlay")
         self.autostart_helper_conf = Autostart("discover_overlay_configure")
         self.ind = None
         self.guild_ids = []
         self.channel_ids = []
         self.current_guild = "0"
-        self.current_channel="0"
+        self.current_channel = "0"
 
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
@@ -103,7 +103,7 @@ class MainSettingsWindow():
             # Larger fonts needed
             css = Gtk.CssProvider.new()
             css.load_from_data(bytes("* { font-size:20px; }", "utf-8"))
-            self.window.get_style_context().add_provider(
+            window.get_style_context().add_provider(
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         screen = window.get_screen()
@@ -122,8 +122,10 @@ class MainSettingsWindow():
         self.monitor_channel.connect("changed", self.populate_guild_menu)
 
         self.read_config()
-        self.server_handler = self.widget['text_server'].connect('changed', self.text_server_changed)
-        self.channel_handler = self.widget['text_channel'].connect('changed', self.text_channel_changed)
+        self.server_handler = self.widget['text_server'].connect(
+            'changed', self.text_server_changed)
+        self.channel_handler = self.widget['text_channel'].connect(
+            'changed', self.text_channel_changed)
 
         self.populate_guild_menu()
 
@@ -132,7 +134,7 @@ class MainSettingsWindow():
         window.show()
 
     def request_channels_from_guild(self, guild_id):
-         with open(self.rpc_file, 'w') as f:
+        with open(self.rpc_file, 'w') as f:
             f.write('--rpc --guild-request=%s' % (guild_id))
 
     def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None):
@@ -140,22 +142,24 @@ class MainSettingsWindow():
         c = self.widget['text_channel']
         g.handler_block(self.server_handler)
         c.handler_block(self.channel_handler)
-        with open(self.channel_file, "r") as tfile:
-            data = tfile.readlines()
-            if len(data) >= 1:
-                data = json.loads(data[0])
-                self.guild_ids = []
-                self.channel_ids = []
-                g.remove_all()
-                c.remove_all()
-                for guild in data['guild'].values():
-                    g.append_text(guild['name'])
-                    self.guild_ids.append(guild['id'])
-                    if guild['id'] == self.current_guild and 'channels' in guild:
-                        for channel in guild['channels']:
-                            c.append_text(channel['name'])
-                            self.channel_ids.append(channel['id'])
-
+        try:
+            with open(self.channel_file, "r") as tfile:
+                data = tfile.readlines()
+                if len(data) >= 1:
+                    data = json.loads(data[0])
+                    self.guild_ids = []
+                    self.channel_ids = []
+                    g.remove_all()
+                    c.remove_all()
+                    for guild in data['guild'].values():
+                        g.append_text(guild['name'])
+                        self.guild_ids.append(guild['id'])
+                        if guild['id'] == self.current_guild and 'channels' in guild:
+                            for channel in guild['channels']:
+                                c.append_text(channel['name'])
+                                self.channel_ids.append(channel['id'])
+        except FileNotFoundError:
+            pass
 
         if self.current_guild != "0" and self.current_guild in self.guild_ids:
             g.set_active(self.guild_ids.index(self.current_guild))
@@ -166,10 +170,10 @@ class MainSettingsWindow():
         g.handler_unblock(self.server_handler)
         c.handler_unblock(self.channel_handler)
 
-    def populate_monitor_menus(self, _a = None, _b = None):
-        v= self.widget['voice_monitor']
-        t= self.widget['text_monitor']
-        m= self.widget['notification_monitor']
+    def populate_monitor_menus(self, _a=None, _b=None):
+        v = self.widget['voice_monitor']
+        t = self.widget['text_monitor']
+        m = self.widget['notification_monitor']
 
         v.remove_all()
         t.remove_all()
@@ -192,14 +196,14 @@ class MainSettingsWindow():
         if self.ind != None:
             # pylint: disable=import-outside-toplevel
             from gi.repository import AppIndicator3
-            if self.ind.get_status()==AppIndicator3.IndicatorStatus.PASSIVE:
+            if self.ind.get_status() == AppIndicator3.IndicatorStatus.PASSIVE:
                 sys.exit(0)
         return True
 
     def close_app(self, widget=None, event=None):
         sys.exit(0)
 
-    def present_settings(self, _a = None):
+    def present_settings(self, _a=None):
         """
         Show the settings window
         """
@@ -328,7 +332,8 @@ class MainSettingsWindow():
         self.widget['voice_show_disconnected'].set_active(config.getboolean(
             "main", "show_disconnected", fallback=False))
 
-        self.widget['voice_dummy_count'].set_value(config.getint("main", "dummy_count", fallback=50))
+        self.widget['voice_dummy_count'].set_value(
+            config.getint("main", "dummy_count", fallback=50))
 
         # Read Text section
 
@@ -369,13 +374,17 @@ class MainSettingsWindow():
             config.getint("text", "line_limit", fallback=20))
 
         # Read Notification section
-        self.widget['notification_enable'].set_active(config.getboolean("notification", "enabled", fallback=False))
+        self.widget['notification_enable'].set_active(
+            config.getboolean("notification", "enabled", fallback=False))
 
-        self.widget['notification_reverse_order'].set_active(config.getboolean("notification", "rev", fallback=False))
+        self.widget['notification_reverse_order'].set_active(
+            config.getboolean("notification", "rev", fallback=False))
 
-        self.widget['notification_popup_timer'].set_value(config.getint("notification", "text_time", fallback=10))
+        self.widget['notification_popup_timer'].set_value(
+            config.getint("notification", "text_time", fallback=10))
 
-        self.widget['notification_limit_popup_width'].set_value(config.getint("notification", "limit_width", fallback=400))
+        self.widget['notification_limit_popup_width'].set_value(
+            config.getint("notification", "limit_width", fallback=400))
 
         font = config.get("notification", "font", fallback=None)
         if font:
@@ -392,9 +401,11 @@ class MainSettingsWindow():
         self.widget['notification_align_1'].set_active(config.getboolean(
             "notification", "rightalign", fallback=True))
 
-        self.widget['notification_align_2'].set_active(config.getint("notification", "topalign", fallback=2))
+        self.widget['notification_align_2'].set_active(
+            config.getint("notification", "topalign", fallback=2))
 
-        self.widget['notification_show_icon'].set_active(config.getboolean("notification", "show_icon", fallback=True))
+        self.widget['notification_show_icon'].set_active(
+            config.getboolean("notification", "show_icon", fallback=True))
 
         self.widget['notification_icon_position'].set_active(config.getboolean(
             "notification", "icon_left", fallback=True))
@@ -416,11 +427,14 @@ class MainSettingsWindow():
 
         # Read Core section
 
-        self.widget['core_run_on_startup'].set_active(self.autostart_helper.is_auto())
+        self.widget['core_run_on_startup'].set_active(
+            self.autostart_helper.is_auto())
 
-        self.widget['core_run_conf_on_startup'].set_active(self.autostart_helper_conf.is_auto())
+        self.widget['core_run_conf_on_startup'].set_active(
+            self.autostart_helper_conf.is_auto())
 
-        self.widget['core_force_xshape'].set_active(config.getboolean("general", "xshape", fallback=False))
+        self.widget['core_force_xshape'].set_active(
+            config.getboolean("general", "xshape", fallback=False))
 
         self.show_sys_tray_icon = config.getboolean(
             "general", "showsystray", fallback=True)
@@ -488,6 +502,14 @@ class MainSettingsWindow():
             # Hide for now since we don't know if it should be shown yet
             self.tray.set_visible(False)
 
+    def show_menu(self, obj, button, time):
+        """
+        Show menu when System Tray icon is clicked
+        """
+        self.menu.show_all()
+        self.menu.popup(
+            None, None, Gtk.StatusIcon.position_menu, obj, button, time)
+
     def set_sys_tray_icon_visible(self, visible):
         """
         Sets whether the tray icon is visible
@@ -537,10 +559,14 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
-            config.set("main", "floating_x", "%s" % (int(self.voice_floating_x)))
-            config.set("main", "floating_y", "%s" % (int(self.voice_floating_y)))
-            config.set("main", "floating_w", "%s" % (int(self.voice_floating_w)))
-            config.set("main", "floating_h", "%s" % (int(self.voice_floating_h)))
+            config.set("main", "floating_x", "%s" %
+                       (int(self.voice_floating_x)))
+            config.set("main", "floating_y", "%s" %
+                       (int(self.voice_floating_y)))
+            config.set("main", "floating_w", "%s" %
+                       (int(self.voice_floating_w)))
+            config.set("main", "floating_h", "%s" %
+                       (int(self.voice_floating_h)))
 
             with open(self.config_file, 'w') as file:
                 config.write(file)
@@ -578,10 +604,14 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
-            config.set("text", "floating_x", "%s" % (int(self.text_floating_x)))
-            config.set("text", "floating_y", "%s" % (int(self.text_floating_y)))
-            config.set("text", "floating_w", "%s" % (int(self.text_floating_w)))
-            config.set("text", "floating_h", "%s" % (int(self.text_floating_h)))
+            config.set("text", "floating_x", "%s" %
+                       (int(self.text_floating_x)))
+            config.set("text", "floating_y", "%s" %
+                       (int(self.text_floating_y)))
+            config.set("text", "floating_w", "%s" %
+                       (int(self.text_floating_w)))
+            config.set("text", "floating_h", "%s" %
+                       (int(self.text_floating_h)))
 
             with open(self.config_file, 'w') as file:
                 config.write(file)
@@ -626,7 +656,7 @@ class MainSettingsWindow():
     def voice_floating_changed(self, button):
         self.config_set("main", "floating", "True")
 
-    def voice_monitor_changed(self,button):
+    def voice_monitor_changed(self, button):
         display = Gdk.Display.get_default()
         if "get_monitor" in dir(display):
             mon = display.get_monitor(button.get_active())
@@ -653,19 +683,24 @@ class MainSettingsWindow():
         self.config_set("main", "title_font", button.get_font())
 
     def voice_icon_spacing_changed(self, button):
-        self.config_set("main", "icon_spacing", "%s" % (int(button.get_value())))
+        self.config_set("main", "icon_spacing", "%s" %
+                        (int(button.get_value())))
 
     def voice_text_padding_changed(self, button):
-        self.config_set("main", "text_padding", "%s" % (int(button.get_value())))
+        self.config_set("main", "text_padding", "%s" %
+                        (int(button.get_value())))
 
     def voice_text_vertical_offset_changed(self, button):
-        self.config_set("main", "text_baseline_adj", "%s" % (int(button.get_value())))
+        self.config_set("main", "text_baseline_adj", "%s" %
+                        (int(button.get_value())))
 
     def voice_vertical_padding_changed(self, button):
-        self.config_set("main", "vert_edge_padding", "%s" % (int(button.get_value())))
+        self.config_set("main", "vert_edge_padding", "%s" %
+                        (int(button.get_value())))
 
     def voice_horizontal_padding_changed(self, button):
-        self.config_set("main", "horz_edge_padding", "%s" % (int(button.get_value())))
+        self.config_set("main", "horz_edge_padding", "%s" %
+                        (int(button.get_value())))
 
     def voice_display_horizontally_changed(self, button):
         self.config_set("main", "horizontal", "%s" % (button.get_active()))
@@ -718,24 +753,26 @@ class MainSettingsWindow():
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "mt_bg_col", json.dumps(colour))
-        
+
     def voice_avatar_background_changed(self, button):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "avatar_bg_col", json.dumps(colour))
 
     def voice_avatar_opacity_changed(self, button):
-        self.config_set("main", "icon_transparency", "%.2f" % (button.get_value()))
+        self.config_set("main", "icon_transparency", "%.2f" %
+                        (button.get_value()))
 
     def voice_avatar_size_changed(self, button):
-        self.config_set("main", "avatar_size", "%s" % (int(button.get_value())))
+        self.config_set("main", "avatar_size", "%s" %
+                        (int(button.get_value())))
 
     def voice_display_icon_only_changed(self, button):
         self.config_set("main", "icon_only", "%s" % (button.get_active()))
 
-    def voice_square_avatar_changed(self,button):
-        self.config_set("main", "square_avatar", "%s" % (button.get_active())) 
-    
+    def voice_square_avatar_changed(self, button):
+        self.config_set("main", "square_avatar", "%s" % (button.get_active()))
+
     def voice_fancy_avatar_shapes_changed(self, button):
         self.config_set("main", "fancy_border", "%s" % (button.get_active()))
 
@@ -743,7 +780,8 @@ class MainSettingsWindow():
         self.config_set("main", "order", "%s" % (button.get_active()))
 
     def voice_border_width_changed(self, button):
-        self.config_set("main", "border_width", "%s" % (int(button.get_value())))
+        self.config_set("main", "border_width", "%s" %
+                        (int(button.get_value())))
 
     def voice_overflow_style_changed(self, button):
         self.config_set("main", "overflow", "%s" % (int(button.get_active())))
@@ -752,13 +790,16 @@ class MainSettingsWindow():
         self.config_set("main", "show_title", "%s" % (button.get_active()))
 
     def voice_show_connection_status_changed(self, button):
-        self.config_set("main", "show_connection", "%s" % (button.get_active()))
+        self.config_set("main", "show_connection", "%s" %
+                        (button.get_active()))
 
     def voice_show_disconnected_changed(self, button):
-        self.config_set("main", "show_disconnected", "%s" % (button.get_active()))
+        self.config_set("main", "show_disconnected", "%s" %
+                        (button.get_active()))
 
     def voice_dummy_count_changed(self, button):
-        self.config_set("main", "dummy_count", "%s" % (int(button.get_value())))
+        self.config_set("main", "dummy_count", "%s" %
+                        (int(button.get_value())))
 
     def text_enable_changed(self, button):
         self.config_set("text", "enabled", "%s" % (button.get_active()))
@@ -771,7 +812,7 @@ class MainSettingsWindow():
             self.config_set("text", "guild", "0")
             return
         guild = self.guild_ids[button.get_active()]
-        if guild and self.current_guild!=guild:
+        if guild and self.current_guild != guild:
             self.current_guild = guild
             self.config_set("text", "guild", guild)
             self.request_channels_from_guild(guild)
@@ -812,16 +853,19 @@ class MainSettingsWindow():
         self.config_set("text", "line_limit", "%s" % (int(button.get_value())))
 
     def notification_enable_changed(self, button):
-        self.config_set("notification", "enabled", "%s" % (button.get_active()))
+        self.config_set("notification", "enabled", "%s" %
+                        (button.get_active()))
 
     def notification_reverse_order_changed(self, button):
         self.config_set("notification", "rev", "%s" % (button.get_active()))
-    
-    def notification_popup_timer_changed(self, button):
-        self.config_set("notification", "text_time", "%s" % (int(button.get_value())))
 
-    def notification_limit_popup_width_changed(self,button):
-        self.config_set("notification", "limit_width", "%s" % (int(button.get_value())))
+    def notification_popup_timer_changed(self, button):
+        self.config_set("notification", "text_time", "%s" %
+                        (int(button.get_value())))
+
+    def notification_limit_popup_width_changed(self, button):
+        self.config_set("notification", "limit_width", "%s" %
+                        (int(button.get_value())))
 
     def notification_font_changed(self, button):
         self.config_set("notification", "font", button.get_font())
@@ -830,7 +874,7 @@ class MainSettingsWindow():
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("notification", "fg_col", json.dumps(colour))
-    
+
     def notification_background_colour_changed(self, button):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
@@ -844,31 +888,40 @@ class MainSettingsWindow():
             self.config_set("notification", "monitor", m_s)
 
     def notification_align_1_changed(self, button):
-        self.config_set("notification", "rightalign", "%s" % (button.get_active()))
+        self.config_set("notification", "rightalign", "%s" %
+                        (button.get_active()))
 
     def notification_align_2_changed(self, button):
-        self.config_set("notification", "topalign", "%s" % (button.get_active()))
+        self.config_set("notification", "topalign", "%s" %
+                        (button.get_active()))
 
     def notification_show_icon(self, button):
-        self.config_set("notification", "show_icon", "%s" % (button.get_active()))
+        self.config_set("notification", "show_icon", "%s" %
+                        (button.get_active()))
 
     def notification_icon_position_changed(self, button):
-        self.config_set("notification", "icon_left", "%s" % (int(button.get_active()!=1)))
+        self.config_set("notification", "icon_left", "%s" %
+                        (int(button.get_active() != 1)))
 
     def notification_icon_padding_changed(self, button):
-        self.config_set("notification", "icon_padding", "%s" % (int(button.get_value())))
+        self.config_set("notification", "icon_padding", "%s" %
+                        (int(button.get_value())))
 
     def notification_icon_size_changed(self, button):
-        self.config_set("notification", "icon_size", "%s" % (int(button.get_value())))
+        self.config_set("notification", "icon_size", "%s" %
+                        (int(button.get_value())))
 
     def notification_padding_between_changed(self, button):
-        self.config_set("notification", "padding", "%s" % (int(button.get_value())))
+        self.config_set("notification", "padding", "%s" %
+                        (int(button.get_value())))
 
     def notification_border_radius_changed(self, button):
-        self.config_set("notification", "border_radius", "%s" % (int(button.get_value())))
+        self.config_set("notification", "border_radius", "%s" %
+                        (int(button.get_value())))
 
     def notification_show_test_content_changed(self, button):
-        self.config_set("notification", "show_dummy", "%s" % (button.get_active()))
+        self.config_set("notification", "show_dummy", "%s" %
+                        (button.get_active()))
 
     def core_run_on_startup_changed(self, button):
         self.autostart_helper.set_autostart(button.get_active())
