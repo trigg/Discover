@@ -11,6 +11,6 @@ Your options are to instead run it as `~/.local/bin/discover-overlay` or to add 
 
 ## Other notes
 
-You only have access to stable releases via PIP, if you require latest versions for new features or bug testing see [our Github project](https://github.com/trigg/Discover)
+There is only access to stable releases via PIP, if you require latest versions for new features or bug testing see [our Github project](https://github.com/trigg/Discover)
 
 This method does not come with Discord at all and that will need to be installed separately.
