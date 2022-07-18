@@ -649,6 +649,8 @@ class MainSettingsWindow():
     def config_set(self, context, key, value):
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
+        if not context in config.sections():
+            config.add_section(context)
         config.set(context, key, value)
         with open(self.config_file, 'w') as file:
             config.write(file)
