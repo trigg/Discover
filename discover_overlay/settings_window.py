@@ -550,7 +550,8 @@ class MainSettingsWindow():
 
     def overview_close(self, button):
         log.info("Quit pressed")
-        sys.exit(0)
+        with open(self.rpc_file, 'w') as f:
+            f.write('--rpc --close')
 
     def voice_place_window(self, button):
         if self.voice_placement_window:
