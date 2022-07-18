@@ -109,6 +109,8 @@ class DiscordConnector:
                 self.unsub_voice_channel(self.current_voice)
             self.current_voice = "0"
             self.current_guild = "0"
+            self.discover.voice_overlay.set_blank()
+            self.in_room = []
             return
         if channel != self.current_voice:
             if self.current_voice != "0":
@@ -298,6 +300,8 @@ class DiscordConnector:
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.in_room = []
                     self.find_user()
+                    self.discover.voice_overlay.set_channel_title(None)
+                    self.discover.voice_overlay.set_channel_icon(None)
                     # User might have been forcibly moved room
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
@@ -436,10 +440,11 @@ class DiscordConnector:
         elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
         log.warning(j)
-    
+
     def dump_channel_data(self):
         with open(self.discover.channel_file, 'w') as f:
-            f.write(json.dumps({'channels': self.channels, 'guild': self.guilds})) 
+            f.write(json.dumps(
+                {'channels': self.channels, 'guild': self.guilds}))
 
     def on_connected(self):
         """
@@ -780,7 +785,6 @@ class DiscordConnector:
         if(guild_id == 0):
             return
         self.rate_limited_channels.append(guild_id)
-
 
     def connect(self):
         """

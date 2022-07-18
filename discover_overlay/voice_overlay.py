@@ -77,6 +77,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.def_avatar = None
         self.channel_icon = None
         self.channel_mask = None
+        self.channel_icon_url = None
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
@@ -112,6 +113,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_icon_transparency(self, trans):
+        if self.icon_transparency == trans:
+            return
         self.icon_transparency = trans
         get_surface(self.recv_avatar,
                     "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
@@ -127,6 +130,9 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_blank(self):
         self.userlist = []
+        self.channel_icon = None
+        self.channel_icon_url = None
+        self.channel_title = None
         self.needsredraw = True
 
     def set_title_font(self, font):
@@ -360,9 +366,11 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         if not url:
             self.channel_icon = None
+            self.channel_icon_url = None
         else:
             get_surface(self.recv_avatar, url, "channel",
                         self.avatar_size, self.icon_transparency)
+            self.channel_icon_url = url
 
     def set_user_list(self, userlist, alt):
         """
@@ -472,7 +480,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.show_connection:
             users_to_draw.insert(0, None)
             doConnection = True
-        if self.show_title:
+        if self.show_title and self.channel_title:
             users_to_draw.insert(0, None)
             doTitle = True
 
@@ -645,6 +653,9 @@ class VoiceOverlayWindow(OverlayWindow):
                                  pos_x, pos_y, None, avatar_size)
         else:
             self.blank_avatar(context, pos_x, pos_y, avatar_size)
+            if self.channel_icon_url:
+                get_surface(self.recv_avatar, self.channel_icon_url, "channel",
+                            self.avatar_size, self.icon_transparency)
         return tw
 
     def unused_fn_needed_translations(self):
