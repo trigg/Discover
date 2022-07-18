@@ -69,7 +69,11 @@ It is advised to install python-gobject from your system's own package manager.
 
 #### Debian/Ubuntu
 
-`apt install python3-gi`
+`apt install python3-gi python3-gi-cairo`
+
+with Wayland support
+
+`apt install gtk-layer-shell`
 
 #### Arch
 
@@ -84,18 +88,9 @@ with Wayland support
 
 Run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
 
-Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached either via System tray or by running `discover-overlay --configure`
+Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached by running `discover-overlay --configure`
 
-## Usage in Flatpak
-
-Due to a security feature of Flatpak we cannot currently detect an already-running process. Any call to `io.github.trigg.discover_overlay` will start a new overlay unless you also include `--rpc`.
-
-Examples:
-1) Start a new overlay and show configuration window
-`io.github.trigg.discover_overlay --configure`
-
-2) Show configuration window of already running overlay
-`io.github.trigg.discover_overlay --rpc --configure`
+Desktop shortcuts for both of these are added at install time.
 
 ### Debugging
 If you are trying to debug on VS Code you are likely to get the following message:
