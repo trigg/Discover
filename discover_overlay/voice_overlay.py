@@ -546,7 +546,7 @@ class VoiceOverlayWindow(OverlayWindow):
                     if avatar_size < 8:
                         avatar_size = 8
 
-            current_x = 0
+            current_x = 0 + self.horz_edge_padding
             offset_x_mult = 1
             offset_x = avatar_size + self.horz_edge_padding
             if self.align_right:
