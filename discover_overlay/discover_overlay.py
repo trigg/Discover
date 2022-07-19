@@ -373,6 +373,10 @@ class Discover:
             "notification", "border_radius", fallback=8))
         self.notification_overlay.set_testing(config.getboolean(
             "notification", "show_dummy", fallback=False))
+        self.font = config.get("notification", "font", fallback=None)
+
+        if self.font:
+            self.notification_overlay.set_font(self.font)
 
         self.notification_overlay.set_monitor(self.get_monitor_index(
             monitor))
