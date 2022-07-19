@@ -51,6 +51,7 @@ class MainSettingsWindow():
         self.channel_ids = []
         self.current_guild = "0"
         self.current_channel = "0"
+        self.hidden_overlay = False
 
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
@@ -125,17 +126,20 @@ class MainSettingsWindow():
         self.monitor_channel = channel_file.monitor_file(0, None)
         self.monitor_channel.connect("changed", self.populate_guild_menu)
 
-        self.read_config()
         self.server_handler = self.widget['text_server'].connect(
             'changed', self.text_server_changed)
         self.channel_handler = self.widget['text_channel'].connect(
             'changed', self.text_channel_changed)
+        self.hidden_overlay_handler = self.widget['core_hide_overlay'].connect(
+            'toggled', self.core_hide_overlay_changed)
+
+        self.read_config()
 
         self.populate_guild_menu()
 
         builder.connect_signals(self)
         print(args)
-        if not ( self.show_sys_tray_icon and '--minimized' in self.args ):
+        if not (self.show_sys_tray_icon and '--minimized' in self.args):
             window.show()
 
     def request_channels_from_guild(self, guild_id):
@@ -445,6 +449,9 @@ class MainSettingsWindow():
             "general", "showsystray", fallback=True)
         self.set_sys_tray_icon_visible(self.show_sys_tray_icon)
         self.widget['core_show_tray_icon'].set_active(self.show_sys_tray_icon)
+        self.hidden_overlay = self.show_sys_tray_icon = config.getboolean(
+            "general", "hideoverlay", fallback=False)
+        self.update_toggle_overlay()
 
     def make_colour(self, col):
         col = json.loads(col)
@@ -533,18 +540,40 @@ class MainSettingsWindow():
         """
         menu = Gtk.Menu()
         settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
+        self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide overlay"))
         close_overlay_opt = Gtk.MenuItem.new_with_label(_("Close Overlay"))
         close_opt = Gtk.MenuItem.new_with_label(_("Close Settings"))
 
         menu.append(settings_opt)
+        menu.append(self.toggle_opt)
         menu.append(close_overlay_opt)
         menu.append(close_opt)
 
         settings_opt.connect("activate", self.present_settings)
+        self.toggle_opt.connect("activate", self.toggle_overlay)
         close_overlay_opt.connect("activate", self.close_overlay)
         close_opt.connect("activate", self.close_app)
         menu.show_all()
         return menu
+
+    def toggle_overlay(self, _a=None, _b=None):
+        self.hidden_overlay = not self.hidden_overlay
+        print("TOGGLE TO %s" % (self.hidden_overlay))
+        self.config_set("general", "hideoverlay", "%s" % (self.hidden_overlay))
+        self.update_toggle_overlay()
+
+    def update_toggle_overlay(self, _a=None, _b=None):
+        self.widget['core_hide_overlay'].handler_block(
+            self.hidden_overlay_handler)
+
+        self.widget['core_hide_overlay'].set_active(self.hidden_overlay)
+
+        self.widget['core_hide_overlay'].handler_unblock(
+            self.hidden_overlay_handler)
+        if self.hidden_overlay:
+            self.toggle_opt.set_label(_("Show overlay"))
+        else:
+            self.toggle_opt.set_label(_("Hide overlay"))
 
     def close_overlay(self, _a=None, _b=None):
         with open(self.rpc_file, 'w') as f:
@@ -955,3 +984,6 @@ class MainSettingsWindow():
     def core_show_tray_icon_changed(self, button):
         self.set_sys_tray_icon_visible(button.get_active())
         self.config_set("general", "showsystray", "%s" % (button.get_active()))
+
+    def core_hide_overlay_changed(self, button):
+        self.toggle_overlay()

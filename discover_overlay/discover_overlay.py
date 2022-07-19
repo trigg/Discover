@@ -145,19 +145,9 @@ class Discover:
         if "--steamos" in data or "-s" in data:
             self.steamos = True
         if "--hide" in data:
-            if self.voice_overlay:
-                self.voice_overlay.set_hidden(True)
-            if self.text_overlay:
-                self.text_overlay.set_hidden(True)
-            if self.notification_overlay:
-                self.notification_overlay.set_hidden(True)
+            self.config_set("general", "hideoverlay", "True")
         if "--show" in data:
-            if self.voice_overlay:
-                self.voice_overlay.set_hidden(False)
-            if self.text_overlay:
-                self.text_overlay.set_hidden(False)
-            if self.notification_overlay:
-                self.notification_overlay.set_hidden(False)
+            self.config_set("general", "hideoverlay", "False")
         if "--mute" in data:
             if self.connection:
                 self.connection.set_mute(True)
@@ -181,6 +171,15 @@ class Discover:
         if any((match := guild_pattern.match(x)) for x in data):
             if self.connection:
                 self.connection.request_text_rooms_for_guild(match.group(1))
+
+    def config_set(self, context, key, value):
+        config = ConfigParser(interpolation=None)
+        config.read(self.config_file)
+        if not context in config.sections():
+            config.add_section(context)
+        config.set(context, key, value)
+        with open(self.config_file, 'w') as file:
+            config.write(file)
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -391,6 +390,11 @@ class Discover:
         self.set_force_xshape(
             config.getboolean("general", "xshape", fallback=False))
 
+        hidden = config.getboolean("general", "hideoverlay", fallback=False)
+        self.voice_overlay.set_hidden(hidden)
+        self.text_overlay.set_hidden(hidden)
+        self.notification_overlay.set_hidden(hidden)
+
     def get_monitor_index(self, name):
         """
         Helper function to find the index number of the monitor
@@ -479,23 +483,26 @@ def entrypoint():
     """
     Entry Point.
 
-    Check for PID & RPC.
+    Find all needed file locations and read args
 
-    If an overlay is already running then pass the args along and close
+    if '--rpc' simply pass them over the rpc file
 
-    Otherwise start up the overlay!
+    if '-c' or '--configure' start the config window only
+
+    otherwise start overlay
     """
 
+    # Find Config directory
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
-    line = ""
-    for arg in sys.argv[1:]:
-        line = "%s %s" % (line, arg)
 
+    # Find RPC, Channel info, config and debug files
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     channel_file = os.path.join(config_dir, "channels.rpc")
     config_file = os.path.join(config_dir, "config.ini")
     debug_file = os.path.join(config_dir, "output.txt")
+
+    # Prepare logger
     logging.getLogger().setLevel(logging.INFO)
     FORMAT = "%(levelname)s - %(name)s - %(message)s"
     if "--debug" in sys.argv or "-v" in sys.argv:
@@ -506,21 +513,30 @@ def entrypoint():
     log = logging.getLogger(__name__)
     log.info("Starting Discover Overlay: %s",
              pkg_resources.get_distribution('discover_overlay').version)
+
+    # Catch any errors and log them
     try:
         if "--rpc" in sys.argv:
+            # Send command to overlay
+            line = ""
+            for arg in sys.argv[1:]:
+                line = "%s %s" % (line, arg)
             with open(rpc_file, "w") as tfile:
                 tfile.write(line)
                 log.warning("Sent RPC command")
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
+                # Show config window
                 settings = MainSettingsWindow(
                     config_file, rpc_file, channel_file, sys.argv[1:])
                 Gtk.main()
-                sys.exit(0)
-            with open(rpc_file, "w") as tfile:
-                tfile.write("--close")
-            Discover(rpc_file, config_file, channel_file,
-                     debug_file, sys.argv[1:])
+            else:
+                # Tell any other running overlay to close
+                with open(rpc_file, "w") as tfile:
+                    tfile.write("--close")
+                # Show the overlay
+                Discover(rpc_file, config_file, channel_file,
+                         debug_file, sys.argv[1:])
         return
 
     except Exception as ex:
