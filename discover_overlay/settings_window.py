@@ -531,15 +531,22 @@ class MainSettingsWindow():
         """
         menu = Gtk.Menu()
         settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
-        close_opt = Gtk.MenuItem.new_with_label(_("Close"))
+        close_overlay_opt = Gtk.MenuItem.new_with_label(_("Close Overlay"))
+        close_opt = Gtk.MenuItem.new_with_label(_("Close Settings"))
 
         menu.append(settings_opt)
+        menu.append(close_overlay_opt)
         menu.append(close_opt)
 
         settings_opt.connect("activate", self.present_settings)
+        close_overlay_opt.connect("activate", self.close_overlay)
         close_opt.connect("activate", self.close_app)
         menu.show_all()
         return menu
+
+    def close_overlay(self, _a=None, _b=None):
+        with open(self.rpc_file, 'w') as f:
+            f.write('--rpc --close')
 
     def voice_toggle_test_content(self, button):
         self.voice_overlay.set_show_dummy(button.get_active())
@@ -550,8 +557,7 @@ class MainSettingsWindow():
 
     def overview_close(self, button):
         log.info("Quit pressed")
-        with open(self.rpc_file, 'w') as f:
-            f.write('--rpc --close')
+        self.close_overlay()
 
     def voice_place_window(self, button):
         if self.voice_placement_window:
