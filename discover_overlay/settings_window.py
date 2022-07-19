@@ -139,6 +139,8 @@ class MainSettingsWindow():
 
         builder.connect_signals(self)
 
+        if '--minimized' in self.args:
+            self.start_minimized = True
         if not self.start_minimized or not self.show_sys_tray_icon:
             window.show()
 
