@@ -259,7 +259,7 @@
             <property name="column-spacing">1</property>
             <property name="column-homogeneous">True</property>
             <child>
-              <!-- n-columns=2 n-rows=7 -->
+              <!-- n-columns=1 n-rows=8 -->
               <object class="GtkGrid">
                 <property name="name">voice_location_grid</property>
                 <property name="visible">True</property>
@@ -279,88 +279,6 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">0</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton">
-                    <property name="label" translatable="yes">Anchor To Edge</property>
-                    <property name="name">voice_anchor_to_edge</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="active">True</property>
-                    <property name="draw-indicator">True</property>
-                    <property name="group">radiobutton1</property>
-                    <signal name="toggled" handler="voice_anchor_to_edge_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkRadioButton" id="radiobutton1">
-                    <property name="label" translatable="yes">Floating</property>
-                    <property name="name">voice_floating</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="active">True</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_floating_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="voice_place_window_button">
-                    <property name="label" translatable="yes">Place Window</property>
-                    <property name="name">voice_place_window_button</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <signal name="pressed" handler="voice_place_window" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">5</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="voice_show_advanced_options_button">
-                    <property name="label" translatable="yes">Show Advanced Options</property>
-                    <property name="name">voice_show_advanced_options_button</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <signal name="pressed" handler="voice_show_advanced_options_button_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">6</property>
-                    <property name="width">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_align_1">
-                    <property name="name">voice_align_1</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="active">0</property>
-                    <items>
-                      <item translatable="yes">Left</item>
-                      <item translatable="yes">Right</item>
-                    </items>
-                    <signal name="changed" handler="voice_align_1_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                    <property name="width">2</property>
                   </packing>
                 </child>
                 <child>
@@ -379,7 +297,23 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">4</property>
-                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="voice_align_1">
+                    <property name="name">voice_align_1</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="active">0</property>
+                    <items>
+                      <item translatable="yes">Left</item>
+                      <item translatable="yes">Right</item>
+                    </items>
+                    <signal name="changed" handler="voice_align_1_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
                   </packing>
                 </child>
                 <child>
@@ -392,7 +326,118 @@
                   <packing>
                     <property name="left-attach">0</property>
                     <property name="top-attach">2</property>
-                    <property name="width">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=2 n-rows=1 -->
+                  <object class="GtkGrid">
+                    <property name="name">voice_location_grid_anchor</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkRadioButton">
+                        <property name="label" translatable="yes">Anchor To Edge</property>
+                        <property name="name">voice_anchor_to_edge</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw-indicator">True</property>
+                        <signal name="toggled" handler="voice_anchor_to_edge_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton" id="radiobutton1">
+                        <property name="label" translatable="yes">Floating</property>
+                        <property name="name">voice_floating</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="active">True</property>
+                        <property name="draw-indicator">True</property>
+                        <signal name="toggled" handler="voice_floating_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="voice_show_advanced_options_button">
+                    <property name="label" translatable="yes">Show Advanced Options</property>
+                    <property name="name">voice_show_advanced_options_button</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="pressed" handler="voice_show_advanced_options_button_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="voice_place_window_button">
+                    <property name="label" translatable="yes">Place Window</property>
+                    <property name="name">voice_place_window_button</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="pressed" handler="voice_place_window" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=2 n-rows=1 -->
+                  <object class="GtkGrid">
+                    <property name="name">voice_location_grid_horizontal</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkCheckButton">
+                        <property name="name">voice_display_horizontally</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="draw-indicator">True</property>
+                        <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="name">voice_display_horizontally_label</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-end">28</property>
+                        <property name="label" translatable="yes">Display Horizontally</property>
+                        <property name="xalign">0</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">5</property>
                   </packing>
                 </child>
               </object>
@@ -1147,33 +1192,6 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
-                    <property name="name">voice_display_horizontally_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Display Horizontally</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_display_horizontally</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
                     <property name="name">voice_highlight_self_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -1196,33 +1214,6 @@
                   </object>
                   <packing>
                     <property name="left-attach">3</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_display_speakers_only_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Display Speakers Only</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_display_speakers_only</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_display_speakers_only" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
                     <property name="top-attach">6</property>
                   </packing>
                 </child>
@@ -1281,6 +1272,33 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">voice_display_speakers_only_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Display Speakers Only</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton">
+                    <property name="name">voice_display_speakers_only</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="draw-indicator">True</property>
+                    <signal name="toggled" handler="voice_display_speakers_only" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">voice_nick_length_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -1289,7 +1307,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">4</property>
-                    <property name="top-attach">7</property>
+                    <property name="top-attach">6</property>
                   </packing>
                 </child>
                 <child>
@@ -1302,8 +1320,14 @@
                   </object>
                   <packing>
                     <property name="left-attach">5</property>
-                    <property name="top-attach">7</property>
+                    <property name="top-attach">6</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -1330,7 +1354,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=3 n-rows=12 -->
+          <!-- n-columns=2 n-rows=12 -->
           <object class="GtkGrid">
             <property name="name">text_grid</property>
             <property name="visible">True</property>
@@ -1421,54 +1445,152 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Refresh List</property>
-                <property name="name">text_refresh_server_button</property>
+              <object class="GtkLabel">
+                <property name="name">text_line_limit_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Line Limit</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">11</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">text_line_limit</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text" translatable="yes">10</property>
+                <property name="adjustment">text_line_limit_adj</property>
+                <property name="value">10</property>
+                <signal name="value-changed" handler="text_line_limit_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">11</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">text_show_attachments</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="text_show_attachments_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">text_show_attachments_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Attachments</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="text_place_window_button">
+                <property name="label" translatable="yes">Place Window</property>
+                <property name="name">text_place_window_button</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
+                <signal name="pressed" handler="text_place_window" swapped="no"/>
               </object>
               <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">2</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">9</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel">
-                <property name="name">text_channel_label</property>
+                <property name="name">text_overlay_location_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Channel</property>
+                <property name="label" translatable="yes">Overlay Location</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_font_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Font</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">4</property>
+                <property name="top-attach">8</property>
+                <property name="height">2</property>
               </packing>
             </child>
             <child>
               <object class="GtkComboBoxText">
-                <property name="name">text_channel</property>
+                <property name="name">text_monitor</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <signal name="changed" handler="text_monitor_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">text_background_colour</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="text_background_colour_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">text_colour</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="text_colour_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">text_background_colour_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Background Colour</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">text_colour_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Text Colour</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
               </packing>
             </child>
             <child>
@@ -1484,191 +1606,59 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton">
-                <property name="name">text_colour</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-alpha">True</property>
-                <signal name="color-set" handler="text_colour_changed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
                 <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
-              <object class="GtkColorButton">
-                <property name="name">text_background_colour</property>
+              <object class="GtkLabel">
+                <property name="name">text_font_label</property>
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-alpha">True</property>
-                <signal name="color-set" handler="text_background_colour_changed" swapped="no"/>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Font</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">6</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
               <object class="GtkComboBoxText">
-                <property name="name">text_monitor</property>
+                <property name="name">text_channel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <signal name="changed" handler="text_monitor_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">7</property>
+                <property name="top-attach">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="text_place_window_button">
-                <property name="label" translatable="yes">Place Window</property>
-                <property name="name">text_place_window_button</property>
+              <object class="GtkLabel">
+                <property name="name">text_channel_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Channel</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Refresh List</property>
+                <property name="name">text_refresh_server_button</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <signal name="pressed" handler="text_place_window" swapped="no"/>
+                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">8</property>
+                <property name="top-attach">3</property>
               </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="name">text_show_attachments</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="draw-indicator">True</property>
-                <signal name="toggled" handler="text_show_attachments_changed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton">
-                <property name="name">text_line_limit</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="adjustment">text_line_limit_adj</property>
-                <signal name="value-changed" handler="text_line_limit_changed" swapped="no"/>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_colour_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Text Colour</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_background_colour_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Background Colour</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_overlay_location_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Overlay Location</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">7</property>
-                <property name="height">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_show_attachments_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show Attachments</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_line_limit_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Line Limit</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">10</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
             </child>
             <child>
               <placeholder/>
