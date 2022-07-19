@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-14 17:41+0100\n"
+"POT-Creation-Date: 2022-07-19 22:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,97 +62,12 @@ msgstr ""
 msgid "Move the user into voice room, by Room ID"
 msgstr ""
 
+msgid ""
+"If tray icon is enabled, start with only tray icon and no configuration "
+"window"
+msgstr ""
+
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
-msgstr ""
-
-msgid "Autostart on boot"
-msgstr ""
-
-msgid "Force XShape"
-msgstr ""
-
-msgid "Show tray icon"
-msgstr ""
-
-msgid "Show on taskbar"
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "Show test content"
-msgstr ""
-
-msgid "Reverse Order"
-msgstr ""
-
-msgid "Popup timer"
-msgstr ""
-
-msgid "Limit popup width"
-msgstr ""
-
-msgid "Font"
-msgstr ""
-
-msgid "Icon position"
-msgstr ""
-
-msgid "Left"
-msgstr ""
-
-msgid "Right"
-msgstr ""
-
-msgid "Background colour"
-msgstr ""
-
-msgid "Text colour"
-msgstr ""
-
-msgid "Overlay Location"
-msgstr ""
-
-msgid "Anchor to edge"
-msgstr ""
-
-msgid "Floating"
-msgstr ""
-
-msgid "Top"
-msgstr ""
-
-msgid "Middle"
-msgstr ""
-
-msgid "Bottom"
-msgstr ""
-
-msgid "Place Window"
-msgstr ""
-
-msgid "Show Icon"
-msgstr ""
-
-msgid "Icon padding"
-msgstr ""
-
-msgid "Icon size"
-msgstr ""
-
-msgid "Notification padding"
-msgstr ""
-
-msgid "Border radius"
-msgstr ""
-
-msgid "Place & resize this window then press Green!"
-msgstr ""
-
-msgid "Place & resize this window then press Save!"
-msgstr ""
-
-msgid "Save this position"
 msgstr ""
 
 msgid "Welcome to Discover Overlay"
@@ -176,28 +91,22 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-msgid "Close"
+msgid "Close Overlay"
 msgstr ""
 
-msgid "Hide on mouseover"
+msgid "Close Settings"
 msgstr ""
 
-msgid "Popup Style"
+msgid "Place Window"
 msgstr ""
 
-msgid "Channel"
+msgid "Place & resize this window then press Green!"
 msgstr ""
 
-msgid "Refresh list"
+msgid "Place & resize this window then press Save!"
 msgstr ""
 
-msgid "Server"
-msgstr ""
-
-msgid "Show Attachments"
-msgstr ""
-
-msgid "Line limit"
+msgid "Save this position"
 msgstr ""
 
 msgid "DISCONNECTED"
@@ -230,54 +139,6 @@ msgstr ""
 msgid "VOICE_CONNECTED"
 msgstr ""
 
-msgid "Show Advanced Options"
-msgstr ""
-
-msgid "Title Font"
-msgstr ""
-
-msgid "Foreground"
-msgstr ""
-
-msgid "Background"
-msgstr ""
-
-msgid "Talking"
-msgstr ""
-
-msgid "Idle"
-msgstr ""
-
-msgid "Border"
-msgstr ""
-
-msgid "Mute"
-msgstr ""
-
-msgid "Avatar"
-msgstr ""
-
-msgid "Avatar size"
-msgstr ""
-
-msgid "Square Avatar"
-msgstr ""
-
-msgid "Fancy Avatar shapes"
-msgstr ""
-
-msgid "Display Icon Only"
-msgstr ""
-
-msgid "Display Speakers Only"
-msgstr ""
-
-msgid "Highlight Self"
-msgstr ""
-
-msgid "Order Avatars By"
-msgstr ""
-
 msgid "Alphabetically"
 msgstr ""
 
@@ -287,52 +148,19 @@ msgstr ""
 msgid "Last Spoken"
 msgstr ""
 
-msgid "Icon Spacing"
-msgstr ""
-
-msgid "Text Padding"
-msgstr ""
-
-msgid "Text Vertical Offset"
-msgstr ""
-
-msgid "Vertical Edge Padding"
-msgstr ""
-
-msgid "Horizontal Edge Padding"
-msgstr ""
-
-msgid "Talking border width"
-msgstr ""
-
-msgid "Icon Opacity"
-msgstr ""
-
-msgid "Display Horizontally"
-msgstr ""
-
-msgid "Overflow style"
-msgstr ""
-
-msgid "None"
+msgid "Shrink"
 msgstr ""
 
 msgid "Wrap"
 msgstr ""
 
-msgid "Shrink"
+msgid "None"
 msgstr ""
 
-msgid "Show Title"
+msgid "Left"
 msgstr ""
 
-msgid "Show Connection Status"
-msgstr ""
-
-msgid "Show while disconnected"
-msgstr ""
-
-msgid "Dummy count"
+msgid "Right"
 msgstr ""
 
 msgid "Discover Overlay Configuration"
@@ -347,19 +175,67 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-msgid "Anchor to Edge"
+msgid "Overlay Location"
 msgstr ""
 
-msgid "Place window"
+msgid "Anchor To Edge"
+msgstr ""
+
+msgid "Floating"
+msgstr ""
+
+msgid "Show Advanced Options"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Middle"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Foreground"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Border"
+msgstr ""
+
+msgid "Talking"
+msgstr ""
+
+msgid "Idle"
+msgstr ""
+
+msgid "Mute"
+msgstr ""
+
+msgid "Avatar"
+msgstr ""
+
+msgid "Font"
+msgstr ""
+
+msgid "Title Font"
+msgstr ""
+
+msgid "Icon Spacing"
+msgstr ""
+
+msgid "Text Padding"
+msgstr ""
+
+msgid "Text Vertical Offset"
 msgstr ""
 
 msgid "Verticle Edge Padding"
 msgstr ""
 
-msgid "Highlight self"
-msgstr ""
-
-msgid "Display speakers only"
+msgid "Horizontal Edge Padding"
 msgstr ""
 
 msgid "Avatar Opacity"
@@ -368,22 +244,64 @@ msgstr ""
 msgid "Avatar Size"
 msgstr ""
 
+msgid "Display Icon Only"
+msgstr ""
+
+msgid "Square Avatar"
+msgstr ""
+
 msgid "Fancy Avatar Shapes"
+msgstr ""
+
+msgid "Overflow Style"
+msgstr ""
+
+msgid "Order Avatars By"
 msgstr ""
 
 msgid "Border width"
 msgstr ""
 
-msgid "Show title"
+msgid "Show Title"
 msgstr ""
 
-msgid "Show while Disconnected"
+msgid "Show Connection Status"
+msgstr ""
+
+msgid "Show While Disconnected"
+msgstr ""
+
+msgid "Display Horizontally"
+msgstr ""
+
+msgid "Highlight Self"
+msgstr ""
+
+msgid "Display Speakers Only"
+msgstr ""
+
+msgid "Show Test Content"
 msgstr ""
 
 msgid "Dummy Count"
 msgstr ""
 
+msgid "Limit text length"
+msgstr ""
+
 msgid "Voice"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Popup Style"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Channel"
 msgstr ""
 
 msgid "Text Colour"
@@ -392,7 +310,10 @@ msgstr ""
 msgid "Background Colour"
 msgstr ""
 
-msgid "Show attachments"
+msgid "Show Attachments"
+msgstr ""
+
+msgid "Line Limit"
 msgstr ""
 
 msgid "Refresh List"
@@ -401,10 +322,25 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-msgid "Overlay location"
+msgid "Reverse Order"
 msgstr ""
 
-msgid "Padding between notifications"
+msgid "Popup Timer"
+msgstr ""
+
+msgid "Limit Popup Width"
+msgstr ""
+
+msgid "Show Icon"
+msgstr ""
+
+msgid "Icon Position"
+msgstr ""
+
+msgid "Border Radius"
+msgstr ""
+
+msgid "Padding Between Notifications"
 msgstr ""
 
 msgid "Icon Size"
@@ -419,7 +355,22 @@ msgstr ""
 msgid "Notification"
 msgstr ""
 
-msgid "Run on startup"
+msgid "Run Overlay on Startup"
+msgstr ""
+
+msgid "Run Configuration on Startup"
+msgstr ""
+
+msgid "Force XShape"
+msgstr ""
+
+msgid "Show Tray Icon"
+msgstr ""
+
+msgid "Start Settings Minimized"
+msgstr ""
+
+msgid "Hide Overlays"
 msgstr ""
 
 msgid "Core"
