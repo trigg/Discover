@@ -138,7 +138,8 @@ class MainSettingsWindow():
         self.populate_guild_menu()
 
         builder.connect_signals(self)
-        if not (self.show_sys_tray_icon and '--minimized' in self.args):
+
+        if not self.start_minimized or not self.show_sys_tray_icon:
             window.show()
 
     def request_channels_from_guild(self, guild_id):
@@ -448,9 +449,15 @@ class MainSettingsWindow():
             "general", "showsystray", fallback=True)
         self.set_sys_tray_icon_visible(self.show_sys_tray_icon)
         self.widget['core_show_tray_icon'].set_active(self.show_sys_tray_icon)
-        self.hidden_overlay = self.show_sys_tray_icon = config.getboolean(
+
+        self.hidden_overlay = config.getboolean(
             "general", "hideoverlay", fallback=False)
         self.update_toggle_overlay()
+
+        self.start_minimized = config.getboolean(
+            "general", "start_min", fallback=False)
+
+        self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
 
     def make_colour(self, col):
         col = json.loads(col)
@@ -982,6 +989,10 @@ class MainSettingsWindow():
     def core_show_tray_icon_changed(self, button):
         self.set_sys_tray_icon_visible(button.get_active())
         self.config_set("general", "showsystray", "%s" % (button.get_active()))
+        self.widget['core_settings_min'].set_sensitive(button.get_active())
 
     def core_hide_overlay_changed(self, button):
         self.toggle_overlay()
+
+    def core_settings_min_changed(self, button):
+        self.config_set("general", "start_min", "%s" % (button.get_active()))

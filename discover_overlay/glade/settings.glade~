@@ -2091,7 +2091,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=5 -->
+          <!-- n-columns=2 n-rows=7 -->
           <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
@@ -2130,29 +2130,28 @@
             </child>
             <child>
               <object class="GtkLabel">
-                <property name="name">core_show_tray_icon_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show Tray Icon</property>
+                <property name="label" translatable="yes">Run Configuration on Startup</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">1</property>
               </packing>
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="name">core_show_tray_icon</property>
+                <property name="name">core_run_conf_on_startup</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="draw-indicator">True</property>
-                <signal name="toggled" handler="core_show_tray_icon_changed" swapped="no"/>
+                <signal name="toggled" handler="core_run_conf_on_startup_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">3</property>
+                <property name="top-attach">1</property>
               </packing>
             </child>
             <child>
@@ -2184,38 +2183,54 @@
             </child>
             <child>
               <object class="GtkLabel">
+                <property name="name">core_show_tray_icon_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Run Configuration on Startup</property>
+                <property name="label" translatable="yes">Show Tray Icon</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">1</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
               <object class="GtkCheckButton">
-                <property name="name">core_run_conf_on_startup</property>
+                <property name="name">core_show_tray_icon</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="draw-indicator">True</property>
-                <signal name="toggled" handler="core_run_conf_on_startup_changed" swapped="no"/>
+                <signal name="toggled" handler="core_show_tray_icon_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">1</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Hide overlays</property>
+                <property name="label" translatable="yes">Start Settings Minimized</property>
                 <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">core_settings_min</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="core_settings_min_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
                 <property name="top-attach">4</property>
               </packing>
             </child>
@@ -2226,12 +2241,29 @@
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="draw-indicator">True</property>
-                <signal name="toggled" handler="core_hide_overlay_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">4</property>
+                <property name="top-attach">5</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Hide Overlays</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
