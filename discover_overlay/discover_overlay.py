@@ -223,6 +223,8 @@ class Discover:
             "main", "avatar_bg_col", fallback="[0.0,0.0,0.0,0.0]")))
         self.voice_overlay.set_avatar_size(
             config.getint("main", "avatar_size", fallback=48))
+        self.voice_overlay.set_nick_length(
+            config.getint("main", "nick_length", fallback=32))
         self.voice_overlay.set_icon_spacing(
             config.getint("main", "icon_spacing", fallback=8))
         self.voice_overlay.set_text_padding(

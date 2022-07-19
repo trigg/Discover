@@ -63,6 +63,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 'friendlyname': name,
             })
         self.avatar_size = 48
+        self.nick_length = 32
         self.text_pad = 6
         self.text_font = None
         self.title_font = None
@@ -237,6 +238,13 @@ class VoiceOverlayWindow(OverlayWindow):
         Set the size of the avatar icons
         """
         self.avatar_size = size
+        self.needsredraw = True
+
+    def set_nick_length(self, size):
+        """
+        Set the length of nickname
+        """
+        self.nick_length = size
         self.needsredraw = True
 
     def set_icon_spacing(self, i):
@@ -754,6 +762,11 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw username & background at given position
         """
+        
+        lenlimit = int(self.nick_length) - 2
+        if len(string) > self.nick_length:
+            string = string[:int(lenlimit)] + "..."
+            
         context.save()
         layout = self.create_pango_layout(string)
         layout.set_auto_dir(True)

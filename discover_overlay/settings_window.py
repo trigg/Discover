@@ -313,6 +313,9 @@ class MainSettingsWindow():
         self.widget['voice_avatar_size'].set_value(
             config.getint("main", "avatar_size", fallback=48))
 
+        self.widget['voice_nick_length'].set_value(
+            config.getint("main", "nick_length", fallback=32))
+
         self.widget['voice_display_icon_only'].set_active(config.getboolean(
             "main", "icon_only", fallback=False))
 
@@ -812,6 +815,10 @@ class MainSettingsWindow():
 
     def voice_avatar_size_changed(self, button):
         self.config_set("main", "avatar_size", "%s" %
+                        (int(button.get_value())))
+
+    def voice_nick_length_changed(self, button):
+        self.config_set("main", "nick_length", "%s" %
                         (int(button.get_value())))
 
     def voice_display_icon_only_changed(self, button):
