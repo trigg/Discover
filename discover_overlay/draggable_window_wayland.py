@@ -50,7 +50,7 @@ class DraggableWindowWayland(Gtk.Window):
         if GtkLayerShell:
             GtkLayerShell.init_for_window(self)
             if monitor:
-                GtkLayerShell.set_monitor(self,monitor)
+                GtkLayerShell.set_monitor(self, monitor)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
@@ -109,7 +109,7 @@ class DraggableWindowWayland(Gtk.Window):
             self.drag_type = 1
             # Where in the window did we press?
             if press_x < 20 and press_y < 20:
-                self.settings.change_placement(None)
+                self.settings.change_placement(self)
             if press_y > self.height - 32:
                 self.drag_type += 2
             if press_x > self.width - 32:

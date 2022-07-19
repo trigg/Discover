@@ -589,7 +589,7 @@ class MainSettingsWindow():
                     width=self.voice_floating_w, height=self.voice_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.monitor))
+                    monitor=self.get_monitor_obj(self.widget['voice_monitor'].get_active_text()))
             else:
                 self.voice_placement_window = DraggableWindow(
                     pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
@@ -634,7 +634,7 @@ class MainSettingsWindow():
                     width=self.text_floating_w, height=self.text_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.monitor))
+                    monitor=self.get_monitor_obj(self.widget['text_monitor'].get_active_text()))
             else:
                 self.text_placement_window = DraggableWindow(
                     pos_x=self.text_floating_x, pos_y=self.text_floating_y,
@@ -642,6 +642,12 @@ class MainSettingsWindow():
                     message=_("Place & resize this window then press Save!"), settings=self)
                 if button:
                     button.set_label(_("Save this position"))
+
+    def change_placement(self, placement_window):
+        if placement_window == self.text_placement_window:
+            self.text_place_window(None)
+        elif placement_window == self.voice_placement_window:
+            self.voice_place_window(None)
 
     def text_server_refresh(self, button):
         with open(self.rpc_file, 'w') as f:
