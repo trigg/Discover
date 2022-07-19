@@ -138,7 +138,6 @@ class MainSettingsWindow():
         self.populate_guild_menu()
 
         builder.connect_signals(self)
-        print(args)
         if not (self.show_sys_tray_icon and '--minimized' in self.args):
             window.show()
 
@@ -558,7 +557,6 @@ class MainSettingsWindow():
 
     def toggle_overlay(self, _a=None, _b=None):
         self.hidden_overlay = not self.hidden_overlay
-        print("TOGGLE TO %s" % (self.hidden_overlay))
         self.config_set("general", "hideoverlay", "%s" % (self.hidden_overlay))
         self.update_toggle_overlay()
 
