@@ -34,12 +34,12 @@ class NotificationOverlayWindow(OverlayWindow):
         OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
         self.content = []
-        self.test_content = [{"icon": "https://cdn.discordapp.com/icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96", "title": "Title1"},
+        self.test_content = [{"icon": "https://cdn.discordapp.com/avatars/151774162749227008/75dd622dc9f5736f59f7ae1cfcf862a2.webp?size=128", "title": "Title1"},
                              {"title": "Title2", "body": "Body", "icon": None},
-                             {"icon": "https://cdn.discordapp.com/icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96", "title": "Title 3",
+                             {"icon": "https://cdn.discordapp.com/avatars/151774162749227008/75dd622dc9f5736f59f7ae1cfcf862a2.webp?size=128", "title": "Title 3",
                                  "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
                              {"icon": None, "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
-                             {"icon": "https://cdn.discordapp.com/avatars/147077941317206016/6a6935192076489fa6dc1eb5dafbf6e7.webp?size=128", "title": "PM", "body": "Birdy test"}]
+                             {"icon": "https://cdn.discordapp.com/avatars/147077941317206016/0c0a10fa527c428e68fa527fe7a90bc5.webp?size=128", "title": "PM", "body": "Birdy test"}]
         self.text_font = None
         self.text_size = 13
         self.text_time = None

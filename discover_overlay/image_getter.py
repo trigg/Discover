@@ -65,7 +65,7 @@ class SurfaceGetter():
         except TypeError:
             log.error("Unable to read %s", self.url)
         except PIL.UnidentifiedImageError:
-            log.error("Unknown image type:  %s", self.url)
+            log.error("Unknown image type")
 
     def get_file(self, alpha):
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
