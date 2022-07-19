@@ -36,7 +36,8 @@ _ = t.gettext
 class MainSettingsWindow():
     """Settings class"""
 
-    def __init__(self, config_file, rpc_file, channel_file):
+    def __init__(self, config_file, rpc_file, channel_file, args):
+        self.args = args
         self.steamos = False
         self.voice_placement_window = None
         self.text_placement_window = None
@@ -133,8 +134,9 @@ class MainSettingsWindow():
         self.populate_guild_menu()
 
         builder.connect_signals(self)
-
-        window.show()
+        print(args)
+        if not ( self.show_sys_tray_icon and '--minimized' in self.args ):
+            window.show()
 
     def request_channels_from_guild(self, guild_id):
         with open(self.rpc_file, 'w') as f:

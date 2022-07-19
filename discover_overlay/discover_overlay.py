@@ -134,6 +134,8 @@ class Discover:
             print("      --undeaf           ", _("Unset user deafened state"))
             print("      --moveto=XX        ",
                   _("Move the user into voice room, by Room ID"))
+            print("      --minimized        ",
+                  _("If tray icon is enabled, start with only tray icon and no configuration window"))
             print("")
             print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
             if normal_close:
@@ -437,7 +439,7 @@ class Discover:
 
         if self.mix_settings:
             MainSettingsWindow(
-                self.config_file, self.rpc_file, self.channel_file)
+                self.config_file, self.rpc_file, self.channel_file, [])
 
     def toggle_show(self, _obj=None):
         if self.voice_overlay:
@@ -512,7 +514,7 @@ def entrypoint():
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
                 settings = MainSettingsWindow(
-                    config_file, rpc_file, channel_file)
+                    config_file, rpc_file, channel_file, sys.argv[1:])
                 Gtk.main()
                 sys.exit(0)
             with open(rpc_file, "w") as tfile:
