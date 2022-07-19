@@ -155,6 +155,7 @@
     <property name="page-increment">8</property>
   </object>
   <object class="GtkWindow" id="settings_window">
+    <property name="name">window</property>
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Discover Overlay Configuration</property>
     <property name="icon-name">discover-overlay</property>
@@ -166,10 +167,12 @@
         <child>
           <!-- n-columns=3 n-rows=4 -->
           <object class="GtkGrid">
+            <property name="name">overview_grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
               <object class="GtkImage">
+                <property name="name">overview_image</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-bottom">10</property>
@@ -243,6 +246,7 @@
         <child>
           <!-- n-columns=2 n-rows=2 -->
           <object class="GtkGrid">
+            <property name="name">voice_grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">baseline</property>
@@ -257,6 +261,7 @@
             <child>
               <!-- n-columns=2 n-rows=7 -->
               <object class="GtkGrid">
+                <property name="name">voice_location_grid</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
@@ -399,6 +404,7 @@
             <child>
               <!-- n-columns=4 n-rows=5 -->
               <object class="GtkGrid">
+                <property name="name">voice_colour_grid</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
@@ -1292,7 +1298,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="adjustment">voice_nick_lenght_adj</property>
-                    <signal name="value-changed" handler="voice_nick_length_label_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_nick_length_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">5</property>
@@ -1324,8 +1330,9 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=12 -->
+          <!-- n-columns=3 n-rows=12 -->
           <object class="GtkGrid">
+            <property name="name">text_grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-start">5</property>
@@ -1403,6 +1410,31 @@
               </packing>
             </child>
             <child>
+              <object class="GtkComboBoxText">
+                <property name="name">text_server</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Refresh List</property>
+                <property name="name">text_refresh_server_button</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkLabel">
                 <property name="name">text_channel_label</property>
                 <property name="visible">True</property>
@@ -1412,7 +1444,7 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">4</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
@@ -1425,73 +1457,18 @@
               </object>
               <packing>
                 <property name="left-attach">0</property>
-                <property name="top-attach">5</property>
+                <property name="top-attach">4</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
-                <property name="name">text_colour_label</property>
+              <object class="GtkComboBoxText">
+                <property name="name">text_channel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Text Colour</property>
-                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_background_colour_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Background Colour</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_overlay_location_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Overlay Location</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">8</property>
-                <property name="height">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_show_attachments_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Show Attachments</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="name">text_line_limit_label</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Line Limit</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">0</property>
-                <property name="top-attach">11</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
@@ -1507,7 +1484,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">5</property>
+                <property name="top-attach">4</property>
               </packing>
             </child>
             <child>
@@ -1521,7 +1498,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">6</property>
+                <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
@@ -1532,6 +1509,18 @@
                 <property name="receives-default">True</property>
                 <property name="use-alpha">True</property>
                 <signal name="color-set" handler="text_background_colour_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText">
+                <property name="name">text_monitor</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <signal name="changed" handler="text_monitor_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -1549,7 +1538,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">9</property>
+                <property name="top-attach">8</property>
               </packing>
             </child>
             <child>
@@ -1563,7 +1552,7 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">10</property>
+                <property name="top-attach">9</property>
               </packing>
             </child>
             <child>
@@ -1576,56 +1565,110 @@
               </object>
               <packing>
                 <property name="left-attach">1</property>
-                <property name="top-attach">11</property>
+                <property name="top-attach">10</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBoxText">
-                <property name="name">text_server</property>
+              <object class="GtkLabel">
+                <property name="name">text_colour_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Text Colour</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">2</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBoxText">
-                <property name="name">text_channel</property>
+              <object class="GtkLabel">
+                <property name="name">text_background_colour_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Background Colour</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">4</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
               </packing>
             </child>
             <child>
-              <object class="GtkComboBoxText">
-                <property name="name">text_monitor</property>
+              <object class="GtkLabel">
+                <property name="name">text_overlay_location_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <signal name="changed" handler="text_monitor_changed" swapped="no"/>
+                <property name="label" translatable="yes">Overlay Location</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">8</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+                <property name="height">2</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Refresh List</property>
-                <property name="name">text_refresh_server_button</property>
+              <object class="GtkLabel">
+                <property name="name">text_show_attachments_label</property>
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="pressed" handler="text_server_refresh" swapped="no"/>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Attachments</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">3</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">9</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">text_line_limit_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Line Limit</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>
@@ -1650,6 +1693,7 @@
         <child>
           <!-- n-columns=2 n-rows=17 -->
           <object class="GtkGrid">
+            <property name="name">notification_grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-start">5</property>
@@ -2120,6 +2164,7 @@
         <child>
           <!-- n-columns=2 n-rows=6 -->
           <object class="GtkGrid">
+            <property name="name">core_grid</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-start">5</property>
@@ -2157,6 +2202,7 @@
             </child>
             <child>
               <object class="GtkLabel">
+                <property name="name">core_run_conf_on_startup_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Run Configuration on Startup</property>
@@ -2237,6 +2283,7 @@
             </child>
             <child>
               <object class="GtkLabel">
+                <property name="name">core_settings_min_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Start Settings Minimized</property>
@@ -2276,6 +2323,7 @@
             </child>
             <child>
               <object class="GtkLabel">
+                <property name="name">core_hide_overlay_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Hide Overlays</property>

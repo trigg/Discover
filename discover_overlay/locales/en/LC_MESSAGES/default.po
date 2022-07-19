@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 22:29+0100\n"
+"POT-Creation-Date: 2022-07-19 23:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,6 +88,21 @@ msgstr ""
 msgid " for support. Or open an issue on our GitHub "
 msgstr ""
 
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
+msgid "Left"
+msgstr ""
+
+msgid "Middle"
+msgstr ""
+
+msgid "Right"
+msgstr ""
+
 msgid "Settings"
 msgstr ""
 
@@ -157,12 +172,6 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-msgid "Left"
-msgstr ""
-
-msgid "Right"
-msgstr ""
-
 msgid "Discover Overlay Configuration"
 msgstr ""
 
@@ -185,15 +194,6 @@ msgid "Floating"
 msgstr ""
 
 msgid "Show Advanced Options"
-msgstr ""
-
-msgid "Top"
-msgstr ""
-
-msgid "Middle"
-msgstr ""
-
-msgid "Bottom"
 msgstr ""
 
 msgid "Foreground"
@@ -301,6 +301,9 @@ msgstr ""
 msgid "Server"
 msgstr ""
 
+msgid "Refresh List"
+msgstr ""
+
 msgid "Channel"
 msgstr ""
 
@@ -314,9 +317,6 @@ msgid "Show Attachments"
 msgstr ""
 
 msgid "Line Limit"
-msgstr ""
-
-msgid "Refresh List"
 msgstr ""
 
 msgid "Text"

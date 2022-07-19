@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 22:29+0100\n"
+"POT-Creation-Date: 2022-07-19 23:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,6 +95,21 @@ msgstr "Ewch i'n Discord"
 msgid " for support. Or open an issue on our GitHub "
 msgstr " am gymorth"
 
+msgid "Top"
+msgstr "Brig"
+
+msgid "Bottom"
+msgstr "Gwaelod"
+
+msgid "Left"
+msgstr "Chwith"
+
+msgid "Middle"
+msgstr "Canol"
+
+msgid "Right"
+msgstr "Dde"
+
 msgid "Settings"
 msgstr "Gosodiadau"
 
@@ -164,12 +179,6 @@ msgstr "Lapio"
 msgid "None"
 msgstr "Dim"
 
-msgid "Left"
-msgstr "Chwith"
-
-msgid "Right"
-msgstr "Dde"
-
 msgid "Discover Overlay Configuration"
 msgstr "Discover Overlay Cyfluniad"
 
@@ -193,15 +202,6 @@ msgstr "Symudol"
 
 msgid "Show Advanced Options"
 msgstr "Dangos Mwy o Opsiynau"
-
-msgid "Top"
-msgstr "Brig"
-
-msgid "Middle"
-msgstr "Canol"
-
-msgid "Bottom"
-msgstr "Gwaelod"
 
 msgid "Foreground"
 msgstr "Blaendir"
@@ -308,6 +308,9 @@ msgstr "Arddull naid"
 msgid "Server"
 msgstr "Gweinydd"
 
+msgid "Refresh List"
+msgstr "Adnewyddu'r rhestr"
+
 msgid "Channel"
 msgstr "Sianel"
 
@@ -322,9 +325,6 @@ msgstr "Dangos atodiadau"
 
 msgid "Line Limit"
 msgstr "Terfyn Llinell"
-
-msgid "Refresh List"
-msgstr "Adnewyddu'r rhestr"
 
 msgid "Text"
 msgstr "Testun"

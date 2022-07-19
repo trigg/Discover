@@ -73,6 +73,9 @@ class MainSettingsWindow():
         for widget in builder.get_objects():
             if widget.find_property("name"):
                 name = widget.get_property("name")
+                if name == "":
+                    log.error("Unnamed widget. All widgets must be named")
+                    log.info(widget)
                 self.widget[name] = widget
 
                 # Translate labels and buttons
@@ -221,6 +224,32 @@ class MainSettingsWindow():
         self.widget['notebook'].set_current_page(0)
         self.window.show()
 
+    def set_alignment_labels(self, horz):
+        m1 = self.widget['voice_align_1'].get_model()
+        m2 = self.widget['voice_align_2'].get_model()
+        i = m1.get_iter_first()
+        i2 = m2.get_iter_first()
+        if horz:
+            m1.set_value(i, 0, _("Top"))
+            i = m1.iter_next(i)
+            m1.set_value(i, 0, _("Bottom"))
+
+            m2.set_value(i2, 0, _("Left"))
+            i2 = m2.iter_next(i2)
+            m2.set_value(i2, 0, _("Middle"))
+            i2 = m2.iter_next(i2)
+            m2.set_value(i2, 0, _("Right"))
+        else:
+            m1.set_value(i, 0, _("Left"))
+            i = m1.iter_next(i)
+            m1.set_value(i, 0, _("Right"))
+
+            m2.set_value(i2, 0, _("Top"))
+            i2 = m2.iter_next(i2)
+            m2.set_value(i2, 0, _("Middle"))
+            i2 = m2.iter_next(i2)
+            m2.set_value(i2, 0, _("Bottom"))
+
     def read_config(self):
         self.widget['voice_advanced_grid'].hide()
 
@@ -271,8 +300,9 @@ class MainSettingsWindow():
         self.widget['voice_horizontal_padding'].set_value(
             config.getint("main", "horz_edge_padding", fallback=0))
 
-        self.widget['voice_display_horizontally'].set_active(
-            config.getboolean("main", "horizontal", fallback=False))
+        horz = config.getboolean("main", "horizontal", fallback=False)
+        self.set_alignment_labels(horz)
+        self.widget['voice_display_horizontally'].set_active(horz)
 
         self.widget['voice_highlight_self'].set_active(
             config.getboolean("main", "highlight_self", fallback=False))
@@ -763,6 +793,7 @@ class MainSettingsWindow():
 
     def voice_display_horizontally_changed(self, button):
         self.config_set("main", "horizontal", "%s" % (button.get_active()))
+        self.set_alignment_labels(button.get_active())
 
     def voice_highlight_self_changed(self, button):
         self.config_set("main", "highlight_self", "%s" % (button.get_active()))
