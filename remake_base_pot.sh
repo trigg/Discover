@@ -9,4 +9,6 @@ for dir in `find discover_overlay/locales/ -mindepth 1 -maxdepth 1 -type d`; do
     touch "${dir}/LC_MESSAGES/default.po"
     msgmerge -N ${dir}/LC_MESSAGES/default.po discover_overlay/locales/base.pot > ${dir}/LC_MESSAGES/default.po.new
     mv ${dir}/LC_MESSAGES/default.po.new ${dir}/LC_MESSAGES/default.po
+    msgfmt -o ${dir}/LC_MESSAGES/default.mo ${dir}/LC_MESSAGES/default.po
 done
+

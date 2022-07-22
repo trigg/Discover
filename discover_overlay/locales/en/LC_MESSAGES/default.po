@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 23:04+0100\n"
+"POT-Creation-Date: 2022-07-22 16:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -196,6 +196,9 @@ msgstr ""
 msgid "Show Advanced Options"
 msgstr ""
 
+msgid "Display Horizontally"
+msgstr ""
+
 msgid "Foreground"
 msgstr ""
 
@@ -271,19 +274,16 @@ msgstr ""
 msgid "Show While Disconnected"
 msgstr ""
 
-msgid "Display Horizontally"
-msgstr ""
-
 msgid "Highlight Self"
-msgstr ""
-
-msgid "Display Speakers Only"
 msgstr ""
 
 msgid "Show Test Content"
 msgstr ""
 
 msgid "Dummy Count"
+msgstr ""
+
+msgid "Display Speakers Only"
 msgstr ""
 
 msgid "Limit text length"
@@ -301,22 +301,22 @@ msgstr ""
 msgid "Server"
 msgstr ""
 
-msgid "Refresh List"
-msgstr ""
-
-msgid "Channel"
-msgstr ""
-
-msgid "Text Colour"
-msgstr ""
-
-msgid "Background Colour"
+msgid "Line Limit"
 msgstr ""
 
 msgid "Show Attachments"
 msgstr ""
 
-msgid "Line Limit"
+msgid "Background Colour"
+msgstr ""
+
+msgid "Text Colour"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Refresh List"
 msgstr ""
 
 msgid "Text"

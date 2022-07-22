@@ -1462,7 +1462,6 @@
                 <property name="name">text_line_limit</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="text" translatable="yes">10</property>
                 <property name="adjustment">text_line_limit_adj</property>
                 <property name="value">10</property>
                 <signal name="value-changed" handler="text_line_limit_changed" swapped="no"/>

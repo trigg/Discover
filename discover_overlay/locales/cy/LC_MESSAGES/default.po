@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 23:04+0100\n"
+"POT-Creation-Date: 2022-07-22 16:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -203,6 +203,9 @@ msgstr "Symudol"
 msgid "Show Advanced Options"
 msgstr "Dangos Mwy o Opsiynau"
 
+msgid "Display Horizontally"
+msgstr "Arddangos yn llorweddol"
+
 msgid "Foreground"
 msgstr "Blaendir"
 
@@ -278,20 +281,17 @@ msgstr "Dangos Statws Cysylltu"
 msgid "Show While Disconnected"
 msgstr "Dangos Wrth Ddatgysylltu"
 
-msgid "Display Horizontally"
-msgstr "Arddangos yn llorweddol"
-
 msgid "Highlight Self"
 msgstr "Tynnu sylw at eich hunan"
-
-msgid "Display Speakers Only"
-msgstr "Dangos siaradwyr yn unig"
 
 msgid "Show Test Content"
 msgstr "Dangos cynnwys y prawf"
 
 msgid "Dummy Count"
 msgstr "Nifer y dymis"
+
+msgid "Display Speakers Only"
+msgstr "Dangos siaradwyr yn unig"
 
 msgid "Limit text length"
 msgstr "Cyfyngu ar hyd y testun"
@@ -308,23 +308,23 @@ msgstr "Arddull naid"
 msgid "Server"
 msgstr "Gweinydd"
 
-msgid "Refresh List"
-msgstr "Adnewyddu'r rhestr"
-
-msgid "Channel"
-msgstr "Sianel"
-
-msgid "Text Colour"
-msgstr "Lliw'r testun"
-
-msgid "Background Colour"
-msgstr "Lliw Cefndir"
+msgid "Line Limit"
+msgstr "Terfyn Llinell"
 
 msgid "Show Attachments"
 msgstr "Dangos atodiadau"
 
-msgid "Line Limit"
-msgstr "Terfyn Llinell"
+msgid "Background Colour"
+msgstr "Lliw Cefndir"
+
+msgid "Text Colour"
+msgstr "Lliw'r testun"
+
+msgid "Channel"
+msgstr "Sianel"
+
+msgid "Refresh List"
+msgstr "Adnewyddu'r rhestr"
 
 msgid "Text"
 msgstr "Testun"
