@@ -93,51 +93,16 @@ Comes with sane-enough default but has a configuration screen to tweak to your o
 Desktop shortcuts for both of these are added at install time.
 
 ### Debugging
-If you are trying to debug on VS Code you are likely to get the following message:
-```
-/usr/bin/python3: No module named discover_overlay.__main__; 'discover_overlay' is a package and cannot be directly executed
-```
 
-To get around this, copy the main file created by discover-overlay with ``cp $(which discover-overlay) /path/to/Discover/discover_overlay/__main__.py``
+See [Wiki](https://github.com/trigg/Discover/wiki/Debugging)
 
 ### Translations
 
-in all cases `XX` should be replaced with the language code, in case of English `en`, Spanish `es` so on as per [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
-
-#### Adding a new translation
-
-First, find out what language code is required
-Copy `discover_overlay/locales/base.pot` to `discover_overlay/locales/XX/LC_MESSAGES/default.po`
-
-Change all lines starting with `msgstr` to contain the translated message in provided quotes, the line above should be a `msgid` which has the original word, sentence or fragment.
-
-```
-msgid "Please visit our discord"
-msgstr "Ewch i'n Discord"
-```
-
-#### Compiling updates
-
-This is NOT required if you are submitting a pull request for a new language to be added or to change a few translations. It should be done in a different commit afterwards.
-
-`gettext` requires the `.po` files to be compiled into `.mo` before it can be used. Once a `.po` file is changed it can be compiled with 
-
-`msgfmt -o discover_overlay/locales/XX/LC_MESSAGES/default.mo discover_overlay/locales/XX/LC_MESSAGES/default.po`
+For [developers](https://github.com/trigg/Discover/wiki/Translations----as-a-developer) and [translators](https://github.com/trigg/Discover/wiki/Translations---as-a-translator-with-git) translation information can be found on our Wiki.
 
 #### Incorrect translations and missing translations
 
 We welcome pull requests and bug reports about missing or wrong translations, but don't have the resources to get it all right. Please be patient with us and alert us if any translations are wildly inaccurate.
-
-#### Adding new phrases to the overlay app
-
-Once you've used `_('something')` in code somewhere the original `base.pot` and all translations need updating to include the new phrase.
-
-```
-xgettext -d base --no-location -o discover_overlay/locales/base.pot discover_overlay/*.py
-sed -i 's/charset=CHARSET/charset=UTF-8/g' discover_overlay/locales/base.pot
-```
-
-At this point the new msgid should be copied to each separate translation `.po` file and if possible a suitable translation be added.
 
 ## Why do you keep making Discord Overlays?
 
