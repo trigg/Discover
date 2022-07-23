@@ -5,14 +5,10 @@ Exec=discover-overlay
 Icon=discover-overlay
 Terminal=false
 Type=Application
-Actions=close;configure
+Actions=close
 Categories=Utility;TelephonyTools
 Keywords=Discord
 
 [Desktop Action close]
 Name=Close
 Exec=discover-overlay --rpc --close
-
-[Desktop Action configure]
-Name=Settings
-Exec=discover-overlay --configure
