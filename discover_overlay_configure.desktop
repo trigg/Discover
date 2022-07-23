@@ -5,6 +5,5 @@ Exec=discover-overlay --configure
 Icon=discover-overlay
 Terminal=false
 Type=Application
-Actions=close;configure
 Categories=Utility;TelephonyTools
 Keywords=Discord
