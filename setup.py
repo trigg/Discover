@@ -15,10 +15,9 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/trigg/Discover',
     packages=find_packages(),
-    include_package_data=True,
     data_files=[
         ('share/applications', [
-            'discover_overlay.desktop','discover_overlay_configure.desktop'
+            'discover_overlay.desktop', 'discover_overlay_configure.desktop'
         ]),
         ('share/icons/hicolor/256x256/apps',
          ['discover-overlay.png', 'discover-overlay-tray.png', 'discover-overlay-default.png']),
@@ -30,7 +29,6 @@ setup(
         'websocket-client',
         'pyxdg',
         'requests',
-        'python-pidfile>=3.0.0',
         'pillow',
         'python-xlib'
     ],

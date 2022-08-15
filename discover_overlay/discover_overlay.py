@@ -21,7 +21,6 @@ import logging
 import pkg_resources
 import json
 import gi
-import pidfile
 from configparser import ConfigParser
 
 from .settings_window import MainSettingsWindow
