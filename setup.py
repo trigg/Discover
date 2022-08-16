@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 
 def readme():
@@ -14,7 +14,8 @@ setup(
     long_description=readme(),
     long_description_content_type='text/markdown',
     url='https://github.com/trigg/Discover',
-    packages=find_packages(),
+    packages=find_namespace_packages(),
+    include_package_data=True,
     data_files=[
         ('share/applications', [
             'discover_overlay.desktop', 'discover_overlay_configure.desktop'
