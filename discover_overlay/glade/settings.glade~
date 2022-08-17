@@ -79,6 +79,9 @@
       <row>
         <col id="0" translatable="yes">Last Spoken</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Discord-like</col>
+      </row>
     </data>
   </object>
   <object class="GtkListStore" id="overflow_style_list">
@@ -1075,6 +1078,7 @@
                       <item translatable="yes">Alphabetically</item>
                       <item translatable="yes">ID</item>
                       <item translatable="yes">Last Spoken</item>
+                      <item translatable="yes">Discord-like</item>
                     </items>
                     <signal name="changed" handler="voice_order_avatars_by_changed" swapped="no"/>
                   </object>

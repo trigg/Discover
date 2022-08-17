@@ -408,6 +408,8 @@ class VoiceOverlayWindow(OverlayWindow):
         elif self.order == 2:  # Spoken sort
             in_list.sort(key=lambda x: x["lastspoken"], reverse=True)
             in_list.sort(key=lambda x: x["speaking"], reverse=True)
+        elif self.order == 3:  # Discord-like
+            in_list.sort(key=lambda x: x["friendlyname"].lower())
         else:  # Name sort
             in_list.sort(key=lambda x: x["friendlyname"])
         return in_list
