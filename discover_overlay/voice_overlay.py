@@ -17,6 +17,7 @@ import logging
 import math
 import cairo
 import sys
+import locale
 import pkg_resources
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect, draw_img_to_mask
@@ -409,7 +410,7 @@ class VoiceOverlayWindow(OverlayWindow):
             in_list.sort(key=lambda x: x["lastspoken"], reverse=True)
             in_list.sort(key=lambda x: x["speaking"], reverse=True)
         else:  # Name sort
-            in_list.sort(key=lambda x: x["friendlyname"])
+            in_list.sort(key=lambda x: locale.strxfrm(x['friendlyname']))
         return in_list
 
     def overlay_draw(self, w, context, data=None):
