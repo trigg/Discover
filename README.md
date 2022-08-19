@@ -83,6 +83,9 @@ with Wayland support
 
 `pacman -S gtk-layer-shell`
 
+#### Fedora
+
+`dnf install python3-pip python3-gobject gtk3-devel python3-cairo`
 
 ## Usage
 
