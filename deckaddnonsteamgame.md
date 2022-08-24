@@ -11,7 +11,11 @@
 - Go to `Library`
 - Right click (or left trigger if you're not using a mouse) with your cursor over `Discover Overlay` in the Library
 - Choose `Properties`
-- in `Launch Options` put `DISPLAY=:0 %command% run io.github.trigg.discover_overlay` optionally add ` --debug` if you wish to save debug messages to a file
+- in `Launch Options` put 
+```
+DISPLAY=:0 %command% run io.github.trigg.discover_overlay
+```
+- optionally add ` --debug` if you wish to save debug messages to a file
 ![Adding Non-steam game part 3](add_non_steam_game_3.png)
 - [Return to game mode](deckswitchgame)
 - [Run Discover overlay & Deck on Game Mode](deckusage)
