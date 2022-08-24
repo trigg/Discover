@@ -491,6 +491,7 @@ class MainSettingsWindow():
 
         self.start_minimized = config.getboolean(
             "general", "start_min", fallback=False)
+        self.widget['core_settings_min'].set_active(self.start_minimized)
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
 
