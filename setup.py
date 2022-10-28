@@ -31,7 +31,8 @@ setup(
         'pyxdg',
         'requests',
         'pillow',
-        'python-xlib'
+        'python-xlib',
+        'setuptools'
     ],
     entry_points={
         'console_scripts': [
