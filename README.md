@@ -69,7 +69,9 @@ It is advised to install python-gobject from your system's own package manager.
 
 #### Debian/Ubuntu
 
-`apt install python3-gi python3-gi-cairo`
+`apt install python3-gi python3-gi-cairo libappindicator3-dev`
+
+Libappindicator might conflict with other installed packages, but is optional
 
 with Wayland support
 
