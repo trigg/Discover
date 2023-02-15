@@ -73,7 +73,7 @@ It is advised to install python-gobject from your system's own package manager.
 
 with Wayland support
 
-`apt install gtk-layer-shell`
+`apt install gtk-layer-shell libgtk-layer-shell-dev`
 
 #### Arch
 
