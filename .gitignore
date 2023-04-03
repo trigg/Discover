@@ -7,3 +7,4 @@ env
 __pycache__
 venv
 .idea
+discover_overlay/glade/settings.glade~

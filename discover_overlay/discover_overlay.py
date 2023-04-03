@@ -272,6 +272,7 @@ class Discover:
             config.getint("main", "border_width", fallback=2))
         self.voice_overlay.set_icon_transparency(config.getfloat(
             "main", "icon_transparency", fallback=1.0))
+        self.voice_overlay.set_show_avatar(config.getboolean("main", "show_avatar", fallback=True))
         self.voice_overlay.set_fancy_border(config.getboolean("main",
                                                               "fancy_border", fallback=True))
         self.voice_overlay.set_show_dummy(config.getboolean("main",

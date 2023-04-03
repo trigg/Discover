@@ -906,6 +906,9 @@ class MainSettingsWindow():
         self.config_set("main", "dummy_count", "%s" %
                         (int(button.get_value())))
 
+    def voice_show_avatar_changed(self, button):
+        self.config_set("main", "show_avatar", "%s" % (button.get_active()))
+
     def text_enable_changed(self, button):
         self.config_set("text", "enabled", "%s" % (button.get_active()))
 

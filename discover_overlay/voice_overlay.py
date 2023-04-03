@@ -67,6 +67,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 'lastspoken': random.randint(2000, 2100) if speaking else random.randint(10, 30),
                 'friendlyname': name,
             })
+        self.show_avatar = True
         self.avatar_size = 48
         self.nick_length = 32
         self.text_pad = 6
@@ -152,6 +153,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_show_connection(self, show_connection):
         self.show_connection = show_connection
+        self.needsredraw = True
+
+    def set_show_avatar(self, show_avatar):
+        self.show_avatar = show_avatar
         self.needsredraw = True
 
     def set_show_title(self, show_title):
@@ -511,7 +516,8 @@ class VoiceOverlayWindow(OverlayWindow):
                 users_to_draw.remove(self_user)
             users_to_draw.insert(0, self_user)
 
-        avatar_size = self.avatar_size
+        avatar_size = self.avatar_size if self.show_avatar else 0
+        line_height = self.avatar_size
         avatars_per_row = sys.maxsize
 
         # Calculate height needed to show overlay
@@ -525,7 +531,7 @@ class VoiceOverlayWindow(OverlayWindow):
             doTitle = True
 
         if self.horizontal:
-            needed_width = (len(users_to_draw) * self.avatar_size) + \
+            needed_width = (len(users_to_draw) * line_height) + \
                 (len(users_to_draw) + 1) * self.icon_spacing
 
             if needed_width > width:
@@ -550,7 +556,7 @@ class VoiceOverlayWindow(OverlayWindow):
                     row.append(users_to_draw.pop(0))
                 rows_to_draw.append(row)
             for row in rows_to_draw:
-                needed_width = (len(row) * (avatar_size + self.icon_spacing))
+                needed_width = (len(row) * (line_height + self.icon_spacing))
                 current_x = 0 + self.horz_edge_padding
                 if self.align_vert == 1:
                     current_x = (width / 2) - (needed_width) / 2
@@ -562,18 +568,18 @@ class VoiceOverlayWindow(OverlayWindow):
                         if doTitle:
                             doTitle = False
                             text_width = self.draw_title(
-                                context, current_x, current_y, avatar_size)
+                                context, current_x, current_y, avatar_size, line_height)
                         elif doConnection:
                             text_width = self.draw_connection(
-                                context, current_x, current_y, avatar_size)
+                                context, current_x, current_y, avatar_size, line_height)
                             doConnection = False
                     else:
                         self.draw_avatar(context, user, current_x,
-                                         current_y, avatar_size)
+                                         current_y, avatar_size, line_height)
                     current_x += avatar_size + self.icon_spacing
                 current_y += offset_y
         else:
-            needed_height = ((len(users_to_draw)+0) * self.avatar_size) + \
+            needed_height = ((len(users_to_draw)+0) * line_height) + \
                 (len(users_to_draw) + 1) * self.icon_spacing
 
             if needed_height > height:
@@ -593,6 +599,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 offset_x_mult = -1
                 current_x = self.width - avatar_size - self.horz_edge_padding
 
+
             # Choose where to start drawing
             current_y = 0 + self.vert_edge_padding
             if self.align_vert == 1:
@@ -607,7 +614,7 @@ class VoiceOverlayWindow(OverlayWindow):
                     col.append(users_to_draw.pop(0))
                 cols_to_draw.append(col)
             for col in cols_to_draw:
-                needed_height = (len(col) * (avatar_size + self.icon_spacing))
+                needed_height = (len(col) * (line_height + self.icon_spacing))
                 current_y = 0 + self.vert_edge_padding
                 if self.align_vert == 1:
                     current_y = (height/2) - (needed_height / 2)
@@ -619,26 +626,26 @@ class VoiceOverlayWindow(OverlayWindow):
                         if doTitle:
                             # Draw header
                             text_width = self.draw_title(
-                                context, current_x, current_y, avatar_size)
+                                context, current_x, current_y, avatar_size, line_height)
                             largest_text_width = max(
                                 text_width, largest_text_width)
-                            current_y += avatar_size + self.icon_spacing
+                            current_y += line_height + self.icon_spacing
                             doTitle = False
                         elif doConnection:
                             # Draw header
                             text_width = self.draw_connection(
-                                context, current_x, current_y, avatar_size)
+                                context, current_x, current_y, avatar_size, line_height)
                             largest_text_width = max(
                                 text_width, largest_text_width)
-                            current_y += avatar_size + self.icon_spacing
+                            current_y += line_height + self.icon_spacing
                             doConnection = False
 
                     else:
                         text_width = self.draw_avatar(
-                            context, user, current_x, current_y, avatar_size)
+                            context, user, current_x, current_y, avatar_size, line_height)
                         largest_text_width = max(
                             text_width, largest_text_width)
-                        current_y += avatar_size + self.icon_spacing
+                        current_y += line_height + self.icon_spacing
                 if largest_text_width > 0:
                     largest_text_width += self.text_pad
                 else:
@@ -670,7 +677,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if identifier in self.avatars:
             del self.avatars[identifier]
 
-    def draw_title(self, context, pos_x, pos_y, avatar_size):
+    def draw_title(self, context, pos_x, pos_y, avatar_size, line_height):
         """
         Draw title at given Y position. Includes both text and image based on settings
         """
@@ -686,6 +693,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.text_col,
                 self.norm_col,
                 avatar_size,
+                line_height,
                 self.title_font
             )
         if self.channel_icon:
@@ -710,7 +718,7 @@ class VoiceOverlayWindow(OverlayWindow):
         _("VOICE_CONNECTING")
         _("VOICE_CONNECTED")
 
-    def draw_connection(self, context, pos_x, pos_y, avatar_size):
+    def draw_connection(self, context, pos_x, pos_y, avatar_size, line_height):
         """
         Draw title at given Y position. Includes both text and image based on settings
         """
@@ -723,18 +731,19 @@ class VoiceOverlayWindow(OverlayWindow):
                 self.text_col,
                 self.norm_col,
                 avatar_size,
+                line_height,
                 self.text_font
             )
         self.blank_avatar(context, pos_x, pos_y, avatar_size)
         self.draw_connection_icon(context, pos_x, pos_y, avatar_size)
         return tw
 
-    def draw_avatar(self, context, user, pos_x, pos_y, avatar_size):
+    def draw_avatar(self, context, user, pos_x, pos_y, avatar_size, line_height):
         """
         Draw avatar at given Y position. Includes both text and image based on settings
         """
         # Ensure pixbuf for avatar
-        if user["id"] not in self.avatars and user["avatar"]:
+        if user["id"] not in self.avatars and user["avatar"] and avatar_size>0:
             url = "https://cdn.discordapp.com/avatars/%s/%s.png" % (
                 user['id'], user['avatar'])
             get_surface(self.recv_avatar, url, user["id"],
@@ -778,6 +787,7 @@ class VoiceOverlayWindow(OverlayWindow):
                     fg_col,
                     bg_col,
                     avatar_size,
+                    line_height,
                     self.text_font
                 )
         self.draw_avatar_pix(context, pix, mask, pos_x,
@@ -790,7 +800,7 @@ class VoiceOverlayWindow(OverlayWindow):
                            self.mute_bg_col, avatar_size)
         return tw
 
-    def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, font):
+    def draw_text(self, context, string, pos_x, pos_y, tx_col, bg_col, avatar_size, line_height, font):
         """
         Draw username & background at given position
         """
@@ -812,7 +822,7 @@ class VoiceOverlayWindow(OverlayWindow):
         text_width = logical_rect.width
 
         self.col(tx_col)
-        height_offset = (avatar_size / 2) - (text_height / 2)
+        height_offset = (line_height / 2) - (text_height / 2)
         text_y_offset = height_offset + self.text_baseline_adj
 
         if self.align_right:
@@ -868,7 +878,8 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw avatar image at given position
         """
-
+        if not self.show_avatar:
+            return
         # Empty the space for this
         self.blank_avatar(context, pos_x, pos_y, avatar_size)
 
@@ -941,6 +952,8 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw Mute logo
         """
+        if avatar_size <= 0:
+            return
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(avatar_size, avatar_size)
@@ -1008,6 +1021,8 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Draw deaf logo
         """
+        if avatar_size <= 0:
+            return
         context.save()
         context.translate(pos_x, pos_y)
         context.scale(avatar_size, avatar_size)
