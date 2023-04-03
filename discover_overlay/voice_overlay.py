@@ -27,7 +27,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo  # nopep8
+from gi.repository import Pango, PangoCairo, GLib  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -117,6 +117,11 @@ class VoiceOverlayWindow(OverlayWindow):
                     'def', self.avatar_size, self.icon_transparency)
         self.set_title("Discover Voice")
         self.redraw()
+        GLib.timeout_add_seconds(1, self.set_need_redraw)
+
+    def set_need_redraw(self):
+        self.needsredraw = True
+        return True
 
     def set_icon_transparency(self, trans):
         if self.icon_transparency == trans:
