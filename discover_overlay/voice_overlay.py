@@ -19,6 +19,7 @@ import cairo
 import sys
 import locale
 import pkg_resources
+from time import perf_counter
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect, draw_img_to_mask
 # pylint: disable=wrong-import-order
@@ -43,6 +44,9 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.avatars = {}
         self.avatar_masks = {}
+
+        # Cache for when somebody last spoke, used for "only_speaking" grace period
+        self.speaker_cache = {}
 
         self.dummy_data = []
         mostly_false = [False, False, False, False, False, False, False, True]
@@ -303,6 +307,12 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.only_speaking = only_speaking
 
+    def set_only_speaking_grace_period(self, grace_period):
+        """
+        Set grace period before hiding people who are not talking
+        """
+        self.only_speaking_grace_period = grace_period
+
     def set_highlight_self(self, highlight_self):
         """
         Set if the overlay should highlight the user
@@ -468,11 +478,27 @@ class VoiceOverlayWindow(OverlayWindow):
             else:
                 user["friendlyname"] = user["username"]
 
-            # Remove users that arent speaking
+            # Remove users that haven't spoken within the grace period
             if self.only_speaking:
                 speaking = "speaking" in user and user["speaking"]
+
+                # Update the speaker cache
+                if speaking:
+                    self.speaker_cache[user["username"]] = perf_counter()
+
                 if not speaking:
-                    if user in users_to_draw:
+                    grace = self.only_speaking_grace_period
+
+                    if (
+                        grace > 0
+                        and (last_spoke := self.speaker_cache.get(user["username"]))
+                        and (perf_counter() - last_spoke) < grace
+                    ):
+                        # The user spoke within the grace period, so don't hide
+                        # them just yet
+                        pass
+
+                    elif user in users_to_draw:
                         users_to_draw.remove(user)
 
         if self.highlight_self:
