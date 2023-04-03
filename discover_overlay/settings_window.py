@@ -352,8 +352,9 @@ class MainSettingsWindow():
         self.widget['voice_avatar_size'].set_value(
             config.getint("main", "avatar_size", fallback=48))
 
-        self.widget['voice_display_icon_only'].set_active(config.getboolean(
-            "main", "icon_only", fallback=False))
+        show_name = not config.getboolean("main", "icon_only", fallback=False)
+        self.widget['voice_display_icon_only'].set_active(show_name)
+        self.voice_show_name_hide_others(show_name)
 
         self.widget['voice_square_avatar'].set_active(config.getboolean(
             "main", "square_avatar", fallback=True))
@@ -372,6 +373,11 @@ class MainSettingsWindow():
 
         self.widget['voice_show_title'].set_active(config.getboolean(
             "main", "show_title", fallback=False))
+
+        show_avatar = config.getboolean(
+            "main", "show_avatar", fallback=True)
+        self.widget['voice_show_avatar'].set_active(show_avatar)
+        self.voice_show_avatar_hide_others(show_avatar)
 
         self.widget['voice_show_connection_status'].set_active(config.getboolean(
             "main", "show_connection", fallback=False))
@@ -873,7 +879,8 @@ class MainSettingsWindow():
                         (int(button.get_value())))
 
     def voice_display_icon_only_changed(self, button):
-        self.config_set("main", "icon_only", "%s" % (button.get_active()))
+        self.config_set("main", "icon_only", "%s" % (not button.get_active()))
+        self.voice_show_name_hide_others(button.get_active())
 
     def voice_square_avatar_changed(self, button):
         self.config_set("main", "square_avatar", "%s" % (button.get_active()))
@@ -908,6 +915,35 @@ class MainSettingsWindow():
 
     def voice_show_avatar_changed(self, button):
         self.config_set("main", "show_avatar", "%s" % (button.get_active()))
+        self.voice_show_avatar_hide_others(button.get_active())
+
+    def voice_show_name_hide_others(self, val):
+        if val:
+            # Show name options
+            self.widget['voice_font'].set_sensitive(True)
+            self.widget['voice_text_padding'].set_sensitive(True)
+            self.widget['voice_text_vertical_offset'].set_sensitive(True)
+            self.widget['voice_nick_length'].set_sensitive(True)
+        else:
+            # Hide name options
+            self.widget['voice_font'].set_sensitive(False)
+            self.widget['voice_text_padding'].set_sensitive(False)
+            self.widget['voice_text_vertical_offset'].set_sensitive(False)
+            self.widget['voice_nick_length'].set_sensitive(False)
+
+    def voice_show_avatar_hide_others(self, val):
+        if val:
+            # Show avatar options
+            self.widget['voice_square_avatar'].set_sensitive(True)
+            self.widget['voice_fancy_avatar_shapes'].set_sensitive(True)
+            self.widget['voice_avatar_size'].set_sensitive(True)
+            self.widget['voice_avatar_opacity'].set_sensitive(True)
+        else:
+            # Hide avatar options
+            self.widget['voice_square_avatar'].set_sensitive(False)
+            self.widget['voice_fancy_avatar_shapes'].set_sensitive(False)
+            self.widget['voice_avatar_size'].set_sensitive(False)
+            self.widget['voice_avatar_opacity'].set_sensitive(False)
 
     def text_enable_changed(self, button):
         self.config_set("text", "enabled", "%s" % (button.get_active()))
