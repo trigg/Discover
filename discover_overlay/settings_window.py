@@ -644,6 +644,8 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
+            if not "main" in config.sections():
+                config.add_section("main")
             config.set("main", "floating_x", "%s" %
                        (int(self.voice_floating_x)))
             config.set("main", "floating_y", "%s" %
@@ -689,6 +691,8 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
+            if not "text" in config.sections():
+                config.add_section("text")
             config.set("text", "floating_x", "%s" %
                        (int(self.text_floating_x)))
             config.set("text", "floating_y", "%s" %
