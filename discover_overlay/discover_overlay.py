@@ -236,6 +236,8 @@ class Discover:
             "main", "square_avatar", fallback=True))
         self.voice_overlay.set_only_speaking(config.getboolean(
             "main", "only_speaking", fallback=False))
+        self.voice_overlay.set_only_speaking_grace_period(config.getint(
+            "main", "only_speaking_grace", fallback=0))
         self.voice_overlay.set_highlight_self(config.getboolean(
             "main", "highlight_self", fallback=False))
         self.voice_overlay.set_icon_only(config.getboolean(

@@ -310,6 +310,9 @@ class MainSettingsWindow():
         self.widget['voice_display_speakers_only'].set_active(
             config.getboolean("main", "only_speaking", fallback=False))
 
+        self.widget['voice_display_speakers_grace_period'].set_value(
+            config.getint("main", "only_speaking_grace", fallback=0))
+
         self.widget['voice_show_test_content'].set_active(
             config.getboolean("main", "show_dummy", fallback=False))
 
@@ -801,6 +804,9 @@ class MainSettingsWindow():
 
     def voice_display_speakers_only(self, button):
         self.config_set("main", "only_speaking", "%s" % (button.get_active()))
+
+    def voice_display_speakers_grace_period(self, button):
+        self.config_set("main", "only_speaking_grace", "%s" % (int(button.get_value())))
 
     def voice_toggle_test_content(self, button):
         self.config_set("main", "show_dummy", "%s" % (button.get_active()))

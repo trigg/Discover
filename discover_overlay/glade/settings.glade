@@ -136,6 +136,13 @@
     <property name="step-increment">1</property>
     <property name="page-increment">8</property>
   </object>
+  <object class="GtkAdjustment" id="voice_display_speakers_grace_period_adj">
+    <property name="lower">0</property>
+    <property name="upper">360</property>
+    <property name="value">0</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="voice_nick_lenght_adj">
     <property name="lower">10</property>
     <property name="upper">32</property>
@@ -1300,6 +1307,32 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">voice_display_speakers_grace_period_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Speakers Grace Period</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton">
+                    <property name="name">voice_display_speakers_grace_period</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="adjustment">voice_display_speakers_grace_period_adj</property>
+                    <signal name="value-changed" handler="voice_display_speakers_grace_period" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">voice_nick_length_label</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -1308,7 +1341,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">4</property>
-                    <property name="top-attach">6</property>
+                    <property name="top-attach">7</property>
                   </packing>
                 </child>
                 <child>
@@ -1321,7 +1354,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">5</property>
-                    <property name="top-attach">6</property>
+                    <property name="top-attach">7</property>
                   </packing>
                 </child>
                 <child>
