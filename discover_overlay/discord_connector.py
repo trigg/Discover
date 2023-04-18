@@ -760,6 +760,8 @@ class DiscordConnector:
             except websocket.WebSocketConnectionClosedException:
                 self.on_close()
                 return True
+            except json.decoder.JSONDecodeError:
+                return True
         return True
 
     def start_listening_text(self, channel):
