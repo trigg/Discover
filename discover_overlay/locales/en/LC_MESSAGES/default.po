@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-08 14:02+0100\n"
+"POT-Creation-Date: 2023-04-18 14:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,49 +220,19 @@ msgstr ""
 msgid "Avatar"
 msgstr ""
 
+msgid "Show Names"
+msgstr ""
+
 msgid "Font"
-msgstr ""
-
-msgid "Title Font"
-msgstr ""
-
-msgid "Icon Spacing"
 msgstr ""
 
 msgid "Text Padding"
 msgstr ""
 
+msgid "0"
+msgstr ""
+
 msgid "Text Vertical Offset"
-msgstr ""
-
-msgid "Verticle Edge Padding"
-msgstr ""
-
-msgid "Horizontal Edge Padding"
-msgstr ""
-
-msgid "Avatar Opacity"
-msgstr ""
-
-msgid "Avatar Size"
-msgstr ""
-
-msgid "Display Icon Only"
-msgstr ""
-
-msgid "Square Avatar"
-msgstr ""
-
-msgid "Fancy Avatar Shapes"
-msgstr ""
-
-msgid "Overflow Style"
-msgstr ""
-
-msgid "Order Avatars By"
-msgstr ""
-
-msgid "Border width"
 msgstr ""
 
 msgid "Show Title"
@@ -271,22 +241,73 @@ msgstr ""
 msgid "Show Connection Status"
 msgstr ""
 
-msgid "Show While Disconnected"
+msgid "Title Font"
 msgstr ""
 
-msgid "Highlight Self"
+msgid "Horizontal Edge Padding"
 msgstr ""
 
 msgid "Show Test Content"
 msgstr ""
 
-msgid "Dummy Count"
+msgid "Test Data Count"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "Show While Disconnected"
+msgstr ""
+
+msgid "Verticle Edge Padding"
+msgstr ""
+
+msgid "Limit text length"
+msgstr ""
+
+msgid "32"
+msgstr ""
+
+msgid "Show Avatar"
+msgstr ""
+
+msgid "Square Avatar"
+msgstr ""
+
+msgid "Fancy Avatar Shapes"
+msgstr ""
+
+msgid "Avatar Size"
+msgstr ""
+
+msgid "48"
+msgstr ""
+
+msgid "Avatar Opacity"
 msgstr ""
 
 msgid "Display Speakers Only"
 msgstr ""
 
-msgid "Limit text length"
+msgid "Speakers Grace Period"
+msgstr ""
+
+msgid "Overflow Style"
+msgstr ""
+
+msgid "Order Users By"
+msgstr ""
+
+msgid "Highlight Self"
+msgstr ""
+
+msgid "Border width"
+msgstr ""
+
+msgid "1"
+msgstr ""
+
+msgid "Padding between users"
 msgstr ""
 
 msgid "Voice"

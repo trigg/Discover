@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-08 14:02+0100\n"
+"POT-Creation-Date: 2023-04-18 14:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -227,50 +227,20 @@ msgstr "Treiglo"
 msgid "Avatar"
 msgstr "Avatar"
 
+msgid "Show Names"
+msgstr ""
+
 msgid "Font"
 msgstr "Ffont"
-
-msgid "Title Font"
-msgstr "Ffont teitl"
-
-msgid "Icon Spacing"
-msgstr "Bylchiad eiconau"
 
 msgid "Text Padding"
 msgstr "Padio testun"
 
+msgid "0"
+msgstr ""
+
 msgid "Text Vertical Offset"
 msgstr "Gwrthbwysiad fertigol testun"
-
-msgid "Verticle Edge Padding"
-msgstr "Padio ymyl fertigol"
-
-msgid "Horizontal Edge Padding"
-msgstr "Padio ymyl llorweddol"
-
-msgid "Avatar Opacity"
-msgstr "Anhryloywder Avatar"
-
-msgid "Avatar Size"
-msgstr "Maint Avatar"
-
-msgid "Display Icon Only"
-msgstr "Dangos eicon yn unig"
-
-msgid "Square Avatar"
-msgstr "Avatar Sgwâr"
-
-msgid "Fancy Avatar Shapes"
-msgstr "Siâp avatar ffansi"
-
-msgid "Overflow Style"
-msgstr "Arddull gorlifo"
-
-msgid "Order Avatars By"
-msgstr "Archebu avatars yn ôl"
-
-msgid "Border width"
-msgstr "lled y ffin"
 
 msgid "Show Title"
 msgstr "Dangos teitl"
@@ -278,23 +248,74 @@ msgstr "Dangos teitl"
 msgid "Show Connection Status"
 msgstr "Dangos Statws Cysylltu"
 
-msgid "Show While Disconnected"
-msgstr "Dangos Wrth Ddatgysylltu"
+msgid "Title Font"
+msgstr "Ffont teitl"
 
-msgid "Highlight Self"
-msgstr "Tynnu sylw at eich hunan"
+msgid "Horizontal Edge Padding"
+msgstr "Padio ymyl llorweddol"
 
 msgid "Show Test Content"
 msgstr "Dangos cynnwys y prawf"
 
-msgid "Dummy Count"
-msgstr "Nifer y dymis"
+msgid "Test Data Count"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "Show While Disconnected"
+msgstr "Dangos Wrth Ddatgysylltu"
+
+msgid "Verticle Edge Padding"
+msgstr "Padio ymyl fertigol"
+
+msgid "Limit text length"
+msgstr "Cyfyngu ar hyd y testun"
+
+msgid "32"
+msgstr ""
+
+msgid "Show Avatar"
+msgstr ""
+
+msgid "Square Avatar"
+msgstr "Avatar Sgwâr"
+
+msgid "Fancy Avatar Shapes"
+msgstr "Siâp avatar ffansi"
+
+msgid "Avatar Size"
+msgstr "Maint Avatar"
+
+msgid "48"
+msgstr ""
+
+msgid "Avatar Opacity"
+msgstr "Anhryloywder Avatar"
 
 msgid "Display Speakers Only"
 msgstr "Dangos siaradwyr yn unig"
 
-msgid "Limit text length"
-msgstr "Cyfyngu ar hyd y testun"
+msgid "Speakers Grace Period"
+msgstr ""
+
+msgid "Overflow Style"
+msgstr "Arddull gorlifo"
+
+msgid "Order Users By"
+msgstr ""
+
+msgid "Highlight Self"
+msgstr "Tynnu sylw at eich hunan"
+
+msgid "Border width"
+msgstr "lled y ffin"
+
+msgid "1"
+msgstr ""
+
+msgid "Padding between users"
+msgstr ""
 
 msgid "Voice"
 msgstr "LLais"
@@ -382,3 +403,15 @@ msgstr "Cuddio troslun"
 
 msgid "Core"
 msgstr "Craidd"
+
+#~ msgid "Icon Spacing"
+#~ msgstr "Bylchiad eiconau"
+
+#~ msgid "Display Icon Only"
+#~ msgstr "Dangos eicon yn unig"
+
+#~ msgid "Order Avatars By"
+#~ msgstr "Archebu avatars yn ôl"
+
+#~ msgid "Dummy Count"
+#~ msgstr "Nifer y dymis"
