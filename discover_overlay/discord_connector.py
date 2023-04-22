@@ -757,7 +757,7 @@ class DiscordConnector:
                     # Connection was closed in the meantime
                     return True
                 recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
-            except websocket.WebSocketConnectionClosedException:
+            except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
                 self.on_close()
                 return True
         return True
