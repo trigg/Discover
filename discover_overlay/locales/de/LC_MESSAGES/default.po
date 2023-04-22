@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-08 14:02+0100\n"
+"POT-Creation-Date: 2023-04-18 14:10+0300\n"
 "PO-Revision-Date: 2022-09-23 23:05+0200\n"
 "Last-Translator: Baumfinder <baumkartoffel@outlook.de>\n"
 "Language-Team: German <baumkartoffel@outlook.de>\n"
@@ -236,50 +236,20 @@ msgstr "Stumm"
 msgid "Avatar"
 msgstr "Avatar"
 
+msgid "Show Names"
+msgstr ""
+
 msgid "Font"
 msgstr "Schriftart"
-
-msgid "Title Font"
-msgstr "Titel-Schriftart"
-
-msgid "Icon Spacing"
-msgstr "Symbolabstand"
 
 msgid "Text Padding"
 msgstr "Textpolsterung"
 
+msgid "0"
+msgstr ""
+
 msgid "Text Vertical Offset"
 msgstr "Vertikaler Text Offset"
-
-msgid "Verticle Edge Padding"
-msgstr "Vertikale Kantenpolterung"
-
-msgid "Horizontal Edge Padding"
-msgstr "Horizontale Kantenpolterung"
-
-msgid "Avatar Opacity"
-msgstr "Avatardurchsichtigkeit"
-
-msgid "Avatar Size"
-msgstr "Avatargröße"
-
-msgid "Display Icon Only"
-msgstr "Nur Symbol anzeigen"
-
-msgid "Square Avatar"
-msgstr "Quadratischer Avatar"
-
-msgid "Fancy Avatar Shapes"
-msgstr "Schicke Avatarformen"
-
-msgid "Overflow Style"
-msgstr "Überlauf Stil"
-
-msgid "Order Avatars By"
-msgstr "Avatare ordnen nach:"
-
-msgid "Border width"
-msgstr "Kantenbreite"
 
 msgid "Show Title"
 msgstr "Titel anzeigen"
@@ -287,23 +257,74 @@ msgstr "Titel anzeigen"
 msgid "Show Connection Status"
 msgstr "Verbindungsstatus anzeigen"
 
-msgid "Show While Disconnected"
-msgstr "Anzeigen wenn nicht verbunden"
+msgid "Title Font"
+msgstr "Titel-Schriftart"
 
-msgid "Highlight Self"
-msgstr "Selbst hervorheben"
+msgid "Horizontal Edge Padding"
+msgstr "Horizontale Kantenpolterung"
 
 msgid "Show Test Content"
 msgstr "Testinhalte anzeigen"
 
-msgid "Dummy Count"
-msgstr "Dummyanzahl"
+msgid "Test Data Count"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "Show While Disconnected"
+msgstr "Anzeigen wenn nicht verbunden"
+
+msgid "Verticle Edge Padding"
+msgstr "Vertikale Kantenpolterung"
+
+msgid "Limit text length"
+msgstr "Textlänge limitieren"
+
+msgid "32"
+msgstr ""
+
+msgid "Show Avatar"
+msgstr ""
+
+msgid "Square Avatar"
+msgstr "Quadratischer Avatar"
+
+msgid "Fancy Avatar Shapes"
+msgstr "Schicke Avatarformen"
+
+msgid "Avatar Size"
+msgstr "Avatargröße"
+
+msgid "48"
+msgstr ""
+
+msgid "Avatar Opacity"
+msgstr "Avatardurchsichtigkeit"
 
 msgid "Display Speakers Only"
 msgstr "Nur Sprechende anzeigen"
 
-msgid "Limit text length"
-msgstr "Textlänge limitieren"
+msgid "Speakers Grace Period"
+msgstr ""
+
+msgid "Overflow Style"
+msgstr "Überlauf Stil"
+
+msgid "Order Users By"
+msgstr ""
+
+msgid "Highlight Self"
+msgstr "Selbst hervorheben"
+
+msgid "Border width"
+msgstr "Kantenbreite"
+
+msgid "1"
+msgstr ""
+
+msgid "Padding between users"
+msgstr ""
 
 msgid "Voice"
 msgstr "Sprache"
@@ -391,3 +412,15 @@ msgstr "Overlay verstecken"
 
 msgid "Core"
 msgstr "Kern"
+
+#~ msgid "Icon Spacing"
+#~ msgstr "Symbolabstand"
+
+#~ msgid "Display Icon Only"
+#~ msgstr "Nur Symbol anzeigen"
+
+#~ msgid "Order Avatars By"
+#~ msgstr "Avatare ordnen nach:"
+
+#~ msgid "Dummy Count"
+#~ msgstr "Dummyanzahl"
