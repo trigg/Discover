@@ -403,6 +403,10 @@ class MainSettingsWindow():
         self.widget['text_popup_style'].set_active(
             config.getboolean("text", "popup_style", fallback=False))
 
+        self.widget['text_popup_time'].set_value(
+            config.getint("text","text_time", fallback=30)
+        )
+
         self.current_guild = config.get("text", "guild", fallback="0")
 
         self.current_channel = config.get("text", "channel", fallback="0")
@@ -950,6 +954,9 @@ class MainSettingsWindow():
 
     def text_popup_style_changed(self, button):
         self.config_set("text", "popup_style", "%s" % (button.get_active()))
+
+    def text_popup_time_changed(self, button):
+        self.config_set("text", "text_time", "%s" % (int(button.get_value())))
 
     def text_server_changed(self, button):
         if button.get_active() < 0:

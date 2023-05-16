@@ -21,7 +21,7 @@ from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo  # nopep8
+from gi.repository import Pango, PangoCairo, GLib  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +54,12 @@ class TextOverlayWindow(OverlayWindow):
         self.warned_filetypes = []
         self.set_title("Discover Text")
         self.redraw()
+        GLib.timeout_add_seconds(1, self.set_need_redraw)
+
+    def set_need_redraw(self):
+        if self.popup_style:
+            self.needsredraw = True
+        return True
 
     def set_blank(self):
         self.content = []

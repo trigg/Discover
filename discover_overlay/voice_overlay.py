@@ -121,7 +121,8 @@ class VoiceOverlayWindow(OverlayWindow):
         GLib.timeout_add_seconds(1, self.set_need_redraw)
 
     def set_need_redraw(self):
-        self.needsredraw = True
+        if self.only_speaking:
+            self.needsredraw = True
         return True
 
     def set_icon_transparency(self, trans):
