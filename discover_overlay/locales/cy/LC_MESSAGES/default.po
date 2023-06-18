@@ -1,66 +1,47 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
-msgid ""
-msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 14:10+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
 msgid "Usage"
-msgstr "Defnydd"
+msgstr ""
 
 msgid "Show an X11 or wlroots overlay with information"
-msgstr "Dangos troslun X11 neu Wlroots gyda gwybodaeth"
+msgstr ""
 
 msgid "from Discord client"
 msgstr ""
 
 msgid "Open configuration window"
-msgstr "gan y cleient Discord"
+msgstr ""
 
 msgid "Close currently running instance"
-msgstr "Cau'r achos sy'n rhedeg ar hyn o bryd"
+msgstr ""
 
 msgid "Verbose output for aid in debugging"
-msgstr "Allbwn Verbose ar gyfer cymorth i ddadfygio"
+msgstr ""
 
 msgid "This screen"
 msgstr ""
 
 msgid "Hide overlay"
-msgstr "Mae'r sgrin hon"
+msgstr ""
 
 msgid "Show overlay"
-msgstr "Dangos troslun"
+msgstr ""
 
 msgid "Send command, not start new instance."
-msgstr "Anfon gorchymyn, nid dechrau achos newydd."
+msgstr ""
 
 msgid "Set own user to mute"
-msgstr "Gosod treiglad"
+msgstr ""
 
 msgid "Set unmuted"
-msgstr "Gosod nid treiglo"
+msgstr ""
 
 msgid "Set own user to deafened"
-msgstr "Gosod yn fyddar"
+msgstr ""
 
 msgid "Unset user deafened state"
-msgstr "Gosod nid byddar"
+msgstr ""
 
 msgid "Move the user into voice room, by Room ID"
-msgstr "Symud y defnyddiwr i ystafell lais, yn ôl ID Ystafell"
+msgstr ""
 
 msgid ""
 "If tray icon is enabled, start with only tray icon and no configuration "
@@ -68,10 +49,10 @@ msgid ""
 msgstr ""
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
-msgstr "Ar gyfer cydnawsedd gamescope sicrhau bod gan ENV 'GDK_BACKEND=x11'"
+msgstr ""
 
 msgid "Welcome to Discover Overlay"
-msgstr "Croeso i Discover Overlay"
+msgstr ""
 
 msgid ""
 "Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
@@ -81,55 +62,48 @@ msgid ""
 "wlroots based environments. We felt the need to make this project due to the "
 "shortcomings in support on Linux by the official discord client."
 msgstr ""
-"Mae Discover-Overlay yn troslun GTK3 a ysgrifennwyd yn Python3. Gellir ei "
-"ffurfweddu i ddangos pwy sy'n siarad ar anghytgord ar hyn o bryd neu gellir "
-"ei osod i arddangos testun a delweddau o sianel wedi'i ffurfweddu ymlaen "
-"llaw. Mae'n gwbl addasadwy a gellir ei ffurfweddu i arddangos unrhyw le ar y "
-"sgrin. Rydym yn llwyr gefnogi amgylcheddau X11 a wlroots. Roeddem yn "
-"teimlo'r angen i wneud y prosiect hwn oherwydd y diffygion yn y gefnogaeth "
-"ar Linux gan y cleient anghytgord swyddogol."
 
 msgid "Please visit our discord"
-msgstr "Ewch i'n Discord"
+msgstr ""
 
 msgid " for support. Or open an issue on our GitHub "
-msgstr " am gymorth"
+msgstr ""
 
 msgid "Top"
-msgstr "Brig"
+msgstr ""
 
 msgid "Bottom"
-msgstr "Gwaelod"
+msgstr ""
 
 msgid "Left"
-msgstr "Chwith"
+msgstr ""
 
 msgid "Middle"
-msgstr "Canol"
+msgstr ""
 
 msgid "Right"
-msgstr "Dde"
+msgstr ""
 
 msgid "Settings"
-msgstr "Gosodiadau"
+msgstr ""
 
 msgid "Close Overlay"
-msgstr "Cau troslun"
+msgstr ""
 
 msgid "Close Settings"
-msgstr "Cau Gosodiadau"
+msgstr ""
 
 msgid "Place Window"
-msgstr "Rhowch y ffenestr"
+msgstr ""
 
 msgid "Place & resize this window then press Green!"
-msgstr "Rhowch ac ailfeintio'r ffenestr hon yna pwyswch wyrdd!"
+msgstr ""
 
 msgid "Place & resize this window then press Save!"
-msgstr "Rhowch ac ailfeintio'r ffenestr hon yna pwyswch save!"
+msgstr ""
 
 msgid "Save this position"
-msgstr "Cadw'r sefyllfa hon"
+msgstr ""
 
 msgid "DISCONNECTED"
 msgstr ""
@@ -162,100 +136,100 @@ msgid "VOICE_CONNECTED"
 msgstr ""
 
 msgid "Alphabetically"
-msgstr "Yn nhrefn yr wyddor"
+msgstr ""
 
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 msgid "Last Spoken"
-msgstr "Siaradwyd ddiwethaf"
+msgstr ""
 
 msgid "Shrink"
-msgstr "Crebachu"
+msgstr ""
 
 msgid "Wrap"
-msgstr "Lapio"
+msgstr ""
 
 msgid "None"
-msgstr "Dim"
+msgstr ""
 
 msgid "Discover Overlay Configuration"
-msgstr "Discover Overlay Cyfluniad"
+msgstr ""
 
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
-msgstr "Cau troslun"
+msgstr ""
 
 msgid "Overview"
-msgstr "Trosolwg"
+msgstr ""
 
 msgid "Overlay Location"
-msgstr "Lleoliad troslun"
+msgstr ""
 
 msgid "Anchor To Edge"
-msgstr "Angor i ymyl"
+msgstr ""
 
 msgid "Floating"
-msgstr "Symudol"
+msgstr ""
 
 msgid "Show Advanced Options"
-msgstr "Dangos Mwy o Opsiynau"
+msgstr ""
 
 msgid "Display Horizontally"
-msgstr "Arddangos yn llorweddol"
+msgstr ""
 
 msgid "Foreground"
-msgstr "Blaendir"
+msgstr ""
 
 msgid "Background"
-msgstr "Cefndir"
+msgstr ""
 
 msgid "Border"
-msgstr "Ffin"
+msgstr ""
 
 msgid "Talking"
-msgstr "Siarad"
+msgstr ""
 
 msgid "Idle"
-msgstr "Segur"
+msgstr ""
 
 msgid "Mute"
-msgstr "Treiglo"
+msgstr ""
 
 msgid "Avatar"
-msgstr "Avatar"
+msgstr ""
 
 msgid "Show Names"
 msgstr ""
 
 msgid "Font"
-msgstr "Ffont"
+msgstr ""
 
 msgid "Text Padding"
-msgstr "Padio testun"
+msgstr ""
 
 msgid "0"
 msgstr ""
 
 msgid "Text Vertical Offset"
-msgstr "Gwrthbwysiad fertigol testun"
+msgstr ""
 
 msgid "Show Title"
-msgstr "Dangos teitl"
+msgstr ""
 
 msgid "Show Connection Status"
-msgstr "Dangos Statws Cysylltu"
+msgstr ""
 
 msgid "Title Font"
-msgstr "Ffont teitl"
+msgstr ""
 
 msgid "Horizontal Edge Padding"
-msgstr "Padio ymyl llorweddol"
+msgstr ""
 
 msgid "Show Test Content"
-msgstr "Dangos cynnwys y prawf"
+msgstr ""
 
 msgid "Test Data Count"
 msgstr ""
@@ -264,13 +238,13 @@ msgid "50"
 msgstr ""
 
 msgid "Show While Disconnected"
-msgstr "Dangos Wrth Ddatgysylltu"
+msgstr ""
 
 msgid "Verticle Edge Padding"
-msgstr "Padio ymyl fertigol"
+msgstr ""
 
 msgid "Limit text length"
-msgstr "Cyfyngu ar hyd y testun"
+msgstr ""
 
 msgid "32"
 msgstr ""
@@ -279,37 +253,37 @@ msgid "Show Avatar"
 msgstr ""
 
 msgid "Square Avatar"
-msgstr "Avatar Sgwâr"
+msgstr ""
 
 msgid "Fancy Avatar Shapes"
-msgstr "Siâp avatar ffansi"
+msgstr ""
 
 msgid "Avatar Size"
-msgstr "Maint Avatar"
+msgstr ""
 
 msgid "48"
 msgstr ""
 
 msgid "Avatar Opacity"
-msgstr "Anhryloywder Avatar"
+msgstr ""
 
 msgid "Display Speakers Only"
-msgstr "Dangos siaradwyr yn unig"
+msgstr ""
 
 msgid "Speakers Grace Period"
 msgstr ""
 
 msgid "Overflow Style"
-msgstr "Arddull gorlifo"
+msgstr ""
 
 msgid "Order Users By"
 msgstr ""
 
 msgid "Highlight Self"
-msgstr "Tynnu sylw at eich hunan"
+msgstr ""
 
 msgid "Border width"
-msgstr "lled y ffin"
+msgstr ""
 
 msgid "1"
 msgstr ""
@@ -318,100 +292,94 @@ msgid "Padding between users"
 msgstr ""
 
 msgid "Voice"
-msgstr "LLais"
+msgstr ""
 
 msgid "Enable"
-msgstr "Galluogi"
+msgstr ""
 
 msgid "Popup Style"
-msgstr "Arddull naid"
-
-msgid "Server"
-msgstr "Gweinydd"
+msgstr ""
 
 msgid "Line Limit"
-msgstr "Terfyn Llinell"
+msgstr ""
+
+msgid "10"
+msgstr ""
 
 msgid "Show Attachments"
-msgstr "Dangos atodiadau"
+msgstr ""
 
 msgid "Background Colour"
-msgstr "Lliw Cefndir"
+msgstr ""
 
 msgid "Text Colour"
-msgstr "Lliw'r testun"
+msgstr ""
 
 msgid "Channel"
-msgstr "Sianel"
+msgstr ""
 
 msgid "Refresh List"
-msgstr "Adnewyddu'r rhestr"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Popup time limit"
+msgstr ""
 
 msgid "Text"
-msgstr "Testun"
+msgstr ""
 
 msgid "Reverse Order"
-msgstr "Gorchymyn Gwrthdroi"
+msgstr ""
 
 msgid "Popup Timer"
-msgstr "Amserydd naid"
+msgstr ""
 
 msgid "Limit Popup Width"
-msgstr "Cyfyngu lled naid"
+msgstr ""
 
 msgid "Show Icon"
-msgstr "Dangos eicon"
+msgstr ""
 
 msgid "Icon Position"
-msgstr "Swydd Eicon"
+msgstr ""
 
 msgid "Border Radius"
-msgstr "Radiws y Ffin"
+msgstr ""
 
 msgid "Padding Between Notifications"
-msgstr "Padio Rhwng Hysbysiadau"
+msgstr ""
 
 msgid "Icon Size"
-msgstr "Maint eicon"
+msgstr ""
 
 msgid "Icon Padding"
-msgstr "Padio eiconau"
+msgstr ""
 
 msgid "Unknown"
-msgstr "Anhysbys"
+msgstr ""
 
 msgid "Notification"
-msgstr "Hysbysiad"
+msgstr ""
 
 msgid "Run Overlay on Startup"
-msgstr "Rhedeg Troslun ar Gychwyn"
+msgstr ""
 
 msgid "Run Configuration on Startup"
-msgstr "Rhedeg Ffurfweddiad wrth Gychwyn"
+msgstr ""
 
 msgid "Force XShape"
-msgstr "Gorfodi XShape"
+msgstr ""
 
 msgid "Show Tray Icon"
-msgstr "Dangos eicon Hambwrdd"
+msgstr ""
 
 msgid "Start Settings Minimized"
-msgstr "Dechrau'r Gosodiadau wedi'u Lleihau"
+msgstr ""
 
 msgid "Hide Overlays"
-msgstr "Cuddio troslun"
+msgstr ""
 
 msgid "Core"
-msgstr "Craidd"
-
-#~ msgid "Icon Spacing"
-#~ msgstr "Bylchiad eiconau"
-
-#~ msgid "Display Icon Only"
-#~ msgstr "Dangos eicon yn unig"
-
-#~ msgid "Order Avatars By"
-#~ msgstr "Archebu avatars yn ôl"
-
-#~ msgid "Dummy Count"
-#~ msgstr "Nifer y dymis"
+msgstr ""

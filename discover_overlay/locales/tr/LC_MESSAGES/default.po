@@ -1,78 +1,58 @@
-# Turkish Translation for Discover.
-# Copyright (C) 2023 
-# This file is distributed under the same license as the Discover package.
-# Ahmet Arda Kavakcı <ahmetardakavakci@gmail.com>, 2023.
-#
-msgid ""
-msgstr ""
-"Project-Id-Version: 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 14:10+0300\n"
-"PO-Revision-Date: 2023-04-17 15:44+0300\n"
-"Last-Translator: Ahmet Arda Kavakcı <ahmetardakavakci@gmail.com>\n"
-"Language-Team: Turkish <ahmetardakavakci@gmail.com>\n"
-"Language: \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-
 msgid "Usage"
-msgstr "Kullanım"
+msgstr ""
 
 msgid "Show an X11 or wlroots overlay with information"
-msgstr "X11 veya wlroots arayüzünü bilgisini göster"
+msgstr ""
 
 msgid "from Discord client"
-msgstr "Discord istemcisinden"
+msgstr ""
 
 msgid "Open configuration window"
-msgstr "Yapılandırma ekranını aç"
+msgstr ""
 
 msgid "Close currently running instance"
-msgstr "Çalışmakta olan istemciyi kapat"
+msgstr ""
 
 msgid "Verbose output for aid in debugging"
-msgstr "Hata ayıklama için ayrıntılı çıktı"
+msgstr ""
 
 msgid "This screen"
-msgstr "Bu ekran"
+msgstr ""
 
 msgid "Hide overlay"
-msgstr "Arayüzü gizle"
+msgstr ""
 
 msgid "Show overlay"
-msgstr "Arayüzü göster"
+msgstr ""
 
 msgid "Send command, not start new instance."
-msgstr "Komutu gönder, yeni istemci başlatma"
+msgstr ""
 
 msgid "Set own user to mute"
-msgstr "Kendini sustur"
+msgstr ""
 
 msgid "Set unmuted"
-msgstr "Sesi aç"
+msgstr ""
 
 msgid "Set own user to deafened"
-msgstr "Kendini sağırlaştır"
+msgstr ""
 
 msgid "Unset user deafened state"
-msgstr "Kullanıcının sağırlık durumunu değiştir"
+msgstr ""
 
 msgid "Move the user into voice room, by Room ID"
-msgstr "Kullanıcıyı Oda ID'sine göre bir ses odasına taşı"
+msgstr ""
 
 msgid ""
 "If tray icon is enabled, start with only tray icon and no configuration "
 "window"
 msgstr ""
-"Eğer görev çubuğu simgeleri etkin ise, küçültülmüş olarak başlat ve "
-"yapılandırma ekranını açma"
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
-msgstr "gamescope desteği için ENV'de 'GDK_BACKEND=x11' olduğundan emin ol"
+msgstr ""
 
 msgid "Welcome to Discover Overlay"
-msgstr "Discord Arayüz'e Hoş Geldin"
+msgstr ""
 
 msgid ""
 "Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
@@ -82,55 +62,48 @@ msgid ""
 "wlroots based environments. We felt the need to make this project due to the "
 "shortcomings in support on Linux by the official discord client."
 msgstr ""
-"Discord-Overlay, Python3 ile yazılmış bir GTK3 arayüzüdür. Discord'da o "
-"kimin kimin konuşuyor olduğunu gösterecek şekilde veya ayarlanmış bir "
-"kanaldaki resim ve yazıları gösterecek şekilde yapılandırılabilir. Tamamı "
-"ile kişiselleştirilebilirdir ve ekranın herhangi bir yerinde gösterilebilir. "
-"wlroots ve X11 tabanlı ortamlar tamamı ile desteklenir. Bu projeyi yapmaya "
-"gerek duymamızın sebebi, resmî Discord istemcisinin, Linux desteği "
-"konusundaki eksiklikleridir."
 
 msgid "Please visit our discord"
-msgstr "Destek için lütfen Discord"
+msgstr ""
 
 msgid " for support. Or open an issue on our GitHub "
-msgstr " sunucumuzu ziyaret edin. Veya Github'ta 'issue' açın."
+msgstr ""
 
 msgid "Top"
-msgstr "Üst"
+msgstr ""
 
 msgid "Bottom"
-msgstr "Alt"
+msgstr ""
 
 msgid "Left"
-msgstr "Sol"
+msgstr ""
 
 msgid "Middle"
-msgstr "Orta"
+msgstr ""
 
 msgid "Right"
-msgstr "Sağ"
+msgstr ""
 
 msgid "Settings"
-msgstr "Ayarlar"
+msgstr ""
 
 msgid "Close Overlay"
-msgstr "Arayüzü Kapat"
+msgstr ""
 
 msgid "Close Settings"
-msgstr "Ayarları Kapat"
+msgstr ""
 
 msgid "Place Window"
-msgstr "Pencereyi Yerleştir"
+msgstr ""
 
 msgid "Place & resize this window then press Green!"
-msgstr "Pencereyi yerleştir ve yeniden boyutlandır, ardından yeşile bas!"
+msgstr ""
 
 msgid "Place & resize this window then press Save!"
-msgstr "Pencereyi yerleştir ve yeniden boyutlandır, ardından Kaydet'e bas!"
+msgstr ""
 
 msgid "Save this position"
-msgstr "Bu pozisyonu kaydet"
+msgstr ""
 
 msgid "DISCONNECTED"
 msgstr ""
@@ -163,244 +136,250 @@ msgid "VOICE_CONNECTED"
 msgstr ""
 
 msgid "Alphabetically"
-msgstr "Alfabetik olarak"
+msgstr ""
 
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 msgid "Last Spoken"
-msgstr "En Son Konuşulan"
+msgstr ""
 
 msgid "Shrink"
-msgstr "Küçült"
+msgstr ""
 
 msgid "Wrap"
-msgstr "Gizle"
+msgstr ""
 
 msgid "None"
-msgstr "Yok"
+msgstr ""
 
 msgid "Discover Overlay Configuration"
-msgstr "Discover Arayüz Yapılandırması"
+msgstr ""
 
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
-msgstr "Arayüzü kapat"
+msgstr ""
 
 msgid "Overview"
-msgstr "Genel Bakış"
+msgstr ""
 
 msgid "Overlay Location"
-msgstr "Arayüz Konumu"
+msgstr ""
 
 msgid "Anchor To Edge"
-msgstr "Kenara Sabitle"
+msgstr ""
 
 msgid "Floating"
-msgstr "Uçan Pencere"
+msgstr ""
 
 msgid "Show Advanced Options"
-msgstr "Gelişmiş Ayarları Göster"
+msgstr ""
 
 msgid "Display Horizontally"
-msgstr "Yatay Olarak Göster"
+msgstr ""
 
 msgid "Foreground"
-msgstr "Ön Plan"
+msgstr ""
 
 msgid "Background"
-msgstr "Arka Plan"
+msgstr ""
 
 msgid "Border"
-msgstr "Kenar"
+msgstr ""
 
 msgid "Talking"
-msgstr "Konuşuyor"
+msgstr ""
 
 msgid "Idle"
-msgstr "Boşta"
+msgstr ""
 
 msgid "Mute"
-msgstr "Sustur"
+msgstr ""
 
 msgid "Avatar"
-msgstr "Avatar"
+msgstr ""
 
 msgid "Show Names"
-msgstr "İsimleri Göster"
+msgstr ""
 
 msgid "Font"
-msgstr "Yazı Tipi"
+msgstr ""
 
 msgid "Text Padding"
-msgstr "Yazı İç Boşluğu"
+msgstr ""
 
 msgid "0"
 msgstr ""
 
 msgid "Text Vertical Offset"
-msgstr "Yazı Dikey Kenar Uzaklığı"
+msgstr ""
 
 msgid "Show Title"
-msgstr "Başlığı Göster"
+msgstr ""
 
 msgid "Show Connection Status"
-msgstr "Bağlantı Durumunu Göster"
+msgstr ""
 
 msgid "Title Font"
-msgstr "Başlık Yazı Tipi"
+msgstr ""
 
 msgid "Horizontal Edge Padding"
-msgstr "Kenar Yatay İç Boşluğu"
+msgstr ""
 
 msgid "Show Test Content"
-msgstr "Deneme Verisini Göster"
+msgstr ""
 
 msgid "Test Data Count"
-msgstr "Deneme Veri Sayısı"
+msgstr ""
 
 msgid "50"
 msgstr ""
 
 msgid "Show While Disconnected"
-msgstr "Bağlantı Yokken Göster"
+msgstr ""
 
 msgid "Verticle Edge Padding"
-msgstr "Kenar Dikey İç Boşluğu"
+msgstr ""
 
 msgid "Limit text length"
-msgstr "Yazı uzunluğunu sınırla"
+msgstr ""
 
 msgid "32"
 msgstr ""
 
 msgid "Show Avatar"
-msgstr "Avatarı Göster"
+msgstr ""
 
 msgid "Square Avatar"
-msgstr "Kare Avatar"
+msgstr ""
 
 msgid "Fancy Avatar Shapes"
-msgstr "Süslü Avatar Şekilleri"
+msgstr ""
 
 msgid "Avatar Size"
-msgstr "Avatar Boyutu"
+msgstr ""
 
 msgid "48"
 msgstr ""
 
 msgid "Avatar Opacity"
-msgstr "Avatar Saydamlığı"
+msgstr ""
 
 msgid "Display Speakers Only"
-msgstr "Sadece Hoparlörü Göster"
+msgstr ""
 
 msgid "Speakers Grace Period"
-msgstr "Hoparlör Grace Süresi"
+msgstr ""
 
 msgid "Overflow Style"
-msgstr "Taşma Stili"
+msgstr ""
 
 msgid "Order Users By"
-msgstr "Kullanıcıları Şuna Göre Sırala:"
+msgstr ""
 
 msgid "Highlight Self"
-msgstr "Kendini Vurgula"
+msgstr ""
 
 msgid "Border width"
-msgstr "Kenar genişliği"
+msgstr ""
 
 msgid "1"
 msgstr ""
 
 msgid "Padding between users"
-msgstr "Kullanıcılar arası iç boşluk"
+msgstr ""
 
 msgid "Voice"
-msgstr "Ses"
+msgstr ""
 
 msgid "Enable"
-msgstr "Etkinleştir"
+msgstr ""
 
 msgid "Popup Style"
-msgstr "Açılı Pencere Stili"
-
-msgid "Server"
-msgstr "Sunucu"
+msgstr ""
 
 msgid "Line Limit"
-msgstr "Satır Limiti"
+msgstr ""
+
+msgid "10"
+msgstr ""
 
 msgid "Show Attachments"
-msgstr "Ekleri Göster"
+msgstr ""
 
 msgid "Background Colour"
-msgstr "Arka Plan Rengi"
+msgstr ""
 
 msgid "Text Colour"
-msgstr "Yazı Rengi"
+msgstr ""
 
 msgid "Channel"
-msgstr "Kanal"
+msgstr ""
 
 msgid "Refresh List"
-msgstr "Listeyi Yenile"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Popup time limit"
+msgstr ""
 
 msgid "Text"
-msgstr "Yazı"
+msgstr ""
 
 msgid "Reverse Order"
-msgstr "Ters Sıralama"
+msgstr ""
 
 msgid "Popup Timer"
-msgstr "Açılır Pencere Süresi"
+msgstr ""
 
 msgid "Limit Popup Width"
-msgstr "Açılır Pencere Genişlik Limiti"
+msgstr ""
 
 msgid "Show Icon"
-msgstr "Simgeyi Göster"
+msgstr ""
 
 msgid "Icon Position"
-msgstr "Simge Konumu"
+msgstr ""
 
 msgid "Border Radius"
-msgstr "Kenar Yuvarlaklığı"
+msgstr ""
 
 msgid "Padding Between Notifications"
-msgstr "Bildirimler Arası İç Boşluk"
+msgstr ""
 
 msgid "Icon Size"
-msgstr "Simge Boyutu"
+msgstr ""
 
 msgid "Icon Padding"
-msgstr "Simge İç Boşluğu"
+msgstr ""
 
 msgid "Unknown"
-msgstr "Bilinmeyen"
+msgstr ""
 
 msgid "Notification"
-msgstr "Bildirim"
+msgstr ""
 
 msgid "Run Overlay on Startup"
-msgstr "Başlangıçta Arayüzü Çalıştır"
+msgstr ""
 
 msgid "Run Configuration on Startup"
-msgstr "Başlangıçta Yapılandırmayı Çalıştır"
+msgstr ""
 
 msgid "Force XShape"
-msgstr "XShape'i Zorunlu Kıl"
+msgstr ""
 
 msgid "Show Tray Icon"
-msgstr "Görev Çubuğu Simgesini Göster"
+msgstr ""
 
 msgid "Start Settings Minimized"
-msgstr "Ayarları Küçültülmüş Olarak Başlat"
+msgstr ""
 
 msgid "Hide Overlays"
-msgstr "Arayüzleri Gizle"
+msgstr ""
 
 msgid "Core"
-msgstr "Çekirdek"
+msgstr ""
