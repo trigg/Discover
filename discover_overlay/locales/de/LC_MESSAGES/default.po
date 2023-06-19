@@ -1,81 +1,58 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# Baumfinder <baumkartoffel@outlook.de>, 2022.
-#
-msgid ""
-msgstr ""
-"Project-Id-Version: unnamed project\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 14:10+0300\n"
-"PO-Revision-Date: 2022-09-23 23:05+0200\n"
-"Last-Translator: Baumfinder <baumkartoffel@outlook.de>\n"
-"Language-Team: German <baumkartoffel@outlook.de>\n"
-"Language: de\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 40.0\n"
-
 msgid "Usage"
-msgstr "Verwendung"
+msgstr ""
 
 msgid "Show an X11 or wlroots overlay with information"
-msgstr "Ein X11 oder wlroots Overlay mit Informationen anzeigen"
+msgstr ""
 
 msgid "from Discord client"
-msgstr "vom Discord-Client"
+msgstr ""
 
 msgid "Open configuration window"
-msgstr "Konfigurationsfenster öffnen"
+msgstr ""
 
 msgid "Close currently running instance"
-msgstr "Aktuell ausgeführte Instanz schließen"
+msgstr ""
 
 msgid "Verbose output for aid in debugging"
-msgstr "Ausführliche Ausgabe als Hilfe zum Debuggen"
+msgstr ""
 
 msgid "This screen"
-msgstr "Dieser Bildschirm"
+msgstr ""
 
 msgid "Hide overlay"
-msgstr "Overlay verstecken"
+msgstr ""
 
 msgid "Show overlay"
-msgstr "Overlay anzeigen"
+msgstr ""
 
 msgid "Send command, not start new instance."
-msgstr "Befehl senden, keine neue Instanz starten."
+msgstr ""
 
 msgid "Set own user to mute"
-msgstr "Eigenen Benutzer als stummgeschaltet einstellen"
+msgstr ""
 
 msgid "Set unmuted"
-msgstr "Lautgeschaltet einstellen"
+msgstr ""
 
 msgid "Set own user to deafened"
-msgstr "Eigenen Benutzer als taub einstellen"
+msgstr ""
 
 msgid "Unset user deafened state"
-msgstr "Tauben Zustand des Benutzers deaktivieren"
+msgstr ""
 
 msgid "Move the user into voice room, by Room ID"
-msgstr "Den Benutzer anhand der Raum-ID in einen Sprach-Raum verschieben"
+msgstr ""
 
 msgid ""
 "If tray icon is enabled, start with only tray icon and no configuration "
 "window"
 msgstr ""
-"Wenn das Benachrichtigungssymbol aktiviert ist, nur mit diesem und ohne "
-"Konfiguration startenFenster"
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
 msgstr ""
-"Für Gamescope Kompabilität sicherstellen, dass ENV 'GDK_BACKEND=x11' hat"
 
 msgid "Welcome to Discover Overlay"
-msgstr "Willkommen im Discover Overlay"
+msgstr ""
 
 msgid ""
 "Discover-Overlay is a GTK3 overlay written in Python3. It can be configured "
@@ -85,186 +62,174 @@ msgid ""
 "wlroots based environments. We felt the need to make this project due to the "
 "shortcomings in support on Linux by the official discord client."
 msgstr ""
-"Discover Overlay ist ein GTK3 Overlay geschrieben in Python3. Das Overlay "
-"kann so konfiguriert werden, dass angezeigt wird, wer gerade spricht, oder "
-"es kann Text und Bilder eines vorkonfigurierten Kanals anzeigen. Das "
-"Programm ist voll anpassbar und kann überall auf dem Bildschirm angezeigt "
-"werden. Wir unterstützen X11, Wayland und wlroots basierte Umgebungen. "
-"Dieses Projekt wurde erstellt, da wir unzufrieden mit dem Linux-Support des "
-"offiziellen Discord-Clients sind."
 
 msgid "Please visit our discord"
-msgstr "Bitte besuchen sie unseren Discord Server"
+msgstr ""
 
 msgid " for support. Or open an issue on our GitHub "
 msgstr ""
-"um Unterstützung zu erhalten öffnen sie bitte ein Issue auf unserem GitHub"
 
 msgid "Top"
-msgstr "Oben"
+msgstr ""
 
 msgid "Bottom"
-msgstr "Unten"
+msgstr ""
 
 msgid "Left"
-msgstr "Links"
+msgstr ""
 
 msgid "Middle"
-msgstr "Mitte"
+msgstr ""
 
 msgid "Right"
-msgstr "Rechts"
+msgstr ""
 
 msgid "Settings"
-msgstr "Einstellungen"
+msgstr ""
 
 msgid "Close Overlay"
-msgstr "Overlay schließen"
+msgstr ""
 
 msgid "Close Settings"
-msgstr "Einstellungen schließen"
+msgstr ""
 
 msgid "Place Window"
-msgstr "Fenster platzieren"
+msgstr ""
 
 msgid "Place & resize this window then press Green!"
 msgstr ""
-"Platzieren und ändern sie die Größe des Fensters und drücken sie dann auf "
-"Grün!"
 
 msgid "Place & resize this window then press Save!"
 msgstr ""
-"Platzieren und ändern sie die Größe des Fensters und drücken sie dann auf "
-"Speichern!"
 
 msgid "Save this position"
-msgstr "Diese Position speichern"
+msgstr ""
 
 msgid "DISCONNECTED"
-msgstr "VERBINDUNG_GETRENNT"
+msgstr ""
 
 msgid "NO_ROUTE"
-msgstr "KEINE_ROUTE"
+msgstr ""
 
 msgid "VOICE_DISCONNECTED"
-msgstr "SPRACHE_GETRENNT"
+msgstr ""
 
 msgid "ICE_CHECKING"
-msgstr "ICE_KONTROLLE"
+msgstr ""
 
 msgid "AWAITING_ENDPOINT"
-msgstr "ENDPUNKT_ABWARTEN"
+msgstr ""
 
 msgid "AUTHENTICATING"
-msgstr "AUTHENTIFIZIEREN"
+msgstr ""
 
 msgid "CONNECTING"
-msgstr "VERBINDEN"
+msgstr ""
 
 msgid "CONNECTED"
-msgstr "VERBUNDEN"
+msgstr ""
 
 msgid "VOICE_CONNECTING"
-msgstr "SPRACHE_VERBINDEN"
+msgstr ""
 
 msgid "VOICE_CONNECTED"
-msgstr "SPRACHE_VERBUNDEN"
+msgstr ""
 
 msgid "Alphabetically"
-msgstr "Alphabetisch"
+msgstr ""
 
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 msgid "Last Spoken"
-msgstr "Als letzter gesprochen"
+msgstr ""
 
 msgid "Shrink"
-msgstr "Schrumpfen"
+msgstr ""
 
 msgid "Wrap"
-msgstr "Wickeln"
+msgstr ""
 
 msgid "None"
-msgstr "Keine"
+msgstr ""
 
 msgid "Discover Overlay Configuration"
-msgstr "Disorder Overlay Konfiguration"
+msgstr ""
 
 msgid "INTRO TEXT"
-msgstr "EINLEITUNGSTEXT"
+msgstr ""
 
 msgid "Close overlay"
-msgstr "Overlay schließen"
+msgstr ""
 
 msgid "Overview"
-msgstr "Übersicht"
+msgstr ""
 
 msgid "Overlay Location"
-msgstr "Overlayposition"
+msgstr ""
 
 msgid "Anchor To Edge"
-msgstr "An der Kante verankern"
+msgstr ""
 
 msgid "Floating"
-msgstr "Schwebend"
+msgstr ""
 
 msgid "Show Advanced Options"
-msgstr "Erweiterte Optionen anzeigen"
+msgstr ""
 
 msgid "Display Horizontally"
-msgstr "Horizontal anzeigen"
+msgstr ""
 
 msgid "Foreground"
-msgstr "Vordergrund"
+msgstr ""
 
 msgid "Background"
-msgstr "Hintergrund"
+msgstr ""
 
 msgid "Border"
-msgstr "Grenze"
+msgstr ""
 
 msgid "Talking"
-msgstr "Sprechen"
+msgstr ""
 
 msgid "Idle"
-msgstr "Leerlauf"
+msgstr ""
 
 msgid "Mute"
-msgstr "Stumm"
+msgstr ""
 
 msgid "Avatar"
-msgstr "Avatar"
+msgstr ""
 
 msgid "Show Names"
 msgstr ""
 
 msgid "Font"
-msgstr "Schriftart"
+msgstr ""
 
 msgid "Text Padding"
-msgstr "Textpolsterung"
+msgstr ""
 
 msgid "0"
 msgstr ""
 
 msgid "Text Vertical Offset"
-msgstr "Vertikaler Text Offset"
+msgstr ""
 
 msgid "Show Title"
-msgstr "Titel anzeigen"
+msgstr ""
 
 msgid "Show Connection Status"
-msgstr "Verbindungsstatus anzeigen"
+msgstr ""
 
 msgid "Title Font"
-msgstr "Titel-Schriftart"
+msgstr ""
 
 msgid "Horizontal Edge Padding"
-msgstr "Horizontale Kantenpolterung"
+msgstr ""
 
 msgid "Show Test Content"
-msgstr "Testinhalte anzeigen"
+msgstr ""
 
 msgid "Test Data Count"
 msgstr ""
@@ -273,13 +238,13 @@ msgid "50"
 msgstr ""
 
 msgid "Show While Disconnected"
-msgstr "Anzeigen wenn nicht verbunden"
+msgstr ""
 
 msgid "Verticle Edge Padding"
-msgstr "Vertikale Kantenpolterung"
+msgstr ""
 
 msgid "Limit text length"
-msgstr "Textlänge limitieren"
+msgstr ""
 
 msgid "32"
 msgstr ""
@@ -288,37 +253,37 @@ msgid "Show Avatar"
 msgstr ""
 
 msgid "Square Avatar"
-msgstr "Quadratischer Avatar"
+msgstr ""
 
 msgid "Fancy Avatar Shapes"
-msgstr "Schicke Avatarformen"
+msgstr ""
 
 msgid "Avatar Size"
-msgstr "Avatargröße"
+msgstr ""
 
 msgid "48"
 msgstr ""
 
 msgid "Avatar Opacity"
-msgstr "Avatardurchsichtigkeit"
+msgstr ""
 
 msgid "Display Speakers Only"
-msgstr "Nur Sprechende anzeigen"
+msgstr ""
 
 msgid "Speakers Grace Period"
 msgstr ""
 
 msgid "Overflow Style"
-msgstr "Überlauf Stil"
+msgstr ""
 
 msgid "Order Users By"
 msgstr ""
 
 msgid "Highlight Self"
-msgstr "Selbst hervorheben"
+msgstr ""
 
 msgid "Border width"
-msgstr "Kantenbreite"
+msgstr ""
 
 msgid "1"
 msgstr ""
@@ -327,100 +292,94 @@ msgid "Padding between users"
 msgstr ""
 
 msgid "Voice"
-msgstr "Sprache"
+msgstr ""
 
 msgid "Enable"
-msgstr "Aktivieren"
+msgstr ""
 
 msgid "Popup Style"
-msgstr "Popup-Stil"
-
-msgid "Server"
-msgstr "Server"
+msgstr ""
 
 msgid "Line Limit"
-msgstr "Zeilen Limit"
+msgstr ""
+
+msgid "10"
+msgstr ""
 
 msgid "Show Attachments"
-msgstr "Anhänge anzeigen"
+msgstr ""
 
 msgid "Background Colour"
-msgstr "Hintergrundfarbe"
+msgstr ""
 
 msgid "Text Colour"
-msgstr "Textfarbe"
+msgstr ""
 
 msgid "Channel"
-msgstr "Kanal"
+msgstr ""
 
 msgid "Refresh List"
-msgstr "Liste aktualisieren"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Popup time limit"
+msgstr ""
 
 msgid "Text"
-msgstr "Text"
+msgstr ""
 
 msgid "Reverse Order"
-msgstr "Umgekehrte Reihenfolge"
+msgstr ""
 
 msgid "Popup Timer"
-msgstr "Popup Timer"
+msgstr ""
 
 msgid "Limit Popup Width"
-msgstr "Popup-Breite limitieren"
+msgstr ""
 
 msgid "Show Icon"
-msgstr "Symbol anzeigen"
+msgstr ""
 
 msgid "Icon Position"
-msgstr "Symbolposition"
+msgstr ""
 
 msgid "Border Radius"
-msgstr "Grenzradius"
+msgstr ""
 
 msgid "Padding Between Notifications"
-msgstr "Polsterung zwischen Benachrichtigungen"
+msgstr ""
 
 msgid "Icon Size"
-msgstr "Symbolgröße"
+msgstr ""
 
 msgid "Icon Padding"
-msgstr "Symbolpolsterung"
+msgstr ""
 
 msgid "Unknown"
-msgstr "Unbekannt"
+msgstr ""
 
 msgid "Notification"
-msgstr "Benachrichtigung"
+msgstr ""
 
 msgid "Run Overlay on Startup"
-msgstr "Overlay bei Systemstart ausführen"
+msgstr ""
 
 msgid "Run Configuration on Startup"
-msgstr "Konfiguration bei Systemstart ausführen"
+msgstr ""
 
 msgid "Force XShape"
-msgstr "XShape erzwingen"
+msgstr ""
 
 msgid "Show Tray Icon"
-msgstr "Benachrichtigungssymbol anzeigen"
+msgstr ""
 
 msgid "Start Settings Minimized"
-msgstr "Minimierte Einstellungen starten"
+msgstr ""
 
 msgid "Hide Overlays"
-msgstr "Overlay verstecken"
+msgstr ""
 
 msgid "Core"
-msgstr "Kern"
-
-#~ msgid "Icon Spacing"
-#~ msgstr "Symbolabstand"
-
-#~ msgid "Display Icon Only"
-#~ msgstr "Nur Symbol anzeigen"
-
-#~ msgid "Order Avatars By"
-#~ msgstr "Avatare ordnen nach:"
-
-#~ msgid "Dummy Count"
-#~ msgstr "Dummyanzahl"
+msgstr ""

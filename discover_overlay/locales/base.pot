@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 14:10+0300\n"
+"POT-Creation-Date: 2023-06-18 18:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -319,10 +319,10 @@ msgstr ""
 msgid "Popup Style"
 msgstr ""
 
-msgid "Server"
+msgid "Line Limit"
 msgstr ""
 
-msgid "Line Limit"
+msgid "10"
 msgstr ""
 
 msgid "Show Attachments"
@@ -338,6 +338,12 @@ msgid "Channel"
 msgstr ""
 
 msgid "Refresh List"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "Popup time limit"
 msgstr ""
 
 msgid "Text"
