@@ -373,6 +373,9 @@ class DiscordConnector:
 
             return
         elif j["cmd"] == "GET_CHANNELS":
+            if j['evt'] == 'ERROR':
+                log.error('%s', j['data']['message'])
+                return
             self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
             for channel in j["data"]["channels"]:
                 channel['guild_id'] = j['nonce']
@@ -381,11 +384,6 @@ class DiscordConnector:
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
             self.dump_channel_data()
-
-            # TODO At this point change the channel list in settings
-            # if j["nonce"] == self.discover.settings.text_settings.get_guild():
-            #    self.discover.settings.text_settings.set_channels(
-            #        j["data"]["channels"])
             return
         elif j["cmd"] == "SUBSCRIBE":
             # Only log errors
