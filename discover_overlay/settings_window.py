@@ -267,9 +267,9 @@ class MainSettingsWindow():
             "main", "floating_h", fallback=400)
 
         if config.getboolean("main", "floating", fallback=False):
-            self.widget['voice_floating'].set_active(True)
+            self.widget['voice_floating_button'].set_active(True)
         else:
-            self.widget['voice_anchor_to_edge'].set_active(True)
+            self.widget['voice_anchor_to_edge_button'].set_active(True)
         self.widget['voice_align_1'].set_active(
             config.getboolean("main", "rightalign", fallback=False))
         self.widget['voice_align_2'].set_active(

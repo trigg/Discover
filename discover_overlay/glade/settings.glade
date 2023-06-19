@@ -349,7 +349,7 @@
                     <child>
                       <object class="GtkRadioButton" id="anchortoedge">
                         <property name="label" translatable="yes">Anchor To Edge</property>
-                        <property name="name">voice_anchor_to_edge</property>
+                        <property name="name">voice_anchor_to_edge_button</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
@@ -365,7 +365,7 @@
                     <child>
                       <object class="GtkRadioButton" id="anchorfloating">
                         <property name="label" translatable="yes">Floating</property>
-                        <property name="name">voice_floating</property>
+                        <property name="name">voice_floating_button</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
