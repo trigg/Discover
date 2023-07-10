@@ -471,6 +471,7 @@ class DiscordConnector:
             self.discover.notification_overlay.set_blank()
         self.websocket = None
         self.reconnect_delay = 60 * 5
+        self.current_voice = "0"
 
     def req_auth(self):
         """
