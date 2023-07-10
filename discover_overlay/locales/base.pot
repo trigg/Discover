@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-18 18:47+0200\n"
+"POT-Creation-Date: 2023-07-10 19:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -310,6 +310,9 @@ msgstr ""
 msgid "Padding between users"
 msgstr ""
 
+msgid "Reset Voice Settings"
+msgstr ""
+
 msgid "Voice"
 msgstr ""
 
@@ -346,6 +349,9 @@ msgstr ""
 msgid "Popup time limit"
 msgstr ""
 
+msgid "Reset Text Settings"
+msgstr ""
+
 msgid "Text"
 msgstr ""
 
@@ -379,6 +385,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+msgid "Reset Notification Settings"
+msgstr ""
+
 msgid "Notification"
 msgstr ""
 
@@ -398,6 +407,9 @@ msgid "Start Settings Minimized"
 msgstr ""
 
 msgid "Hide Overlays"
+msgstr ""
+
+msgid "Reset Core Settings"
 msgstr ""
 
 msgid "Core"

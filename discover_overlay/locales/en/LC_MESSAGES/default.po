@@ -291,6 +291,9 @@ msgstr ""
 msgid "Padding between users"
 msgstr ""
 
+msgid "Reset Voice Settings"
+msgstr ""
+
 msgid "Voice"
 msgstr ""
 
@@ -327,6 +330,9 @@ msgstr ""
 msgid "Popup time limit"
 msgstr ""
 
+msgid "Reset Text Settings"
+msgstr ""
+
 msgid "Text"
 msgstr ""
 
@@ -360,6 +366,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
+msgid "Reset Notification Settings"
+msgstr ""
+
 msgid "Notification"
 msgstr ""
 
@@ -379,6 +388,9 @@ msgid "Start Settings Minimized"
 msgstr ""
 
 msgid "Hide Overlays"
+msgstr ""
+
+msgid "Reset Core Settings"
 msgstr ""
 
 msgid "Core"
