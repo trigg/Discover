@@ -60,6 +60,8 @@ class MainSettingsWindow():
         self.rpc_file = rpc_file
         self.channel_file = channel_file
 
+        self.loading_config = False
+
         builder = Gtk.Builder.new_from_file(pkg_resources.resource_filename(
             'discover_overlay', 'glade/settings.glade'))
         window = builder.get_object("settings_window")
@@ -251,6 +253,7 @@ class MainSettingsWindow():
             m2.set_value(i2, 0, _("Bottom"))
 
     def read_config(self):
+        self.loading_config = True
         self.widget['voice_advanced_grid'].hide()
 
         # Read config and put into gui
@@ -528,6 +531,9 @@ class MainSettingsWindow():
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
 
+        self.loading_config = False
+
+
     def make_colour(self, col):
         col = json.loads(col)
         return Gdk.RGBA(col[0], col[1], col[2], col[3])
@@ -753,11 +759,25 @@ class MainSettingsWindow():
             f.write('--rpc --refresh-guilds')
 
     def config_set(self, context, key, value):
+        if self.loading_config:
+            return
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         if not context in config.sections():
             config.add_section(context)
         config.set(context, key, value)
+        with open(self.config_file, 'w') as file:
+            config.write(file)
+
+    def config_remove_section(self, context):
+        if self.loading_config:
+            return
+        config = ConfigParser(interpolation=None)
+        config.read(self.config_file)
+        if context in config.sections():
+            config.remove_section(context)
+        else:
+            log.error("Unable to remove section %s" % (context))
         with open(self.config_file, 'w') as file:
             config.write(file)
 
@@ -1085,3 +1105,19 @@ class MainSettingsWindow():
 
     def core_settings_min_changed(self, button):
         self.config_set("general", "start_min", "%s" % (button.get_active()))
+
+    def core_reset_all(self, button):
+        self.config_remove_section("general")
+        self.read_config()
+    
+    def voice_reset_all(self, button):
+        self.config_remove_section("main")
+        self.read_config()
+
+    def text_reset_all(self, button):
+        self.config_remove_section("text")
+        self.read_config()
+
+    def notification_reset_all(self, button):
+        self.config_remove_section("notification")
+        self.read_config()

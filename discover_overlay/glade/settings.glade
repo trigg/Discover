@@ -1404,7 +1404,18 @@
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">Reset Voice Settings</property>
+                    <property name="name">voice_reset_all</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="pressed" handler="voice_reset_all" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">9</property>
+                  </packing>
                 </child>
                 <child>
                   <placeholder/>
@@ -1458,7 +1469,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=13 -->
+          <!-- n-columns=2 n-rows=14 -->
           <object class="GtkGrid">
             <property name="name">text_grid</property>
             <property name="visible">True</property>
@@ -1790,6 +1801,23 @@
               </packing>
             </child>
             <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Reset Text Settings</property>
+                <property name="name">text_reset_all</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="text_reset_all" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">13</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
               <placeholder/>
             </child>
             <child>
@@ -1813,7 +1841,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=17 -->
+          <!-- n-columns=2 n-rows=18 -->
           <object class="GtkGrid">
             <property name="name">notification_grid</property>
             <property name="visible">True</property>
@@ -2266,6 +2294,23 @@
                 <property name="top-attach">11</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Reset Notification Settings</property>
+                <property name="name">notification_reset_all</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="notification_reset_all" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">17</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="position">3</property>
@@ -2284,7 +2329,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=6 -->
+          <!-- n-columns=2 n-rows=7 -->
           <object class="GtkGrid">
             <property name="name">core_grid</property>
             <property name="visible">True</property>
@@ -2455,6 +2500,23 @@
                 <property name="left-attach">0</property>
                 <property name="top-attach">5</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Reset Core Settings</property>
+                <property name="name">core_reset_all</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="core_reset_all" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
