@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-10 19:35+0100\n"
+"POT-Creation-Date: 2023-07-10 19:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -236,9 +236,6 @@ msgstr "Ffont"
 msgid "Text Padding"
 msgstr "Padio testun"
 
-msgid "0"
-msgstr ""
-
 msgid "Text Vertical Offset"
 msgstr "Gwrthbwysiad fertigol testun"
 
@@ -260,9 +257,6 @@ msgstr "Dangos cynnwys y prawf"
 msgid "Test Data Count"
 msgstr ""
 
-msgid "50"
-msgstr ""
-
 msgid "Show While Disconnected"
 msgstr "Dangos Wrth Ddatgysylltu"
 
@@ -271,9 +265,6 @@ msgstr "Padio ymyl fertigol"
 
 msgid "Limit text length"
 msgstr "Cyfyngu ar hyd y testun"
-
-msgid "32"
-msgstr ""
 
 msgid "Show Avatar"
 msgstr ""
@@ -286,9 +277,6 @@ msgstr "Siâp avatar ffansi"
 
 msgid "Avatar Size"
 msgstr "Maint Avatar"
-
-msgid "48"
-msgstr ""
 
 msgid "Avatar Opacity"
 msgstr "Anhryloywder Avatar"
@@ -311,9 +299,6 @@ msgstr "Tynnu sylw at eich hunan"
 msgid "Border width"
 msgstr "lled y ffin"
 
-msgid "1"
-msgstr ""
-
 msgid "Padding between users"
 msgstr ""
 
@@ -331,9 +316,6 @@ msgstr "Arddull naid"
 
 msgid "Line Limit"
 msgstr "Terfyn Llinell"
-
-msgid "10"
-msgstr ""
 
 msgid "Show Attachments"
 msgstr "Dangos atodiadau"

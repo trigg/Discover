@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-10 19:35+0100\n"
+"POT-Creation-Date: 2023-07-10 19:51+0100\n"
 "PO-Revision-Date: 2023-06-18 21:41+0200\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: English <kde-i18n-doc@kde.org>\n"
@@ -238,9 +238,6 @@ msgstr "Police"
 msgid "Text Padding"
 msgstr "Écart du texte"
 
-msgid "0"
-msgstr ""
-
 msgid "Text Vertical Offset"
 msgstr "Décalage vertical du texte"
 
@@ -262,9 +259,6 @@ msgstr "Afficher le contenu de test"
 msgid "Test Data Count"
 msgstr "Nombre de tests"
 
-msgid "50"
-msgstr ""
-
 msgid "Show While Disconnected"
 msgstr "Afficher quand déconnecté"
 
@@ -273,9 +267,6 @@ msgstr "Écart vertical avec le bord"
 
 msgid "Limit text length"
 msgstr "Taille limite du texte"
-
-msgid "32"
-msgstr ""
 
 msgid "Show Avatar"
 msgstr "Afficher les avatars"
@@ -288,9 +279,6 @@ msgstr "Formes d'avatar chic"
 
 msgid "Avatar Size"
 msgstr "Taille des avatars"
-
-msgid "48"
-msgstr ""
 
 msgid "Avatar Opacity"
 msgstr "Opacité des avatars"
@@ -313,9 +301,6 @@ msgstr "Surbrillance de soi-même"
 msgid "Border width"
 msgstr "Largeur des bordures"
 
-msgid "1"
-msgstr ""
-
 msgid "Padding between users"
 msgstr "Espace entre les utilisateurs"
 
@@ -333,9 +318,6 @@ msgstr "Habiller le popup"
 
 msgid "Line Limit"
 msgstr "Limite du nombre de lignes"
-
-msgid "10"
-msgstr ""
 
 msgid "Show Attachments"
 msgstr "Afficher les pièce jointes"

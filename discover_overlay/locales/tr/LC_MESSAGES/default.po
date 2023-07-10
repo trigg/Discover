@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-10 19:35+0100\n"
+"POT-Creation-Date: 2023-07-10 19:51+0100\n"
 "PO-Revision-Date: 2023-04-17 15:44+0300\n"
 "Last-Translator: Ahmet Arda Kavakcı <ahmetardakavakci@gmail.com>\n"
 "Language-Team: Turkish <ahmetardakavakci@gmail.com>\n"
@@ -237,9 +237,6 @@ msgstr "Yazı Tipi"
 msgid "Text Padding"
 msgstr "Yazı İç Boşluğu"
 
-msgid "0"
-msgstr ""
-
 msgid "Text Vertical Offset"
 msgstr "Yazı Dikey Kenar Uzaklığı"
 
@@ -261,9 +258,6 @@ msgstr "Deneme Verisini Göster"
 msgid "Test Data Count"
 msgstr "Deneme Veri Sayısı"
 
-msgid "50"
-msgstr ""
-
 msgid "Show While Disconnected"
 msgstr "Bağlantı Yokken Göster"
 
@@ -272,9 +266,6 @@ msgstr "Kenar Dikey İç Boşluğu"
 
 msgid "Limit text length"
 msgstr "Yazı uzunluğunu sınırla"
-
-msgid "32"
-msgstr ""
 
 msgid "Show Avatar"
 msgstr "Avatarı Göster"
@@ -287,9 +278,6 @@ msgstr "Süslü Avatar Şekilleri"
 
 msgid "Avatar Size"
 msgstr "Avatar Boyutu"
-
-msgid "48"
-msgstr ""
 
 msgid "Avatar Opacity"
 msgstr "Avatar Saydamlığı"
@@ -312,9 +300,6 @@ msgstr "Kendini Vurgula"
 msgid "Border width"
 msgstr "Kenar genişliği"
 
-msgid "1"
-msgstr ""
-
 msgid "Padding between users"
 msgstr "Kullanıcılar arası iç boşluk"
 
@@ -332,9 +317,6 @@ msgstr "Açılı Pencere Stili"
 
 msgid "Line Limit"
 msgstr "Satır Limiti"
-
-msgid "10"
-msgstr ""
 
 msgid "Show Attachments"
 msgstr "Ekleri Göster"

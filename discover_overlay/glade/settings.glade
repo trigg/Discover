@@ -788,7 +788,7 @@
                     <property name="name">voice_text_padding</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">text_padding_adj</property>
                     <signal name="value-changed" handler="voice_text_padding_changed" swapped="no"/>
                   </object>
@@ -815,7 +815,7 @@
                     <property name="name">voice_text_vertical_offset</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">voice_text_offset</property>
                     <signal name="value-changed" handler="voice_text_vertical_offset_changed" swapped="no"/>
                   </object>
@@ -912,7 +912,7 @@
                     <property name="name">voice_vertical_padding</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">voice_vertical_padding_adj</property>
                     <signal name="value-changed" handler="voice_vertical_padding_changed" swapped="no"/>
                   </object>
@@ -939,7 +939,7 @@
                     <property name="name">voice_horizontal_padding</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">voice_horizontal_padding_adj</property>
                     <signal name="value-changed" handler="voice_horizontal_padding_changed" swapped="no"/>
                   </object>
@@ -993,7 +993,7 @@
                     <property name="name">voice_dummy_count</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">50</property>
+                    <property name="text">50</property>
                     <property name="adjustment">voice_dummy_count_adj</property>
                     <property name="value">50</property>
                     <signal name="value-changed" handler="voice_dummy_count_changed" swapped="no"/>
@@ -1061,7 +1061,7 @@
                     <property name="name">voice_nick_length</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">32</property>
+                    <property name="text">32</property>
                     <property name="adjustment">voice_nick_lenght_adj</property>
                     <property name="value">32</property>
                     <signal name="value-changed" handler="voice_nick_length_changed" swapped="no"/>
@@ -1170,7 +1170,7 @@
                     <property name="name">voice_avatar_size</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">48</property>
+                    <property name="text">48</property>
                     <property name="adjustment">avatar_size_adj</property>
                     <property name="value">48</property>
                     <signal name="value-changed" handler="voice_avatar_size_changed" swapped="no"/>
@@ -1252,7 +1252,7 @@
                     <property name="name">voice_display_speakers_grace_period</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">voice_display_speakers_grace_period_adj</property>
                     <signal name="value-changed" handler="voice_display_speakers_grace_period" swapped="no"/>
                   </object>
@@ -1366,7 +1366,7 @@
                     <property name="name">voice_border_width</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">1</property>
+                    <property name="text">1</property>
                     <property name="adjustment">border_width_adj</property>
                     <property name="value">1</property>
                     <signal name="value-changed" handler="voice_border_width_changed" swapped="no"/>
@@ -1394,7 +1394,7 @@
                     <property name="name">voice_icon_spacing</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">0</property>
+                    <property name="text">0</property>
                     <property name="adjustment">icon_spacing_adj</property>
                     <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no"/>
                   </object>
@@ -1553,7 +1553,7 @@
                 <property name="name">text_line_limit</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="text" translatable="yes">10</property>
+                <property name="text">10</property>
                 <property name="adjustment">text_line_limit_adj</property>
                 <property name="value">10</property>
                 <signal name="value-changed" handler="text_line_limit_changed" swapped="no"/>

@@ -210,9 +210,6 @@ msgstr ""
 msgid "Text Padding"
 msgstr ""
 
-msgid "0"
-msgstr ""
-
 msgid "Text Vertical Offset"
 msgstr ""
 
@@ -234,9 +231,6 @@ msgstr ""
 msgid "Test Data Count"
 msgstr ""
 
-msgid "50"
-msgstr ""
-
 msgid "Show While Disconnected"
 msgstr ""
 
@@ -244,9 +238,6 @@ msgid "Verticle Edge Padding"
 msgstr ""
 
 msgid "Limit text length"
-msgstr ""
-
-msgid "32"
 msgstr ""
 
 msgid "Show Avatar"
@@ -259,9 +250,6 @@ msgid "Fancy Avatar Shapes"
 msgstr ""
 
 msgid "Avatar Size"
-msgstr ""
-
-msgid "48"
 msgstr ""
 
 msgid "Avatar Opacity"
@@ -285,9 +273,6 @@ msgstr ""
 msgid "Border width"
 msgstr ""
 
-msgid "1"
-msgstr ""
-
 msgid "Padding between users"
 msgstr ""
 
@@ -304,9 +289,6 @@ msgid "Popup Style"
 msgstr ""
 
 msgid "Line Limit"
-msgstr ""
-
-msgid "10"
 msgstr ""
 
 msgid "Show Attachments"

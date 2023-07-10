@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-10 19:35+0100\n"
+"POT-Creation-Date: 2023-07-10 19:51+0100\n"
 "PO-Revision-Date: 2022-09-23 23:05+0200\n"
 "Last-Translator: Baumfinder <baumkartoffel@outlook.de>\n"
 "Language-Team: German <baumkartoffel@outlook.de>\n"
@@ -245,9 +245,6 @@ msgstr "Schriftart"
 msgid "Text Padding"
 msgstr "Textpolsterung"
 
-msgid "0"
-msgstr ""
-
 msgid "Text Vertical Offset"
 msgstr "Vertikaler Text Offset"
 
@@ -269,9 +266,6 @@ msgstr "Testinhalte anzeigen"
 msgid "Test Data Count"
 msgstr ""
 
-msgid "50"
-msgstr ""
-
 msgid "Show While Disconnected"
 msgstr "Anzeigen wenn nicht verbunden"
 
@@ -280,9 +274,6 @@ msgstr "Vertikale Kantenpolterung"
 
 msgid "Limit text length"
 msgstr "Textlänge limitieren"
-
-msgid "32"
-msgstr ""
 
 msgid "Show Avatar"
 msgstr ""
@@ -295,9 +286,6 @@ msgstr "Schicke Avatarformen"
 
 msgid "Avatar Size"
 msgstr "Avatargröße"
-
-msgid "48"
-msgstr ""
 
 msgid "Avatar Opacity"
 msgstr "Avatardurchsichtigkeit"
@@ -320,9 +308,6 @@ msgstr "Selbst hervorheben"
 msgid "Border width"
 msgstr "Kantenbreite"
 
-msgid "1"
-msgstr ""
-
 msgid "Padding between users"
 msgstr ""
 
@@ -340,9 +325,6 @@ msgstr "Popup-Stil"
 
 msgid "Line Limit"
 msgstr "Zeilen Limit"
-
-msgid "10"
-msgstr ""
 
 msgid "Show Attachments"
 msgstr "Anhänge anzeigen"
