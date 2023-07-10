@@ -242,7 +242,7 @@ class Discover:
             "main", "highlight_self", fallback=False))
         self.voice_overlay.set_icon_only(config.getboolean(
             "main", "icon_only", fallback=False))
-        monitor = config.get("main", "monitor", fallback="None")
+        monitor = config.get("main", "monitor", fallback=0)
         self.voice_overlay.set_vert_edge_padding(config.getint(
             "main", "vert_edge_padding", fallback=0))
         self.voice_overlay.set_horz_edge_padding(config.getint(
@@ -280,8 +280,7 @@ class Discover:
         self.voice_overlay.set_dummy_count(config.getint("main",
                                                          "dummy_count", fallback=10))
 
-        self.voice_overlay.set_monitor(self.get_monitor_index(
-            monitor))
+        self.voice_overlay.set_monitor(monitor)
 
         self.voice_overlay.set_enabled(True)
 
@@ -300,7 +299,7 @@ class Discover:
             "text", "rightalign", fallback=True))
         self.text_overlay.set_align_y(
             config.getint("text", "topalign", fallback=2))
-        monitor = config.get("text", "monitor", fallback="None")
+        monitor = config.get("text", "monitor", fallback=0)
         floating = config.getboolean("text", "floating", fallback=True)
         floating_x = config.getint("text", "floating_x", fallback=0)
         floating_y = config.getint("text", "floating_y", fallback=0)
@@ -327,8 +326,7 @@ class Discover:
         self.text_overlay.set_hide_on_mouseover(
             config.getboolean("text", "autohide", fallback=False))
 
-        self.text_overlay.set_monitor(self.get_monitor_index(
-            monitor))
+        self.text_overlay.set_monitor(monitor)
         self.text_overlay.set_floating(
             floating, floating_x, floating_y, floating_w, floating_h)
 
@@ -342,7 +340,7 @@ class Discover:
             "notification", "rightalign", fallback=True))
         self.notification_overlay.set_align_y(
             config.getint("notification", "topalign", fallback=2))
-        monitor = config.get("notification", "monitor", fallback="None")
+        monitor = config.get("notification", "monitor", fallback=0)
         floating = config.getboolean(
             "notification", "floating", fallback=False)
         floating_x = config.getint(
@@ -383,8 +381,7 @@ class Discover:
         if self.font:
             self.notification_overlay.set_font(self.font)
 
-        self.notification_overlay.set_monitor(self.get_monitor_index(
-            monitor))
+        self.notification_overlay.set_monitor(monitor)
         self.notification_overlay.set_floating(
             floating, floating_x, floating_y, floating_w, floating_h)
         if self.font:
@@ -398,29 +395,6 @@ class Discover:
         self.voice_overlay.set_hidden(hidden)
         self.text_overlay.set_hidden(hidden)
         self.notification_overlay.set_hidden(hidden)
-
-    def get_monitor_index(self, name):
-        """
-        Helper function to find the index number of the monitor
-        """
-        display = Gdk.Display.get_default()
-        if "get_n_monitors" in dir(display):
-            for i in range(0, display.get_n_monitors()):
-                if display.get_monitor(i).get_model() == name:
-                    return i
-        return 0
-
-    def get_monitor_obj(self, name):
-        """
-        Helper function to find the monitor object of the monitor
-        """
-        display = Gdk.Display.get_default()
-        if "get_n_monitors" in dir(display):
-            for i in range(0, display.get_n_monitors()):
-                if display.get_monitor(i).get_model() == name:
-                    return display.get_monitor(i)
-
-        return None
 
     def parse_guild_ids(self, guild_ids_str):
         """Parse the guild_ids from a str and return them in a list"""

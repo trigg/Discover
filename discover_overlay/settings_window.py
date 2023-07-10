@@ -275,8 +275,16 @@ class MainSettingsWindow():
         self.widget['voice_align_2'].set_active(
             config.getint("main", "topalign", fallback=1))
 
-        self.widget['voice_monitor'].set_active(self.get_monitor_index(
-            config.get("main", "monitor", fallback="None")))
+
+
+        monitor = 0
+        try:
+            config.getint("main", "monitor", fallback=0)
+        except:
+            pass
+
+        self.widget['voice_monitor'].set_active(monitor)
+
 
         font = config.get("main", "font", fallback=None)
         if font:
@@ -421,8 +429,14 @@ class MainSettingsWindow():
         self.widget['text_background_colour'].set_rgba(self.make_colour(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
 
-        self.widget['text_monitor'].set_active(self.get_monitor_index(
-            config.get("text", "monitor", fallback="None")))
+
+        monitor = 0
+        try:
+            config.getint("text", "monitor", fallback=0)
+        except:
+            pass
+
+        self.widget['text_monitor'].set_active(monitor)
 
         self.widget['text_show_attachments'].set_active(config.getboolean(
             "text", "show_attach", fallback=True))
@@ -452,8 +466,14 @@ class MainSettingsWindow():
         self.widget['notification_background_colour'].set_rgba(self.make_colour(config.get(
             "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
 
-        self.widget['notification_monitor'].set_active(self.get_monitor_index(
-            config.get("notification", "monitor", fallback="None")))
+
+        monitor = 0
+        try:
+            config.getint("notification", "monitor", fallback=0)
+        except:
+            pass
+
+        self.widget['notification_monitor'].set_active(monitor)
 
         self.widget['notification_align_1'].set_active(config.getboolean(
             "notification", "rightalign", fallback=True))
@@ -521,28 +541,12 @@ class MainSettingsWindow():
                 guild_ids.append(guild_id)
         return guild_ids
 
-    def get_monitor_index(self, name):
-        """
-        Helper function to find the index number of the monitor
-        """
-        display = Gdk.Display.get_default()
-        if "get_n_monitors" in dir(display):
-            for i in range(0, display.get_n_monitors()):
-                if display.get_monitor(i).get_model() == name:
-                    return i
-        return 0
-
-    def get_monitor_obj(self, name):
+    def get_monitor_obj(self, idx):
         """
         Helper function to find the monitor object of the monitor
         """
         display = Gdk.Display.get_default()
-        if "get_n_monitors" in dir(display):
-            for i in range(0, display.get_n_monitors()):
-                if display.get_monitor(i).get_model() == name:
-                    return display.get_monitor(i)
-
-        return None
+        return display.get_monitor(idx)
 
     def make_sys_tray_icon(self, menu):
         """
@@ -682,7 +686,7 @@ class MainSettingsWindow():
                     width=self.voice_floating_w, height=self.voice_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.widget['voice_monitor'].get_active_text()))
+                    monitor=self.get_monitor_obj(self.widget['voice_monitor'].get_active()))
             else:
                 self.voice_placement_window = DraggableWindow(
                     pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
@@ -729,7 +733,7 @@ class MainSettingsWindow():
                     width=self.text_floating_w, height=self.text_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.widget['text_monitor'].get_active_text()))
+                    monitor=self.get_monitor_obj(self.widget['text_monitor'].get_active()))
             else:
                 self.text_placement_window = DraggableWindow(
                     pos_x=self.text_floating_x, pos_y=self.text_floating_y,
@@ -764,11 +768,7 @@ class MainSettingsWindow():
         self.config_set("main", "floating", "True")
 
     def voice_monitor_changed(self, button):
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            mon = display.get_monitor(button.get_active())
-            m_s = mon.get_model()
-            self.config_set("main", "monitor", m_s)
+        self.config_set("main", "monitor", "%s" % (button.get_active()))
 
     def voice_align_1_changed(self, button):
         self.config_set("main", "rightalign", "%s" % (button.get_active()))
@@ -991,11 +991,7 @@ class MainSettingsWindow():
         self.config_set("text", "bg_col", json.dumps(colour))
 
     def text_monitor_changed(self, button):
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            mon = display.get_monitor(button.get_active())
-            m_s = mon.get_model()
-            self.config_set("text", "monitor", m_s)
+        self.config_set("text", "monitor", "%s" % (button.get_active()))
 
     def text_show_attachments_changed(self, button):
         self.config_set("text", "show_attach", "%s" % (button.get_active()))
@@ -1032,11 +1028,7 @@ class MainSettingsWindow():
         self.config_set("notification", "bg_col", json.dumps(colour))
 
     def notification_monitor_changed(self, button):
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            mon = display.get_monitor(button.get_active())
-            m_s = mon.get_model()
-            self.config_set("notification", "monitor", m_s)
+        self.config_set("notification", "monitor", "%s" % (button.get_active()))
 
     def notification_align_1_changed(self, button):
         self.config_set("notification", "rightalign", "%s" %

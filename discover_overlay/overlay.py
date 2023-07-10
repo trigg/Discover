@@ -270,12 +270,16 @@ class OverlayWindow(Gtk.Window):
         """
         Set the monitor this overlay should display on.
         """
+        if type(idx) is str:
+            idx=0
         self.monitor = idx
         if self.is_wayland:
             display = Gdk.Display.get_default()
             if "get_monitor" in dir(display):
                 monitor = display.get_monitor(self.monitor)
                 GtkLayerShell.set_monitor(self, monitor)
+            else:
+                log.error("No get_monitor in display")
             self.set_untouchable()
         self.force_location()
         self.needsredraw = True
