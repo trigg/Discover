@@ -242,7 +242,11 @@ class Discover:
             "main", "highlight_self", fallback=False))
         self.voice_overlay.set_icon_only(config.getboolean(
             "main", "icon_only", fallback=False))
-        monitor = config.get("main", "monitor", fallback=0)
+        monitor = 0
+        try:
+            monitor = config.getint("main", "monitor", fallback=0)
+        except:
+            pass
         self.voice_overlay.set_vert_edge_padding(config.getint(
             "main", "vert_edge_padding", fallback=0))
         self.voice_overlay.set_horz_edge_padding(config.getint(
@@ -299,7 +303,11 @@ class Discover:
             "text", "rightalign", fallback=True))
         self.text_overlay.set_align_y(
             config.getint("text", "topalign", fallback=2))
-        monitor = config.get("text", "monitor", fallback=0)
+        monitor = 0
+        try:
+            monitor = config.getint("text", "monitor", fallback=0)
+        except:
+            pass
         floating = config.getboolean("text", "floating", fallback=True)
         floating_x = config.getint("text", "floating_x", fallback=0)
         floating_y = config.getint("text", "floating_y", fallback=0)
@@ -340,7 +348,11 @@ class Discover:
             "notification", "rightalign", fallback=True))
         self.notification_overlay.set_align_y(
             config.getint("notification", "topalign", fallback=2))
-        monitor = config.get("notification", "monitor", fallback=0)
+        monitor = 0
+        try:
+            monitor = config.getint("notification", "monitor", fallback=0)
+        except:
+            pass
         floating = config.getboolean(
             "notification", "floating", fallback=False)
         floating_x = config.getint(
