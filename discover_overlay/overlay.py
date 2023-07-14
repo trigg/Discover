@@ -277,7 +277,8 @@ class OverlayWindow(Gtk.Window):
             display = Gdk.Display.get_default()
             if "get_monitor" in dir(display):
                 monitor = display.get_monitor(self.monitor)
-                GtkLayerShell.set_monitor(self, monitor)
+                if monitor:
+                    GtkLayerShell.set_monitor(self, monitor)
             else:
                 log.error("No get_monitor in display")
             self.set_untouchable()
