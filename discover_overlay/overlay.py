@@ -210,18 +210,19 @@ class OverlayWindow(Gtk.Window):
             display = Gdk.Display.get_default()
             if "get_monitor" in dir(display):
                 monitor = display.get_monitor(self.monitor)
-                geometry = monitor.get_geometry()
-                scale_factor = monitor.get_scale_factor()
-                if not self.floating:
-                    width = geometry.width
-                    height = geometry.height
-                    pos_x = geometry.x
-                    pos_y = geometry.y
-                    self.resize(width, height)
-                    self.move(pos_x, pos_y)
-                else:
-                    self.move(self.pos_x, self.pos_y)
-                    self.resize(self.width, self.height)
+                if monitor:
+                    geometry = monitor.get_geometry()
+                    scale_factor = monitor.get_scale_factor()
+                    if not self.floating:
+                        width = geometry.width
+                        height = geometry.height
+                        pos_x = geometry.x
+                        pos_y = geometry.y
+                        self.resize(width, height)
+                        self.move(pos_x, pos_y)
+                    else:
+                        self.move(self.pos_x, self.pos_y)
+                        self.resize(self.width, self.height)
             else:
                 if self.floating:
                     self.move(self.pos_x, self.pos_y)
