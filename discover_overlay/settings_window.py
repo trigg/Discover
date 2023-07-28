@@ -85,6 +85,8 @@ class MainSettingsWindow():
                     widget.set_label(_(widget.get_label()))
                 if name.endswith("_button"):
                     widget.set_label(_(widget.get_label()))
+                if name.endswith("_all"):
+                    widget.set_label(_(widget.get_label()))
 
         self.widget['overview_main_text'].set_markup("<span size=\"larger\">%s (%s)</span>\n\n%s\n\n%s (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) %s (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n" % (
             _("Welcome to Discover Overlay"),
