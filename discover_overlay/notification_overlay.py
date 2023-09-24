@@ -258,6 +258,15 @@ class NotificationOverlayWindow(OverlayWindow):
             text_height = icon_width
         return text_height + (self.border_radius*4) + self.padding
 
+    def has_content(self):
+        if not self.enabled:
+            return False
+        if self.hidden:
+            return False
+        if self.testing:
+            return self.test_content
+        return self.content
+    
     def overlay_draw(self, _w, context, data=None):
         """
         Draw the overlay

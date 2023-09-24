@@ -66,7 +66,7 @@ class OverlayWindow(Gtk.Window):
         self.hidden = False
         self.enabled = False
         self.set_size_request(50, 50)
-        self.connect('draw', self.overlay_draw)
+        self.connect('draw', self.overlay_draw_pre)
         # Set RGBA
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
@@ -86,6 +86,8 @@ class OverlayWindow(Gtk.Window):
         self.set_decorated(True)
         self.set_accept_focus(False)
         self.set_wayland_state()
+        self.piggyback = None
+        self.piggyback_parent = None
         if not piggyback:
             self.show_all()
             if discover.steamos:
@@ -97,14 +99,14 @@ class OverlayWindow(Gtk.Window):
         self.force_xshape = False
         self.context = None
         self.autohide = False
-        self.piggyback = None
-        self.piggyback_parent = None
         if piggyback:
             self.set_piggyback(piggyback)
 
         self.get_screen().connect("composited-changed", self.check_composite)
 
     def set_gamescope_xatom(self, enabled):
+        if self.piggyback_parent:
+            return
         display = Display()
         atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
         opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
@@ -142,6 +144,21 @@ class OverlayWindow(Gtk.Window):
     def set_piggyback(self, other_overlay):
         other_overlay.piggyback = self
         self.piggyback_parent = other_overlay
+
+    def has_content(self):
+        return False
+
+    def overlay_draw_pre(self, _w, context, data=None):
+        content = self.has_content()
+        if self.piggyback and self.piggyback.has_content():
+            content = True
+        if self.discover.steamos:
+            if not content:
+                self.set_gamescope_xatom(0)
+            else:
+                if not self.hidden and self.enabled:
+                    self.set_gamescope_xatom(1)
+        self.overlay_draw(_w, context, data)
 
     def overlay_draw(self, _w, context, data=None):
         """

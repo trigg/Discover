@@ -434,6 +434,15 @@ class VoiceOverlayWindow(OverlayWindow):
             in_list.sort(key=lambda x: locale.strxfrm(x['friendlyname']))
         return in_list
 
+    def has_content(self):
+        if not self.enabled:
+            return False
+        if self.hidden:
+            return False
+        if self.use_dummy:
+            return True
+        return self.userlist
+
     def overlay_draw(self, w, context, data=None):
         """
         Draw the Overlay

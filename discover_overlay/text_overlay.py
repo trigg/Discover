@@ -194,6 +194,13 @@ class TextOverlayWindow(OverlayWindow):
         self.attachment[identifier] = pix
         self.needsredraw = True
 
+    def has_content(self):
+        if not self.enabled:
+            return False
+        if self.hidden:
+            return False
+        return self.content
+
     def overlay_draw(self, w, context, data=None):
         """
         Draw the overlay
