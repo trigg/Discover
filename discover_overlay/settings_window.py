@@ -18,7 +18,7 @@ import pkg_resources
 import sys
 import os
 import json
-from .autostart import Autostart
+from .autostart import Autostart, BazziteAutostart
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 
@@ -38,13 +38,21 @@ class MainSettingsWindow():
 
     def __init__(self, config_file, rpc_file, channel_file, args):
         self.args = args
+        # Detect Bazzite autostart
+        self.alternative_autostart = os.path.exists("/etc/default/discover-overlay")
+        # Detect flatpak en
+        self.disable_autostart = 'container' in os.environ
         self.steamos = False
         self.voice_placement_window = None
         self.text_placement_window = None
         self.voice_advanced = False
         self.tray = None  # Systemtray as fallback
         self.ind = None  # AppIndicator
-        self.autostart_helper = Autostart("discover_overlay")
+        if self.alternative_autostart:
+            self.autostart_helper = BazziteAutostart()
+        else:
+            self.autostart_helper = Autostart("discover_overlay")
+
         self.autostart_helper_conf = Autostart("discover_overlay_configure")
         self.ind = None
         self.guild_ids = []
@@ -514,6 +522,10 @@ class MainSettingsWindow():
 
         self.widget['core_run_conf_on_startup'].set_active(
             self.autostart_helper_conf.is_auto())
+
+        if self.disable_autostart:
+            self.widget['core_run_on_startup'].set_sensitive(False)
+            self.widget['core_run_conf_on_startup'].set_sensitive(False)
 
         self.widget['core_force_xshape'].set_active(
             config.getboolean("general", "xshape", fallback=False))

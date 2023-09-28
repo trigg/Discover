@@ -7,3 +7,34 @@ Terminal=false
 Type=Application
 Categories=Utility;TelephonyTools
 Keywords=Discord
+Actions=Show;Hide;Mute;Unmute;Deaf;Undeaf
+
+[Destkop Action Mute]
+Exec=discover-overlay --rpc --mute
+Name=Mute Self
+StartupNotify=false
+
+[Desktop Action Unmute]
+Exec=discover-overlay --rpc --unmute
+Name=Unmute Self
+StartupNotify=false
+
+[Desktop Action Hide]
+Exec=discover-overlay --rpc --hide
+Name=Hide Overlay
+StartupNotify=false
+
+[Desktop Action Show]
+Exec=discover-overlay --rpc --show
+Name=Show Overlay
+StartupNotify=false
+
+[Desktop Action Deaf]
+Exec=discover-overlay --rpc --deaf
+Name=Deafen Self
+StartupNotify=false
+
+[Desktop Action Undeaf]
+Exec=discover-overlay --rpc --undeaf
+Name=Undeafen Self
+StartupNotify=false

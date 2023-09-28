@@ -68,3 +68,41 @@ class Autostart:
     def is_auto(self):
         """Check if it's already set to auto-start"""
         return True if self.auto else False
+
+class BazziteAutostart:
+    """A class to assist auto-start"""
+    def __init__(self):
+        self.auto= False
+        with open("/etc/default/discover-overlay") as f:
+            content = f.readlines()
+            for line in content:
+                if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
+                    self.auto = int(line.split("=")[1]) > 0
+        log.info("Bazzite Autostart info : %s",
+                     self.auto)
+
+    def set_autostart(self, enable):
+        """Set or Unset auto-start state"""
+        if enable and not self.auto:
+            self.change_file("1")
+        elif not enable and self.auto:
+            self.change_file("0")
+        self.auto = enable
+            
+    def change_file(self, value):
+        newcontent = []
+        with open("/etc/default/discover-overlay") as f:
+            content = f.readlines()
+            for line in content:
+                if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
+                    newcontent.append( "AUTO_LAUNCH_DISCOVER_OVERLAY=%s\n" % value)
+                elif len(line)<2:
+                    pass
+                else:
+                    newcontent.append(line)
+        with open("/etc/default/discover-overlay", 'w') as f:
+            f.writelines(newcontent)
+
+    def is_auto(self):
+        """Check if it's already set to auto-start"""
+        return self.auto
