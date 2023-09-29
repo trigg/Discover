@@ -5,11 +5,11 @@ Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to s
 
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
 
-![Screenshot](https://trigg.github.io/Discover/overlay_on_deck.jpg)
+![Screenshot](https://trigg.github.io/Discover/overlay.png)
 
-For instructions on using Discord see our [User website](https://trigg.github.io/Discover/)
+Easy user instructions can be found on our [User website](https://trigg.github.io/Discover/)
 
-Got a question about development or a feature request? [Join our Discord!](https://discord.gg/jRKWMuDy5V) or open an [issue on GitHub](https://github.com/trigg/Discover/issues)
+Got a question about development, bug reports or a feature request? [Join our Discord!](https://discord.gg/jRKWMuDy5V) or open an [issue on GitHub](https://github.com/trigg/Discover/issues)
 
 ## Installing
 
@@ -25,14 +25,14 @@ flatpak install io.github.trigg.discover_overlay
 
 ### Stable
 ```bash
-python3 -m pip install discover-overlay
+python3 -m pipx install discover-overlay
 ```
 
 ### Latest Testing
 ```bash
 git clone https://github.com/trigg/Discover.git
 cd Discover
-python3 -m pip install .
+python3 -m pipx install .
 ```
 
 ### Externally Packaged 
@@ -63,7 +63,7 @@ sudo emerge net-voip/discover-overlay
 
 Most requirements should be handled by pip.
 
-A compositor is strongly advised but there is a non-compositor mode optionally
+A compositor is strongly advised but there is compatibility for X11 sessions without a compositor
 
 It is advised to install python-gobject from your system's own package manager.
 
@@ -89,9 +89,13 @@ with Wayland support
 
 `dnf install python3-pip python3-gobject gtk3-devel python3-cairo`
 
+with Wayland support
+
+`dnf install gtk-layer-shell`
+
 ## Usage
 
-Run `discover-overlay` if this fails it is most likely in `~/.local/bin/discover-overlay`
+Run `discover-overlay` to start the overlay. Note that by default it will show nothing until you join a voice channel.
 
 Comes with sane-enough default but has a configuration screen to tweak to your own use. Configuration can be reached by running `discover-overlay --configure`
 
