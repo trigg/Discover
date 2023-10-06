@@ -87,7 +87,7 @@ with Wayland support
 
 #### Fedora
 
-`dnf install python3-pip python3-gobject gtk3-devel python3-cairo`
+`dnf install python3-pip python3-gobject gtk3-devel python3-cairo python-devel python-gobject python-gobject-devel`
 
 with Wayland support
 
