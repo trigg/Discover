@@ -304,7 +304,7 @@ class MainSettingsWindow():
             self.widget['voice_font'].set_font(font)
         title_font = config.get("main", "title_font", fallback=None)
         if title_font:
-            self.widget['voice_title_font'].set_font(font)
+            self.widget['voice_title_font'].set_font(title_font)
 
         self.widget['voice_icon_spacing'].set_value(
             config.getint("main", "icon_spacing", fallback=8))
