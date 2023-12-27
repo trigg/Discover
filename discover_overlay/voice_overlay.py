@@ -524,7 +524,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.highlight_self:
             if self_user in users_to_draw:
                 users_to_draw.remove(self_user)
-            users_to_draw.insert(0, self_user)
+                users_to_draw.insert(0, self_user)
 
         avatar_size = self.avatar_size if self.show_avatar else 0
         line_height = self.avatar_size
