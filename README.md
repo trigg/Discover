@@ -6,10 +6,83 @@ Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to s
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
 
 ![Screenshot](https://trigg.github.io/Discover/overlay.png)
+## Usage
 
 Easy user instructions can be found on our [User website](https://trigg.github.io/Discover/)
 
 Got a question about development, bug reports or a feature request? [Join our Discord!](https://discord.gg/jRKWMuDy5V) or open an [issue on GitHub](https://github.com/trigg/Discover/issues)
+
+
+### Terminal usage
+
+On top of graphical options there are multiple ways to use this program from the command line
+
+#### Start the overlay
+
+You can start the overlay by running  
+`discover-overlay`
+
+This will close out any already running discover overlay for this user
+
+#### Close the overlay
+`discover-overlay --close` or `discover-overlay -x`
+
+This closes the process running the overlay, hence any `--rpc` commands sent afterwards will do nothing
+
+#### Open configuration window
+`discover-overlay --configure` or `discover-overlay -c`
+
+#### Log debug to file
+`discover-overlay --debug` or `discover-overlay -d`
+
+This will redirect all debug to the file `~/.config/discover-overlay/output.txt`
+
+#### Hide the currently shown overlays
+`discover-overlay --rpc --hide`
+
+This will not stop the process running the overlay. This means the `--rpc` commands sent afterwards continue working as expected, and the `--show` is much quicker than starting the overlay from the start.
+
+#### Show the overlays 
+`discover-overlay --rpc --show`
+
+Note that if the process running the overlay has stopped or crashed then this will do nothing
+
+#### Mute yourself in voice chat
+`discover-overlay --rpc --mute`
+
+#### Unmute yourself in voice chat
+`discover-overlay --rpc --unmute`
+
+#### Deafen yourself in voice chat
+`discover-overlay --rpc --deaf`
+
+#### Undeafen yourself in voice chat
+`discover-overlay --rpc --undeaf`
+
+#### Attempt to join voice channel by room ID
+`discover-overlay --rpc --moveto=X` 
+
+Using a Room ID from Discord to replace `X`, this will attempt to join the voice channel.
+
+#### Populate the channel RPC file with a list of guilds
+`discover-overlay --rpc --refresh-guilds`
+Requests a list of guilds. Once collected, it will write them to 
+`~/.config/discover-overlay/channels.rpc`
+as a JSON object
+
+#### Populate the channel RPC file with a list of channels from a guild
+`discover-overlay --rpc --guild-request=X`
+Using a Server ID from Discord to replace `X`, this will request a list of channels (text & voice) from the given guild. Once collected, it will write them to
+`~/.config/discover-overlay/channels.rpc`
+as a JSON object.
+
+#### Force SteamOS compatibility mode
+`discover-overlay --steamos`
+Forces the overlay to start as if it was started in a Gamescope & SteamOS session. Intended for testing against Gamescope while still nested in a generic desktop environment
+
+Once Gamescope is started, get the DISPLAY variable for it and run as
+`env -u WAYLAND_DISPLAY DISPLAY=:X discover-overlay --steamos`
+Which will disallow it drawing to the outer desktop and instead connect to Gamescope 
 
 ## Installing
 
@@ -20,8 +93,6 @@ Visit our [Flathub page](https://flathub.org/apps/details/io.github.trigg.discov
 ```bash
 flatpak install io.github.trigg.discover_overlay
 ```
-
-
 
 ### Stable
 ```bash
@@ -112,6 +183,14 @@ For [developers](https://github.com/trigg/Discover/wiki/Translations----as-a-dev
 #### Incorrect translations and missing translations
 
 We welcome pull requests and bug reports about missing or wrong translations, but don't have the resources to get it all right. Please be patient with us and alert us if any translations are wildly inaccurate.
+
+## A note on terminology
+
+I often use some terms interchangably:
+
+Guild, Server : the leftmost pane in Discord.
+
+Channel, Room, Chat: The next level in, these are all the same thing internally.
 
 ## Why do you keep making Discord Overlays?
 
