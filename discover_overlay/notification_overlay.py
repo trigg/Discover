@@ -63,7 +63,7 @@ class NotificationOverlayWindow(OverlayWindow):
 
         self.image_list = {}
         self.warned_filetypes = []
-        self.set_title("Discover Text")
+        self.set_title("Discover Notifications")
         self.redraw()
 
     def set_blank(self):

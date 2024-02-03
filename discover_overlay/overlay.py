@@ -103,6 +103,9 @@ class OverlayWindow(Gtk.Window):
             self.set_piggyback(piggyback)
 
         self.get_screen().connect("composited-changed", self.check_composite)
+        self.get_screen().connect("monitors-changed", self.screen_changed)
+        self.get_screen().connect("size-changed", self.screen_changed)
+
 
     def set_gamescope_xatom(self, enabled):
         if self.piggyback_parent:
@@ -126,7 +129,6 @@ class OverlayWindow(Gtk.Window):
     def set_wayland_state(self):
         """
         If wayland is in use then attempt to set up a GtkLayerShell
-        I have no idea how this should register a fail for Weston/Gnome
         """
         if self.is_wayland:
             if not GtkLayerShell.is_supported():
@@ -134,7 +136,8 @@ class OverlayWindow(Gtk.Window):
                     "GTK Layer Shell is not supported on this wayland compositor")
                 log.info("Currently not possible: Gnome, Weston")
                 sys.exit(0)
-            GtkLayerShell.init_for_window(self)
+            if not GtkLayerShell.is_layer_window(self):
+                GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.RIGHT, True)
@@ -297,6 +300,10 @@ class OverlayWindow(Gtk.Window):
                 monitor = display.get_monitor(self.monitor)
                 if monitor:
                     GtkLayerShell.set_monitor(self, monitor)
+                else:
+                    self.hide()
+                    self.set_wayland_state()
+                    self.show()
             else:
                 log.error("No get_monitor in display")
             self.set_untouchable()
@@ -362,3 +369,7 @@ class OverlayWindow(Gtk.Window):
 
     def check_composite(self, _a=None, _b=None):
         self.redraw()
+
+    def screen_changed(self, screen=None):
+        self.set_monitor(self.monitor)
+
