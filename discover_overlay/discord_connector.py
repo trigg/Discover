@@ -793,7 +793,7 @@ class DiscordConnector:
         try:
             self.websocket = websocket.create_connection(
                 "ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
-                origin="https://streamkit.discord.com"
+                origin="http://localhost:3000"
             )
             self.warn_connection=True # Warn on next disconnect
         except ConnectionError as error:
