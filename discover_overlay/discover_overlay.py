@@ -172,13 +172,17 @@ class Discover:
                 self.connection.request_text_rooms_for_guild(match.group(1))
 
     def config_set(self, context, key, value):
-        config = ConfigParser(interpolation=None)
-        config.read(self.config_file)
+        config = self.config()
         if not context in config.sections():
             config.add_section(context)
         config.set(context, key, value)
         with open(self.config_file, 'w') as file:
             config.write(file)
+
+    def config(self):
+        config = ConfigParser(interpolation=None)
+        config.read(self.config_file)
+        return config
 
     def rpc_changed(self, _a=None, _b=None, _c=None, _d=None):
         """
@@ -194,8 +198,7 @@ class Discover:
         Called when the config file has been altered
         """
         # Read new config
-        config = ConfigParser(interpolation=None)
-        config.read(self.config_file)
+        config = self.config()
 
         # Set Voice overlay options
         self.voice_overlay.set_align_x(config.getboolean(

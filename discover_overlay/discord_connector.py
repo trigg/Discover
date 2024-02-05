@@ -42,11 +42,10 @@ class DiscordConnector:
     def __init__(self, discover):
         self.discover = discover
         self.websocket = None
-        self.access_token = "none"
+        self.access_token = discover.config().get("cache", "access_token", fallback= None)
         self.oauth_token = "207646673902501888"
         self.access_delay = 0
         self.warn_connection = True
-        self.error_connection = True
 
         self.guilds = {}
         self.channels = {}
@@ -69,6 +68,9 @@ class DiscordConnector:
         """
         First stage of getting an access token. Request authorization from Discord client
         """
+        if self.access_token:
+            self.req_auth()
+            return
         cmd = {
             "cmd": "AUTHORIZE",
             "args":
@@ -266,7 +268,11 @@ class DiscordConnector:
         """
         j = json.loads(message)
         if j["cmd"] == "AUTHORIZE":
-            self.get_access_token_stage2(j["data"]["code"])
+            if 'data' in j and 'code' in j['data']:
+                self.get_access_token_stage2(j["data"]["code"])
+            else:
+                log.error("Authorization rejected")
+                sys.exit(0)
             return
         elif j["cmd"] == "DISPATCH":
             if j["evt"] == "READY":
@@ -341,9 +347,11 @@ class DiscordConnector:
             return
         elif j["cmd"] == "AUTHENTICATE":
             if j["evt"] == "ERROR":
+                self.access_token = None
                 self.get_access_token_stage1()
                 return
             else:
+                self.discover.config_set("cache","access_token",self.access_token)
                 self.req_guilds()
                 self.user = j["data"]["user"]
                 log.info(
@@ -357,18 +365,11 @@ class DiscordConnector:
             for guild in j["data"]["guilds"]:
                 self.guilds[guild["id"]] = guild
                 self.dump_channel_data()
-                # TODO Update settings window with guild/channel list
-                # self.discover.settings.add_guild(guild["id"])
-                # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
-                #    self.req_channels(guild["id"])
             return
         elif j["cmd"] == "GET_GUILD":
             # We currently only get here because of a "CHANNEL_CREATE" event. Stupidly long winded way around
             if j["data"]:
                 guild = j["data"]
-                # TODO Check if this is the guild in text settings, if so request an update list
-                # if len(self.discover.settings.voice_settings.guild_ids) == 0 or guild["id"] in self.discover.settings.voice_settings.guild_ids:
-                #    self.req_channels(guild["id"])
             self.dump_channel_data()
 
             return
@@ -470,7 +471,7 @@ class DiscordConnector:
         if self.discover.notification_overlay:
             self.discover.notification_overlay.set_blank()
         self.websocket = None
-        self.reconnect_delay = 60 * 5
+        self.reconnect_delay = 60 * 20 # Try again in 5 seconds ish
         self.current_voice = "0"
 
     def req_auth(self):
@@ -710,10 +711,6 @@ class DiscordConnector:
             if self.reconnect_delay <= 0:
                 # No timeout left, connect to discord again
                 self.connect()
-                if self.warn_connection:
-                    log.warning(
-                        "Unable to connect to Discord client")
-                    self.warn_connection = False
                 return True
             else:
                 # Timeout requested, wait it out
@@ -798,7 +795,9 @@ class DiscordConnector:
                 "ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
                 origin="https://streamkit.discord.com"
             )
+            self.warn_connection=True # Warn on next disconnect
         except ConnectionError as error:
-            if self.error_connection:
+            if self.warn_connection:
                 log.error(error)
-                self.error_connection = False
+                self.warn_connection=False
+            self.reconnect_delay = 60 * 30 # Try again in a minute
