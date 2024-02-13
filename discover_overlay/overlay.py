@@ -98,7 +98,7 @@ class OverlayWindow(Gtk.Window):
         self.force_xshape = False
         self.context = None
         self.autohide = False
-    
+
         self.redraw_id = None
 
         self.timer_after_draw = None
@@ -108,7 +108,6 @@ class OverlayWindow(Gtk.Window):
         self.get_screen().connect("composited-changed", self.check_composite)
         self.get_screen().connect("monitors-changed", self.screen_changed)
         self.get_screen().connect("size-changed", self.screen_changed)
-
 
     def set_gamescope_xatom(self, enabled):
         if self.piggyback_parent:
@@ -256,7 +255,7 @@ class OverlayWindow(Gtk.Window):
             self.width = width
             self.height = height
         self.set_needs_redraw()
-    
+
     def set_needs_redraw(self):
         if not self.hidden and self.enabled:
             if self.piggyback_parent:
@@ -311,7 +310,7 @@ class OverlayWindow(Gtk.Window):
         Set the monitor this overlay should display on.
         """
         if type(idx) is str:
-            idx=0
+            idx = 0
         self.monitor = idx
         if self.is_wayland:
             display = Gdk.Display.get_default()
@@ -391,4 +390,3 @@ class OverlayWindow(Gtk.Window):
 
     def screen_changed(self, screen=None):
         self.set_monitor(self.monitor)
-

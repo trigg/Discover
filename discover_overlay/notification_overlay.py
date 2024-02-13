@@ -267,7 +267,7 @@ class NotificationOverlayWindow(OverlayWindow):
         if self.testing:
             return self.test_content
         return self.content
-    
+
     def overlay_draw(self, _w, context, data=None):
         """
         Draw the overlay
@@ -388,8 +388,8 @@ class NotificationOverlayWindow(OverlayWindow):
         # self.context.rectangle(0, self.border_radius,
         #                       shape_width, shape_height - (self.border_radius * 2))
 
-        #self.context.arc(0.7, 0.3, 0.035, 1.25 * math.pi, 2.25 * math.pi)
-        #self.context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
+        # self.context.arc(0.7, 0.3, 0.035, 1.25 * math.pi, 2.25 * math.pi)
+        # self.context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
         if self.border_radius == 0:
 
             self.context.move_to(0.0, 0.0)

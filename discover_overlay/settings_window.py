@@ -39,7 +39,8 @@ class MainSettingsWindow():
     def __init__(self, config_file, rpc_file, channel_file, args):
         self.args = args
         # Detect Bazzite autostart
-        self.alternative_autostart = os.path.exists("/etc/default/discover-overlay")
+        self.alternative_autostart = os.path.exists(
+            "/etc/default/discover-overlay")
         # Detect flatpak en
         self.disable_autostart = 'container' in os.environ
         self.steamos = False
@@ -288,8 +289,6 @@ class MainSettingsWindow():
         self.widget['voice_align_2'].set_active(
             config.getint("main", "topalign", fallback=1))
 
-
-
         monitor = 0
         try:
             config.getint("main", "monitor", fallback=0)
@@ -297,7 +296,6 @@ class MainSettingsWindow():
             pass
 
         self.widget['voice_monitor'].set_active(monitor)
-
 
         font = config.get("main", "font", fallback=None)
         if font:
@@ -425,7 +423,7 @@ class MainSettingsWindow():
             config.getboolean("text", "popup_style", fallback=False))
 
         self.widget['text_popup_time'].set_value(
-            config.getint("text","text_time", fallback=30)
+            config.getint("text", "text_time", fallback=30)
         )
 
         self.current_guild = config.get("text", "guild", fallback="0")
@@ -441,7 +439,6 @@ class MainSettingsWindow():
 
         self.widget['text_background_colour'].set_rgba(self.make_colour(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
-
 
         monitor = 0
         try:
@@ -478,7 +475,6 @@ class MainSettingsWindow():
             "notification", "fg_col", fallback="[1.0,1.0,1.0,1.0]")))
         self.widget['notification_background_colour'].set_rgba(self.make_colour(config.get(
             "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
-
 
         monitor = 0
         try:
@@ -546,7 +542,6 @@ class MainSettingsWindow():
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
 
         self.loading_config = False
-
 
     def make_colour(self, col):
         col = json.loads(col)
@@ -854,7 +849,8 @@ class MainSettingsWindow():
         self.config_set("main", "only_speaking", "%s" % (button.get_active()))
 
     def voice_display_speakers_grace_period(self, button):
-        self.config_set("main", "only_speaking_grace", "%s" % (int(button.get_value())))
+        self.config_set("main", "only_speaking_grace", "%s" %
+                        (int(button.get_value())))
 
     def voice_toggle_test_content(self, button):
         self.config_set("main", "show_dummy", "%s" % (button.get_active()))
@@ -1062,7 +1058,8 @@ class MainSettingsWindow():
         self.config_set("notification", "bg_col", json.dumps(colour))
 
     def notification_monitor_changed(self, button):
-        self.config_set("notification", "monitor", "%s" % (button.get_active()))
+        self.config_set("notification", "monitor", "%s" %
+                        (button.get_active()))
 
     def notification_align_1_changed(self, button):
         self.config_set("notification", "rightalign", "%s" %
@@ -1123,7 +1120,7 @@ class MainSettingsWindow():
     def core_reset_all(self, button):
         self.config_remove_section("general")
         self.read_config()
-    
+
     def voice_reset_all(self, button):
         self.config_remove_section("main")
         self.read_config()

@@ -605,7 +605,6 @@ class VoiceOverlayWindow(OverlayWindow):
                 offset_x_mult = -1
                 current_x = self.width - avatar_size - self.horz_edge_padding
 
-
             # Choose where to start drawing
             current_y = 0 + self.vert_edge_padding
             if self.align_vert == 1:
@@ -749,7 +748,7 @@ class VoiceOverlayWindow(OverlayWindow):
         Draw avatar at given Y position. Includes both text and image based on settings
         """
         # Ensure pixbuf for avatar
-        if user["id"] not in self.avatars and user["avatar"] and avatar_size>0:
+        if user["id"] not in self.avatars and user["avatar"] and avatar_size > 0:
             url = "https://cdn.discordapp.com/avatars/%s/%s.png" % (
                 user['id'], user['avatar'])
             get_surface(self.recv_avatar, url, user["id"],

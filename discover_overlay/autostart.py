@@ -21,6 +21,7 @@ except ModuleNotFoundError:
 
 log = logging.getLogger(__name__)
 
+
 class Autostart:
     """A class to assist auto-start"""
 
@@ -35,7 +36,7 @@ class Autostart:
         self.auto = self.find_auto()
         self.desktop = self.find_desktop()
         log.info("Autostart info : desktop %s auto %s",
-                     self.desktop, self.auto)
+                 self.desktop, self.auto)
 
     def find_auto(self):
         """Check all known locations for auto-started apps"""
@@ -69,17 +70,19 @@ class Autostart:
         """Check if it's already set to auto-start"""
         return True if self.auto else False
 
+
 class BazziteAutostart:
     """A class to assist auto-start"""
+
     def __init__(self):
-        self.auto= False
+        self.auto = False
         with open("/etc/default/discover-overlay") as f:
             content = f.readlines()
             for line in content:
                 if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
                     self.auto = int(line.split("=")[1]) > 0
         log.info("Bazzite Autostart info : %s",
-                     self.auto)
+                 self.auto)
 
     def set_autostart(self, enable):
         """Set or Unset auto-start state"""
@@ -88,15 +91,16 @@ class BazziteAutostart:
         elif not enable and self.auto:
             self.change_file("0")
         self.auto = enable
-            
+
     def change_file(self, value):
         newcontent = []
         with open("/etc/default/discover-overlay") as f:
             content = f.readlines()
             for line in content:
                 if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
-                    newcontent.append( "AUTO_LAUNCH_DISCOVER_OVERLAY=%s\n" % value)
-                elif len(line)<2:
+                    newcontent.append(
+                        "AUTO_LAUNCH_DISCOVER_OVERLAY=%s\n" % value)
+                elif len(line) < 2:
                     pass
                 else:
                     newcontent.append(line)

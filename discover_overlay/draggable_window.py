@@ -20,6 +20,7 @@ from gi.repository import Gtk, Gdk  # nopep8
 
 log = logging.getLogger(__name__)
 
+
 class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
 
@@ -56,7 +57,7 @@ class DraggableWindow(Gtk.Window):
         self.drag_y = 0
         self.force_location()
         self.show_all()
-    
+
     def force_location(self):
         """
         Move the window to previously given co-ords.

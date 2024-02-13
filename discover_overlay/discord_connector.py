@@ -30,9 +30,7 @@ import websocket
 import requests
 
 import gi
-gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import GLib  # nopep8
+from gi.repository import GLib
 
 log = logging.getLogger(__name__)
 
@@ -47,10 +45,10 @@ class DiscordConnector:
     def __init__(self, discover):
         self.discover = discover
         self.websocket = None
-        self.access_token = discover.config().get("cache", "access_token", fallback= None)
+        self.access_token = discover.config().get(
+            "cache", "access_token", fallback=None)
         self.oauth_token = "207646673902501888"
         self.access_delay = 0
-        self.warn_connection = True
 
         self.guilds = {}
         self.channels = {}
@@ -175,7 +173,7 @@ class DiscordConnector:
 
         epoch_time = calendar.timegm(utc_time)
         username = message["author"]["username"]
-        if("nick" in message and message['nick'] and len(message["nick"]) > 1
+        if ("nick" in message and message['nick'] and len(message["nick"]) > 1
                 and 'object Object' not in json.dumps(message["nick"])):
             username = message["nick"]
         colour = "#ffffff"
@@ -359,7 +357,8 @@ class DiscordConnector:
                 self.get_access_token_stage1()
                 return
             else:
-                self.discover.config_set("cache","access_token",self.access_token)
+                self.discover.config_set(
+                    "cache", "access_token", self.access_token)
                 self.req_guilds()
                 self.user = j["data"]["user"]
                 log.info(
@@ -723,7 +722,7 @@ class DiscordConnector:
 
         if self.authed and len(self.rate_limited_channels) > 0:
             now = time.time()
-            if self.last_rate_limit_send < now - 60: 
+            if self.last_rate_limit_send < now - 60:
                 guild = self.rate_limited_channels.pop()
 
                 cmd = {
@@ -756,7 +755,7 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
-        if(guild_id == 0):
+        if (guild_id == 0):
             return
         self.rate_limited_channels.append(guild_id)
 
@@ -786,14 +785,11 @@ class DiscordConnector:
                 origin="http://localhost:3000",
                 timeout=0.1
             )
-            self.warn_connection=True # Warn on next disconnect
             if self.socket_watch:
                 GLib.source_remove(self.socket_watch)
-            self.socket_watch = GLib.io_add_watch(self.websocket.sock, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
+            self.socket_watch = GLib.io_add_watch(
+                self.websocket.sock, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
         except ConnectionError as error:
-            if self.warn_connection:
-                log.error(error)
-                self.warn_connection=False
             self.schedule_reconnect()
 
     def socket_glib(self, a=None, b=None):
@@ -807,7 +803,8 @@ class DiscordConnector:
                     if not self.websocket:
                         # Connection was closed in the meantime
                         break
-                    recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
+                    recv, _w, _e = select.select(
+                        (self.websocket.sock,), (), (), 0)
                 except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
                     self.on_close()
                     break
