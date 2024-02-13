@@ -29,6 +29,11 @@ import calendar
 import websocket
 import requests
 
+import gi
+gi.require_version("Gtk", "3.0")
+# pylint: disable=wrong-import-position,wrong-import-order
+from gi.repository import GLib  # nopep8
+
 log = logging.getLogger(__name__)
 
 
@@ -60,9 +65,13 @@ class DiscordConnector:
         self.text_altered = False
         self.text = []
         self.authed = False
+        self.thread = None
+        self.last_rate_limit_send = 0
+
+        self.socket_watch = None
 
         self.rate_limited_channels = []
-        self.reconnect_delay = 0
+        self.reconnect_cb = None
 
     def get_access_token_stage1(self):
         """
@@ -313,7 +322,6 @@ class DiscordConnector:
                 self.list_altered = True
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
                 self.userlist[j["data"]["user_id"]]["lastspoken"] = time.time()
-                self.list_altered = True
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True
@@ -465,14 +473,10 @@ class DiscordConnector:
         Called when connection is closed
         """
         log.warning("Connection closed")
-        self.discover.voice_overlay.set_blank()
-        if self.discover.text_overlay:
-            self.discover.text_overlay.set_blank()
-        if self.discover.notification_overlay:
-            self.discover.notification_overlay.set_blank()
         self.websocket = None
-        self.reconnect_delay = 60 * 20 # Try again in 5 seconds ish
+        self.update_overlays_from_data
         self.current_voice = "0"
+        self.schedule_reconnect()
 
     def req_auth(self):
         """
@@ -696,27 +700,14 @@ class DiscordConnector:
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
 
-    def do_read(self):
-        """
-        Poorly named logic center.
-
-        Checks for new data on socket, passes to on_message
-
-        Also passes out text data to text overlay and voice data to voice overlay
-
-        Called at 60Hz approximately but has near zero bearing on rendering
-        """
-        # Ensure connection
-        if not self.websocket:
-            if self.reconnect_delay <= 0:
-                # No timeout left, connect to discord again
-                self.connect()
-                return True
-            else:
-                # Timeout requested, wait it out
-                self.reconnect_delay -= 1
-                return True
-        # Recreate a list of users in current room
+    def update_overlays_from_data(self):
+        if self.websocket == None:
+            self.discover.voice_overlay.set_blank()
+            if self.discover.text_overlay:
+                self.discover.text_overlay.set_blank()
+            if self.discover.notification_overlay:
+                self.discover.notification_overlay.set_blank()
+            return
         newlist = []
         for userid in self.in_room:
             newlist.append(self.userlist[userid])
@@ -731,32 +722,19 @@ class DiscordConnector:
             self.text_altered = False
 
         if self.authed and len(self.rate_limited_channels) > 0:
-            guild = self.rate_limited_channels.pop()
+            now = time.time()
+            if self.last_rate_limit_send < now - 60: 
+                guild = self.rate_limited_channels.pop()
 
-            cmd = {
-                "cmd": "GET_CHANNELS",
-                "args": {
-                    "guild_id": guild
-                },
-                "nonce": guild
-            }
-            self.websocket.send(json.dumps(cmd))
-
-        # Poll socket for new information
-        recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
-        while recv:
-            try:
-                # Receive & send to on_message
-                msg = self.websocket.recv()
-                self.on_message(msg)
-                if not self.websocket:
-                    # Connection was closed in the meantime
-                    return True
-                recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
-            except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
-                self.on_close()
-                return True
-        return True
+                cmd = {
+                    "cmd": "GET_CHANNELS",
+                    "args": {
+                        "guild_id": guild
+                    },
+                    "nonce": guild
+                }
+                self.websocket.send(json.dumps(cmd))
+                self.last_rate_limit_send = now
 
     def start_listening_text(self, channel):
         """
@@ -782,22 +760,56 @@ class DiscordConnector:
             return
         self.rate_limited_channels.append(guild_id)
 
+    def schedule_reconnect(self):
+        if self.reconnect_cb == None:
+            log.info("Scheduled a reconnect")
+            self.reconnect_cb = GLib.timeout_add_seconds(60, self.connect)
+        else:
+            log.error("Reconnect already scheduled")
+
     def connect(self):
         """
         Attempt to connect to websocket
 
         Should not throw simply for being unable to connect, only for more serious issues
         """
+        log.info("Connecting...")
         if self.websocket:
+            log.warn("Already connected?")
             return
+        if self.reconnect_cb:
+            GLib.source_remove(self.reconnect_cb)
+            self.reconnect_cb = None
         try:
             self.websocket = websocket.create_connection(
                 "ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
-                origin="http://localhost:3000"
+                origin="http://localhost:3000",
+                timeout=0.1
             )
             self.warn_connection=True # Warn on next disconnect
+            if self.socket_watch:
+                GLib.source_remove(self.socket_watch)
+            self.socket_watch = GLib.io_add_watch(self.websocket.sock, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
         except ConnectionError as error:
             if self.warn_connection:
                 log.error(error)
                 self.warn_connection=False
-            self.reconnect_delay = 60 * 30 # Try again in a minute
+            self.schedule_reconnect()
+
+    def socket_glib(self, a=None, b=None):
+        if self.websocket:
+            recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
+            while recv:
+                try:
+                    # Receive & send to on_message
+                    msg = self.websocket.recv()
+                    self.on_message(msg)
+                    if not self.websocket:
+                        # Connection was closed in the meantime
+                        break
+                    recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
+                except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
+                    self.on_close()
+                    break
+        self.update_overlays_from_data()
+        return True

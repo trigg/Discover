@@ -23,7 +23,7 @@ from Xlib.display import Display
 from Xlib import X, Xatom
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Gdk  # nopep8
+from gi.repository import Gtk, Gdk, GLib  # nopep8
 try:
     gi.require_version('GtkLayerShell', '0.1')
     from gi.repository import GtkLayerShell
@@ -62,7 +62,6 @@ class OverlayWindow(Gtk.Window):
         self.pos_y = None
         self.width = None
         self.height = None
-        self.needsredraw = True
         self.hidden = False
         self.enabled = False
         self.set_size_request(50, 50)
@@ -99,6 +98,10 @@ class OverlayWindow(Gtk.Window):
         self.force_xshape = False
         self.context = None
         self.autohide = False
+    
+        self.redraw_id = None
+
+        self.timer_after_draw = None
         if piggyback:
             self.set_piggyback(piggyback)
 
@@ -173,7 +176,7 @@ class OverlayWindow(Gtk.Window):
         Set the font used by the overlay
         """
         self.text_font = font
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
         """
@@ -222,7 +225,7 @@ class OverlayWindow(Gtk.Window):
                 width = geometry.width
                 height = geometry.height
                 self.resize(width, height)
-                self.needsredraw = True
+                self.set_needs_redraw()
                 return
         if not self.is_wayland:
             self.set_decorated(False)
@@ -252,7 +255,21 @@ class OverlayWindow(Gtk.Window):
             (width, height) = self.get_size()
             self.width = width
             self.height = height
-        self.needsredraw = True
+        self.set_needs_redraw()
+    
+    def set_needs_redraw(self):
+        if not self.hidden and self.enabled:
+            if self.piggyback_parent:
+                self.piggyback_parent.set_need_redraw()
+
+            if self.redraw_id == None:
+                self.redraw_id = GLib.idle_add(self.redraw)
+            else:
+                log.debug("Already awaiting paint")
+
+            # If this overlay has data that expires after draw, plan for that here
+            if self.timer_after_draw != None:
+                GLib.timeout_add_seconds(self.timer_after_draw, self.redraw)
 
     def redraw(self):
         """
@@ -260,7 +277,7 @@ class OverlayWindow(Gtk.Window):
         If we're using XShape (optionally or forcibly) then render the image into the shape
         so that we only cut out clear sections
         """
-        self.needsredraw = False
+        self.redraw_id = None
         gdkwin = self.get_window()
         if self.piggyback_parent:
             self.piggyback_parent.redraw()
@@ -282,6 +299,8 @@ class OverlayWindow(Gtk.Window):
             else:
                 gdkwin.shape_combine_region(None, 0, 0)
         self.queue_draw()
+        self.redraw_id = None
+        return False
 
     def set_hidden(self, hidden):
         self.hidden = hidden
@@ -308,7 +327,7 @@ class OverlayWindow(Gtk.Window):
                 log.error("No get_monitor in display")
             self.set_untouchable()
         self.force_location()
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_align_x(self, align_right):
         """
@@ -316,7 +335,7 @@ class OverlayWindow(Gtk.Window):
         """
         self.align_right = align_right
         self.force_location()
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_align_y(self, align_vert):
         """
@@ -324,7 +343,7 @@ class OverlayWindow(Gtk.Window):
         """
         self.align_vert = align_vert
         self.force_location()
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def col(self, col, alpha=1.0):
         """

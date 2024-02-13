@@ -9,7 +9,7 @@ setup(
     name='discover-overlay',
     author='trigg',
     author_email='',
-    version='0.6.10',
+    version='0.7.0',
     description='Voice chat overlay',
     long_description=readme(),
     long_description_content_type='text/markdown',

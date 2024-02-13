@@ -68,7 +68,7 @@ class NotificationOverlayWindow(OverlayWindow):
 
     def set_blank(self):
         self.content = []
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def tick(self):
         # This doesn't really belong in overlay or settings
@@ -145,6 +145,7 @@ class NotificationOverlayWindow(OverlayWindow):
         Set the duration that a message will be visible for.
         """
         self.text_time = timer
+        self.timer_after_draw = timer
 
     def set_limit_width(self, limit):
         """
@@ -285,6 +286,7 @@ class NotificationOverlayWindow(OverlayWindow):
             context.set_operator(cairo.OPERATOR_SOURCE)
             context.paint()
 
+        self.tick()
         context.save()
         if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!

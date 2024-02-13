@@ -54,16 +54,10 @@ class TextOverlayWindow(OverlayWindow):
         self.warned_filetypes = []
         self.set_title("Discover Text")
         self.redraw()
-        GLib.timeout_add_seconds(1, self.set_need_redraw)
-
-    def set_need_redraw(self):
-        if self.popup_style:
-            self.needsredraw = True
-        return True
 
     def set_blank(self):
         self.content = []
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def tick(self):
         if len(self.attachment) > self.line_limit:
@@ -82,7 +76,8 @@ class TextOverlayWindow(OverlayWindow):
         Set the duration that a message will be visible for.
         """
         self.text_time = timer
-        self.needsredraw = True
+        self.timer_after_draw = timer
+        self.set_needs_redraw()
 
     def set_text_list(self, tlist, altered):
         """
@@ -90,28 +85,28 @@ class TextOverlayWindow(OverlayWindow):
         """
         self.content = tlist[-self.line_limit:]
         if altered:
-            self.needsredraw = True
+            self.set_needs_redraw()
 
     def set_fg(self, fg_col):
         """
         Set default text colour
         """
         self.fg_col = fg_col
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_bg(self, bg_col):
         """
         Set background colour
         """
         self.bg_col = bg_col
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_show_attach(self, attachment):
         """
         Set if attachments should be shown inline
         """
         self.show_attach = attachment
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_popup_style(self, boolean):
         """
@@ -129,7 +124,7 @@ class TextOverlayWindow(OverlayWindow):
         font = Pango.FontDescription(self.text_font)
         self.pango_rect.width = font.get_size() * Pango.SCALE
         self.pango_rect.height = font.get_size() * Pango.SCALE
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_line_limit(self, limit):
         """
@@ -192,7 +187,7 @@ class TextOverlayWindow(OverlayWindow):
         Called when an image has been downloaded by image_getter
         """
         self.attachment[identifier] = pix
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def has_content(self):
         if not self.enabled:
@@ -216,6 +211,7 @@ class TextOverlayWindow(OverlayWindow):
             context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
             context.set_operator(cairo.OPERATOR_SOURCE)
             context.paint()
+        self.tick()
         context.save()
         if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!

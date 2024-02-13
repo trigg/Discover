@@ -78,8 +78,6 @@ class Discover:
         self.connection = DiscordConnector(self)
 
         self.connection.connect()
-        GLib.timeout_add((1000 / 60), self.connection.do_read)
-        GLib.timeout_add((1000 / 20), self.periodic_run)
 
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
@@ -92,21 +90,6 @@ class Discover:
         self.config_changed()
 
         Gtk.main()
-
-    def periodic_run(self, data=None):
-        if self.voice_overlay.needsredraw:
-            self.voice_overlay.redraw()
-
-        if self.text_overlay:
-            self.text_overlay.tick()
-            if self.text_overlay.needsredraw:
-                self.text_overlay.redraw()
-
-        if self.notification_overlay:
-            self.notification_overlay.tick()
-            if self.notification_overlay.enabled and self.notification_overlay.needsredraw:
-                self.notification_overlay.redraw()
-        return True
 
     def do_args(self, data, normal_close):
         """
