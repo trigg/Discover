@@ -473,7 +473,7 @@ class DiscordConnector:
         """
         log.warning("Connection closed")
         self.websocket = None
-        self.update_overlays_from_data
+        self.update_overlays_from_data()
         self.current_voice = "0"
         self.schedule_reconnect()
 
