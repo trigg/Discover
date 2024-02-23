@@ -126,6 +126,8 @@ class MainSettingsWindow():
 
             # Space is premium. Sorry Craig
             self.widget['voice_advanced_grid'].set_column_homogeneous(False)
+        else:
+            self.widget['overview_close_button'].hide()
 
         screen = window.get_screen()
         screen_type = "%s" % (screen)
