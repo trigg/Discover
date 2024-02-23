@@ -107,7 +107,8 @@ class DiscordConnector:
         else:
             log.error("No access token in json response")
             log.error(response.text)
-            self.on_close()
+            log.error("The user most likely denied permission for this app")
+            sys.exit(1)
 
     def set_channel(self, channel, guild, need_req=True):
         """
