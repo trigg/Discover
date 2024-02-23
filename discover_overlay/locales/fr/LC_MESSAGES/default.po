@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-28 19:09+0200\n"
+"POT-Creation-Date: 2024-02-23 11:44+0000\n"
 "PO-Revision-Date: 2023-07-28 19:06+0200\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: English <kde-i18n-doc@kde.org>\n"
@@ -307,6 +307,12 @@ msgstr "Espace entre les utilisateurs"
 msgid "Reset Voice Settings"
 msgstr "Réinitialiser les paramètres de voix"
 
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
 msgid "Voice"
 msgstr "Voix"
 
@@ -342,6 +348,9 @@ msgstr "Limite de temps du popup"
 
 msgid "Reset Text Settings"
 msgstr "Réinitialiser les paramètres de texte"
+
+msgid "1"
+msgstr ""
 
 msgid "Text"
 msgstr "Texte"

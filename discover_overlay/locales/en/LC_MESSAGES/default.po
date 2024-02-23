@@ -279,6 +279,12 @@ msgstr ""
 msgid "Reset Voice Settings"
 msgstr ""
 
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
 msgid "Voice"
 msgstr ""
 
@@ -313,6 +319,9 @@ msgid "Popup time limit"
 msgstr ""
 
 msgid "Reset Text Settings"
+msgstr ""
+
+msgid "1"
 msgstr ""
 
 msgid "Text"

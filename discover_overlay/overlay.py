@@ -65,6 +65,7 @@ class OverlayWindow(Gtk.Window):
         self.hidden = False
         self.enabled = False
         self.set_size_request(50, 50)
+        self.hide_on_mouseover = True
         self.connect('draw', self.overlay_draw_pre)
         # Set RGBA
         screen = self.get_screen()
@@ -97,9 +98,10 @@ class OverlayWindow(Gtk.Window):
         self.floating = False
         self.force_xshape = False
         self.context = None
-        self.autohide = False
 
         self.redraw_id = None
+        self.draw_blank = False
+        self.timeout_mouse_over = 1
 
         self.timer_after_draw = None
         if piggyback:
@@ -108,6 +110,11 @@ class OverlayWindow(Gtk.Window):
         self.get_screen().connect("composited-changed", self.check_composite)
         self.get_screen().connect("monitors-changed", self.screen_changed)
         self.get_screen().connect("size-changed", self.screen_changed)
+        self.get_window().set_events(self.get_window().get_events() | Gdk.EventMask.ENTER_NOTIFY_MASK)
+        self.connect("enter-notify-event", self.mouseover)
+        self.connect("leave-notify-event", self.mouseout)
+        self.mouse_over_timer = None
+        
 
     def set_gamescope_xatom(self, enabled):
         if self.piggyback_parent:
@@ -163,6 +170,26 @@ class OverlayWindow(Gtk.Window):
             else:
                 if not self.hidden and self.enabled:
                     self.set_gamescope_xatom(1)
+        # If we're hiding on mouseover, allow mouse-in
+        if self.hide_on_mouseover:
+            # We've mouse-overed
+            if self.draw_blank:
+                self.set_untouchable()
+                context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
+                context.set_operator(cairo.OPERATOR_SOURCE)
+                context.paint()
+                return
+            else:
+                (width, height) = self.get_size()
+                surface = cairo.ImageSurface(
+                    cairo.FORMAT_ARGB32, width, height)
+                surface_ctx = cairo.Context(surface)
+                self.overlay_draw(None, surface_ctx)
+                reg = Gdk.cairo_region_create_from_surface(surface)
+                self.input_shape_combine_region(reg)
+
+
+
         self.overlay_draw(_w, context, data)
 
     def overlay_draw(self, _w, context, data=None):
@@ -202,6 +229,16 @@ class OverlayWindow(Gtk.Window):
         surface_ctx.paint()
         reg = Gdk.cairo_region_create_from_surface(surface)
         self.input_shape_combine_region(reg)
+
+    def set_hide_on_mouseover(self, hide):
+        self.hide_on_mouseover = hide
+        if self.hide_on_mouseover:
+            self.set_needs_redraw()
+        else:
+            self.set_untouchable()
+
+    def set_mouseover_timer(self, time):
+        self.timeout_mouse_over = time
 
     def unset_shape(self):
         """
@@ -375,12 +412,6 @@ class OverlayWindow(Gtk.Window):
                 self.set_gamescope_xatom(0)
             self.hide()
 
-    def set_hide_on_mouseover(self, hide):
-        """
-        Set Mouseover hide
-        """
-        self.autohide = hide
-
     def set_task(self, visible):
         self.set_skip_pager_hint(not visible)
         self.set_skip_taskbar_hint(not visible)
@@ -390,3 +421,17 @@ class OverlayWindow(Gtk.Window):
 
     def screen_changed(self, screen=None):
         self.set_monitor(self.monitor)
+
+    def mouseover(self, a=None, b=None):
+        self.draw_blank = True
+        self.set_needs_redraw()
+        return True
+
+    def mouseout(self, a=None, b=None):
+        GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
+
+        return True
+
+    def mouseout_timed(self, a=None, b=None):
+        self.draw_blank = False
+        self.set_needs_redraw()

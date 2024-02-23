@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-28 19:09+0200\n"
+"POT-Creation-Date: 2024-02-23 11:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -298,6 +298,12 @@ msgstr ""
 msgid "Reset Voice Settings"
 msgstr ""
 
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
 msgid "Voice"
 msgstr ""
 
@@ -332,6 +338,9 @@ msgid "Popup time limit"
 msgstr ""
 
 msgid "Reset Text Settings"
+msgstr ""
+
+msgid "1"
 msgstr ""
 
 msgid "Text"

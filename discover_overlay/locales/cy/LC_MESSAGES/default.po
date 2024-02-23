@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-28 19:09+0200\n"
+"POT-Creation-Date: 2024-02-23 11:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,7 +65,7 @@ msgstr "Symud y defnyddiwr i ystafell lais, yn ôl ID Ystafell"
 msgid ""
 "If tray icon is enabled, start with only tray icon and no configuration "
 "window"
-msgstr ""
+msgstr "If tray icon is enabled, start with only tray icon and no configuration window"
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
 msgstr "Ar gyfer cydnawsedd gamescope sicrhau bod gan ENV 'GDK_BACKEND=x11'"
@@ -228,7 +228,7 @@ msgid "Avatar"
 msgstr "Avatar"
 
 msgid "Show Names"
-msgstr ""
+msgstr "Dangos Enwau"
 
 msgid "Font"
 msgstr "Ffont"
@@ -255,7 +255,7 @@ msgid "Show Test Content"
 msgstr "Dangos cynnwys y prawf"
 
 msgid "Test Data Count"
-msgstr ""
+msgstr "Profi Cyfrif Data"
 
 msgid "Show While Disconnected"
 msgstr "Dangos Wrth Ddatgysylltu"
@@ -267,7 +267,7 @@ msgid "Limit text length"
 msgstr "Cyfyngu ar hyd y testun"
 
 msgid "Show Avatar"
-msgstr ""
+msgstr "Dangos Avatar"
 
 msgid "Square Avatar"
 msgstr "Avatar Sgwâr"
@@ -285,13 +285,13 @@ msgid "Display Speakers Only"
 msgstr "Dangos siaradwyr yn unig"
 
 msgid "Speakers Grace Period"
-msgstr ""
+msgstr "Amser Siaradwr"
 
 msgid "Overflow Style"
 msgstr "Arddull gorlifo"
 
 msgid "Order Users By"
-msgstr ""
+msgstr "Gorchmynion Defnyddwyr gan"
 
 msgid "Highlight Self"
 msgstr "Tynnu sylw at eich hunan"
@@ -300,10 +300,16 @@ msgid "Border width"
 msgstr "lled y ffin"
 
 msgid "Padding between users"
-msgstr ""
+msgstr "Padio rhwng defnyddwyr"
 
 msgid "Reset Voice Settings"
-msgstr ""
+msgstr "Ailosod Gosodiadau Llais"
+
+msgid "Hide Overlay on Mouseover"
+msgstr "Cuddio troshaenu ar mouseover"
+
+msgid "Show again after (seconds)"
+msgstr "Dangoswch eto ar ôl"
 
 msgid "Voice"
 msgstr "LLais"
@@ -336,10 +342,13 @@ msgid "Server"
 msgstr "Gweinydd"
 
 msgid "Popup time limit"
-msgstr ""
+msgstr "Terfyn amser popup"
 
 msgid "Reset Text Settings"
-msgstr ""
+msgstr "Ailosod Gosodiadau Testun"
+
+msgid "1"
+msgstr "1"
 
 msgid "Text"
 msgstr "Testun"
@@ -375,7 +384,7 @@ msgid "Unknown"
 msgstr "Anhysbys"
 
 msgid "Reset Notification Settings"
-msgstr ""
+msgstr "Ailosodwch Gosodiadau Hysbysu   "
 
 msgid "Notification"
 msgstr "Hysbysiad"
@@ -399,7 +408,7 @@ msgid "Hide Overlays"
 msgstr "Cuddio troslun"
 
 msgid "Reset Core Settings"
-msgstr ""
+msgstr "Ailosod Gosodiadau Craidd"
 
 msgid "Core"
 msgstr "Craidd"

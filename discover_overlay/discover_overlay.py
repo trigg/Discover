@@ -245,7 +245,10 @@ class Discover:
         self.voice_overlay.set_order(
             config.getint("main", "order", fallback=0))
         self.voice_overlay.set_hide_on_mouseover(
-            config.getboolean("text", "autohide", fallback=False))
+            config.getboolean("main", "autohide", fallback=False))
+        self.voice_overlay.set_mouseover_timer(
+            config.getint("main", "autohide_timer", fallback=1))
+    
         self.voice_overlay.set_horizontal(config.getboolean(
             "main", "horizontal", fallback=False))
         self.voice_overlay.set_guild_ids(self.parse_guild_ids(
@@ -320,6 +323,8 @@ class Discover:
             config.getint("text", "line_limit", fallback=20))
         self.text_overlay.set_hide_on_mouseover(
             config.getboolean("text", "autohide", fallback=False))
+        self.text_overlay.set_mouseover_timer(
+            config.getint("text", "autohide_timer", fallback=1))
 
         self.text_overlay.set_monitor(monitor)
         self.text_overlay.set_floating(

@@ -1132,3 +1132,17 @@ class MainSettingsWindow():
     def notification_reset_all(self, button):
         self.config_remove_section("notification")
         self.read_config()
+
+    def voice_hide_mouseover_changed(self, button):
+        self.config_set("main", "autohide", "%s" % (button.get_active()))
+
+    def text_hide_mouseover_changed(self,button):
+        self.config_set("text", "autohide", "%s" % (button.get_active()))
+
+    def voice_mouseover_timeout_changed(self, button):
+        self.config_set("main", "autohide_timer", "%s" %
+                        (int(button.get_value())))
+
+    def text_mouseover_timeout_changed(self, button):
+        self.config_set("text", "autohide_timer", "%s" %
+                        (int(button.get_value())))
