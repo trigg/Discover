@@ -13,6 +13,7 @@
 """A class to assist auto-start"""
 import os
 import logging
+import shutil
 try:
     from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 except ModuleNotFoundError:
@@ -93,19 +94,16 @@ class BazziteAutostart:
         self.auto = enable
 
     def change_file(self, value):
-        newcontent = []
-        with open("/etc/default/discover-overlay") as f:
-            content = f.readlines()
-            for line in content:
-                if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
-                    newcontent.append(
-                        "AUTO_LAUNCH_DISCOVER_OVERLAY=%s\n" % value)
-                elif len(line) < 2:
-                    pass
-                else:
-                    newcontent.append(line)
-        with open("/etc/default/discover-overlay", 'w') as f:
-            f.writelines(newcontent)
+        root = ''
+        if shutil.which('pkexec'):
+            root = 'pkexec'
+        else: 
+            log.error("No ability to request root privs. Cancel")
+            return
+        command = " sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY=%s/g' /etc/default/discover-overlay" % (value)
+        command_with_permissions = root + command
+        os.system(command_with_permissions)
+
 
     def is_auto(self):
         """Check if it's already set to auto-start"""
