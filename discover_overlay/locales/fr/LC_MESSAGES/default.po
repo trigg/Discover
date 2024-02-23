@@ -1,12 +1,12 @@
 # Header entry was created by Lokalize.
 #
-# Noé Lopez <noelopez@free.fr>, 2023.
+# Noé Lopez <noelopez@free.fr>, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-23 11:44+0000\n"
-"PO-Revision-Date: 2023-07-28 19:06+0200\n"
+"POT-Creation-Date: 2024-02-23 14:16+0100\n"
+"PO-Revision-Date: 2024-02-23 14:05+0100\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: English <kde-i18n-doc@kde.org>\n"
 "Language: en_US\n"
@@ -41,7 +41,7 @@ msgid "Hide overlay"
 msgstr "Cacher l'overlay"
 
 msgid "Show overlay"
-msgstr "Montrer l'overlay"
+msgstr "Afficher l'overlay"
 
 msgid "Send command, not start new instance."
 msgstr "Envoyer une commande, sans démarrer une nouvelle instance."
@@ -134,34 +134,34 @@ msgid "Save this position"
 msgstr "Sauvegarder cette position"
 
 msgid "DISCONNECTED"
-msgstr ""
+msgstr "DISCONNECTED"
 
 msgid "NO_ROUTE"
-msgstr ""
+msgstr "NO_ROUTE"
 
 msgid "VOICE_DISCONNECTED"
-msgstr ""
+msgstr "VOICE_DISCONNECTED"
 
 msgid "ICE_CHECKING"
-msgstr ""
+msgstr "ICE_CHECKING"
 
 msgid "AWAITING_ENDPOINT"
-msgstr ""
+msgstr "AWAITING_ENDPOINT"
 
 msgid "AUTHENTICATING"
-msgstr ""
+msgstr "AUTHENTICATING"
 
 msgid "CONNECTING"
-msgstr ""
+msgstr "CONNECTING"
 
 msgid "CONNECTED"
-msgstr ""
+msgstr "CONNECTED"
 
 msgid "VOICE_CONNECTING"
-msgstr ""
+msgstr "VOICE_CONNECTING"
 
 msgid "VOICE_CONNECTED"
-msgstr ""
+msgstr "VOICE_CONNECTED"
 
 msgid "Alphabetically"
 msgstr "Ordre alphabétique"
@@ -308,10 +308,10 @@ msgid "Reset Voice Settings"
 msgstr "Réinitialiser les paramètres de voix"
 
 msgid "Hide Overlay on Mouseover"
-msgstr ""
+msgstr "Cacher l'overlay au survolement de la souris"
 
 msgid "Show again after (seconds)"
-msgstr ""
+msgstr "Afficher de nouveau après (secondes)"
 
 msgid "Voice"
 msgstr "Voix"
@@ -350,7 +350,7 @@ msgid "Reset Text Settings"
 msgstr "Réinitialiser les paramètres de texte"
 
 msgid "1"
-msgstr ""
+msgstr "1"
 
 msgid "Text"
 msgstr "Texte"
