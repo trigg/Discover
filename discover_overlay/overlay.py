@@ -14,6 +14,7 @@
 Overlay parent class. Helpful if we need more overlay
 types without copy-and-pasting too much code
 """
+import os
 import sys
 import logging
 import gi
@@ -209,6 +210,9 @@ class OverlayWindow(Gtk.Window):
         Set if the window is floating and what dimensions to use
         """
 
+        # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
+        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP']=='cinnamon':
+            floating = True
         self.floating = floating
         self.pos_x = pos_x
         self.pos_y = pos_y
