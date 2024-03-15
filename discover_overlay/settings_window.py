@@ -542,6 +542,9 @@ class MainSettingsWindow():
         self.widget['core_settings_min'].set_active(self.start_minimized)
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
+    
+        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP']=='cinnamon':
+            self.widget['voice_anchor_to_edge_button'].set_sensitive(False)
 
         self.loading_config = False
 
