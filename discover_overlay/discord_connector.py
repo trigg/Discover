@@ -473,6 +473,9 @@ class DiscordConnector:
         Called when connection is closed
         """
         log.warning("Connection closed")
+        if self.socket_watch:
+            GLib.source_remove(self.socket_watch)
+            self.socket_watch = None
         self.websocket = None
         self.update_overlays_from_data()
         self.current_voice = "0"
@@ -789,12 +792,13 @@ class DiscordConnector:
             if self.socket_watch:
                 GLib.source_remove(self.socket_watch)
             self.socket_watch = GLib.io_add_watch(
-                self.websocket.sock, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
+                self.websocket.sock, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
         except ConnectionError as error:
             self.schedule_reconnect()
 
-    def socket_glib(self, a=None, b=None):
-        if self.websocket:
+    def socket_glib(self, fd, condition):
+        log.info(condition)
+        if condition == GLib.IO_IN and self.websocket:
             recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
             while recv:
                 try:
@@ -809,5 +813,8 @@ class DiscordConnector:
                 except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
                     self.on_close()
                     break
-        self.update_overlays_from_data()
+            self.update_overlays_from_data()
+        else:
+            self.update_overlays_from_data()
+            return False
         return True
