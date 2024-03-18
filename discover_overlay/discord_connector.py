@@ -48,7 +48,6 @@ class DiscordConnector:
         self.access_token = discover.config().get(
             "cache", "access_token", fallback=None)
         self.oauth_token = "207646673902501888"
-        self.access_delay = 0
 
         self.guilds = {}
         self.channels = {}
@@ -63,7 +62,6 @@ class DiscordConnector:
         self.text_altered = False
         self.text = []
         self.authed = False
-        self.thread = None
         self.last_rate_limit_send = 0
 
         self.socket_watch = None
