@@ -797,7 +797,6 @@ class DiscordConnector:
             self.schedule_reconnect()
 
     def socket_glib(self, fd, condition):
-        log.info(condition)
         if condition == GLib.IO_IN and self.websocket:
             recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
             while recv:
