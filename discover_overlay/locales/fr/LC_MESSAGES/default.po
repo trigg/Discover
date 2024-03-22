@@ -3,18 +3,16 @@
 # Noé Lopez <noelopez@free.fr>, 2023, 2024.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: discover 0.7.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-22 15:37+0000\n"
-"PO-Revision-Date: 2024-02-23 14:05+0100\n"
+"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"PO-Revision-Date: 2024-03-23 00:10+0100\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
-"Language-Team: English <kde-i18n-doc@kde.org>\n"
-"Language: en_US\n"
+"Language-Team: Noé Lopez <noelopez@free.fr>\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 23.04.0\n"
 
 msgid "Usage"
 msgstr "Utilisation"
@@ -38,10 +36,10 @@ msgid "This screen"
 msgstr "Cet écran"
 
 msgid "Hide overlay"
-msgstr "Cacher l'overlay"
+msgstr "Cacher l’overlay"
 
 msgid "Show overlay"
-msgstr "Afficher l'overlay"
+msgstr "Afficher l’overlay"
 
 msgid "Send command, not start new instance."
 msgstr "Envoyer une commande, sans démarrer une nouvelle instance."
@@ -65,13 +63,13 @@ msgid ""
 "If tray icon is enabled, start with only tray icon and no configuration "
 "window"
 msgstr ""
-"Si le raccourci de la barre d'outils est activé, démarrer seulement avec le "
+"Si le raccourci de la barre d’outils est activé, démarrer seulement avec le "
 "raccourci et sans fenêtre de configuration"
 
 msgid "For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"
 msgstr ""
-"Pour la compatibilité avec gamescope, assurez vous d'avoir la variable "
-"d'environnement « GDK_BACKEND=x11 »"
+"Pour la compatibilité avec gamescope, assurez vous d’avoir défini la "
+"variable d’environnement « GDK_BACKEND=x11 »"
 
 msgid "Welcome to Discover Overlay"
 msgstr "Bienvenue sur le Discover Overlay"
@@ -86,16 +84,16 @@ msgid ""
 msgstr ""
 "Discover Overlay est un overlay GTK3 écris en Python3. Il peut être "
 "configuré pour afficher qui est en train de parler sur discord, ou pour "
-"afficher texte et images provenant d'un salon sélectionné. Il est "
-"complètement personnalisable et peut être configuré pour afficher n'importe "
+"afficher texte et images provenant d’un salon sélectionné. Il est "
+"complètement personnalisable et peut être configuré pour afficher n’importe "
 "où sur votre écran. Nous ressentions le besoin de créer ce projet à cause du "
 "manque de support du client officiel sur Linux."
 
 msgid "Please visit our discord"
-msgstr "N'hésitez pas à visiter notre discord"
+msgstr "N’hésitez pas à visiter notre discord"
 
 msgid " for support. Or open an issue on our GitHub "
-msgstr "pour avoir de l'aide ou ouvrez une issue sur notre GitHub"
+msgstr "pour avoir de l’aide ou ouvrez une issue sur notre GitHub"
 
 msgid "Top"
 msgstr "Haut"
@@ -116,7 +114,7 @@ msgid "Settings"
 msgstr "Paramètres"
 
 msgid "Close Overlay"
-msgstr "Fermer l'overlay"
+msgstr "Fermer l’overlay"
 
 msgid "Close Settings"
 msgstr "Ouvrir les paramètres"
@@ -185,16 +183,16 @@ msgid "Discover Overlay Configuration"
 msgstr "Configuration de Discover Overlay"
 
 msgid "INTRO TEXT"
-msgstr "TEXT D'INTRO"
+msgstr "TEXT D’INTRO"
 
 msgid "Close overlay"
-msgstr "Fermer l'overlay"
+msgstr "Fermer l’overlay"
 
 msgid "Overview"
 msgstr "Aperçu"
 
 msgid "Overlay Location"
-msgstr "Position de l'overlay"
+msgstr "Position de l’overlay"
 
 msgid "Anchor To Edge"
 msgstr "Ancré au bord"
@@ -245,7 +243,7 @@ msgid "Show Title"
 msgstr "Afficher le titre"
 
 msgid "Show Connection Status"
-msgstr "Afficher l'état de la connection"
+msgstr "Afficher l’état de la connection"
 
 msgid "Title Font"
 msgstr "Police du titre"
@@ -275,7 +273,7 @@ msgid "Square Avatar"
 msgstr "Avatars carrés"
 
 msgid "Fancy Avatar Shapes"
-msgstr "Formes d'avatar chic"
+msgstr "Formes d’avatar chic"
 
 msgid "Avatar Size"
 msgstr "Taille des avatars"
@@ -308,19 +306,19 @@ msgid "Reset Voice Settings"
 msgstr "Réinitialiser les paramètres de voix"
 
 msgid "Fade out when Inactive"
-msgstr ""
+msgstr "Cacher progressivement à l’inactivité"
 
 msgid "Inactive Opacity"
-msgstr ""
+msgstr "Opacité à l’inactivité"
 
 msgid "Time before Inactive"
-msgstr ""
+msgstr "Temps avant l’inactivité"
 
 msgid "Time Fading out"
-msgstr ""
+msgstr "Durée du fondu"
 
 msgid "Hide Overlay on Mouseover"
-msgstr "Cacher l'overlay au survolement de la souris"
+msgstr "Cacher l’overlay au survolement de la souris"
 
 msgid "Show again after (seconds)"
 msgstr "Afficher de nouveau après (secondes)"
@@ -341,7 +339,7 @@ msgid "Show Attachments"
 msgstr "Afficher les pièce jointes"
 
 msgid "Background Colour"
-msgstr "Couleur de l'arrière-plan"
+msgstr "Couleur de l’arrière-plan"
 
 msgid "Text Colour"
 msgstr "Couleur du texte"
@@ -377,10 +375,10 @@ msgid "Limit Popup Width"
 msgstr "Taille limite du popup"
 
 msgid "Show Icon"
-msgstr "Afficher l'icône"
+msgstr "Afficher l’icône"
 
 msgid "Icon Position"
-msgstr "Position de l'icône"
+msgstr "Position de l’icône"
 
 msgid "Border Radius"
 msgstr "Arrondissement des bordures"
@@ -404,7 +402,7 @@ msgid "Notification"
 msgstr "Notification"
 
 msgid "Run Overlay on Startup"
-msgstr "Afficher l'overlay au démarrage"
+msgstr "Afficher l’overlay au démarrage"
 
 msgid "Run Configuration on Startup"
 msgstr "Afficher la configuration au démarage"
@@ -413,7 +411,7 @@ msgid "Force XShape"
 msgstr "Forcer la XShape"
 
 msgid "Show Tray Icon"
-msgstr "Afficher le raccourci de la barre d'outils"
+msgstr "Afficher le raccourci de la barre d’outils"
 
 msgid "Start Settings Minimized"
 msgstr "Démarrer avec les paramètres minimisés"
