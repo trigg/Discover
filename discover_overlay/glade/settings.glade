@@ -3,7 +3,7 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="ava_opacity_adj">
-    <property name="lower">0.5</property>
+    <property name="lower">0.10</property>
     <property name="upper">1</property>
     <property name="value">0.5</property>
     <property name="step-increment">0.01</property>
@@ -154,6 +154,25 @@
     <property name="upper">4000</property>
     <property name="step-increment">1</property>
     <property name="page-increment">8</property>
+  </object>
+  <object class="GtkAdjustment" id="voice_inactive_fade_opacity">
+    <property name="upper">1</property>
+    <property name="value">0.3</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.10</property>
+  </object>
+  <object class="GtkAdjustment" id="voice_inactive_fade_time_range">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="voice_inactive_time_range">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="voice_nick_lenght_adj">
     <property name="lower">10</property>
@@ -720,7 +739,7 @@
               </packing>
             </child>
             <child>
-              <!-- n-columns=6 n-rows=10 -->
+              <!-- n-columns=6 n-rows=13 -->
               <object class="GtkGrid">
                 <property name="name">voice_advanced_grid</property>
                 <property name="visible">True</property>
@@ -1428,8 +1447,146 @@
                   </object>
                   <packing>
                     <property name="left-attach">5</property>
+                    <property name="top-attach">12</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="name">voice_inactive_fade_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Fade out when Inactive</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
+                    <property name="top-attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="name">voice_inactive_opacity_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Inactive Opacity</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
+                    <property name="top-attach">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="name">voice_inactive_time_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Time before Inactive</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
                     <property name="top-attach">9</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="name">voice_inactive_fade_time_label</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Time Fading out</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">4</property>
+                    <property name="top-attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton">
+                    <property name="name">voice_inactive_fade</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="draw-indicator">True</property>
+                    <signal name="toggled" handler="inactive_fade_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale">
+                    <property name="name">voice_inactive_opacity</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="adjustment">voice_inactive_fade_opacity</property>
+                    <property name="round-digits">1</property>
+                    <signal name="value-changed" handler="inactive_fade_opacity_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton">
+                    <property name="name">voice_inactive_time</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="text">0</property>
+                    <property name="adjustment">voice_inactive_time_range</property>
+                    <signal name="value-changed" handler="inactive_time_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">9</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton">
+                    <property name="name">voice_inactive_fade_time</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="text">0</property>
+                    <property name="adjustment">voice_inactive_fade_time_range</property>
+                    <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">5</property>
+                    <property name="top-attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

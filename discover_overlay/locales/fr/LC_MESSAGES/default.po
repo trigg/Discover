@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-23 14:16+0100\n"
+"POT-Creation-Date: 2024-03-22 15:37+0000\n"
 "PO-Revision-Date: 2024-02-23 14:05+0100\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: English <kde-i18n-doc@kde.org>\n"
@@ -306,6 +306,18 @@ msgstr "Espace entre les utilisateurs"
 
 msgid "Reset Voice Settings"
 msgstr "Réinitialiser les paramètres de voix"
+
+msgid "Fade out when Inactive"
+msgstr ""
+
+msgid "Inactive Opacity"
+msgstr ""
+
+msgid "Time before Inactive"
+msgstr ""
+
+msgid "Time Fading out"
+msgstr ""
 
 msgid "Hide Overlay on Mouseover"
 msgstr "Cacher l'overlay au survolement de la souris"

@@ -279,6 +279,18 @@ msgstr ""
 msgid "Reset Voice Settings"
 msgstr ""
 
+msgid "Fade out when Inactive"
+msgstr ""
+
+msgid "Inactive Opacity"
+msgstr ""
+
+msgid "Time before Inactive"
+msgstr ""
+
+msgid "Time Fading out"
+msgstr ""
+
 msgid "Hide Overlay on Mouseover"
 msgstr ""
 

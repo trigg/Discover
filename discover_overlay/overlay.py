@@ -115,7 +115,13 @@ class OverlayWindow(Gtk.Window):
         self.connect("enter-notify-event", self.mouseover)
         self.connect("leave-notify-event", self.mouseout)
         self.mouse_over_timer = None
-        
+
+        # It shouldn't be possible, but let's not leave
+        # this process hanging if it happens
+        self.connect('destroy', self.window_exited)
+
+    def window_exited(self, window=None):
+        sys.exit(1)
 
     def set_gamescope_xatom(self, enabled):
         if self.piggyback_parent:

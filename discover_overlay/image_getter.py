@@ -38,7 +38,7 @@ class SurfaceGetter():
         self.url = url
         self.size = size
 
-    def get_url(self, alpha):
+    def get_url(self):
         """Downloads and decodes"""
         try:
             resp = requests.get(
@@ -49,7 +49,7 @@ class SurfaceGetter():
             )
             raw = resp.raw
             image = Image.open(raw)
-            (surface, mask) = from_pil(image, alpha)
+            (surface, mask) = from_pil(image)
 
             self.func(self.identifier, surface, mask)
         except requests.HTTPError:
@@ -67,7 +67,7 @@ class SurfaceGetter():
         except PIL.UnidentifiedImageError:
             log.error("Unknown image type:  %s", self.url)
 
-    def get_file(self, alpha):
+    def get_file(self):
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
         for prefix in locations:
             mixpath = os.path.join(prefix, self.url)
@@ -83,13 +83,13 @@ class SurfaceGetter():
             except FileNotFoundError:
                 log.error("File not found: %s", mixpath)
             if image:
-                (surface, mask) = from_pil(image, alpha)
+                (surface, mask) = from_pil(image)
                 if surface:
                     self.func(self.identifier, surface, mask)
                     return
 
 
-def from_pil(image, alpha):
+def from_pil(image, alpha=1.0, format='BGRa'):
     """
     :param im: Pillow Image
     :param alpha: 0..1 alpha to add to non-alpha images
@@ -99,19 +99,21 @@ def from_pil(image, alpha):
     mask = bytearray()
     if 'A' not in image.getbands():
         image.putalpha(int(alpha * 255.0))
-        arr = bytearray(image.tobytes('raw', 'BGRa'))
+        arr = bytearray(image.tobytes('raw', format))
         mask = arr
     else:
-        arr = bytearray(image.tobytes('raw', 'BGRa'))
+        arr = bytearray(image.tobytes('raw', format))
         mask = copy.deepcopy((arr))
-        idx = 3
+        idx = 0
         while idx < len(arr):
             if arr[idx] > 0:
                 mask[idx] = 255
             else:
                 mask[idx] = 0
+            # Cairo expects the raw data to be pre-multiplied alpha
+            # This means when we change the alpha level we need to change the RGB channels equally
             arr[idx] = int(arr[idx] * alpha)
-            idx += 4
+            idx +=1
     surface = cairo.ImageSurface.create_for_data(
         arr, cairo.FORMAT_ARGB32, image.width, image.height)
     mask = cairo.ImageSurface.create_for_data(
@@ -119,14 +121,19 @@ def from_pil(image, alpha):
     return (surface, mask)
 
 
-def get_surface(func, identifier, ava, size, alpha=1.0):
+def to_pil(surface):
+    if surface.get_format() == cairo.Format.ARGB32:
+        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()), surface.get_data(),'raw',"BGRA",surface.get_stride())
+    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(),'raw', "BGRX", stride)
+
+def get_surface(func, identifier, ava, size):
     """Download to cairo surface"""
     image_getter = SurfaceGetter(func, identifier, ava, size)
     if identifier.startswith('http'):
-        thread = threading.Thread(target=image_getter.get_url, args=[alpha])
+        thread = threading.Thread(target=image_getter.get_url)
         thread.start()
     else:
-        thread = threading.Thread(target=image_getter.get_file, args=[alpha])
+        thread = threading.Thread(target=image_getter.get_file)
         thread.start()
 
 
@@ -157,12 +164,11 @@ def get_aspected_size(img, width, height, anchor=0, hanchor=0):
             offset_x = offset_x + ((old_width - width) / 2)
     return (offset_x, offset_y, width, height)
 
-
 def draw_img_to_rect(img, ctx,
                      pos_x, pos_y,
                      width, height,
                      path=False, aspect=False,
-                     anchor=0, hanchor=0):
+                     anchor=0, hanchor=0, alpha=1.0):
     """Draw cairo surface onto context
 
     Path - only add the path do not fill : True/False
@@ -181,14 +187,27 @@ def draw_img_to_rect(img, ctx,
     ctx.translate(pos_x + offset_x, pos_y + offset_y)
     ctx.scale(width, height)
     ctx.scale(1 / img.get_width(), 1 / img.get_height())
-    ctx.set_source_surface(img, 0, 0)
+    
+    if alpha != 1.0:
+        # Honestly, couldn't find a 'use-image-with-modifier' option
+        # Tried RasterSourcePattern but it appears... broken? in the python implementation
+        # Or just lacking documentation.
+
+        # Pass raw data to PIL and then back with an alpha modifier
+        ctx.set_source_surface(
+            from_pil(
+                to_pil(img),
+                alpha
+            )[0],
+            0,0)
+    else:
+        ctx.set_source_surface(img, 0, 0)
 
     ctx.rectangle(0, 0, img.get_width(), img.get_height())
     if not path:
         ctx.fill()
     ctx.restore()
     return (width, height)
-
 
 def draw_img_to_mask(img, ctx,
                      pos_x, pos_y,

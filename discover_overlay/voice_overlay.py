@@ -96,6 +96,16 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_transparency = 0.0
         self.fancy_border = False
 
+        self.fade_out_inactive = True
+        self.fade_out_limit = 0.1
+        self.inactive_time = 10 # Seconds
+        self.inactive_fade_time = 20 # Seconds
+        self.fade_opacity = 1.0
+        self.fade_start = 0
+
+        self.inactive_timeout = None
+        self.fadeout_timeout = None
+
         self.round_avatar = True
         self.icon_only = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
@@ -115,23 +125,58 @@ class VoiceOverlayWindow(OverlayWindow):
         self.force_location()
         get_surface(self.recv_avatar,
                     "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
-                    'def', self.avatar_size, self.icon_transparency)
+                    'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()
+
+    def reset_action_timer(self):
+        self.fade_opacity = 1.0
+        if self.inactive_timeout:
+            GLib.source_remove(self.inactive_timeout)
+        if self.fadeout_timeout:
+            GLib.source_remove(self.fade_opacity)
+
+        if self.fade_out_inactive:
+            GLib.timeout_add_seconds(self.inactive_time, self.overlay_inactive)
+
+    def overlay_inactive(self):
+        self.fade_start= perf_counter()
+        GLib.timeout_add(self.inactive_fade_time/200 * 1000, self.overlay_fadeout)
+        return False
+
+    def overlay_fadeout(self):
+        self.set_needs_redraw()
+        now = perf_counter()
+        time_percent = (now - self.fade_start) / self.inactive_fade_time
+        if time_percent>=1.0:
+            self.fade_opacity = self.fade_out_limit
+            return False
+
+        self.fade_opacity = self.fade_out_limit + ((1.0 - self.fade_out_limit) * (1.0 - time_percent))
+        return True
+
+    def col(self, col, alpha=1.0):
+        """
+        Convenience function to set the cairo context next colour. Altered to account for fade-out function
+        """
+        if alpha == None:
+            self.context.set_source_rgba(col[0], col[1], col[2], col[3])
+        else:
+            self.context.set_source_rgba(col[0], col[1], col[2], col[3] * alpha * self.fade_opacity)
 
     def set_icon_transparency(self, trans):
         if self.icon_transparency == trans:
             return
         self.icon_transparency = trans
-        get_surface(self.recv_avatar,
-                    "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
-                    'def', self.avatar_size, self.icon_transparency)
+        #get_surface(self.recv_avatar,
+        #            "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
+        #            'def', self.avatar_size)
 
-        self.avatars = {}
-        self.avatar_masks = {}
+        #self.avatars = {}
+        #self.avatar_masks = {}
 
-        self.channel_icon = None
-        self.channel_mask = None
+        #self.channel_icon = None
+        #self.channel_mask = None
 
         self.set_needs_redraw()
 
@@ -142,6 +187,15 @@ class VoiceOverlayWindow(OverlayWindow):
         self.channel_title = None
         self.connection_status = "DISCONNECTED"
         self.set_needs_redraw()
+
+    def set_fade_out_inactive(self, enabled, fade_time, fade_duration, fade_to):
+        if self.fade_out_inactive == enabled and self.inactive_time == fade_time and self.inactive_fade_time == fade_duration and self.fade_out_limit == fade_to:
+            return
+        self.fade_out_inactive = enabled
+        self.inactive_time = fade_time
+        self.inactive_fade_time = fade_duration
+        self.fade_out_limit = fade_to
+        self.reset_action_timer()
 
     def set_title_font(self, font):
         self.title_font = font
@@ -360,7 +414,7 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Use window colour to draw
         """
-        self.col(self.wind_col)
+        self.col(self.wind_col, None)
 
     def set_norm_col(self):
         """
@@ -374,11 +428,11 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         self.col(self.talk_col, alpha)
 
-    def set_mute_col(self, alpha=1.0):
+    def set_mute_col(self):
         """
         Use mute colour to draw
         """
-        self.col(self.mute_col, alpha)
+        self.col(self.mute_col)
 
     def set_channel_title(self, channel_title):
         """
@@ -395,7 +449,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self.channel_icon_url = None
         else:
             get_surface(self.recv_avatar, url, "channel",
-                        self.avatar_size, self.icon_transparency)
+                        self.avatar_size)
             self.channel_icon_url = url
 
     def set_user_list(self, userlist, alt):
@@ -410,6 +464,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 user["friendlyname"] = user["username"]
         self.sort_list(self.userlist)
         if alt:
+            self.reset_action_timer()
             self.set_needs_redraw()
 
     def set_connection_status(self, connection):
@@ -447,6 +502,7 @@ class VoiceOverlayWindow(OverlayWindow):
         context.set_antialias(cairo.ANTIALIAS_GOOD)
         # Get size of window
         (width, height) = self.get_size()
+
         # Make background transparent
         self.set_wind_col()
         # Don't layer drawing over each other, always replace
@@ -708,10 +764,15 @@ class VoiceOverlayWindow(OverlayWindow):
             self.blank_avatar(context, pos_x, pos_y, avatar_size)
             if self.channel_icon_url:
                 get_surface(self.recv_avatar, self.channel_icon_url, "channel",
-                            self.avatar_size, self.icon_transparency)
+                            self.avatar_size)
         return tw
 
     def unused_fn_needed_translations(self):
+        """
+        These are here to force them to be picked up for translations
+
+        They're fed right through from Discord client as string literals
+        """
         _("DISCONNECTED")
         _("NO_ROUTE")
         _("VOICE_DISCONNECTED")
@@ -752,7 +813,7 @@ class VoiceOverlayWindow(OverlayWindow):
             url = "https://cdn.discordapp.com/avatars/%s/%s.png" % (
                 user['id'], user['avatar'])
             get_surface(self.recv_avatar, url, user["id"],
-                        self.avatar_size, self.icon_transparency)
+                        self.avatar_size)
 
             # Set the key with no value to avoid spamming requests
             self.avatars[user["id"]] = None
@@ -950,7 +1011,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.clip()
         context.set_operator(cairo.OPERATOR_OVER)
         draw_img_to_rect(pixbuf, context, pos_x, pos_y,
-                         avatar_size, avatar_size)
+                         avatar_size, avatar_size, False, False, 0,0,self.fade_opacity * self.icon_transparency)
         context.restore()
 
     def draw_mute(self, context, pos_x, pos_y, bg_col, avatar_size):
@@ -966,7 +1027,7 @@ class VoiceOverlayWindow(OverlayWindow):
         # Add a dark background
         context.set_operator(cairo.OPERATOR_ATOP)
         context.rectangle(0.0, 0.0, 1.0, 1.0)
-        self.col(bg_col)
+        self.col(bg_col, None)
         context.fill()
         context.set_operator(cairo.OPERATOR_OVER)
 
@@ -1035,7 +1096,7 @@ class VoiceOverlayWindow(OverlayWindow):
         # Add a dark background
         context.set_operator(cairo.OPERATOR_ATOP)
         context.rectangle(0.0, 0.0, 1.0, 1.0)
-        self.col(bg_col)
+        self.col(bg_col,None)
         context.fill()
         context.set_operator(cairo.OPERATOR_OVER)
 

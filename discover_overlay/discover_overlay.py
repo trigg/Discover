@@ -286,6 +286,13 @@ class Discover:
         if title_font:
             self.voice_overlay.set_title_font(title_font)
 
+        self.voice_overlay.set_fade_out_inactive(
+            config.getboolean("main", "fade_out_inactive", fallback=False),
+            config.getint("main", "inactive_time", fallback=10),
+            config.getint("main", "inactive_fade_time", fallback=30),
+            config.getfloat("main", "fade_out_limit", fallback=0.3)
+        )
+
         # Set Text overlay options
         self.text_overlay.set_enabled(config.getboolean(
             "text", "enabled", fallback=False))
@@ -399,6 +406,7 @@ class Discover:
         self.voice_overlay.set_hidden(hidden)
         self.text_overlay.set_hidden(hidden)
         self.notification_overlay.set_hidden(hidden)
+
 
     def parse_guild_ids(self, guild_ids_str):
         """Parse the guild_ids from a str and return them in a list"""

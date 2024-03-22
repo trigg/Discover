@@ -409,6 +409,19 @@ class MainSettingsWindow():
         self.widget['voice_dummy_count'].set_value(
             config.getint("main", "dummy_count", fallback=50))
 
+        self.widget['voice_inactive_fade'].set_active(
+            config.getboolean("main", "fade_out_inactive", fallback=False)
+        )
+        self.widget['voice_inactive_opacity'].set_value(
+            config.getfloat("main", "fade_out_limit", fallback=0.3)
+        )
+        self.widget['voice_inactive_time'].set_value(
+            config.getint("main", "inactive_time", fallback=10)
+        )
+        self.widget['voice_inactive_fade_time'].set_value(
+            config.getint("main", "inactive_fade_time", fallback=30)
+        )
+
         # Read Text section
 
         self.text_floating_x = config.getint("text", "floating_x", fallback=0)
@@ -1151,3 +1164,18 @@ class MainSettingsWindow():
     def text_mouseover_timeout_changed(self, button):
         self.config_set("text", "autohide_timer", "%s" %
                         (int(button.get_value())))
+
+    def inactive_fade_changed(self, button):
+        self.config_set("main", "fade_out_inactive", "%s" % (button.get_active()))
+
+    def inactive_fade_opacity_changed(self, button):
+        self.config_set("main", "fade_out_limit", "%.2f" %
+                        (button.get_value()))
+
+    def inactive_time_changed(self, button):
+        self.config_set("main", "inactive_time", "%s" %
+                (int(button.get_value())))
+
+    def inactive_fade_time_changed(self,button):
+        self.config_set("main", "inactive_fade_time", "%s" %
+                (int(button.get_value())))
