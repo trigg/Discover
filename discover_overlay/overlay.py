@@ -55,6 +55,8 @@ class OverlayWindow(Gtk.Window):
 
     def __init__(self, discover, piggyback=None):
         Gtk.Window.__init__(self, type=self.detect_type())
+        self.is_xatom_set=False
+
         self.discover = discover
         screen = self.get_screen()
         self.text_font = None
@@ -111,7 +113,8 @@ class OverlayWindow(Gtk.Window):
         self.get_screen().connect("composited-changed", self.check_composite)
         self.get_screen().connect("monitors-changed", self.screen_changed)
         self.get_screen().connect("size-changed", self.screen_changed)
-        self.get_window().set_events(self.get_window().get_events() | Gdk.EventMask.ENTER_NOTIFY_MASK)
+        if self.get_window():
+            self.get_window().set_events(self.get_window().get_events() | Gdk.EventMask.ENTER_NOTIFY_MASK)
         self.connect("enter-notify-event", self.mouseover)
         self.connect("leave-notify-event", self.mouseout)
         self.mouse_over_timer = None
@@ -126,6 +129,10 @@ class OverlayWindow(Gtk.Window):
     def set_gamescope_xatom(self, enabled):
         if self.piggyback_parent:
             return
+
+        if enabled == self.is_xatom_set:
+            return
+        self.is_xatom_set = enabled
         display = Display()
         atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
         opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
@@ -254,7 +261,8 @@ class OverlayWindow(Gtk.Window):
         """
         Remove XShape (not input shape)
         """
-        self.get_window().shape_combine_region(None, 0, 0)
+        if self.get_window():
+            self.get_window().shape_combine_region(None, 0, 0)
 
     def force_location(self):
         """
@@ -266,12 +274,13 @@ class OverlayWindow(Gtk.Window):
             display = Gdk.Display.get_default()
             if "get_monitor" in dir(display):
                 monitor = display.get_monitor(self.monitor)
-                geometry = monitor.get_geometry()
-                scale_factor = monitor.get_scale_factor()
-                width = geometry.width
-                height = geometry.height
-                self.resize(width, height)
-                self.set_needs_redraw()
+                if monitor:
+                    geometry = monitor.get_geometry()
+                    scale_factor = monitor.get_scale_factor()
+                    width = geometry.width
+                    height = geometry.height
+                    self.resize(width, height)
+                    self.set_needs_redraw()
                 return
         if not self.is_wayland:
             self.set_decorated(False)
@@ -306,7 +315,7 @@ class OverlayWindow(Gtk.Window):
     def set_needs_redraw(self):
         if not self.hidden and self.enabled:
             if self.piggyback_parent:
-                self.piggyback_parent.set_need_redraw()
+                self.piggyback_parent.set_needs_redraw()
 
             if self.redraw_id == None:
                 self.redraw_id = GLib.idle_add(self.redraw)
