@@ -133,15 +133,18 @@ class VoiceOverlayWindow(OverlayWindow):
         self.fade_opacity = 1.0
         if self.inactive_timeout:
             GLib.source_remove(self.inactive_timeout)
+            self.inactive_timeout = None
         if self.fadeout_timeout:
-            GLib.source_remove(self.fade_opacity)
+            GLib.source_remove(self.fadeout_timeout)
+            self.fadeout_timeout = None
 
         if self.fade_out_inactive:
-            GLib.timeout_add_seconds(self.inactive_time, self.overlay_inactive)
+            self.inactive_timeout = GLib.timeout_add_seconds(self.inactive_time, self.overlay_inactive)
 
     def overlay_inactive(self):
         self.fade_start= perf_counter()
-        GLib.timeout_add(self.inactive_fade_time/200 * 1000, self.overlay_fadeout)
+        self.fadeout_timeout = GLib.timeout_add(self.inactive_fade_time/200 * 1000, self.overlay_fadeout)
+        self.inactive_timeout = None
         return False
 
     def overlay_fadeout(self):
@@ -150,6 +153,7 @@ class VoiceOverlayWindow(OverlayWindow):
         time_percent = (now - self.fade_start) / self.inactive_fade_time
         if time_percent>=1.0:
             self.fade_opacity = self.fade_out_limit
+            self.fadeout_timeout = None
             return False
 
         self.fade_opacity = self.fade_out_limit + ((1.0 - self.fade_out_limit) * (1.0 - time_percent))
