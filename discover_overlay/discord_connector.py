@@ -347,6 +347,19 @@ class DiscordConnector:
                 self.req_channel_details(j["data"]["id"], 'new')
             elif j["evt"] == "NOTIFICATION_CREATE":
                 self.discover.notification_overlay.add_notification_message(j)
+            elif j["evt"] == "VOICE_SETTINGS_UPDATE":
+                source = j['data']['input']['device_id']
+                sink = j['data']['output']['device_id']
+                if sink == 'default':
+                    for available_sink in j['data']['output']['available_devices']:
+                        if available_sink['id']=='default':
+                            sink = available_sink['name'][9:]
+                if source == 'default':
+                    for available_source in j['data']['input']['available_devices']:
+                        if available_source['id']=='default':
+                            source = available_source['name'][9:]
+                self.discover.audio_assist.set_devices(sink, source)
+
             else:
                 log.warning(j)
             return
@@ -589,6 +602,7 @@ class DiscordConnector:
         or that reports the users current location
         """
         self.sub_raw("VOICE_CHANNEL_SELECT", {}, "VOICE_CHANNEL_SELECT")
+        self.sub_raw("VOICE_SETTINGS_UPDATE", {}, "VOICE_SETTINGS_UPDATE")
         self.sub_raw("VOICE_CONNECTION_STATUS", {}, "VOICE_CONNECTION_STATUS")
         self.sub_raw("GUILD_CREATE", {}, "GUILD_CREATE")
         self.sub_raw("CHANNEL_CREATE", {}, "CHANNEL_CREATE")
@@ -662,6 +676,7 @@ class DiscordConnector:
         }
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
+        return False
 
     def set_deaf(self, deaf):
         cmd = {
@@ -671,6 +686,7 @@ class DiscordConnector:
         }
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
+        return False
 
     def change_voice_room(self, id):
         """

@@ -20,6 +20,7 @@ import traceback
 import logging
 import pkg_resources
 import json
+import signal
 import gi
 from configparser import ConfigParser
 
@@ -28,6 +29,7 @@ from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
 from .notification_overlay import NotificationOverlayWindow
 from .discord_connector import DiscordConnector
+from .audio_assist import DiscoverAudioAssist
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
@@ -78,6 +80,7 @@ class Discover:
         self.connection = DiscordConnector(self)
 
         self.connection.connect()
+        self.audio_assist = DiscoverAudioAssist(self)
 
         rpc_file = Gio.File.new_for_path(rpc_file)
         monitor = rpc_file.monitor_file(0, None)
@@ -407,6 +410,8 @@ class Discover:
         self.text_overlay.set_hidden(hidden)
         self.notification_overlay.set_hidden(hidden)
 
+        self.audio_assist.set_enabled(config.getboolean("general", "audio_assist", fallback = False))
+
 
     def parse_guild_ids(self, guild_ids_str):
         """Parse the guild_ids from a str and return them in a list"""
@@ -468,6 +473,13 @@ class Discover:
         if self.notification_overlay:
             self.notification_overlay.set_task(visible)
 
+    def set_mute_async(self, mute):
+        if mute != None:
+            GLib.idle_add(self.connection.set_mute, mute)
+
+    def set_deaf_async(self, deaf):
+        if deaf != None:
+            GLib.idle_add(self.connection.set_deaf, deaf)
 
 def entrypoint():
     """
@@ -482,6 +494,7 @@ def entrypoint():
     otherwise start overlay
     """
 
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     # Find Config directory
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)

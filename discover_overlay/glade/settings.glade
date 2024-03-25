@@ -2620,7 +2620,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=7 -->
+          <!-- n-columns=2 n-rows=8 -->
           <object class="GtkGrid">
             <property name="name">core_grid</property>
             <property name="visible">True</property>
@@ -2773,6 +2773,7 @@
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="core_hide_overlay_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -2800,6 +2801,33 @@
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <signal name="pressed" handler="core_reset_all" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">core_audio_assist_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Integrate with Pipewire/Pulseaudio</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">core_audio_assist</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="core_audio_assist_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>

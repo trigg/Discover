@@ -552,12 +552,15 @@ class MainSettingsWindow():
 
         self.start_minimized = config.getboolean(
             "general", "start_min", fallback=False)
+
         self.widget['core_settings_min'].set_active(self.start_minimized)
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
     
         if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP']=='cinnamon':
             self.widget['voice_anchor_to_edge_button'].set_sensitive(False)
+
+        self.widget['core_audio_assist'].set_active(config.getboolean("general", "audio_assist", fallback=False))
 
         self.loading_config = False
 
@@ -1179,3 +1182,6 @@ class MainSettingsWindow():
     def inactive_fade_time_changed(self,button):
         self.config_set("main", "inactive_fade_time", "%s" %
                 (int(button.get_value())))
+    
+    def core_audio_assist_changed(self, button):
+        self.config_set("general", "audio_assist", "%s" % (button.get_active()))

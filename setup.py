@@ -32,7 +32,8 @@ setup(
         'requests',
         'pillow',
         'python-xlib',
-        'setuptools'
+        'setuptools',
+        'pulsectl-asyncio'
     ],
     entry_points={
         'console_scripts': [
