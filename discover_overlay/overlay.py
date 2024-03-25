@@ -55,7 +55,7 @@ class OverlayWindow(Gtk.Window):
 
     def __init__(self, discover, piggyback=None):
         Gtk.Window.__init__(self, type=self.detect_type())
-        self.is_xatom_set=False
+        self.is_xatom_set = False
 
         self.discover = discover
         screen = self.get_screen()
@@ -114,7 +114,8 @@ class OverlayWindow(Gtk.Window):
         self.get_screen().connect("monitors-changed", self.screen_changed)
         self.get_screen().connect("size-changed", self.screen_changed)
         if self.get_window():
-            self.get_window().set_events(self.get_window().get_events() | Gdk.EventMask.ENTER_NOTIFY_MASK)
+            self.get_window().set_events(self.get_window().get_events()
+                                         | Gdk.EventMask.ENTER_NOTIFY_MASK)
         self.connect("enter-notify-event", self.mouseover)
         self.connect("leave-notify-event", self.mouseout)
         self.mouse_over_timer = None
@@ -202,8 +203,6 @@ class OverlayWindow(Gtk.Window):
                 reg = Gdk.cairo_region_create_from_surface(surface)
                 self.input_shape_combine_region(reg)
 
-
-
         self.overlay_draw(_w, context, data)
 
     def overlay_draw(self, _w, context, data=None):
@@ -215,23 +214,24 @@ class OverlayWindow(Gtk.Window):
         """
         Set the font used by the overlay
         """
-        self.text_font = font
-        self.set_needs_redraw()
+        if self.text_font != font:
+            self.text_font = font
+            self.set_needs_redraw()
 
     def set_floating(self, floating, pos_x, pos_y, width, height):
         """
         Set if the window is floating and what dimensions to use
         """
-
-        # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
-        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP']=='cinnamon':
-            floating = True
-        self.floating = floating
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.width = width
-        self.height = height
-        self.force_location()
+        if self.floating != floating or self.pos_x != pos_x or self.pos_y != pos_y or self.width != width or self.height != height:
+            # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
+            if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
+                floating = True
+            self.floating = floating
+            self.pos_x = pos_x
+            self.pos_y = pos_y
+            self.width = width
+            self.height = height
+            self.force_location()
 
     def set_untouchable(self):
         """
@@ -248,11 +248,12 @@ class OverlayWindow(Gtk.Window):
         self.input_shape_combine_region(reg)
 
     def set_hide_on_mouseover(self, hide):
-        self.hide_on_mouseover = hide
-        if self.hide_on_mouseover:
-            self.set_needs_redraw()
-        else:
-            self.set_untouchable()
+        if self.hide_on_mouseover != hide:
+            self.hide_on_mouseover = hide
+            if self.hide_on_mouseover:
+                self.set_needs_redraw()
+            else:
+                self.set_untouchable()
 
     def set_mouseover_timer(self, time):
         self.timeout_mouse_over = time
@@ -367,38 +368,41 @@ class OverlayWindow(Gtk.Window):
         """
         if type(idx) is str:
             idx = 0
-        self.monitor = idx
-        if self.is_wayland:
-            display = Gdk.Display.get_default()
-            if "get_monitor" in dir(display):
-                monitor = display.get_monitor(self.monitor)
-                if monitor:
-                    GtkLayerShell.set_monitor(self, monitor)
+        if self.monitor != idx:
+            self.monitor = idx
+            if self.is_wayland:
+                display = Gdk.Display.get_default()
+                if "get_monitor" in dir(display):
+                    monitor = display.get_monitor(self.monitor)
+                    if monitor:
+                        GtkLayerShell.set_monitor(self, monitor)
+                    else:
+                        self.hide()
+                        self.set_wayland_state()
+                        self.show()
                 else:
-                    self.hide()
-                    self.set_wayland_state()
-                    self.show()
-            else:
-                log.error("No get_monitor in display")
-            self.set_untouchable()
-        self.force_location()
-        self.set_needs_redraw()
+                    log.error("No get_monitor in display")
+                self.set_untouchable()
+            self.force_location()
+            self.set_needs_redraw()
 
     def set_align_x(self, align_right):
         """
         Set the alignment (True for right, False for left)
         """
-        self.align_right = align_right
-        self.force_location()
-        self.set_needs_redraw()
+        if self.align_right != align_right:
+            self.align_right = align_right
+            self.force_location()
+            self.set_needs_redraw()
 
     def set_align_y(self, align_vert):
         """
         Set the veritcal alignment
         """
-        self.align_vert = align_vert
-        self.force_location()
-        self.set_needs_redraw()
+        if self.align_vert != align_vert:
+            self.align_vert = align_vert
+            self.force_location()
+            self.set_needs_redraw()
 
     def col(self, col, alpha=1.0):
         """
@@ -420,22 +424,24 @@ class OverlayWindow(Gtk.Window):
         """
         Set if this overlay should be visible
         """
-        self.enabled = enabled
-        if enabled and not self.hidden and not self.piggyback_parent:
-            self.show_all()
-            self.set_untouchable()
-            if self.discover.steamos:
-                self.set_gamescope_xatom(1)
-        else:
-            if self.discover.steamos:
-                self.set_gamescope_xatom(0)
-            self.hide()
+        if self.enabled != enabled:
+            self.enabled = enabled
+            if enabled and not self.hidden and not self.piggyback_parent:
+                self.show_all()
+                self.set_untouchable()
+                if self.discover.steamos:
+                    self.set_gamescope_xatom(1)
+            else:
+                if self.discover.steamos:
+                    self.set_gamescope_xatom(0)
+                self.hide()
 
     def set_task(self, visible):
         self.set_skip_pager_hint(not visible)
         self.set_skip_taskbar_hint(not visible)
 
     def check_composite(self, _a=None, _b=None):
+        # Called when an X11 session switched compositing on or off
         self.redraw()
 
     def screen_changed(self, screen=None):
@@ -448,9 +454,9 @@ class OverlayWindow(Gtk.Window):
 
     def mouseout(self, a=None, b=None):
         GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
-
         return True
 
     def mouseout_timed(self, a=None, b=None):
         self.draw_blank = False
         self.set_needs_redraw()
+        return False

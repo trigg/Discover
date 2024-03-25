@@ -75,9 +75,10 @@ class TextOverlayWindow(OverlayWindow):
         """
         Set the duration that a message will be visible for.
         """
-        self.text_time = timer
-        self.timer_after_draw = timer
-        self.set_needs_redraw()
+        if self.text_time != timer or self.timer_after_draw != timer:
+            self.text_time = timer
+            self.timer_after_draw = timer
+            self.set_needs_redraw()
 
     def set_text_list(self, tlist, altered):
         """
@@ -91,46 +92,52 @@ class TextOverlayWindow(OverlayWindow):
         """
         Set default text colour
         """
-        self.fg_col = fg_col
-        self.set_needs_redraw()
+        if self.fg_col != fg_col:
+            self.fg_col = fg_col
+            self.set_needs_redraw()
 
     def set_bg(self, bg_col):
         """
         Set background colour
         """
-        self.bg_col = bg_col
-        self.set_needs_redraw()
+        if self.bg_col != bg_col:
+            self.bg_col = bg_col
+            self.set_needs_redraw()
 
     def set_show_attach(self, attachment):
         """
         Set if attachments should be shown inline
         """
-        self.show_attach = attachment
-        self.set_needs_redraw()
+        if self.attachment != attachment:
+            self.show_attach = attachment
+            self.set_needs_redraw()
 
     def set_popup_style(self, boolean):
         """
         Set if message disappear after a certain duration
         """
-        self.popup_style = boolean
+        if self.popup_style != boolean:
+            self.popup_style = boolean
 
     def set_font(self, font):
         """
         Set font used to render text
         """
-        self.text_font = font
+        if self.text_font != font:
+            self.text_font = font
 
-        self.pango_rect = Pango.Rectangle()
-        font = Pango.FontDescription(self.text_font)
-        self.pango_rect.width = font.get_size() * Pango.SCALE
-        self.pango_rect.height = font.get_size() * Pango.SCALE
-        self.set_needs_redraw()
+            self.pango_rect = Pango.Rectangle()
+            font = Pango.FontDescription(self.text_font)
+            self.pango_rect.width = font.get_size() * Pango.SCALE
+            self.pango_rect.height = font.get_size() * Pango.SCALE
+            self.set_needs_redraw()
 
     def set_line_limit(self, limit):
         """
         Change maximum number of lines in overlay
         """
-        self.line_limit = limit
+        if self.line_limit != limit:
+            self.line_limit = limit
 
     def make_line(self, message):
         """

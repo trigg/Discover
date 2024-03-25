@@ -251,7 +251,7 @@ class Discover:
             config.getboolean("main", "autohide", fallback=False))
         self.voice_overlay.set_mouseover_timer(
             config.getint("main", "autohide_timer", fallback=1))
-    
+
         self.voice_overlay.set_horizontal(config.getboolean(
             "main", "horizontal", fallback=False))
         self.voice_overlay.set_guild_ids(self.parse_guild_ids(
@@ -410,8 +410,8 @@ class Discover:
         self.text_overlay.set_hidden(hidden)
         self.notification_overlay.set_hidden(hidden)
 
-        self.audio_assist.set_enabled(config.getboolean("general", "audio_assist", fallback = False))
-
+        self.audio_assist.set_enabled(config.getboolean(
+            "general", "audio_assist", fallback=False))
 
     def parse_guild_ids(self, guild_ids_str):
         """Parse the guild_ids from a str and return them in a list"""
@@ -480,6 +480,7 @@ class Discover:
     def set_deaf_async(self, deaf):
         if deaf != None:
             GLib.idle_add(self.connection.set_deaf, deaf)
+
 
 def entrypoint():
     """

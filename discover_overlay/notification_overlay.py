@@ -82,7 +82,7 @@ class NotificationOverlayWindow(OverlayWindow):
         self.content = newlist
         # If the list is different than before
         if oldsize != len(newlist):
-            self.needsredraw = True
+            self.set_needs_redraw()
 
     def add_notification_message(self, data):
         noti = None
@@ -104,41 +104,46 @@ class NotificationOverlayWindow(OverlayWindow):
 
         if noti:
             self.content.append(noti)
-            self.needsredraw = True
+            self.set_needs_redraw()
             self.get_all_images()
 
     def set_padding(self, padding):
         """
         Set the padding between notifications
         """
-        self.padding = padding
-        self.needsredraw = True
+        if self.padding != padding:
+            self.padding = padding
+            self.set_needs_redraw()
 
     def set_border_radius(self, radius):
         """
         Set the radius of the border
         """
-        self.border_radius = radius
-        self.needsredraw = True
+        if self.border_radius != radius:
+            self.border_radius = radius
+            self.set_needs_redraw()
 
     def set_icon_size(self, size):
         """
         Set Icon size
         """
-        self.icon_size = size
-        self.image_list = {}
-        self.get_all_images()
+        if self.icon_size != size:
+            self.icon_size = size
+            self.image_list = {}
+            self.get_all_images()
 
     def set_icon_pad(self, pad):
         """
         Set padding between icon and message
         """
-        self.icon_pad = pad
-        self.needsredraw = True
+        if self.icon_pad != pad:
+            self.icon_pad = pad
+            self.set_needs_redraw()
 
     def set_icon_left(self, left):
-        self.icon_left = left
-        self.needsredraw = True
+        if self.icon_left != left:
+            self.icon_left = left
+            self.set_needs_redraw()
 
     def set_text_time(self, timer):
         """
@@ -151,8 +156,9 @@ class NotificationOverlayWindow(OverlayWindow):
         """
         Set the word wrap limit in pixels
         """
-        self.limit_width = limit
-        self.needsredraw = True
+        if self.limit_width != limit:
+            self.limit_width = limit
+            self.set_needs_redraw()
 
     def get_all_images(self):
         the_list = self.content
@@ -170,52 +176,57 @@ class NotificationOverlayWindow(OverlayWindow):
         Called when image_getter has downloaded an image
         """
         self.image_list[identifier] = pix
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def set_fg(self, fg_col):
         """
         Set default text colour
         """
-        self.fg_col = fg_col
-        self.needsredraw = True
+        if self.fg_col != fg_col:
+            self.fg_col = fg_col
+            self.set_needs_redraw()
 
     def set_bg(self, bg_col):
         """
         Set background colour
         """
-        self.bg_col = bg_col
-        self.needsredraw = True
+        if self.bg_col != bg_col:
+            self.bg_col = bg_col
+            self.set_needs_redraw()
 
     def set_show_icon(self, icon):
         """
         Set if icons should be shown inline
         """
-        self.show_icon = icon
-        self.needsredraw = True
-        self.get_all_images()
+        if self.show_icon != icon:
+            self.show_icon = icon
+            self.set_needs_redraw()
+            self.get_all_images()
 
     def set_reverse_order(self, rev):
-        self.reverse_order = rev
-        self.needsredraw = True
+        if self.reverse_order != rev:
+            self.reverse_order = rev
+            self.set_needs_redraw()
 
     def set_font(self, font):
         """
         Set font used to render text
         """
-        self.text_font = font
+        if self.text_font != font:
+            self.text_font = font
 
-        self.pango_rect = Pango.Rectangle()
-        font = Pango.FontDescription(self.text_font)
-        self.pango_rect.width = font.get_size() * Pango.SCALE
-        self.pango_rect.height = font.get_size() * Pango.SCALE
-        self.needsredraw = True
+            self.pango_rect = Pango.Rectangle()
+            font = Pango.FontDescription(self.text_font)
+            self.pango_rect.width = font.get_size() * Pango.SCALE
+            self.pango_rect.height = font.get_size() * Pango.SCALE
+            self.set_needs_redraw()
 
     def recv_attach(self, identifier, pix):
         """
         Called when an image has been downloaded by image_getter
         """
         self.icons[identifier] = pix
-        self.needsredraw = True
+        self.set_needs_redraw()
 
     def calc_all_height(self):
         h = 0
@@ -516,5 +527,5 @@ class NotificationOverlayWindow(OverlayWindow):
 
     def set_testing(self, testing):
         self.testing = testing
-        self.needsredraw = True
+        self.set_needs_redraw()
         self.get_all_images()

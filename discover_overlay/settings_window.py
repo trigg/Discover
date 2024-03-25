@@ -43,6 +43,18 @@ class MainSettingsWindow():
             "/etc/default/discover-overlay")
         # Detect flatpak en
         self.disable_autostart = 'container' in os.environ
+        self.icon_name = "discover-overlay"
+        self.tray_icon_name = "discover-overlay-tray"
+
+        icon_theme = Gtk.IconTheme.get_default()
+        icon_theme.add_resource_path(os.path.expanduser(
+            '~/.local/share/pipx/venvs/discover-overlay/share/icons'))
+        if not icon_theme.has_icon("discover-overlay"):
+            log.error("No icon found in theme")
+            self.icon_name = 'user-info'
+        if not icon_theme.has_icon(self.tray_icon_name):
+            log.error("No tray icon found in theme")
+            self.tray_icon_name = 'user-info'
         self.steamos = False
         self.voice_placement_window = None
         self.text_placement_window = None
@@ -161,6 +173,11 @@ class MainSettingsWindow():
             self.start_minimized = True
         if not self.start_minimized or not self.show_sys_tray_icon:
             window.show()
+
+        if self.icon_name != 'discover-overlay':
+            self.widget['overview_image'].set_from_icon_name(
+                self.icon_name, Gtk.IconSize.DIALOG)
+            self.widget['window'].set_default_icon_name(self.icon_name)
 
     def request_channels_from_guild(self, guild_id):
         with open(self.rpc_file, 'w') as f:
@@ -556,11 +573,12 @@ class MainSettingsWindow():
         self.widget['core_settings_min'].set_active(self.start_minimized)
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
-    
-        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP']=='cinnamon':
+
+        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
             self.widget['voice_anchor_to_edge_button'].set_sensitive(False)
 
-        self.widget['core_audio_assist'].set_active(config.getboolean("general", "audio_assist", fallback=False))
+        self.widget['core_audio_assist'].set_active(
+            config.getboolean("general", "audio_assist", fallback=False))
 
         self.loading_config = False
 
@@ -595,7 +613,7 @@ class MainSettingsWindow():
             from gi.repository import AppIndicator3
             self.ind = AppIndicator3.Indicator.new(
                 "discover_overlay",
-                "discover-overlay-tray",
+                self.tray_icon_name,
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
             # Hide for now since we don't know if it should be shown yet
             self.ind.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
@@ -604,7 +622,7 @@ class MainSettingsWindow():
             # Create System Tray
             log.info("Falling back to Systray : %s", exception)
             self.tray = Gtk.StatusIcon.new_from_icon_name(
-                "discover-overlay-tray")
+                self.tray_icon_name)
             self.tray.connect('popup-menu', self.show_menu)
             # Hide for now since we don't know if it should be shown yet
             self.tray.set_visible(False)
@@ -1157,7 +1175,7 @@ class MainSettingsWindow():
     def voice_hide_mouseover_changed(self, button):
         self.config_set("main", "autohide", "%s" % (button.get_active()))
 
-    def text_hide_mouseover_changed(self,button):
+    def text_hide_mouseover_changed(self, button):
         self.config_set("text", "autohide", "%s" % (button.get_active()))
 
     def voice_mouseover_timeout_changed(self, button):
@@ -1169,7 +1187,8 @@ class MainSettingsWindow():
                         (int(button.get_value())))
 
     def inactive_fade_changed(self, button):
-        self.config_set("main", "fade_out_inactive", "%s" % (button.get_active()))
+        self.config_set("main", "fade_out_inactive", "%s" %
+                        (button.get_active()))
 
     def inactive_fade_opacity_changed(self, button):
         self.config_set("main", "fade_out_limit", "%.2f" %
@@ -1177,11 +1196,12 @@ class MainSettingsWindow():
 
     def inactive_time_changed(self, button):
         self.config_set("main", "inactive_time", "%s" %
-                (int(button.get_value())))
+                        (int(button.get_value())))
 
-    def inactive_fade_time_changed(self,button):
+    def inactive_fade_time_changed(self, button):
         self.config_set("main", "inactive_fade_time", "%s" %
-                (int(button.get_value())))
-    
+                        (int(button.get_value())))
+
     def core_audio_assist_changed(self, button):
-        self.config_set("general", "audio_assist", "%s" % (button.get_active()))
+        self.config_set("general", "audio_assist", "%s" %
+                        (button.get_active()))

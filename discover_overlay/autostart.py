@@ -97,13 +97,13 @@ class BazziteAutostart:
         root = ''
         if shutil.which('pkexec'):
             root = 'pkexec'
-        else: 
+        else:
             log.error("No ability to request root privs. Cancel")
             return
-        command = " sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY=%s/g' /etc/default/discover-overlay" % (value)
+        command = " sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY=%s/g' /etc/default/discover-overlay" % (
+            value)
         command_with_permissions = root + command
         os.system(command_with_permissions)
-
 
     def is_auto(self):
         """Check if it's already set to auto-start"""

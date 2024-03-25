@@ -98,8 +98,8 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.fade_out_inactive = True
         self.fade_out_limit = 0.1
-        self.inactive_time = 10 # Seconds
-        self.inactive_fade_time = 20 # Seconds
+        self.inactive_time = 10  # Seconds
+        self.inactive_fade_time = 20  # Seconds
         self.fade_opacity = 1.0
         self.fade_start = 0
 
@@ -124,13 +124,16 @@ class VoiceOverlayWindow(OverlayWindow):
         self.guild_ids = tuple()
         self.force_location()
         get_surface(self.recv_avatar,
-                    "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
+                    "discover-overlay-default",
                     'def', self.avatar_size)
         self.set_title("Discover Voice")
         self.redraw()
 
     def reset_action_timer(self):
+        # Reset time since last voice activity
         self.fade_opacity = 1.0
+
+        # Remove both fading-out effect and timer set last time this happened
         if self.inactive_timeout:
             GLib.source_remove(self.inactive_timeout)
             self.inactive_timeout = None
@@ -138,25 +141,33 @@ class VoiceOverlayWindow(OverlayWindow):
             GLib.source_remove(self.fadeout_timeout)
             self.fadeout_timeout = None
 
+        # If we're using this feature, schedule a new iactivity timer
         if self.fade_out_inactive:
-            self.inactive_timeout = GLib.timeout_add_seconds(self.inactive_time, self.overlay_inactive)
+            self.inactive_timeout = GLib.timeout_add_seconds(
+                self.inactive_time, self.overlay_inactive)
 
     def overlay_inactive(self):
-        self.fade_start= perf_counter()
-        self.fadeout_timeout = GLib.timeout_add(self.inactive_fade_time/200 * 1000, self.overlay_fadeout)
+        # Inactivity has hit the first threshold, start fading out
+        self.fade_start = perf_counter()
+        # Fade out in 200 steps over X seconds.
+        self.fadeout_timeout = GLib.timeout_add(
+            self.inactive_fade_time/200 * 1000, self.overlay_fadeout)
         self.inactive_timeout = None
         return False
 
     def overlay_fadeout(self):
         self.set_needs_redraw()
+        # There's no guarantee over the granularity of the callback here, so use our time-since to work out how faded out we should be
+        # Might look choppy on systems under high cpu usage but that's just how it's going to be
         now = perf_counter()
         time_percent = (now - self.fade_start) / self.inactive_fade_time
-        if time_percent>=1.0:
+        if time_percent >= 1.0:
             self.fade_opacity = self.fade_out_limit
             self.fadeout_timeout = None
             return False
 
-        self.fade_opacity = self.fade_out_limit + ((1.0 - self.fade_out_limit) * (1.0 - time_percent))
+        self.fade_opacity = self.fade_out_limit + \
+            ((1.0 - self.fade_out_limit) * (1.0 - time_percent))
         return True
 
     def col(self, col, alpha=1.0):
@@ -166,23 +177,13 @@ class VoiceOverlayWindow(OverlayWindow):
         if alpha == None:
             self.context.set_source_rgba(col[0], col[1], col[2], col[3])
         else:
-            self.context.set_source_rgba(col[0], col[1], col[2], col[3] * alpha * self.fade_opacity)
+            self.context.set_source_rgba(
+                col[0], col[1], col[2], col[3] * alpha * self.fade_opacity)
 
     def set_icon_transparency(self, trans):
-        if self.icon_transparency == trans:
-            return
-        self.icon_transparency = trans
-        #get_surface(self.recv_avatar,
-        #            "share/icons/hicolor/256x256/apps/discover-overlay-default.png",
-        #            'def', self.avatar_size)
-
-        #self.avatars = {}
-        #self.avatar_masks = {}
-
-        #self.channel_icon = None
-        #self.channel_mask = None
-
-        self.set_needs_redraw()
+        if self.icon_transparency != trans:
+            self.icon_transparency = trans
+            self.set_needs_redraw()
 
     def set_blank(self):
         self.userlist = []
@@ -193,183 +194,210 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_needs_redraw()
 
     def set_fade_out_inactive(self, enabled, fade_time, fade_duration, fade_to):
-        if self.fade_out_inactive == enabled and self.inactive_time == fade_time and self.inactive_fade_time == fade_duration and self.fade_out_limit == fade_to:
-            return
-        self.fade_out_inactive = enabled
-        self.inactive_time = fade_time
-        self.inactive_fade_time = fade_duration
-        self.fade_out_limit = fade_to
-        self.reset_action_timer()
+        if self.fade_out_inactive != enabled or self.inactive_time != fade_time or self.inactive_fade_time != fade_duration or self.fade_out_limit != fade_to:
+            self.fade_out_inactive = enabled
+            self.inactive_time = fade_time
+            self.inactive_fade_time = fade_duration
+            self.fade_out_limit = fade_to
+            self.reset_action_timer()
 
     def set_title_font(self, font):
-        self.title_font = font
-        self.set_needs_redraw()
+        if self.title_font != font:
+            self.title_font = font
+            self.set_needs_redraw()
 
     def set_show_connection(self, show_connection):
-        self.show_connection = show_connection
-        self.set_needs_redraw()
+        if self.show_connection != show_connection:
+            self.show_connection = show_connection
+            self.set_needs_redraw()
 
     def set_show_avatar(self, show_avatar):
-        self.show_avatar = show_avatar
-        self.set_needs_redraw()
+        if self.show_avatar != show_avatar:
+            self.show_avatar = show_avatar
+            self.set_needs_redraw()
 
     def set_show_title(self, show_title):
-        self.show_title = show_title
-        self.set_needs_redraw()
+        if self.show_title != show_title:
+            self.show_title = show_title
+            self.set_needs_redraw()
 
     def set_show_disconnected(self, show_disconnected):
-        self.show_disconnected = show_disconnected
-        self.set_needs_redraw()
+        if self.show_disconnected != show_disconnected:
+            self.show_disconnected = show_disconnected
+            self.set_needs_redraw()
 
     def set_show_dummy(self, show_dummy):
         """
         Toggle use of dummy userdata to help choose settings
         """
-        self.use_dummy = show_dummy
-        self.set_needs_redraw()
+        if self.use_dummy != show_dummy:
+            self.use_dummy = show_dummy
+            self.set_needs_redraw()
 
     def set_dummy_count(self, dummy_count):
-        self.dummy_count = dummy_count
-        self.set_needs_redraw()
+        if self.dummy_count != dummy_count:
+            self.dummy_count = dummy_count
+            self.set_needs_redraw()
 
     def set_overflow(self, overflow):
         """
         How should excessive numbers of users be dealt with?
         """
-        self.overflow = overflow
-        self.set_needs_redraw()
+        if self.overflow != overflow:
+            self.overflow = overflow
+            self.set_needs_redraw()
 
     def set_bg(self, background_colour):
         """
         Set the background colour
         """
-        self.norm_col = background_colour
-        self.set_needs_redraw()
+        if self.norm_col != background_colour:
+            self.norm_col = background_colour
+            self.set_needs_redraw()
 
     def set_fg(self, foreground_colour):
         """
         Set the text colour
         """
-        self.text_col = foreground_colour
-        self.set_needs_redraw()
+        if self.text_col != foreground_colour:
+            self.text_col = foreground_colour
+            self.set_needs_redraw()
 
     def set_tk(self, talking_colour):
         """
         Set the border colour for users who are talking
         """
-        self.talk_col = talking_colour
-        self.set_needs_redraw()
+        if self.talk_col != talking_colour:
+            self.talk_col = talking_colour
+            self.set_needs_redraw()
 
     def set_mt(self, mute_colour):
         """
         Set the colour of mute and deafen logos
         """
-        self.mute_col = mute_colour
-        self.set_needs_redraw()
+        if self.mute_col != mute_colour:
+            self.mute_col = mute_colour
+            self.set_needs_redraw()
 
     def set_mute_bg(self, mute_bg_col):
         """
         Set the background colour for mute/deafen icon
         """
-        self.mute_bg_col = mute_bg_col
-        self.set_needs_redraw()
+        if self.mute_bg_col != mute_bg_col:
+            self.mute_bg_col = mute_bg_col
+            self.set_needs_redraw()
 
     def set_avatar_bg_col(self, avatar_bg_col):
         """
         Set Avatar background colour
         """
-        self.avatar_bg_col = avatar_bg_col
-        self.set_needs_redraw()
+        if self.avatar_bg_col != avatar_bg_col:
+            self.avatar_bg_col = avatar_bg_col
+            self.set_needs_redraw()
 
     def set_hi(self, highlight_colour):
         """
         Set the colour of background for speaking users
         """
-        self.hili_col = highlight_colour
-        self.set_needs_redraw()
+        if self.hili_col != highlight_colour:
+            self.hili_col = highlight_colour
+            self.set_needs_redraw()
 
     def set_fg_hi(self, highlight_colour):
         """
         Set the colour of background for speaking users
         """
-        self.text_hili_col = highlight_colour
-        self.set_needs_redraw()
+        if self.text_hili_col != highlight_colour:
+            self.text_hili_col = highlight_colour
+            self.set_needs_redraw()
 
     def set_bo(self, border_colour):
         """
         Set the colour for idle border
         """
-        self.border_col = border_colour
-        self.set_needs_redraw()
+        if self.border_col != border_colour:
+            self.border_col = border_colour
+            self.set_needs_redraw()
 
     def set_avatar_size(self, size):
         """
         Set the size of the avatar icons
         """
-        self.avatar_size = size
-        self.set_needs_redraw()
+        if self.avatar_size != size:
+            self.avatar_size = size
+            self.set_needs_redraw()
 
     def set_nick_length(self, size):
         """
         Set the length of nickname
         """
-        self.nick_length = size
-        self.set_needs_redraw()
+        if self.nick_length != size:
+            self.nick_length = size
+            self.set_needs_redraw()
 
     def set_icon_spacing(self, i):
         """
         Set the spacing between avatar icons
         """
-        self.icon_spacing = i
-        self.set_needs_redraw()
+        if self.icon_spacing != i:
+            self.icon_spacing = i
+            self.set_needs_redraw()
 
     def set_text_padding(self, i):
         """
         Set padding between text and border
         """
-        self.text_pad = i
-        self.set_needs_redraw()
+        if self.text_pad != i:
+            self.text_pad = i
+            self.set_needs_redraw()
 
     def set_text_baseline_adj(self, i):
         """
         Set padding between text and border
         """
-        self.text_baseline_adj = i
-        self.set_needs_redraw()
+        if self.text_baseline_adj != i:
+            self.text_baseline_adj = i
+            self.set_needs_redraw()
 
     def set_vert_edge_padding(self, i):
         """
         Set padding between top/bottom of screen and overlay contents
         """
-        self.vert_edge_padding = i
-        self.set_needs_redraw()
+        if self.vert_edge_padding != i:
+            self.vert_edge_padding = i
+            self.set_needs_redraw()
 
     def set_horz_edge_padding(self, i):
         """
         Set padding between left/right of screen and overlay contents
         """
-        self.horz_edge_padding = i
-        self.set_needs_redraw()
+        if self.horz_edge_padding != i:
+            self.horz_edge_padding = i
+            self.set_needs_redraw()
 
     def set_square_avatar(self, i):
         """
         Set if the overlay should crop avatars to a circle or show full square image
         """
-        self.round_avatar = not i
-        self.set_needs_redraw()
+        if self.round_avatar == i:
+            self.round_avatar = not i
+            self.set_needs_redraw()
 
     def set_fancy_border(self, border):
         """
         Sets if border should wrap around non-square avatar images
         """
-        self.fancy_border = border
-        self.set_needs_redraw()
+        if self.fancy_border != border:
+            self.fancy_border = border
+            self.set_needs_redraw()
 
     def set_only_speaking(self, only_speaking):
         """
         Set if overlay should only show people who are talking
         """
-        self.only_speaking = only_speaking
+        if self.only_speaking != only_speaking:
+            self.only_speaking = only_speaking
+            self.set_needs_redraw()
 
     def set_only_speaking_grace_period(self, grace_period):
         """
@@ -382,30 +410,36 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Set if the overlay should highlight the user
         """
-        self.highlight_self = highlight_self
+        if self.highlight_self != highlight_self:
+            self.highlight_self = highlight_self
+            self.set_needs_redraw()
 
     def set_order(self, i):
         """
         Set the method used to order avatar icons & names
         """
-        self.order = i
-        self.sort_list(self.userlist)
-        self.set_needs_redraw()
+        if self.order != i:
+            self.order = i
+            self.sort_list(self.userlist)
+            self.set_needs_redraw()
 
     def set_icon_only(self, i):
         """
         Set if the overlay should draw only the icon
         """
-        self.icon_only = i
-        self.set_needs_redraw()
+        if self.icon_only != i:
+            self.icon_only = i
+            self.set_needs_redraw()
 
     def set_border_width(self, width):
-        self.border_width = width
-        self.set_needs_redraw()
+        if self.border_width != width:
+            self.border_width = width
+            self.set_needs_redraw()
 
     def set_horizontal(self, horizontal=False):
-        self.horizontal = horizontal
-        self.set_needs_redraw()
+        if self.horizontal != horizontal:
+            self.horizontal = horizontal
+            self.set_needs_redraw()
 
     def set_guild_ids(self, guild_ids=tuple()):
         if self.discover.connection:
@@ -442,7 +476,9 @@ class VoiceOverlayWindow(OverlayWindow):
         """
         Set title above voice list
         """
-        self.channel_title = channel_title
+        if self.channel_title != channel_title:
+            self.channel_title = channel_title
+            self.set_needs_redraw()
 
     def set_channel_icon(self, url):
         """
@@ -1015,7 +1051,7 @@ class VoiceOverlayWindow(OverlayWindow):
             context.clip()
         context.set_operator(cairo.OPERATOR_OVER)
         draw_img_to_rect(pixbuf, context, pos_x, pos_y,
-                         avatar_size, avatar_size, False, False, 0,0,self.fade_opacity * self.icon_transparency)
+                         avatar_size, avatar_size, False, False, 0, 0, self.fade_opacity * self.icon_transparency)
         context.restore()
 
     def draw_mute(self, context, pos_x, pos_y, bg_col, avatar_size):
@@ -1100,7 +1136,7 @@ class VoiceOverlayWindow(OverlayWindow):
         # Add a dark background
         context.set_operator(cairo.OPERATOR_ATOP)
         context.rectangle(0.0, 0.0, 1.0, 1.0)
-        self.col(bg_col,None)
+        self.col(bg_col, None)
         context.fill()
         context.set_operator(cairo.OPERATOR_OVER)
 

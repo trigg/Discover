@@ -23,8 +23,9 @@ import os
 import io
 import copy
 gi.require_version('GdkPixbuf', '2.0')
+gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
-from gi.repository import Gio, GdkPixbuf  # nopep8
+from gi.repository import Gio, GdkPixbuf, Gtk  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -68,25 +69,50 @@ class SurfaceGetter():
             log.error("Unknown image type:  %s", self.url)
 
     def get_file(self):
+        errors = []
+        # Grab icon from icon theme
+        icon_theme = Gtk.IconTheme.get_default()
+        icon = icon_theme.choose_icon(
+            [self.url, None], -1, Gtk.IconLookupFlags.NO_SVG)
+
+        if icon:
+            try:
+                image = Image.open(icon.get_filename())
+                (surface, mask) = from_pil(image)
+                if surface:
+                    self.func(self.identifier, surface, mask)
+                    return
+            except ValueError:
+                errors.append("Value Error - Unable to read %s" % (mixpath))
+            except TypeError:
+                errors.append("Type Error - Unable to read %s" % (mixpath))
+            except PIL.UnidentifiedImageError:
+                errors.append("Unknown image type: %s" % (mixpath))
+            except FileNotFoundError:
+                errors.append("File not found: %s" % (mixpath))
+        # Not found in theme, try some common locations
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
         for prefix in locations:
-            mixpath = os.path.join(prefix, self.url)
+            mixpath = os.path.join(os.path.join(
+                prefix, 'share/icons/hicolor/256x256/apps/'), self.url + ".png")
             image = None
             try:
                 image = Image.open(mixpath)
             except ValueError:
-                log.error("Value Erorr - Unable to read %s", mixpath)
+                errors.append("Value Error - Unable to read %s" % (mixpath))
             except TypeError:
-                log.error("Type Error - Unable to read %s", mixpath)
+                errors.append("Type Error - Unable to read %s" % (mixpath))
             except PIL.UnidentifiedImageError:
-                log.error("Unknown image type: %s", mixpath)
+                errors.append("Unknown image type: %s" % (mixpath))
             except FileNotFoundError:
-                log.error("File not found: %s", mixpath)
+                errors.append("File not found: %s" % (mixpath))
             if image:
                 (surface, mask) = from_pil(image)
                 if surface:
                     self.func(self.identifier, surface, mask)
                     return
+        for error in errors:
+            log.error(error)
 
 
 def from_pil(image, alpha=1.0, format='BGRa'):
@@ -113,7 +139,7 @@ def from_pil(image, alpha=1.0, format='BGRa'):
             # Cairo expects the raw data to be pre-multiplied alpha
             # This means when we change the alpha level we need to change the RGB channels equally
             arr[idx] = int(arr[idx] * alpha)
-            idx +=1
+            idx += 1
     surface = cairo.ImageSurface.create_for_data(
         arr, cairo.FORMAT_ARGB32, image.width, image.height)
     mask = cairo.ImageSurface.create_for_data(
@@ -123,8 +149,9 @@ def from_pil(image, alpha=1.0, format='BGRa'):
 
 def to_pil(surface):
     if surface.get_format() == cairo.Format.ARGB32:
-        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()), surface.get_data(),'raw',"BGRA",surface.get_stride())
-    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(),'raw', "BGRX", stride)
+        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRA", surface.get_stride())
+    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRX", stride)
+
 
 def get_surface(func, identifier, ava, size):
     """Download to cairo surface"""
@@ -164,6 +191,7 @@ def get_aspected_size(img, width, height, anchor=0, hanchor=0):
             offset_x = offset_x + ((old_width - width) / 2)
     return (offset_x, offset_y, width, height)
 
+
 def draw_img_to_rect(img, ctx,
                      pos_x, pos_y,
                      width, height,
@@ -187,7 +215,7 @@ def draw_img_to_rect(img, ctx,
     ctx.translate(pos_x + offset_x, pos_y + offset_y)
     ctx.scale(width, height)
     ctx.scale(1 / img.get_width(), 1 / img.get_height())
-    
+
     if alpha != 1.0:
         # Honestly, couldn't find a 'use-image-with-modifier' option
         # Tried RasterSourcePattern but it appears... broken? in the python implementation
@@ -199,7 +227,7 @@ def draw_img_to_rect(img, ctx,
                 to_pil(img),
                 alpha
             )[0],
-            0,0)
+            0, 0)
     else:
         ctx.set_source_surface(img, 0, 0)
 
@@ -208,6 +236,7 @@ def draw_img_to_rect(img, ctx,
         ctx.fill()
     ctx.restore()
     return (width, height)
+
 
 def draw_img_to_mask(img, ctx,
                      pos_x, pos_y,

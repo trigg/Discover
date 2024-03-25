@@ -352,11 +352,11 @@ class DiscordConnector:
                 sink = j['data']['output']['device_id']
                 if sink == 'default':
                     for available_sink in j['data']['output']['available_devices']:
-                        if available_sink['id']=='default':
+                        if available_sink['id'] == 'default':
                             sink = available_sink['name'][9:]
                 if source == 'default':
                     for available_source in j['data']['input']['available_devices']:
-                        if available_source['id']=='default':
+                        if available_source['id'] == 'default':
                             source = available_source['name'][9:]
                 self.discover.audio_assist.set_devices(sink, source)
 
