@@ -424,17 +424,16 @@ class OverlayWindow(Gtk.Window):
         """
         Set if this overlay should be visible
         """
-        if self.enabled != enabled:
-            self.enabled = enabled
-            if enabled and not self.hidden and not self.piggyback_parent:
-                self.show_all()
-                self.set_untouchable()
-                if self.discover.steamos:
-                    self.set_gamescope_xatom(1)
-            else:
-                if self.discover.steamos:
-                    self.set_gamescope_xatom(0)
-                self.hide()
+        self.enabled = enabled
+        if enabled and not self.hidden and not self.piggyback_parent:
+            self.show_all()
+            self.set_untouchable()
+            if self.discover.steamos:
+                self.set_gamescope_xatom(1)
+        else:
+            if self.discover.steamos:
+                self.set_gamescope_xatom(0)
+            self.hide()
 
     def set_task(self, visible):
         self.set_skip_pager_hint(not visible)

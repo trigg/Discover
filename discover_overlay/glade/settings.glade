@@ -289,7 +289,7 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=3 n-rows=2 -->
+          <!-- n-columns=8 n-rows=7 -->
           <object class="GtkGrid">
             <property name="name">voice_grid</property>
             <property name="visible">True</property>
@@ -300,1396 +300,489 @@
             <property name="margin-end">5</property>
             <property name="margin-top">5</property>
             <property name="margin-bottom">5</property>
-            <property name="row-spacing">1</property>
-            <property name="column-spacing">1</property>
-            <property name="column-homogeneous">True</property>
+            <property name="row-spacing">3</property>
+            <property name="column-spacing">3</property>
             <child>
-              <!-- n-columns=1 n-rows=8 -->
-              <object class="GtkGrid">
-                <property name="name">voice_location_grid</property>
+              <object class="GtkLabel">
+                <property name="name">voice_display_horizontally_label</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="margin-bottom">40</property>
-                <property name="row-spacing">1</property>
-                <property name="column-spacing">1</property>
-                <property name="row-homogeneous">True</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_overlay_location_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Overlay Location</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_align_2">
-                    <property name="name">voice_align_2</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="active">0</property>
-                    <items>
-                      <item translatable="yes">Top</item>
-                      <item translatable="yes">Middle</item>
-                      <item translatable="yes">Bottom</item>
-                    </items>
-                    <signal name="changed" handler="voice_align_2_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_align_1">
-                    <property name="name">voice_align_1</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="active">0</property>
-                    <items>
-                      <item translatable="yes">Left</item>
-                      <item translatable="yes">Right</item>
-                    </items>
-                    <signal name="changed" handler="voice_align_1_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_monitor">
-                    <property name="name">voice_monitor</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <signal name="changed" handler="voice_monitor_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <!-- n-columns=2 n-rows=1 -->
-                  <object class="GtkGrid">
-                    <property name="name">voice_location_grid_anchor</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkRadioButton" id="anchortoedge">
-                        <property name="label" translatable="yes">Anchor To Edge</property>
-                        <property name="name">voice_anchor_to_edge_button</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="active">True</property>
-                        <property name="draw-indicator">True</property>
-                        <signal name="toggled" handler="voice_anchor_to_edge_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkRadioButton" id="anchorfloating">
-                        <property name="label" translatable="yes">Floating</property>
-                        <property name="name">voice_floating_button</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="active">True</property>
-                        <property name="draw-indicator">True</property>
-                        <property name="group">anchortoedge</property>
-                        <signal name="toggled" handler="voice_floating_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="voice_show_advanced_options_button">
-                    <property name="label" translatable="yes">Show Advanced Options</property>
-                    <property name="name">voice_show_advanced_options_button</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <signal name="pressed" handler="voice_show_advanced_options_button_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="voice_place_window_button">
-                    <property name="label" translatable="yes">Place Window</property>
-                    <property name="name">voice_place_window_button</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <signal name="pressed" handler="voice_place_window" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <!-- n-columns=2 n-rows=1 -->
-                  <object class="GtkGrid">
-                    <property name="name">voice_location_grid_horizontal</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkCheckButton">
-                        <property name="name">voice_display_horizontally</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="draw-indicator">True</property>
-                        <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="left-attach">1</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="name">voice_display_horizontally_label</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-end">28</property>
-                        <property name="label" translatable="yes">Display Horizontally</property>
-                        <property name="xalign">0</property>
-                      </object>
-                      <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
+                <property name="margin-right">28</property>
+                <property name="margin-end">28</property>
+                <property name="label" translatable="yes">Display Horizontally</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_display_horizontally</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_talking_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Talking</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_idle_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Idle</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_mute_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Mute</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_avatar_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Avatar</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_foreground_label</property>
+                <property name="width-request">100</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">4</property>
+                <property name="margin-right">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="label" translatable="yes">Foreground</property>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_background_label</property>
+                <property name="width-request">100</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">4</property>
+                <property name="margin-right">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="label" translatable="yes">Background</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_border_label</property>
+                <property name="width-request">100</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">4</property>
+                <property name="margin-right">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="label" translatable="yes">Border</property>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_talking_foreground</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_talking_foreground_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_talking_background</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_talking_background_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_talking_border</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_talking_border_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_idle_foreground</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_idle_foreground_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_idle_background</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_idle_background_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_idle_border</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_idle_border_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_mute_foreground</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_mute_foreground_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_mute_background</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_mute_background_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton">
+                <property name="name">voice_avatar_background</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-alpha">True</property>
+                <signal name="color-set" handler="voice_avatar_background_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_hide_mouseover_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Hide Overlay on Mouseover</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">6</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_hide_mouseover</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_hide_mouseover_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">7</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_show_mouseover_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show again after (seconds)</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">6</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_show_mouseover</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text" translatable="yes">1</property>
+                <property name="adjustment">voice_show_mouseover_adj</property>
+                <property name="value">1</property>
+                <signal name="value-changed" handler="voice_mouseover_timeout_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">7</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_overlay_location_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Overlay Location</property>
               </object>
               <packing>
                 <property name="left-attach">0</property>
                 <property name="top-attach">0</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
-              <!-- n-columns=4 n-rows=5 -->
-              <object class="GtkGrid">
-                <property name="name">voice_colour_grid</property>
+              <object class="GtkComboBoxText" id="voice_anchor_float">
+                <property name="name">voice_anchor_float</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="margin-bottom">40</property>
-                <property name="row-spacing">1</property>
-                <property name="column-spacing">1</property>
-                <property name="row-homogeneous">True</property>
-                <property name="column-homogeneous">True</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_foreground_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="label" translatable="yes">Foreground</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_background_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="label" translatable="yes">Background</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_border_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="label" translatable="yes">Border</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_talking_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Talking</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_idle_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Idle</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_mute_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Mute</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_avatar_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Avatar</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_talking_foreground</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_talking_foreground_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_talking_background</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_talking_background_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_talking_border</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_talking_border_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_idle_foreground</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_idle_foreground_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_idle_background</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_idle_background_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_idle_border</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_idle_border_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_mute_foreground</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_mute_foreground_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_mute_background</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_mute_background_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton">
-                    <property name="name">voice_avatar_background</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="use-alpha">True</property>
-                    <signal name="color-set" handler="voice_avatar_background_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <!-- n-columns=6 n-rows=13 -->
-              <object class="GtkGrid">
-                <property name="name">voice_advanced_grid</property>
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="row-spacing">1</property>
-                <property name="column-spacing">5</property>
-                <property name="column-homogeneous">True</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_display_icon_only_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show Names</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_display_icon_only</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_display_icon_only_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_font_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Font</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFontButton">
-                    <property name="name">voice_font</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="font">Sans 12</property>
-                    <property name="language">en-us</property>
-                    <property name="preview-text"/>
-                    <signal name="font-set" handler="voice_font_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_text_padding_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Text Padding</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_text_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">text_padding_adj</property>
-                    <signal name="value-changed" handler="voice_text_padding_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_text_vertical_offset_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Text Vertical Offset</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_text_vertical_offset</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_text_offset</property>
-                    <signal name="value-changed" handler="voice_text_vertical_offset_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_show_title_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show Title</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_show_title</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_show_title_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_show_connection_status_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show Connection Status</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_show_connection_status</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_show_connection_status_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFontButton">
-                    <property name="name">voice_title_font</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="font">Sans 12</property>
-                    <property name="language">en-us</property>
-                    <property name="preview-text"/>
-                    <signal name="font-set" handler="voice_title_font_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_title_font_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Title Font</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_vertical_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_vertical_padding_adj</property>
-                    <signal name="value-changed" handler="voice_vertical_padding_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_horizontal_padding_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Horizontal Edge Padding</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_horizontal_padding</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_horizontal_padding_adj</property>
-                    <signal name="value-changed" handler="voice_horizontal_padding_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_show_test_content_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show Test Content</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_show_test_content</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_toggle_test_content" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_dummy_count_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Test Data Count</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_dummy_count</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">50</property>
-                    <property name="adjustment">voice_dummy_count_adj</property>
-                    <property name="value">50</property>
-                    <signal name="value-changed" handler="voice_dummy_count_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_show_disconnected_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show While Disconnected</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_show_disconnected</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_show_disconnected_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voce_vertical_padding_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Verticle Edge Padding</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_nick_length_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Limit text length</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_nick_length</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">32</property>
-                    <property name="adjustment">voice_nick_lenght_adj</property>
-                    <property name="value">32</property>
-                    <signal name="value-changed" handler="voice_nick_length_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_avatar_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show Avatar</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_show_avatar</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_show_avatar_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_square_avatar_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Square Avatar</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_square_avatar</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_square_avatar_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_fancy_avatar_shapes_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Fancy Avatar Shapes</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_fancy_avatar_shapes</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_fancy_avatar_shapes_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_avatar_size_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Avatar Size</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_avatar_size</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">48</property>
-                    <property name="adjustment">avatar_size_adj</property>
-                    <property name="value">48</property>
-                    <signal name="value-changed" handler="voice_avatar_size_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_avatar_opacity_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Avatar Opacity</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScale">
-                    <property name="name">voice_avatar_opacity</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="adjustment">ava_opacity_adj</property>
-                    <property name="round-digits">1</property>
-                    <signal name="value-changed" handler="voice_avatar_opacity_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_display_speakers_only_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Display Speakers Only</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_display_speakers_only</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_display_speakers_only" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_display_speakers_grace_period_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Speakers Grace Period</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_display_speakers_grace_period</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_display_speakers_grace_period_adj</property>
-                    <signal name="value-changed" handler="voice_display_speakers_grace_period" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_overflow_style_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Overflow Style</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_overflow_style">
-                    <property name="name">voice_overflow_style</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <items>
-                      <item translatable="yes">None</item>
-                      <item translatable="yes">Wrap</item>
-                      <item translatable="yes">Shrink</item>
-                    </items>
-                    <signal name="changed" handler="voice_overflow_style_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_order_avatars_by_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Order Users By</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText" id="voice_order_avatars_by">
-                    <property name="name">voice_order_avatars_by</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <items>
-                      <item translatable="yes">Alphabetically</item>
-                      <item translatable="yes">ID</item>
-                      <item translatable="yes">Last Spoken</item>
-                    </items>
-                    <signal name="changed" handler="voice_order_avatars_by_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_highlight_self_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Highlight Self</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_highlight_self</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_highlight_self_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_border_width_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Border width</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_border_width</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">1</property>
-                    <property name="adjustment">border_width_adj</property>
-                    <property name="value">1</property>
-                    <signal name="value-changed" handler="voice_border_width_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_icon_spacing_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Padding between users</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_icon_spacing</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">icon_spacing_adj</property>
-                    <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes">Reset Voice Settings</property>
-                    <property name="name">voice_reset_all</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <signal name="pressed" handler="voice_reset_all" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_inactive_fade_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Fade out when Inactive</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_inactive_opacity_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Inactive Opacity</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_inactive_time_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Time before Inactive</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_inactive_fade_time_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Time Fading out</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">4</property>
-                    <property name="top-attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_inactive_fade</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="inactive_fade_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScale">
-                    <property name="name">voice_inactive_opacity</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="adjustment">voice_inactive_fade_opacity</property>
-                    <property name="round-digits">1</property>
-                    <signal name="value-changed" handler="inactive_fade_opacity_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">8</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_inactive_time</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_inactive_time_range</property>
-                    <signal name="value-changed" handler="inactive_time_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_inactive_fade_time</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="text">0</property>
-                    <property name="adjustment">voice_inactive_fade_time_range</property>
-                    <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">5</property>
-                    <property name="top-attach">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
+                <property name="active">0</property>
+                <items>
+                  <item translatable="yes">Floating</item>
+                  <item translatable="yes">Anchor to Edge</item>
+                </items>
+                <signal name="changed" handler="voice_anchor_float_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">0</property>
                 <property name="top-attach">1</property>
-                <property name="width">3</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
-              <!-- n-columns=2 n-rows=2 -->
-              <object class="GtkGrid">
-                <property name="name">voice_mouseover_grid</property>
+              <object class="GtkComboBoxText" id="voice_monitor">
+                <property name="name">voice_monitor</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_hide_mouseover_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Hide Overlay on Mouseover</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">voice_show_mouseover_label</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Show again after (seconds)</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">voice_hide_mouseover</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="draw-indicator">True</property>
-                    <signal name="toggled" handler="voice_hide_mouseover_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton">
-                    <property name="name">voice_show_mouseover</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="adjustment">voice_show_mouseover_adj</property>
-                    <signal name="value-changed" handler="voice_mouseover_timeout_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                  </packing>
-                </child>
+                <signal name="changed" handler="voice_monitor_changed" swapped="no"/>
               </object>
               <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">0</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+                <property name="width">2</property>
               </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="voice_align_1">
+                <property name="name">voice_align_1</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="active">0</property>
+                <items>
+                  <item translatable="yes">Left</item>
+                  <item translatable="yes">Right</item>
+                </items>
+                <signal name="changed" handler="voice_align_1_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="voice_align_2">
+                <property name="name">voice_align_2</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="active">0</property>
+                <items>
+                  <item translatable="yes">Top</item>
+                  <item translatable="yes">Middle</item>
+                  <item translatable="yes">Bottom</item>
+                </items>
+                <signal name="changed" handler="voice_align_2_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="voice_place_window_button">
+                <property name="label" translatable="yes">Place Window</property>
+                <property name="name">voice_place_window_button</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="voice_place_window" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
             <property name="position">1</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child type="tab">
@@ -1705,6 +798,900 @@
           </packing>
         </child>
         <child>
+          <!-- n-columns=6 n-rows=13 -->
+          <object class="GtkGrid">
+            <property name="name">voice_advanced_grid</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="row-spacing">1</property>
+            <property name="column-spacing">5</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_display_icon_only_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Names</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_display_icon_only</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_display_icon_only_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_font_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Font</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFontButton">
+                <property name="name">voice_font</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="font">Sans 12</property>
+                <property name="language">en-us</property>
+                <property name="preview-text"/>
+                <signal name="font-set" handler="voice_font_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_text_padding_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Text Padding</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_text_padding</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">text_padding_adj</property>
+                <signal name="value-changed" handler="voice_text_padding_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_text_vertical_offset_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Text Vertical Offset</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_text_vertical_offset</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_text_offset</property>
+                <signal name="value-changed" handler="voice_text_vertical_offset_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_show_title_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Title</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_show_title</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_show_title_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_show_connection_status_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Connection Status</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_show_connection_status</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_show_connection_status_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFontButton">
+                <property name="name">voice_title_font</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="font">Sans 12</property>
+                <property name="language">en-us</property>
+                <property name="preview-text"/>
+                <signal name="font-set" handler="voice_title_font_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_title_font_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Title Font</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_vertical_padding</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_vertical_padding_adj</property>
+                <signal name="value-changed" handler="voice_vertical_padding_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_horizontal_padding_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Horizontal Edge Padding</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_horizontal_padding</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_horizontal_padding_adj</property>
+                <signal name="value-changed" handler="voice_horizontal_padding_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_show_test_content_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Test Content</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_show_test_content</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_toggle_test_content" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_dummy_count_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Test Data Count</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_dummy_count</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">50</property>
+                <property name="adjustment">voice_dummy_count_adj</property>
+                <property name="value">50</property>
+                <signal name="value-changed" handler="voice_dummy_count_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_show_disconnected_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show While Disconnected</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_show_disconnected</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_show_disconnected_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voce_vertical_padding_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Verticle Edge Padding</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_nick_length_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Limit text length</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_nick_length</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">32</property>
+                <property name="adjustment">voice_nick_lenght_adj</property>
+                <property name="value">32</property>
+                <signal name="value-changed" handler="voice_nick_length_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_avatar_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Show Avatar</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_show_avatar</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_show_avatar_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_square_avatar_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Square Avatar</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_square_avatar</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_square_avatar_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_fancy_avatar_shapes_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Fancy Avatar Shapes</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_fancy_avatar_shapes</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_fancy_avatar_shapes_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_avatar_size_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Avatar Size</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_avatar_size</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">48</property>
+                <property name="adjustment">avatar_size_adj</property>
+                <property name="value">48</property>
+                <signal name="value-changed" handler="voice_avatar_size_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_avatar_opacity_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Avatar Opacity</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale">
+                <property name="name">voice_avatar_opacity</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">ava_opacity_adj</property>
+                <property name="round-digits">1</property>
+                <signal name="value-changed" handler="voice_avatar_opacity_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_display_speakers_only_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Display Speakers Only</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_display_speakers_only</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_display_speakers_only" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_display_speakers_grace_period_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Speakers Grace Period</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_display_speakers_grace_period</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_display_speakers_grace_period_adj</property>
+                <signal name="value-changed" handler="voice_display_speakers_grace_period" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_overflow_style_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Overflow Style</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="voice_overflow_style">
+                <property name="name">voice_overflow_style</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item translatable="yes">None</item>
+                  <item translatable="yes">Wrap</item>
+                  <item translatable="yes">Shrink</item>
+                </items>
+                <signal name="changed" handler="voice_overflow_style_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_order_avatars_by_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Order Users By</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="voice_order_avatars_by">
+                <property name="name">voice_order_avatars_by</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <items>
+                  <item translatable="yes">Alphabetically</item>
+                  <item translatable="yes">ID</item>
+                  <item translatable="yes">Last Spoken</item>
+                </items>
+                <signal name="changed" handler="voice_order_avatars_by_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_highlight_self_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Highlight Self</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_highlight_self</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="voice_highlight_self_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_border_width_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Border width</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_border_width</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">1</property>
+                <property name="adjustment">border_width_adj</property>
+                <property name="value">1</property>
+                <signal name="value-changed" handler="voice_border_width_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_icon_spacing_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Padding between users</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_icon_spacing</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">icon_spacing_adj</property>
+                <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Reset Voice Settings</property>
+                <property name="name">voice_reset_all</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="pressed" handler="voice_reset_all" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">12</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_inactive_fade_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Fade out when Inactive</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_inactive_opacity_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Inactive Opacity</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_inactive_time_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Time before Inactive</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="name">voice_inactive_fade_time_label</property>
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">Time Fading out</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="left-attach">4</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton">
+                <property name="name">voice_inactive_fade</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="inactive_fade_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale">
+                <property name="name">voice_inactive_opacity</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="adjustment">voice_inactive_fade_opacity</property>
+                <property name="round-digits">1</property>
+                <signal name="value-changed" handler="inactive_fade_opacity_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_inactive_time</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_inactive_time_range</property>
+                <signal name="value-changed" handler="inactive_time_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton">
+                <property name="name">voice_inactive_fade_time</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="text">0</property>
+                <property name="adjustment">voice_inactive_fade_time_range</property>
+                <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left-attach">5</property>
+                <property name="top-attach">10</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+            <property name="tab-fill">False</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="notebook_voice_adv_label">
+            <property name="name">notebook_voice_adv_label</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">Voice - Advanced</property>
+          </object>
+          <packing>
+            <property name="position">2</property>
+            <property name="tab-fill">False</property>
+          </packing>
+        </child>
+        <child>
           <!-- n-columns=2 n-rows=16 -->
           <object class="GtkGrid">
             <property name="name">text_grid</property>
@@ -1716,7 +1703,6 @@
             <property name="margin-bottom">5</property>
             <property name="row-spacing">1</property>
             <property name="column-spacing">1</property>
-            <property name="column-homogeneous">True</property>
             <child>
               <object class="GtkLabel">
                 <property name="name">text_enable_label</property>
@@ -2116,7 +2102,8 @@
             </child>
           </object>
           <packing>
-            <property name="position">2</property>
+            <property name="position">3</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child type="tab">
@@ -2127,7 +2114,7 @@
             <property name="label" translatable="yes">Text</property>
           </object>
           <packing>
-            <property name="position">2</property>
+            <property name="position">3</property>
             <property name="tab-fill">False</property>
           </packing>
         </child>
@@ -2143,7 +2130,6 @@
             <property name="margin-bottom">5</property>
             <property name="row-spacing">1</property>
             <property name="column-spacing">1</property>
-            <property name="column-homogeneous">True</property>
             <child>
               <object class="GtkLabel">
                 <property name="name">notification_enable_label</property>
@@ -2604,7 +2590,8 @@
             </child>
           </object>
           <packing>
-            <property name="position">3</property>
+            <property name="position">4</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child type="tab">
@@ -2615,7 +2602,7 @@
             <property name="label" translatable="yes">Notification</property>
           </object>
           <packing>
-            <property name="position">3</property>
+            <property name="position">4</property>
             <property name="tab-fill">False</property>
           </packing>
         </child>
@@ -2773,7 +2760,6 @@
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="draw-indicator">True</property>
-                <signal name="toggled" handler="core_hide_overlay_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -2839,7 +2825,8 @@
             </child>
           </object>
           <packing>
-            <property name="position">4</property>
+            <property name="position">5</property>
+            <property name="tab-fill">False</property>
           </packing>
         </child>
         <child type="tab">
@@ -2850,7 +2837,7 @@
             <property name="label" translatable="yes">Core</property>
           </object>
           <packing>
-            <property name="position">4</property>
+            <property name="position">5</property>
             <property name="tab-fill">False</property>
           </packing>
         </child>

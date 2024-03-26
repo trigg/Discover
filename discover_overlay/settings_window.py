@@ -46,6 +46,9 @@ class MainSettingsWindow():
         self.icon_name = "discover-overlay"
         self.tray_icon_name = "discover-overlay-tray"
 
+        self.spinning_focus = None
+        self.scale_focus = None
+
         icon_theme = Gtk.IconTheme.get_default()
         icon_theme.add_resource_path(os.path.expanduser(
             '~/.local/share/pipx/venvs/discover-overlay/share/icons'))
@@ -58,7 +61,6 @@ class MainSettingsWindow():
         self.steamos = False
         self.voice_placement_window = None
         self.text_placement_window = None
-        self.voice_advanced = False
         self.tray = None  # Systemtray as fallback
         self.ind = None  # AppIndicator
         if self.alternative_autostart:
@@ -126,7 +128,6 @@ class MainSettingsWindow():
             if settings:
                 settings.set_property(
                     "gtk-application-prefer-dark-theme", Gtk.true)
-            self.widget['notebook'].set_tab_pos(Gtk.PositionType.LEFT)
             # TODO Not assume the display size. Probably poll it from GDK Display?
             window.set_default_size(1280, 800)
 
@@ -135,11 +136,15 @@ class MainSettingsWindow():
             css.load_from_data(bytes("* { font-size:18px; }", "utf-8"))
             window.get_style_context().add_provider(
                 css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-            # Space is premium. Sorry Craig
-            self.widget['voice_advanced_grid'].set_column_homogeneous(False)
         else:
             self.widget['overview_close_button'].hide()
+
+        self.super_focus = Gtk.CssProvider.new()
+        self.super_focus.load_from_data(
+            bytes(
+                """scale { background-color: rgba(100%, 0%, 0%, 0.3); background-image:unset; }
+                   spinbutton { background-color: rgba(100%, 0%, 0%, 0.3); background-image:unset;}
+                """, "utf-8"))
 
         screen = window.get_screen()
         screen_type = "%s" % (screen)
@@ -168,6 +173,7 @@ class MainSettingsWindow():
         self.populate_guild_menu()
 
         builder.connect_signals(self)
+        window.connect('key-press-event', self.keypress_in_settings)
 
         if '--minimized' in self.args:
             self.start_minimized = True
@@ -178,6 +184,93 @@ class MainSettingsWindow():
             self.widget['overview_image'].set_from_icon_name(
                 self.icon_name, Gtk.IconSize.DIALOG)
             self.widget['window'].set_default_icon_name(self.icon_name)
+
+    def keypress_in_settings(self, window, event):
+        if self.spinning_focus:
+            match event.keyval:
+                case Gdk.KEY_Right:
+                    step = self.spinning_focus.get_increments().step
+                    value = self.spinning_focus.get_value()
+                    self.spinning_focus.set_value(value + step)
+                    pass
+                case Gdk.KEY_Left:
+                    step = self.spinning_focus.get_increments().step
+                    value = self.spinning_focus.get_value()
+                    self.spinning_focus.set_value(value - step)
+                    pass
+                case Gdk.KEY_Up:
+                    step = self.spinning_focus.get_increments().step
+                    value = self.spinning_focus.get_value()
+                    self.spinning_focus.set_value(value + step)
+                case Gdk.KEY_Down:
+                    step = self.spinning_focus.get_increments().step
+                    value = self.spinning_focus.get_value()
+                    self.spinning_focus.set_value(value - step)
+                case Gdk.KEY_space:
+                    self.spinning_focus.get_style_context().remove_provider(self.super_focus)
+                    self.spinning_focus = None
+                case Gdk.KEY_Escape:
+                    self.spinning_focus.get_style_context().remove_provider(self.super_focus)
+
+                    self.spinning_focus = None
+        elif self.scale_focus:
+            match event.keyval:
+                case Gdk.KEY_Right:
+                    value = self.scale_focus.get_value()
+                    self.scale_focus.set_value(value + 0.1)
+                    pass
+                case Gdk.KEY_Left:
+                    value = self.scale_focus.get_value()
+                    self.scale_focus.set_value(value - 0.1)
+                    pass
+                case Gdk.KEY_Up:
+                    value = self.scale_focus.get_value()
+                    self.scale_focus.set_value(value + 0.1)
+                case Gdk.KEY_Down:
+                    value = self.scale_focus.get_value()
+                    self.scale_focus.set_value(value - 0.1)
+                case Gdk.KEY_space:
+                    self.scale_focus.get_style_context().remove_provider(self.super_focus)
+                    self.scale_focus = None
+                case Gdk.KEY_Escape:
+                    self.scale_focus.get_style_context().remove_provider(self.super_focus)
+                    self.scale_focus = None
+        else:
+            match event.keyval:
+                case Gdk.KEY_Left:
+                    window.do_move_focus(window, Gtk.DirectionType.LEFT)
+                case Gdk.KEY_Right:
+                    window.do_move_focus(window, Gtk.DirectionType.RIGHT)
+                case Gdk.KEY_Up:
+                    window.do_move_focus(window, Gtk.DirectionType.UP)
+                case Gdk.KEY_Down:
+                    window.do_move_focus(window, Gtk.DirectionType.DOWN)
+                case Gdk.KEY_F1:
+                    self.widget['notebook'].prev_page()
+                case Gdk.KEY_F2:
+                    self.widget['notebook'].next_page()
+                case Gdk.KEY_Escape:
+                    return True
+                case Gdk.KEY_space:
+                    widget = self.window.get_focus()
+                    if widget:
+                        # I really want there to be a better way...
+                        widget_type = "%s" % (widget)
+                        if 'Gtk.SpinButton' in widget_type:
+                            self.spinning_focus = widget
+
+                            widget.get_style_context().add_provider(
+                                self.super_focus, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                            return True
+                        elif 'Gtk.Scale' in widget_type:
+                            self.scale_focus = widget
+                            widget.get_style_context().add_provider(
+                                self.super_focus, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                            return True
+                    return False
+                case _:
+                    return False
+        return True
 
     def request_channels_from_guild(self, guild_id):
         with open(self.rpc_file, 'w') as f:
@@ -284,7 +377,6 @@ class MainSettingsWindow():
 
     def read_config(self):
         self.loading_config = True
-        self.widget['voice_advanced_grid'].hide()
 
         # Read config and put into gui
         config = ConfigParser(interpolation=None)
@@ -299,10 +391,10 @@ class MainSettingsWindow():
         self.voice_floating_h = config.getint(
             "main", "floating_h", fallback=400)
 
-        if config.getboolean("main", "floating", fallback=False):
-            self.widget['voice_floating_button'].set_active(True)
-        else:
-            self.widget['voice_anchor_to_edge_button'].set_active(True)
+        self.widget['voice_anchor_float'].set_active(
+            0 if config.getboolean("main", "floating", fallback=False) else 1)
+        self.update_floating_ahchor()
+
         self.widget['voice_align_1'].set_active(
             config.getboolean("main", "rightalign", fallback=False))
         self.widget['voice_align_2'].set_active(
@@ -438,6 +530,12 @@ class MainSettingsWindow():
         self.widget['voice_inactive_fade_time'].set_value(
             config.getint("main", "inactive_fade_time", fallback=30)
         )
+        self.widget['voice_hide_mouseover'].set_active(
+            config.getboolean("main", "autohide", fallback=False)
+        )
+        self.widget['voice_show_mouseover'].set_value(
+            config.getint("main", "autohide_timer", fallback=5)
+        )
 
         # Read Text section
 
@@ -485,6 +583,13 @@ class MainSettingsWindow():
 
         self.widget['text_line_limit'].set_value(
             config.getint("text", "line_limit", fallback=20))
+
+        self.widget['text_hide_mouseover'].set_active(
+            config.getboolean("text", "autohide", fallback=False)
+        )
+        self.widget['text_show_mouseover'].set_value(
+            config.getint("text", "autohide_timer", fallback=5)
+        )
 
         # Read Notification section
         self.widget['notification_enable'].set_active(
@@ -829,11 +934,20 @@ class MainSettingsWindow():
         with open(self.config_file, 'w') as file:
             config.write(file)
 
-    def voice_anchor_to_edge_changed(self, button):
-        self.config_set("main", "floating", "False")
+    def voice_anchor_float_changed(self, button):
+        self.config_set("main", "floating", "%s" % (button.get_active() == 0))
+        self.update_floating_ahchor()
 
-    def voice_floating_changed(self, button):
-        self.config_set("main", "floating", "True")
+    def update_floating_ahchor(self):
+        floating = self.widget['voice_anchor_float'].get_active() == 0
+        if floating:
+            self.widget['voice_align_1'].hide()
+            self.widget['voice_align_2'].hide()
+            self.widget['voice_place_window_button'].show()
+        else:
+            self.widget['voice_align_1'].show()
+            self.widget['voice_align_2'].show()
+            self.widget['voice_place_window_button'].hide()
 
     def voice_monitor_changed(self, button):
         self.config_set("main", "monitor", "%s" % (button.get_active()))
@@ -843,13 +957,6 @@ class MainSettingsWindow():
 
     def voice_align_2_changed(self, button):
         self.config_set("main", "topalign", "%s" % (button.get_active()))
-
-    def voice_show_advanced_options_button_changed(self, button):
-        self.voice_advanced = not self.voice_advanced
-        if self.voice_advanced:
-            self.widget['voice_advanced_grid'].show()
-        else:
-            self.widget['voice_advanced_grid'].hide()
 
     def voice_font_changed(self, button):
         self.config_set("main", "font", button.get_font())
