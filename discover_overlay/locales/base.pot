@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"POT-Creation-Date: 2024-03-31 19:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,28 +184,7 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-msgid "Overlay Location"
-msgstr ""
-
-msgid "Anchor To Edge"
-msgstr ""
-
-msgid "Floating"
-msgstr ""
-
-msgid "Show Advanced Options"
-msgstr ""
-
 msgid "Display Horizontally"
-msgstr ""
-
-msgid "Foreground"
-msgstr ""
-
-msgid "Background"
-msgstr ""
-
-msgid "Border"
 msgstr ""
 
 msgid "Talking"
@@ -218,6 +197,33 @@ msgid "Mute"
 msgstr ""
 
 msgid "Avatar"
+msgstr ""
+
+msgid "Foreground"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Border"
+msgstr ""
+
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
+msgid "Overlay Location"
+msgstr ""
+
+msgid "Floating"
+msgstr ""
+
+msgid "Anchor to Edge"
+msgstr ""
+
+msgid "Voice"
 msgstr ""
 
 msgid "Show Names"
@@ -310,13 +316,7 @@ msgstr ""
 msgid "Time Fading out"
 msgstr ""
 
-msgid "Hide Overlay on Mouseover"
-msgstr ""
-
-msgid "Show again after (seconds)"
-msgstr ""
-
-msgid "Voice"
+msgid "Voice - Advanced"
 msgstr ""
 
 msgid "Enable"
@@ -413,6 +413,9 @@ msgid "Hide Overlays"
 msgstr ""
 
 msgid "Reset Core Settings"
+msgstr ""
+
+msgid "Integrate with Pipewire/Pulseaudio"
 msgstr ""
 
 msgid "Core"

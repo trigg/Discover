@@ -165,28 +165,7 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-msgid "Overlay Location"
-msgstr ""
-
-msgid "Anchor To Edge"
-msgstr ""
-
-msgid "Floating"
-msgstr ""
-
-msgid "Show Advanced Options"
-msgstr ""
-
 msgid "Display Horizontally"
-msgstr ""
-
-msgid "Foreground"
-msgstr ""
-
-msgid "Background"
-msgstr ""
-
-msgid "Border"
 msgstr ""
 
 msgid "Talking"
@@ -199,6 +178,33 @@ msgid "Mute"
 msgstr ""
 
 msgid "Avatar"
+msgstr ""
+
+msgid "Foreground"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Border"
+msgstr ""
+
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
+msgid "Overlay Location"
+msgstr ""
+
+msgid "Floating"
+msgstr ""
+
+msgid "Anchor to Edge"
+msgstr ""
+
+msgid "Voice"
 msgstr ""
 
 msgid "Show Names"
@@ -291,13 +297,7 @@ msgstr ""
 msgid "Time Fading out"
 msgstr ""
 
-msgid "Hide Overlay on Mouseover"
-msgstr ""
-
-msgid "Show again after (seconds)"
-msgstr ""
-
-msgid "Voice"
+msgid "Voice - Advanced"
 msgstr ""
 
 msgid "Enable"
@@ -394,6 +394,9 @@ msgid "Hide Overlays"
 msgstr ""
 
 msgid "Reset Core Settings"
+msgstr ""
+
+msgid "Integrate with Pipewire/Pulseaudio"
 msgstr ""
 
 msgid "Core"

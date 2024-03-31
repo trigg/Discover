@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discover 0.7.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"POT-Creation-Date: 2024-03-31 19:51+0100\n"
 "PO-Revision-Date: 2024-03-23 00:10+0100\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: Noé Lopez <noelopez@free.fr>\n"
@@ -191,29 +191,8 @@ msgstr "Fermer l’overlay"
 msgid "Overview"
 msgstr "Aperçu"
 
-msgid "Overlay Location"
-msgstr "Position de l’overlay"
-
-msgid "Anchor To Edge"
-msgstr "Ancré au bord"
-
-msgid "Floating"
-msgstr "Flottant"
-
-msgid "Show Advanced Options"
-msgstr "Afficher les options avancées"
-
 msgid "Display Horizontally"
 msgstr "Afficher horizontalement"
-
-msgid "Foreground"
-msgstr "Texte"
-
-msgid "Background"
-msgstr "Arrière-plan"
-
-msgid "Border"
-msgstr "Bordure"
 
 msgid "Talking"
 msgstr "En train de parler"
@@ -226,6 +205,33 @@ msgstr "Muet"
 
 msgid "Avatar"
 msgstr "Avatar"
+
+msgid "Foreground"
+msgstr "Texte"
+
+msgid "Background"
+msgstr "Arrière-plan"
+
+msgid "Border"
+msgstr "Bordure"
+
+msgid "Hide Overlay on Mouseover"
+msgstr "Cacher l’overlay au survolement de la souris"
+
+msgid "Show again after (seconds)"
+msgstr "Afficher de nouveau après (secondes)"
+
+msgid "Overlay Location"
+msgstr "Position de l’overlay"
+
+msgid "Floating"
+msgstr "Flottant"
+
+msgid "Anchor to Edge"
+msgstr "Ancré au bord"
+
+msgid "Voice"
+msgstr "Voix"
 
 msgid "Show Names"
 msgstr "Afficher les noms"
@@ -317,14 +323,8 @@ msgstr "Temps avant l’inactivité"
 msgid "Time Fading out"
 msgstr "Durée du fondu"
 
-msgid "Hide Overlay on Mouseover"
-msgstr "Cacher l’overlay au survolement de la souris"
-
-msgid "Show again after (seconds)"
-msgstr "Afficher de nouveau après (secondes)"
-
-msgid "Voice"
-msgstr "Voix"
+msgid "Voice - Advanced"
+msgstr ""
 
 msgid "Enable"
 msgstr "Activer"
@@ -422,5 +422,11 @@ msgstr "Cacher les overlays"
 msgid "Reset Core Settings"
 msgstr "Réinitialiser les paramètres du noyeau"
 
+msgid "Integrate with Pipewire/Pulseaudio"
+msgstr ""
+
 msgid "Core"
 msgstr "Noyau"
+
+#~ msgid "Show Advanced Options"
+#~ msgstr "Afficher les options avancées"

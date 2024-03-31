@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"POT-Creation-Date: 2024-03-31 19:51+0100\n"
 "PO-Revision-Date: 2022-09-23 23:05+0200\n"
 "Last-Translator: Baumfinder <baumkartoffel@outlook.de>\n"
 "Language-Team: German <baumkartoffel@outlook.de>\n"
@@ -200,29 +200,8 @@ msgstr "Overlay schließen"
 msgid "Overview"
 msgstr "Übersicht"
 
-msgid "Overlay Location"
-msgstr "Overlayposition"
-
-msgid "Anchor To Edge"
-msgstr "An der Kante verankern"
-
-msgid "Floating"
-msgstr "Schwebend"
-
-msgid "Show Advanced Options"
-msgstr "Erweiterte Optionen anzeigen"
-
 msgid "Display Horizontally"
 msgstr "Horizontal anzeigen"
-
-msgid "Foreground"
-msgstr "Vordergrund"
-
-msgid "Background"
-msgstr "Hintergrund"
-
-msgid "Border"
-msgstr "Grenze"
 
 msgid "Talking"
 msgstr "Sprechen"
@@ -235,6 +214,33 @@ msgstr "Stumm"
 
 msgid "Avatar"
 msgstr "Avatar"
+
+msgid "Foreground"
+msgstr "Vordergrund"
+
+msgid "Background"
+msgstr "Hintergrund"
+
+msgid "Border"
+msgstr "Grenze"
+
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
+msgid "Overlay Location"
+msgstr "Overlayposition"
+
+msgid "Floating"
+msgstr "Schwebend"
+
+msgid "Anchor to Edge"
+msgstr "An der Kante verankern"
+
+msgid "Voice"
+msgstr "Sprache"
 
 msgid "Show Names"
 msgstr ""
@@ -326,14 +332,8 @@ msgstr ""
 msgid "Time Fading out"
 msgstr ""
 
-msgid "Hide Overlay on Mouseover"
+msgid "Voice - Advanced"
 msgstr ""
-
-msgid "Show again after (seconds)"
-msgstr ""
-
-msgid "Voice"
-msgstr "Sprache"
 
 msgid "Enable"
 msgstr "Aktivieren"
@@ -429,6 +429,9 @@ msgid "Hide Overlays"
 msgstr "Overlay verstecken"
 
 msgid "Reset Core Settings"
+msgstr ""
+
+msgid "Integrate with Pipewire/Pulseaudio"
 msgstr ""
 
 msgid "Core"

@@ -601,7 +601,7 @@
                 <property name="name">voice_show_mouseover</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="text" translatable="yes">1</property>
+                <property name="text">1</property>
                 <property name="adjustment">voice_show_mouseover_adj</property>
                 <property name="value">1</property>
                 <signal name="value-changed" handler="voice_mouseover_timeout_changed" swapped="no"/>

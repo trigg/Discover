@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"POT-Creation-Date: 2024-03-31 19:51+0100\n"
 "PO-Revision-Date: 2023-04-17 15:44+0300\n"
 "Last-Translator: Ahmet Arda Kavakcı <ahmetardakavakci@gmail.com>\n"
 "Language-Team: Turkish <ahmetardakavakci@gmail.com>\n"
@@ -192,29 +192,8 @@ msgstr "Arayüzü kapat"
 msgid "Overview"
 msgstr "Genel Bakış"
 
-msgid "Overlay Location"
-msgstr "Arayüz Konumu"
-
-msgid "Anchor To Edge"
-msgstr "Kenara Sabitle"
-
-msgid "Floating"
-msgstr "Uçan Pencere"
-
-msgid "Show Advanced Options"
-msgstr "Gelişmiş Ayarları Göster"
-
 msgid "Display Horizontally"
 msgstr "Yatay Olarak Göster"
-
-msgid "Foreground"
-msgstr "Ön Plan"
-
-msgid "Background"
-msgstr "Arka Plan"
-
-msgid "Border"
-msgstr "Kenar"
 
 msgid "Talking"
 msgstr "Konuşuyor"
@@ -227,6 +206,33 @@ msgstr "Sustur"
 
 msgid "Avatar"
 msgstr "Avatar"
+
+msgid "Foreground"
+msgstr "Ön Plan"
+
+msgid "Background"
+msgstr "Arka Plan"
+
+msgid "Border"
+msgstr "Kenar"
+
+msgid "Hide Overlay on Mouseover"
+msgstr ""
+
+msgid "Show again after (seconds)"
+msgstr ""
+
+msgid "Overlay Location"
+msgstr "Arayüz Konumu"
+
+msgid "Floating"
+msgstr "Uçan Pencere"
+
+msgid "Anchor to Edge"
+msgstr "Kenara Sabitle"
+
+msgid "Voice"
+msgstr "Ses"
 
 msgid "Show Names"
 msgstr "İsimleri Göster"
@@ -318,14 +324,8 @@ msgstr ""
 msgid "Time Fading out"
 msgstr ""
 
-msgid "Hide Overlay on Mouseover"
+msgid "Voice - Advanced"
 msgstr ""
-
-msgid "Show again after (seconds)"
-msgstr ""
-
-msgid "Voice"
-msgstr "Ses"
 
 msgid "Enable"
 msgstr "Etkinleştir"
@@ -421,6 +421,9 @@ msgid "Hide Overlays"
 msgstr "Arayüzleri Gizle"
 
 msgid "Reset Core Settings"
+msgstr ""
+
+msgid "Integrate with Pipewire/Pulseaudio"
 msgstr ""
 
 msgid "Core"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-23 00:17+0100\n"
+"POT-Creation-Date: 2024-03-31 19:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -193,29 +193,8 @@ msgstr "Cau troslun"
 msgid "Overview"
 msgstr "Trosolwg"
 
-msgid "Overlay Location"
-msgstr "Lleoliad troslun"
-
-msgid "Anchor To Edge"
-msgstr "Angor i ymyl"
-
-msgid "Floating"
-msgstr "Symudol"
-
-msgid "Show Advanced Options"
-msgstr "Dangos Mwy o Opsiynau"
-
 msgid "Display Horizontally"
 msgstr "Arddangos yn llorweddol"
-
-msgid "Foreground"
-msgstr "Blaendir"
-
-msgid "Background"
-msgstr "Cefndir"
-
-msgid "Border"
-msgstr "Ffin"
 
 msgid "Talking"
 msgstr "Siarad"
@@ -228,6 +207,33 @@ msgstr "Treiglo"
 
 msgid "Avatar"
 msgstr "Avatar"
+
+msgid "Foreground"
+msgstr "Blaendir"
+
+msgid "Background"
+msgstr "Cefndir"
+
+msgid "Border"
+msgstr "Ffin"
+
+msgid "Hide Overlay on Mouseover"
+msgstr "Cuddio troshaenu ar mouseover"
+
+msgid "Show again after (seconds)"
+msgstr "Dangoswch eto ar ôl"
+
+msgid "Overlay Location"
+msgstr "Lleoliad troslun"
+
+msgid "Floating"
+msgstr "Symudol"
+
+msgid "Anchor to Edge"
+msgstr "Angor i Ymyl"
+
+msgid "Voice"
+msgstr "LLais"
 
 msgid "Show Names"
 msgstr "Dangos Enwau"
@@ -319,14 +325,8 @@ msgstr "Amser cyn anweithgar"
 msgid "Time Fading out"
 msgstr "Amser yn pylu"
 
-msgid "Hide Overlay on Mouseover"
-msgstr "Cuddio troshaenu ar mouseover"
-
-msgid "Show again after (seconds)"
-msgstr "Dangoswch eto ar ôl"
-
-msgid "Voice"
-msgstr "LLais"
+msgid "Voice - Advanced"
+msgstr "LLais - Uwch"
 
 msgid "Enable"
 msgstr "Galluogi"
@@ -423,6 +423,9 @@ msgstr "Cuddio troslun"
 
 msgid "Reset Core Settings"
 msgstr "Ailosod Gosodiadau Craidd"
+
+msgid "Integrate with Pipewire/Pulseaudio"
+msgstr "Integrate with Pipewire/Pulseaudio"
 
 msgid "Core"
 msgstr "Craidd"
