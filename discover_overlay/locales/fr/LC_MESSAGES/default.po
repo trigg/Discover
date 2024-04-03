@@ -1,12 +1,10 @@
-# Header entry was created by Lokalize.
-#
 # Noé Lopez <noelopez@free.fr>, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: discover 0.7.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-31 19:51+0100\n"
-"PO-Revision-Date: 2024-03-23 00:10+0100\n"
+"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"PO-Revision-Date: 2024-04-03 22:46+0200\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: Noé Lopez <noelopez@free.fr>\n"
 "Language: fr_FR\n"
@@ -324,7 +322,7 @@ msgid "Time Fading out"
 msgstr "Durée du fondu"
 
 msgid "Voice - Advanced"
-msgstr ""
+msgstr "Voix — Avancé"
 
 msgid "Enable"
 msgstr "Activer"
@@ -423,7 +421,7 @@ msgid "Reset Core Settings"
 msgstr "Réinitialiser les paramètres du noyeau"
 
 msgid "Integrate with Pipewire/Pulseaudio"
-msgstr ""
+msgstr "Intégration avec Pipewire/Pulseaudio"
 
 msgid "Core"
 msgstr "Noyau"
