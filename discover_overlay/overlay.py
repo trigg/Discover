@@ -222,10 +222,20 @@ class OverlayWindow(Gtk.Window):
         """
         Set if the window is floating and what dimensions to use
         """
+        if width > 1.0 and height > 1.0:
+            # Old data.
+            (screen_x, screen_y, screen_width,
+             screen_height) = self.get_display_coords()
+            pos_x = float(pos_x) / screen_width
+            pos_y = float(pos_y) / screen_height
+            width = float(width) / screen_width
+            height = float(height) / screen_height
+
         if self.floating != floating or self.pos_x != pos_x or self.pos_y != pos_y or self.width != width or self.height != height:
             # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
             if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
                 floating = True
+
             self.floating = floating
             self.pos_x = pos_x
             self.pos_y = pos_y
@@ -272,46 +282,48 @@ class OverlayWindow(Gtk.Window):
         On Gamescope enforce size of display but only if it's the primary overlay
         """
         if self.discover.steamos and not self.piggyback_parent:
-            display = Gdk.Display.get_default()
-            if "get_monitor" in dir(display):
-                monitor = display.get_monitor(self.monitor)
-                if monitor:
-                    geometry = monitor.get_geometry()
-                    scale_factor = monitor.get_scale_factor()
-                    width = geometry.width
-                    height = geometry.height
-                    self.resize(width, height)
-                    self.set_needs_redraw()
-                return
+            (floating_x, floating_y, floating_width,
+             floating_height) = self.get_floating_coords()
+            self.resize(floating_width, floating_height)
+            self.set_needs_redraw()
+            return
         if not self.is_wayland:
             self.set_decorated(False)
             self.set_keep_above(True)
-            display = Gdk.Display.get_default()
-            if "get_monitor" in dir(display):
-                monitor = display.get_monitor(self.monitor)
-                if monitor:
-                    geometry = monitor.get_geometry()
-                    scale_factor = monitor.get_scale_factor()
-                    if not self.floating:
-                        width = geometry.width
-                        height = geometry.height
-                        pos_x = geometry.x
-                        pos_y = geometry.y
-                        self.resize(width, height)
-                        self.move(pos_x, pos_y)
-                    else:
-                        self.move(self.pos_x, self.pos_y)
-                        self.resize(self.width, self.height)
-            else:
-                if self.floating:
-                    self.move(self.pos_x, self.pos_y)
-                    self.resize(self.width, self.height)
 
-        if not self.floating:
-            (width, height) = self.get_size()
-            self.width = width
-            self.height = height
+            (floating_x, floating_y, floating_width,
+             floating_height) = self.get_floating_coords()
+            self.resize(floating_width, floating_height)
+            self.move(floating_x, floating_y)
+
         self.set_needs_redraw()
+
+    def get_display_coords(self):
+        if self.piggyback_parent:
+            return self.piggyback_parent.get_display_coords()
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            if self.monitor == None or self.monitor < 0:
+                monitor = display.get_monitor(0)
+            else:
+                monitor = display.get_monitor(self.monitor)
+            if monitor:
+                geometry = monitor.get_geometry()
+                return (geometry.x, geometry.y, geometry.width, geometry.height)
+        log.warn("No monitor found! This is going to go badly")
+        return (0, 0, 1920, 1080)  # We're in trouble
+
+    def get_floating_coords(self):
+        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+        if self.floating:
+            if self.pos_x == None or self.pos_y == None or self.width == None or self.height == None:
+                log.error("No usable floating position")
+
+            if not self.is_wayland:
+                return (screen_x + self.pos_x * screen_width, screen_y + self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
+            return (self.pos_x * screen_width, self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
+        else:
+            return (0, 0, screen_width, screen_height)
 
     def set_needs_redraw(self, be_pushy=False):
         if (not self.hidden and self.enabled) or be_pushy:
@@ -338,10 +350,6 @@ class OverlayWindow(Gtk.Window):
         if self.piggyback_parent:
             self.piggyback_parent.redraw()
             return
-        if not self.floating:
-            (width, height) = self.get_size()
-            self.width = width
-            self.height = height
         if gdkwin:
             compositing = self.get_screen().is_composited()
             if not compositing or self.force_xshape:

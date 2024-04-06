@@ -258,7 +258,9 @@ class NotificationOverlayWindow(OverlayWindow):
         layout.set_auto_dir(True)
         layout.set_markup(message, -1)
         attr = layout.get_attributes()
-        width = self.limit_width if self.width > self.limit_width else self.width
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
+        width = self.limit_width if floating_width > self.limit_width else floating_width
         layout.set_width((Pango.SCALE * (width -
                          (self.border_radius * 4 + icon_width + icon_pad))))
         layout.set_spacing(Pango.SCALE * 3)
@@ -304,11 +306,13 @@ class NotificationOverlayWindow(OverlayWindow):
             # The window is full-screen regardless of what the user has selected.
             # We need to set a clip and a transform to imitate original behaviour
             # Used in wlroots & gamescope
-            width = self.width
-            height = self.height
-            context.translate(self.pos_x, self.pos_y)
-            context.rectangle(0, 0, width, height)
-            context.clip()
+            (floating_x, floating_y, floating_width,
+             floating_height) = self.get_floating_coords()
+            if self.floating:
+                context.new_path()
+                context.translate(floating_x, floating_y)
+                context.rectangle(0, 0, floating_width, floating_height)
+                context.clip()
 
         current_y = height
         if self.align_vert == 0:
@@ -367,7 +371,9 @@ class NotificationOverlayWindow(OverlayWindow):
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        width = self.limit_width if self.width > self.limit_width else self.width
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
+        width = self.limit_width if floating_width > self.limit_width else floating_width
         layout.set_width((Pango.SCALE * (width -
                          (self.border_radius * 4 + icon_width + icon_pad))))
         layout.set_spacing(Pango.SCALE * 3)
@@ -388,7 +394,7 @@ class NotificationOverlayWindow(OverlayWindow):
 
         left = 0
         if self.align_right:
-            left = self.width - shape_width
+            left = floating_width - shape_width
 
         self.context.save()
         # Draw Background

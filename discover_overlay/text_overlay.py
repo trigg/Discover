@@ -227,13 +227,17 @@ class TextOverlayWindow(OverlayWindow):
             # The window is full-screen regardless of what the user has selected.
             # We need to set a clip and a transform to imitate original behaviour
             # Used in wlroots & gamescope
-            width = self.width
-            height = self.height
-            context.translate(self.pos_x, self.pos_y)
-            context.rectangle(0, 0, width, height)
-            context.clip()
-
-        current_y = height
+            (floating_x, floating_y, floating_width,
+             floating_height) = self.get_floating_coords()
+            if self.floating:
+                context.new_path()
+                context.translate(floating_x, floating_y)
+                context.rectangle(0, 0, floating_width, floating_height)
+                context.clip()
+            pass
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
+        current_y = floating_height
         tnow = time.time()
         for line in reversed(self.content):
             if self.popup_style and tnow - line['time'] > self.text_time:
@@ -278,15 +282,17 @@ class TextOverlayWindow(OverlayWindow):
         """
         Draw an attachment
         """
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
         if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
-            image_width = min(pix.get_width(), self.width)
-            image_height = min(pix.get_height(), (self.height * .7))
+            image_width = min(pix.get_width(), floating_width)
+            image_height = min(pix.get_height(), (floating_height * .7))
             (_ax, _ay, _aw, aspect_height) = get_aspected_size(
                 pix, image_width, image_height)
             self.col(self.bg_col)
             self.context.rectangle(0, pos_y - aspect_height,
-                                   self.width, aspect_height)
+                                   floating_width, aspect_height)
 
             self.context.fill()
             self.context.set_operator(cairo.OPERATOR_OVER)
@@ -304,14 +310,17 @@ class TextOverlayWindow(OverlayWindow):
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        layout.set_width(Pango.SCALE * self.width)
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
+        layout.set_width(Pango.SCALE * floating_width)
         layout.set_spacing(Pango.SCALE * 3)
         if self.text_font:
             font = Pango.FontDescription(self.text_font)
             layout.set_font_description(font)
         _tw, text_height = layout.get_pixel_size()
         self.col(self.bg_col)
-        self.context.rectangle(0, pos_y - text_height, self.width, text_height)
+        self.context.rectangle(0, pos_y - text_height,
+                               floating_width, text_height)
         self.context.fill()
         self.context.set_operator(cairo.OPERATOR_OVER)
         self.col(self.fg_col)

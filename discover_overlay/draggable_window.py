@@ -24,12 +24,14 @@ log = logging.getLogger(__name__)
 class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
 
-    def __init__(self, pos_x=0, pos_y=0, width=300, height=300, message="Message", settings=None):
+    def __init__(self, pos_x=0.0, pos_y=0.0, width=0.1, height=0.1, message="Message", settings=None, monitor=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.width = max(100, width)
-        self.height = max(100, height)
+        self.monitor = monitor
+        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+        self.pos_x = pos_x * screen_width
+        self.pos_y = pos_y * screen_height
+        self.width = max(40, width * screen_width)
+        self.height = max(40, height * screen_height)
         self.settings = settings
         self.message = message
         self.set_size_request(50, 50)
@@ -50,7 +52,6 @@ class DraggableWindow(Gtk.Window):
             self.compositing = True
 
         self.set_app_paintable(True)
-        self.monitor = 0
 
         self.drag_type = None
         self.drag_x = 0
@@ -65,7 +66,17 @@ class DraggableWindow(Gtk.Window):
         """
         self.set_decorated(False)
         self.set_keep_above(True)
-        self.move(self.pos_x, self.pos_y)
+
+        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+
+        self.width = min(self.width, screen_width)
+        self.height = min(self.height, screen_height)
+        self.pos_x = max(0, self.pos_x)
+        self.pos_x = min(screen_width - self.width, self.pos_x)
+        self.pos_y = max(0, self.pos_y)
+        self.pos_y = min(screen_height - self.height, self.pos_y)
+
+        self.move(self.pos_x + screen_x, self.pos_y + screen_y)
         self.resize(self.width, self.height)
 
     def drag(self, _w, event):
@@ -73,8 +84,10 @@ class DraggableWindow(Gtk.Window):
         if event.state & Gdk.ModifierType.BUTTON1_MASK:
             if self.drag_type == 1:
                 # Center is move
-                self.pos_x = event.x_root - self.drag_x
-                self.pos_y = event.y_root - self.drag_y
+                (screen_x, screen_y, screen_width,
+                 screen_height) = self.get_display_coords()
+                self.pos_x = (event.x_root - screen_x) - self.drag_x
+                self.pos_y = (event.y_root - screen_y) - self.drag_y
                 self.force_location()
             elif self.drag_type == 2:
                 # Right edge
@@ -86,7 +99,7 @@ class DraggableWindow(Gtk.Window):
                 self.height += event.y - self.drag_y
                 self.drag_y = event.y
                 self.force_location()
-            else:
+            elif self.drag_type == 4:
                 # Bottom Right
                 self.width += event.x - self.drag_x
                 self.height += event.y - self.drag_y
@@ -137,11 +150,25 @@ class DraggableWindow(Gtk.Window):
         context.rectangle(0, window_height - 32, window_width, 32)
         context.fill()
 
+    def get_display_coords(self):
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            monitor = display.get_monitor(self.monitor)
+            if monitor:
+                geometry = monitor.get_geometry()
+                return (geometry.x, geometry.y, geometry.width, geometry.height)
+        return (0, 0, 1920, 1080)  # We're in trouble
+
     def get_coords(self):
         """Return window position and size"""
+        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
         scale = self.get_scale_factor()
         (pos_x, pos_y) = self.get_position()
+        pos_x = float(max(0, pos_x - screen_x))
+        pos_y = float(max(0, pos_y - screen_y))
         (width, height) = self.get_size()
+        width = float(width)
+        height = float(height)
         pos_x = pos_x / scale
         pos_y = pos_y / scale
-        return (pos_x, pos_y, width, height)
+        return (pos_x / screen_width, pos_y / screen_height, width / screen_width, height / screen_height)

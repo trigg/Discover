@@ -241,10 +241,10 @@ class Discover:
         self.voice_overlay.set_horz_edge_padding(config.getint(
             "main", "horz_edge_padding", fallback=0))
         floating = config.getboolean("main", "floating", fallback=False)
-        floating_x = config.getint("main", "floating_x", fallback=0)
-        floating_y = config.getint("main", "floating_y", fallback=0)
-        floating_w = config.getint("main", "floating_w", fallback=400)
-        floating_h = config.getint("main", "floating_h", fallback=400)
+        floating_x = config.getfloat("main", "floating_x", fallback=0.0)
+        floating_y = config.getfloat("main", "floating_y", fallback=0.0)
+        floating_w = config.getfloat("main", "floating_w", fallback=0.1)
+        floating_h = config.getfloat("main", "floating_h", fallback=0.1)
         self.voice_overlay.set_order(
             config.getint("main", "order", fallback=0))
         self.voice_overlay.set_hide_on_mouseover(
@@ -309,10 +309,10 @@ class Discover:
         except:
             pass
         floating = config.getboolean("text", "floating", fallback=True)
-        floating_x = config.getint("text", "floating_x", fallback=0)
-        floating_y = config.getint("text", "floating_y", fallback=0)
-        floating_w = config.getint("text", "floating_w", fallback=400)
-        floating_h = config.getint("text", "floating_h", fallback=400)
+        floating_x = config.getfloat("text", "floating_x", fallback=0.0)
+        floating_y = config.getfloat("text", "floating_y", fallback=0.0)
+        floating_w = config.getfloat("text", "floating_w", fallback=0.1)
+        floating_h = config.getfloat("text", "floating_h", fallback=0.1)
 
         channel = config.get("text", "channel", fallback="0")
         guild = config.get("text", "guild", fallback="0")
@@ -357,14 +357,14 @@ class Discover:
             pass
         floating = config.getboolean(
             "notification", "floating", fallback=False)
-        floating_x = config.getint(
-            "notification", "floating_x", fallback=0)
-        floating_y = config.getint(
-            "notification", "floating_y", fallback=0)
-        floating_w = config.getint(
-            "notification", "floating_w", fallback=400)
-        floating_h = config.getint(
-            "notification", "floating_h", fallback=400)
+        floating_x = config.getfloat(
+            "notification", "floating_x", fallback=0.0)
+        floating_y = config.getfloat(
+            "notification", "floating_y", fallback=0.0)
+        floating_w = config.getfloat(
+            "notification", "floating_w", fallback=0.1)
+        floating_h = config.getfloat(
+            "notification", "floating_h", fallback=0.1)
         font = config.get("notification", "font", fallback=None)
         self.notification_overlay.set_bg(json.loads(config.get(
             "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))

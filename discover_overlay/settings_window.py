@@ -326,9 +326,17 @@ class MainSettingsWindow():
         t = self.widget['text_monitor']
         m = self.widget['notification_monitor']
 
+        v_value = v.get_active()
+        t_value = t.get_active()
+        m_value = m.get_active()
+
         v.remove_all()
         t.remove_all()
         m.remove_all()
+
+        v.append_text("Any")
+        t.append_text("Any")
+        m.append_text("Any")
 
         display = Gdk.Display.get_default()
         if "get_n_monitors" in dir(display):
@@ -336,6 +344,10 @@ class MainSettingsWindow():
                 v.append_text(display.get_monitor(i).get_model())
                 t.append_text(display.get_monitor(i).get_model())
                 m.append_text(display.get_monitor(i).get_model())
+
+        v.set_active(v_value)
+        t.set_active(t_value)
+        m.set_active(m_value)
 
     def close_window(self, widget=None, event=None):
         """
@@ -396,11 +408,13 @@ class MainSettingsWindow():
 
         # Read Voice section
 
-        self.voice_floating_x = config.getint("main", "floating_x", fallback=0)
-        self.voice_floating_y = config.getint("main", "floating_y", fallback=0)
-        self.voice_floating_w = config.getint(
+        self.voice_floating_x = config.getfloat(
+            "main", "floating_x", fallback=0)
+        self.voice_floating_y = config.getfloat(
+            "main", "floating_y", fallback=0)
+        self.voice_floating_w = config.getfloat(
             "main", "floating_w", fallback=400)
-        self.voice_floating_h = config.getint(
+        self.voice_floating_h = config.getfloat(
             "main", "floating_h", fallback=400)
 
         self.widget['voice_anchor_float'].set_active(
@@ -418,7 +432,7 @@ class MainSettingsWindow():
         except:
             pass
 
-        self.widget['voice_monitor'].set_active(monitor)
+        self.widget['voice_monitor'].set_active(monitor+1)
 
         font = config.get("main", "font", fallback=None)
         if font:
@@ -551,11 +565,13 @@ class MainSettingsWindow():
 
         # Read Text section
 
-        self.text_floating_x = config.getint("text", "floating_x", fallback=0)
-        self.text_floating_y = config.getint("text", "floating_y", fallback=0)
-        self.text_floating_w = config.getint(
+        self.text_floating_x = config.getfloat(
+            "text", "floating_x", fallback=0)
+        self.text_floating_y = config.getfloat(
+            "text", "floating_y", fallback=0)
+        self.text_floating_w = config.getfloat(
             "text", "floating_w", fallback=400)
-        self.text_floating_h = config.getint(
+        self.text_floating_h = config.getfloat(
             "text", "floating_h", fallback=400)
 
         self.widget['text_enable'].set_active(
@@ -588,7 +604,7 @@ class MainSettingsWindow():
         except:
             pass
 
-        self.widget['text_monitor'].set_active(monitor)
+        self.widget['text_monitor'].set_active(monitor+1)
 
         self.widget['text_show_attachments'].set_active(config.getboolean(
             "text", "show_attach", fallback=True))
@@ -631,7 +647,7 @@ class MainSettingsWindow():
         except:
             pass
 
-        self.widget['notification_monitor'].set_active(monitor)
+        self.widget['notification_monitor'].set_active(monitor+1)
 
         self.widget['notification_align_1'].set_active(config.getboolean(
             "notification", "rightalign", fallback=True))
@@ -831,14 +847,14 @@ class MainSettingsWindow():
             config.read(self.config_file)
             if not "main" in config.sections():
                 config.add_section("main")
-            config.set("main", "floating_x", "%s" %
-                       (int(self.voice_floating_x)))
-            config.set("main", "floating_y", "%s" %
-                       (int(self.voice_floating_y)))
-            config.set("main", "floating_w", "%s" %
-                       (int(self.voice_floating_w)))
-            config.set("main", "floating_h", "%s" %
-                       (int(self.voice_floating_h)))
+            config.set("main", "floating_x", "%f" %
+                       (self.voice_floating_x))
+            config.set("main", "floating_y", "%f" %
+                       (self.voice_floating_y))
+            config.set("main", "floating_w", "%f" %
+                       (self.voice_floating_w))
+            config.set("main", "floating_h", "%f" %
+                       (self.voice_floating_h))
 
             with open(self.config_file, 'w') as file:
                 config.write(file)
@@ -857,12 +873,12 @@ class MainSettingsWindow():
                     width=self.voice_floating_w, height=self.voice_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.widget['voice_monitor'].get_active()))
+                    monitor=self.widget['voice_monitor'].get_active()-1)
             else:
                 self.voice_placement_window = DraggableWindow(
                     pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
                     width=self.voice_floating_w, height=self.voice_floating_h,
-                    message=_("Place & resize this window then press Save!"), settings=self)
+                    message=_("Place & resize this window then press Save!"), settings=self, monitor=self.widget['voice_monitor'].get_active()-1)
                 if button:
                     button.set_label(_("Save this position"))
 
@@ -878,14 +894,14 @@ class MainSettingsWindow():
             config.read(self.config_file)
             if not "text" in config.sections():
                 config.add_section("text")
-            config.set("text", "floating_x", "%s" %
-                       (int(self.text_floating_x)))
-            config.set("text", "floating_y", "%s" %
-                       (int(self.text_floating_y)))
-            config.set("text", "floating_w", "%s" %
-                       (int(self.text_floating_w)))
-            config.set("text", "floating_h", "%s" %
-                       (int(self.text_floating_h)))
+            config.set("text", "floating_x", "%f" %
+                       (self.text_floating_x))
+            config.set("text", "floating_y", "%f" %
+                       (self.text_floating_y))
+            config.set("text", "floating_w", "%f" %
+                       (self.text_floating_w))
+            config.set("text", "floating_h", "%f" %
+                       (self.text_floating_h))
 
             with open(self.config_file, 'w') as file:
                 config.write(file)
@@ -904,12 +920,12 @@ class MainSettingsWindow():
                     width=self.text_floating_w, height=self.text_floating_h,
                     message=_("Place & resize this window then press Green!"), settings=self,
                     steamos=self.steamos,
-                    monitor=self.get_monitor_obj(self.widget['text_monitor'].get_active()))
+                    monitor=self.widget['text_monitor'].get_active()-1)
             else:
                 self.text_placement_window = DraggableWindow(
                     pos_x=self.text_floating_x, pos_y=self.text_floating_y,
                     width=self.text_floating_w, height=self.text_floating_h,
-                    message=_("Place & resize this window then press Save!"), settings=self)
+                    message=_("Place & resize this window then press Save!"), settings=self, monitor=self.widget['text_monitor'].get_active()-1)
                 if button:
                     button.set_label(_("Save this position"))
 
@@ -962,7 +978,7 @@ class MainSettingsWindow():
             self.widget['voice_place_window_button'].hide()
 
     def voice_monitor_changed(self, button):
-        self.config_set("main", "monitor", "%s" % (button.get_active()))
+        self.config_set("main", "monitor", "%s" % (button.get_active()-1))
 
     def voice_align_1_changed(self, button):
         self.config_set("main", "rightalign", "%s" % (button.get_active()))
@@ -1179,7 +1195,7 @@ class MainSettingsWindow():
         self.config_set("text", "bg_col", json.dumps(colour))
 
     def text_monitor_changed(self, button):
-        self.config_set("text", "monitor", "%s" % (button.get_active()))
+        self.config_set("text", "monitor", "%s" % (button.get_active()-1))
 
     def text_show_attachments_changed(self, button):
         self.config_set("text", "show_attach", "%s" % (button.get_active()))
@@ -1217,7 +1233,7 @@ class MainSettingsWindow():
 
     def notification_monitor_changed(self, button):
         self.config_set("notification", "monitor", "%s" %
-                        (button.get_active()))
+                        (button.get_active()-1))
 
     def notification_align_1_changed(self, button):
         self.config_set("notification", "rightalign", "%s" %

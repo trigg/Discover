@@ -551,17 +551,18 @@ class VoiceOverlayWindow(OverlayWindow):
         context.save()
         if self.piggyback:
             self.piggyback.overlay_draw(w, context, data)
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
         if self.is_wayland or self.piggyback_parent or self.discover.steamos:
             # Special case!
             # The window is full-screen regardless of what the user has selected.
             # We need to set a clip and a transform to imitate original behaviour
             # Used in wlroots & gamescope
-            width = self.width
-            height = self.height
+
             if self.floating:
                 context.new_path()
-                context.translate(self.pos_x, self.pos_y)
-                context.rectangle(0, 0, width, height)
+                context.translate(floating_x, floating_y)
+                context.rectangle(0, 0, floating_width, floating_height)
                 context.clip()
 
         context.set_operator(cairo.OPERATOR_OVER)
@@ -699,7 +700,7 @@ class VoiceOverlayWindow(OverlayWindow):
             offset_x = avatar_size + self.horz_edge_padding
             if self.align_right:
                 offset_x_mult = -1
-                current_x = self.width - avatar_size - self.horz_edge_padding
+                current_x = floating_width - avatar_size - self.horz_edge_padding
 
             # Choose where to start drawing
             current_y = 0 + self.vert_edge_padding
@@ -917,8 +918,9 @@ class VoiceOverlayWindow(OverlayWindow):
         layout = self.create_pango_layout(string)
         layout.set_auto_dir(True)
         layout.set_markup(string, -1)
-
-        layout.set_width(Pango.SCALE * self.width)
+        (floating_x, floating_y, floating_width,
+         floating_height) = self.get_floating_coords()
+        layout.set_width(Pango.SCALE * floating_width)
         layout.set_spacing(Pango.SCALE * 3)
         if font:
             font = Pango.FontDescription(font)
