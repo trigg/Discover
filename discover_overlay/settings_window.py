@@ -91,7 +91,7 @@ class MainSettingsWindow():
         window.connect("destroy", self.close_window)
         window.connect("delete-event", self.close_window)
 
-        window.set_default_size(280, 180)
+        window.set_default_size(1280, 800)
 
         # Make an array of all named widgets
         self.widget = {}
@@ -119,6 +119,13 @@ class MainSettingsWindow():
             _(" for support. Or open an issue on our GitHub ")
         ))
 
+        screen = window.get_screen()
+        screen_type = "%s" % (screen)
+        self.is_wayland = False
+        if "Wayland" in screen_type:
+            self.is_wayland = True
+        self.window = window
+
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
             self.steamos = True
             log.info(
@@ -128,8 +135,7 @@ class MainSettingsWindow():
             if settings:
                 settings.set_property(
                     "gtk-application-prefer-dark-theme", Gtk.true)
-            # TODO Not assume the display size. Probably poll it from GDK Display?
-            window.set_default_size(1280, 800)
+            self.set_steamos_window_size()
 
             # Larger fonts needed
             css = Gtk.CssProvider.new()
@@ -145,13 +151,6 @@ class MainSettingsWindow():
                 """scale { background-color: rgba(100%, 0%, 0%, 0.3); background-image:unset; }
                    spinbutton { background-color: rgba(100%, 0%, 0%, 0.3); background-image:unset;}
                 """, "utf-8"))
-
-        screen = window.get_screen()
-        screen_type = "%s" % (screen)
-        self.is_wayland = False
-        if "Wayland" in screen_type:
-            self.is_wayland = True
-        self.window = window
 
         # Fill monitor & guild menus
         self.populate_monitor_menus()
@@ -184,6 +183,19 @@ class MainSettingsWindow():
             self.widget['overview_image'].set_from_icon_name(
                 self.icon_name, Gtk.IconSize.DIALOG)
             self.widget['window'].set_default_icon_name(self.icon_name)
+
+    def set_steamos_window_size(self):
+        # Huge bunch of assumptions.
+        # Gamescope only has one monitor
+        # Gamescope has no scale factor
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            monitor = display.get_monitor(0)
+            if monitor:
+                geometry = monitor.get_geometry()
+                scale_factor = monitor.get_scale_factor()
+                log.info("%d %d" % (geometry.width, geometry.height))
+                self.window.set_size_request(geometry.width, geometry.height)
 
     def keypress_in_settings(self, window, event):
         if self.spinning_focus:

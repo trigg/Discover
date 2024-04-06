@@ -13,6 +13,7 @@
 """A Wayland full-screen window which can be moved and resized"""
 import cairo
 import gi
+import logging
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk  # nopep8
@@ -23,6 +24,8 @@ except (ImportError, ValueError):
     GtkLayerShell = None
     pass
 
+log = logging.getLogger(__name__)
+
 
 class DraggableWindowWayland(Gtk.Window):
     """A Wayland full-screen window which can be moved and resized"""
@@ -31,8 +34,8 @@ class DraggableWindowWayland(Gtk.Window):
         Gtk.Window.__init__(self, type=Gtk.WindowType.TOPLEVEL)
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.width = max(100, width)
-        self.height = max(100, height)
+        self.width = max(40, width)
+        self.height = max(40, height)
         self.settings = settings
         self.message = message
         self.set_size_request(50, 50)
@@ -42,12 +45,15 @@ class DraggableWindowWayland(Gtk.Window):
         self.connect('button-press-event', self.button_press)
         self.connect('button-release-event', self.button_release)
 
+        log.info("Starting: %d,%d %d x %d" %
+                 (self.pos_x, self.pos_y, self.width, self.height))
+
         self.set_app_paintable(True)
 
         self.drag_type = None
         self.drag_x = 0
         self.drag_y = 0
-        if GtkLayerShell:
+        if GtkLayerShell and not steamos:
             GtkLayerShell.init_for_window(self)
             if monitor:
                 GtkLayerShell.set_monitor(self, monitor)
@@ -57,14 +63,30 @@ class DraggableWindowWayland(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
         if steamos:
-            self.set_size_request(1280, 800)
+            self.steamos = steamos
+            self.set_steamos_window_size()
 
         self.show_all()
         # self.force_location()
 
+    def set_steamos_window_size(self):
+        # Huge bunch of assumptions.
+        # Gamescope only has one monitor
+        # Gamescope has no scale factor
+        display = Gdk.Display.get_default()
+        if "get_monitor" in dir(display):
+            monitor = display.get_monitor(0)
+            if monitor:
+                geometry = monitor.get_geometry()
+                scale_factor = monitor.get_scale_factor()
+                log.info("%d %d" % (geometry.width, geometry.height))
+                self.set_size_request(geometry.width, geometry.height)
+
     def force_location(self):
         """Move the window to previously given co-ords. In wayland just clip to current screen"""
         (size_x, size_y) = self.get_size()
+        self.width = min(self.width, size_x)
+        self.height = min(self.height, size_y)
         self.pos_x = max(0, self.pos_x)
         self.pos_x = min(size_x - self.width, self.pos_x)
         self.pos_y = max(0, self.pos_y)
@@ -92,7 +114,7 @@ class DraggableWindowWayland(Gtk.Window):
                 self.height += event.y - self.drag_y
                 self.drag_y = event.y
                 self.force_location()
-            else:
+            elif self.drag_type == 4:
                 # Bottom Right
                 self.width += event.x - self.drag_x
                 self.height += event.y - self.drag_y

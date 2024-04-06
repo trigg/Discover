@@ -518,6 +518,11 @@ def entrypoint():
     log.info("Starting Discover Overlay: %s",
              pkg_resources.get_distribution('discover_overlay').version)
 
+    # Hedge against the bet gamescope ships with some WAYLAND_DISPLAY
+    # Compatibility and we're not ready yet
+    if 'GAMESCOPE_WAYLAND_DISPLAY' in os.environ:
+        os.unsetenv("WAYLAND_DISPLAY")
+
     # Catch any errors and log them
     try:
         if "--rpc" in sys.argv:
