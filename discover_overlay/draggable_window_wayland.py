@@ -67,7 +67,7 @@ class DraggableWindowWayland(Gtk.Window):
             self.set_steamos_window_size()
 
         self.show_all()
-        # self.force_location()
+        self.force_location()
 
     def set_steamos_window_size(self):
         # Huge bunch of assumptions.

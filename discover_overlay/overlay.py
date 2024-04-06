@@ -313,10 +313,10 @@ class OverlayWindow(Gtk.Window):
             self.height = height
         self.set_needs_redraw()
 
-    def set_needs_redraw(self):
-        if not self.hidden and self.enabled:
+    def set_needs_redraw(self, be_pushy=False):
+        if (not self.hidden and self.enabled) or be_pushy:
             if self.piggyback_parent:
-                self.piggyback_parent.set_needs_redraw()
+                self.piggyback_parent.set_needs_redraw(be_pushy=True)
 
             if self.redraw_id == None:
                 self.redraw_id = GLib.idle_add(self.redraw)
@@ -425,14 +425,16 @@ class OverlayWindow(Gtk.Window):
         Set if this overlay should be visible
         """
         self.enabled = enabled
-        if enabled and not self.hidden and not self.piggyback_parent:
+        if self.piggyback_parent or self.piggyback:
+            self.set_needs_redraw()
+
+            if not self.piggyback_parent:
+                self.set_gamescope_xatom(1 if enabled else 0)
+            return
+        if enabled and not self.hidden:
             self.show_all()
             self.set_untouchable()
-            if self.discover.steamos:
-                self.set_gamescope_xatom(1)
         else:
-            if self.discover.steamos:
-                self.set_gamescope_xatom(0)
             self.hide()
 
     def set_task(self, visible):

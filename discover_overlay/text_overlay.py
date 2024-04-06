@@ -197,6 +197,8 @@ class TextOverlayWindow(OverlayWindow):
         self.set_needs_redraw()
 
     def has_content(self):
+        if self.piggyback and self.piggyback.has_content():
+            return True
         if not self.enabled:
             return False
         if self.hidden:
