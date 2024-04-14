@@ -341,7 +341,7 @@ class MainSettingsWindow():
         display = Gdk.Display.get_default()
         if "get_n_monitors" in dir(display):
             count_monitors = display.get_n_monitors()
-            if count_monitors:
+            if count_monitors >= 1:
                 for i in range(0, count_monitors):
                     v.append_text(display.get_monitor(i).get_model())
                     t.append_text(display.get_monitor(i).get_model())
