@@ -750,6 +750,7 @@ class MainSettingsWindow():
                 "discover_overlay",
                 self.tray_icon_name,
                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
+            self.ind.set_title(_("Discover Overlay Configuration"))
             # Hide for now since we don't know if it should be shown yet
             self.ind.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
             self.ind.set_menu(menu)
@@ -759,6 +760,7 @@ class MainSettingsWindow():
             self.tray = Gtk.StatusIcon.new_from_icon_name(
                 self.tray_icon_name)
             self.tray.connect('popup-menu', self.show_menu)
+            self.tray.set_title(_("Discover Overlay Configuration"))
             # Hide for now since we don't know if it should be shown yet
             self.tray.set_visible(False)
 
