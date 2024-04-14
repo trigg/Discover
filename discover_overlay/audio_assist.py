@@ -92,6 +92,12 @@ class DiscoverAudioAssist:
                 elif sink.mute == 0:
                     deaf = False
 
+        if deaf != self.last_set_deaf:
+            self.last_set_deaf = deaf
+            self.discover.set_deaf_async(deaf)
+            self.last_set_mute = None
+            # At this point mute is undefined state
+
         for source in await pulse.source_list():
             if source.description == self.source:
                 if source.mute == 1 or source.volume.values[0] == 0.0:
@@ -102,10 +108,6 @@ class DiscoverAudioAssist:
         if mute != self.last_set_mute:
             self.last_set_mute = mute
             self.discover.set_mute_async(mute)
-
-        if deaf != self.last_set_deaf:
-            self.last_set_deaf = deaf
-            self.discover.set_deaf_async(deaf)
 
     async def print_events(self, pulse, ev):
         if not self.enabled:
