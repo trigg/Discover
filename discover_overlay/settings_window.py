@@ -972,6 +972,9 @@ class MainSettingsWindow():
 
     def update_floating_ahchor(self):
         floating = self.widget['voice_anchor_float'].get_active() == 0
+        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
+            floating = True
+
         if floating:
             self.widget['voice_align_1'].hide()
             self.widget['voice_align_2'].hide()
