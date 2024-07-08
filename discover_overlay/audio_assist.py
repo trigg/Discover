@@ -11,19 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """A class to assist with reading pulseaudio changes"""
-import os
 import logging
-import signal
+from contextlib import suppress
+from threading import Thread
+import asyncio
 import pulsectl_asyncio
 import pulsectl
-from contextlib import suppress
-import asyncio
-from threading import Thread, Event
 
 log = logging.getLogger(__name__)
 
 
 class DiscoverAudioAssist:
+    """Class to assist with reading volume levels from pulseaudio"""
+
     def __init__(self, discover):
 
         self.thread = None
@@ -33,21 +33,25 @@ class DiscoverAudioAssist:
 
         self.discover = discover
 
-        # Keep last known state (or None) so that we don't repeatedly send messages for every little PA/PW signal
+        # Keep last known state (or None) so that we don't repeatedly
+        # send messages for every little PA/PW signal
         self.last_set_mute = None
         self.last_set_deaf = None
 
     def set_enabled(self, enabled):
+        """Enable or Disable the functioning of this class"""
         self.enabled = enabled
         if enabled:
             self.start()
 
     def set_devices(self, sink, source):
+        """Set the names of the sink and source devices that we are monitoring"""
         # Changed devices from client
         self.source = source
         self.sink = sink
 
     def start(self):
+        """Start the the watcher in another thread"""
         if not self.enabled:
             return
         if not self.thread:
@@ -55,34 +59,33 @@ class DiscoverAudioAssist:
             self.thread.start()
 
     def thread_loop(self):
-        # Start an asyncio specific thread. Not the prettiest but I'm not rewriting from ground up for one feature
+        """Start the event loop"""
         log.info("Starting Audio subsystem assistance")
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.pulse_loop())
         log.info("Stopped Audio subsystem assistance")
 
     async def listen(self):
-        # Async to connect to pulse and listen for events
+        """Async to connect to pulse and listen for events"""
         try:
             async with pulsectl_asyncio.PulseAsync('Discover-Monitor') as pulse:
                 await self.get_device_details(pulse)
                 async for event in pulse.subscribe_events('all'):
-                    await self.print_events(pulse, event)
-        except (pulsectl.pulsectl.PulseDisconnected):
+                    await self.handle_events(pulse, event)
+        except pulsectl.pulsectl.PulseDisconnected:
             log.info("Pulse has gone away")
-        except (pulsectl.pulsectl.PulseError):
+        except pulsectl.pulsectl.PulseError:
             log.info("Pulse error")
 
     async def pulse_loop(self):
-        # Prep before connecting to pulse
-        loop = asyncio.get_event_loop()
+        """Listen on event loop"""
+        # loop = asyncio.get_event_loop()
         listen_task = asyncio.create_task(self.listen())
         with suppress(asyncio.CancelledError):
             await listen_task
 
     async def get_device_details(self, pulse):
-        # Decant information about our chosen devices
-        # Feed this back to client to change deaf/mute state
+        """Decant information about our chosen devices into function calls back to overlay"""
         mute = None
         deaf = None
         for sink in await pulse.sink_list():
@@ -98,22 +101,28 @@ class DiscoverAudioAssist:
             self.last_set_mute = None
             # At this point mute is undefined state
 
+        # Setting mute/unmute while deafened will unset deafened
+        # deafened implies muted
+        if deaf or self.last_set_deaf:
+            return
+
         for source in await pulse.source_list():
             if source.description == self.source:
                 if source.mute == 1 or source.volume.values[0] == 0.0:
                     mute = True
-                elif sink.mute == 0:
+                elif source.mute == 0:
                     mute = False
 
         if mute != self.last_set_mute:
             self.last_set_mute = mute
             self.discover.set_mute_async(mute)
 
-    async def print_events(self, pulse, ev):
+    async def handle_events(self, pulse, ev):
+        """ `Sink` and `Source` events are fired for changes to output and inputs
+            `Server` is fired when default sink or source changes."""
         if not self.enabled:
             return
-        # Sink and Source events are fired for changes to output and ints
-        # Server is fired when default sink or source changes.
+
         match ev.facility:
             case 'sink':
                 await self.get_device_details(pulse)
