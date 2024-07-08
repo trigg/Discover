@@ -339,13 +339,20 @@ class MainSettingsWindow():
         m.append_text("Any")
 
         display = Gdk.Display.get_default()
+        screen = self.window.get_screen()
         if "get_n_monitors" in dir(display):
             count_monitors = display.get_n_monitors()
             if count_monitors >= 1:
                 for i in range(0, count_monitors):
-                    v.append_text(display.get_monitor(i).get_model())
-                    t.append_text(display.get_monitor(i).get_model())
-                    m.append_text(display.get_monitor(i).get_model())
+                    this_mon = display.get_monitor(i)
+                    manufacturer = this_mon.get_manufacturer()
+                    model = this_mon.get_model()
+                    connector = screen.get_monitor_plug_name(i)
+                    monitor_label = "%s %s\n%s" % (
+                        manufacturer, model, connector)
+                    v.append_text(monitor_label)
+                    t.append_text(monitor_label)
+                    m.append_text(monitor_label)
 
         v.set_active(v_value)
         t.set_active(t_value)
@@ -421,20 +428,18 @@ class MainSettingsWindow():
 
         self.widget['voice_anchor_float'].set_active(
             0 if config.getboolean("main", "floating", fallback=False) else 1)
-        self.update_floating_ahchor()
+        self.update_floating_anchor()
 
         self.widget['voice_align_1'].set_active(
             config.getboolean("main", "rightalign", fallback=False))
         self.widget['voice_align_2'].set_active(
             config.getint("main", "topalign", fallback=1))
 
-        monitor = 0
-        try:
-            config.getint("main", "monitor", fallback=0)
-        except:
-            pass
-
-        self.widget['voice_monitor'].set_active(monitor+1)
+        self.widget['voice_monitor'].set_active(
+            self.get_monitor_index_from_plug(
+                config.get("main", "monitor", fallback="Any")
+            )
+        )
 
         font = config.get("main", "font", fallback=None)
         if font:
@@ -600,13 +605,11 @@ class MainSettingsWindow():
         self.widget['text_background_colour'].set_rgba(self.make_colour(config.get(
             "text", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
 
-        monitor = 0
-        try:
-            config.getint("text", "monitor", fallback=0)
-        except:
-            pass
-
-        self.widget['text_monitor'].set_active(monitor+1)
+        self.widget['text_monitor'].set_active(
+            self.get_monitor_index_from_plug(
+                config.get("text", "monitor", fallback="Any")
+            )
+        )
 
         self.widget['text_show_attachments'].set_active(config.getboolean(
             "text", "show_attach", fallback=True))
@@ -643,13 +646,11 @@ class MainSettingsWindow():
         self.widget['notification_background_colour'].set_rgba(self.make_colour(config.get(
             "notification", "bg_col", fallback="[0.0,0.0,0.0,0.5]")))
 
-        monitor = 0
-        try:
-            config.getint("notification", "monitor", fallback=0)
-        except:
-            pass
-
-        self.widget['notification_monitor'].set_active(monitor+1)
+        self.widget['notification_monitor'].set_active(
+            self.get_monitor_index_from_plug(
+                config.get("notification", "monitor", fallback="Any")
+            )
+        )
 
         self.widget['notification_align_1'].set_active(config.getboolean(
             "notification", "rightalign", fallback=True))
@@ -729,6 +730,20 @@ class MainSettingsWindow():
             if guild_id != "":
                 guild_ids.append(guild_id)
         return guild_ids
+
+    def get_monitor_index_from_plug(self, monitor):
+        if not monitor or monitor == "Any":
+            return 0
+        display = Gdk.Display.get_default()
+        screen = self.window.get_screen()
+        if "get_n_monitors" in dir(display):
+            count_monitors = display.get_n_monitors()
+            if count_monitors >= 1:
+                for i in range(0, count_monitors):
+                    connector = screen.get_monitor_plug_name(i)
+                    if connector == monitor:
+                        return i+1
+        return 0
 
     def get_monitor_obj(self, idx):
         """
@@ -827,13 +842,6 @@ class MainSettingsWindow():
     def close_overlay(self, _a=None, _b=None):
         with open(self.rpc_file, 'w') as f:
             f.write('--rpc --close')
-
-    def voice_toggle_test_content(self, button):
-        self.voice_overlay.set_show_dummy(button.get_active())
-        self.show_dummy = button.get_active()
-        if self.show_dummy:
-            self.voice_overlay.set_enabled(True)
-            self.voice_overlay.set_hidden(False)
 
     def overview_close(self, button):
         log.info("Quit pressed")
@@ -968,9 +976,9 @@ class MainSettingsWindow():
 
     def voice_anchor_float_changed(self, button):
         self.config_set("main", "floating", "%s" % (button.get_active() == 0))
-        self.update_floating_ahchor()
+        self.update_floating_anchor()
 
-    def update_floating_ahchor(self):
+    def update_floating_anchor(self):
         floating = self.widget['voice_anchor_float'].get_active() == 0
         if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
             floating = True
@@ -985,7 +993,14 @@ class MainSettingsWindow():
             self.widget['voice_place_window_button'].hide()
 
     def voice_monitor_changed(self, button):
-        self.config_set("main", "monitor", "%s" % (button.get_active()-1))
+        screen = self.window.get_screen()
+        idx = button.get_active()
+        plug = "Any"
+        if idx > 0:
+            monitor = screen.get_monitor_plug_name(button.get_active()-1)
+            if monitor:
+                plug = monitor
+        self.config_set("main", "monitor", plug)
 
     def voice_align_1_changed(self, button):
         self.config_set("main", "rightalign", "%s" % (button.get_active()))
@@ -1202,7 +1217,12 @@ class MainSettingsWindow():
         self.config_set("text", "bg_col", json.dumps(colour))
 
     def text_monitor_changed(self, button):
-        self.config_set("text", "monitor", "%s" % (button.get_active()-1))
+        screen = self.window.get_screen()
+        plug = "Any"
+        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        if monitor:
+            plug = monitor
+        self.config_set("text", "monitor", plug)
 
     def text_show_attachments_changed(self, button):
         self.config_set("text", "show_attach", "%s" % (button.get_active()))
@@ -1239,8 +1259,12 @@ class MainSettingsWindow():
         self.config_set("notification", "bg_col", json.dumps(colour))
 
     def notification_monitor_changed(self, button):
-        self.config_set("notification", "monitor", "%s" %
-                        (button.get_active()-1))
+        screen = self.window.get_screen()
+        plug = "Any"
+        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        if monitor:
+            plug = monitor
+        self.config_set("notification", "monitor", plug)
 
     def notification_align_1_changed(self, button):
         self.config_set("notification", "rightalign", "%s" %

@@ -231,11 +231,6 @@ class Discover:
             "main", "highlight_self", fallback=False))
         self.voice_overlay.set_icon_only(config.getboolean(
             "main", "icon_only", fallback=False))
-        monitor = 0
-        try:
-            monitor = config.getint("main", "monitor", fallback=0)
-        except:
-            pass
         self.voice_overlay.set_vert_edge_padding(config.getint(
             "main", "vert_edge_padding", fallback=0))
         self.voice_overlay.set_horz_edge_padding(config.getint(
@@ -277,7 +272,9 @@ class Discover:
         self.voice_overlay.set_dummy_count(config.getint("main",
                                                          "dummy_count", fallback=10))
 
-        self.voice_overlay.set_monitor(monitor)
+        self.voice_overlay.set_monitor(
+            config.get("main", "monitor", fallback="Any")
+        )
 
         self.voice_overlay.set_enabled(True)
 
@@ -303,11 +300,6 @@ class Discover:
             "text", "rightalign", fallback=True))
         self.text_overlay.set_align_y(
             config.getint("text", "topalign", fallback=2))
-        monitor = 0
-        try:
-            monitor = config.getint("text", "monitor", fallback=0)
-        except:
-            pass
         floating = config.getboolean("text", "floating", fallback=True)
         floating_x = config.getfloat("text", "floating_x", fallback=0.0)
         floating_y = config.getfloat("text", "floating_y", fallback=0.0)
@@ -336,7 +328,9 @@ class Discover:
         self.text_overlay.set_mouseover_timer(
             config.getint("text", "autohide_timer", fallback=1))
 
-        self.text_overlay.set_monitor(monitor)
+        self.text_overlay.set_monitor(
+            config.get("text", "monitor", fallback="Any")
+        )
         self.text_overlay.set_floating(
             floating, floating_x, floating_y, floating_w, floating_h)
 
@@ -350,11 +344,6 @@ class Discover:
             "notification", "rightalign", fallback=True))
         self.notification_overlay.set_align_y(
             config.getint("notification", "topalign", fallback=2))
-        monitor = 0
-        try:
-            monitor = config.getint("notification", "monitor", fallback=0)
-        except:
-            pass
         floating = config.getboolean(
             "notification", "floating", fallback=False)
         floating_x = config.getfloat(
@@ -395,7 +384,9 @@ class Discover:
         if self.font:
             self.notification_overlay.set_font(self.font)
 
-        self.notification_overlay.set_monitor(monitor)
+        self.notification_overlay.set_monitor(
+            config.get("notification", "monitor", fallback="Any")
+        )
         self.notification_overlay.set_floating(
             floating, floating_x, floating_y, floating_w, floating_h)
         if self.font:

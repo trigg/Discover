@@ -95,7 +95,7 @@ class OverlayWindow(Gtk.Window):
             self.show_all()
             if discover.steamos:
                 self.set_gamescope_xatom(1)
-        self.monitor = 0
+        self.monitor = "Any"
         self.align_right = True
         self.align_vert = 1
         self.floating = False
@@ -301,17 +301,14 @@ class OverlayWindow(Gtk.Window):
     def get_display_coords(self):
         if self.piggyback_parent:
             return self.piggyback_parent.get_display_coords()
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            if self.monitor == None or self.monitor < 0:
-                monitor = display.get_monitor(0)
-            else:
-                monitor = display.get_monitor(self.monitor)
-            if monitor:
-                geometry = monitor.get_geometry()
-                return (geometry.x, geometry.y, geometry.width, geometry.height)
-        log.warn("No monitor found! This is going to go badly")
-        return (0, 0, 1920, 1080)  # We're in trouble
+        monitor = self.get_monitor_from_plug()
+        if not monitor:
+            monitor = self.get_display().get_monitor(0)
+        if monitor:
+            geometry = monitor.get_geometry()
+            return (geometry.x, geometry.y, geometry.width, geometry.height)
+        log.error("No monitor found! This is going to go badly")
+        return (0, 0, 1920, 1080)
 
     def get_floating_coords(self):
         (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
@@ -323,7 +320,7 @@ class OverlayWindow(Gtk.Window):
                 return (screen_x + self.pos_x * screen_width, screen_y + self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
             return (self.pos_x * screen_width, self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
         else:
-            return (0, 0, screen_width, screen_height)
+            return (screen_x, screen_y, screen_width, screen_height)
 
     def set_needs_redraw(self, be_pushy=False):
         if (not self.hidden and self.enabled) or be_pushy:
@@ -374,25 +371,36 @@ class OverlayWindow(Gtk.Window):
         """
         Set the monitor this overlay should display on.
         """
-        if type(idx) is str:
-            idx = 0
-        if self.monitor != idx:
-            self.monitor = idx
+        plug_name = "%s" % (idx)
+        if self.monitor != plug_name:
+            self.monitor = plug_name
             if self.is_wayland:
-                display = Gdk.Display.get_default()
-                if "get_monitor" in dir(display):
-                    monitor = display.get_monitor(self.monitor)
-                    if monitor:
-                        GtkLayerShell.set_monitor(self, monitor)
-                    else:
-                        self.hide()
-                        self.set_wayland_state()
-                        self.show()
+                monitor = self.get_monitor_from_plug()
+                if monitor:
+                    GtkLayerShell.set_monitor(self, monitor)
                 else:
-                    log.error("No get_monitor in display")
+                    self.hide()
+                    self.set_wayland_state()
+                    self.show()
                 self.set_untouchable()
             self.force_location()
             self.set_needs_redraw()
+
+    def get_monitor_from_plug(self):
+        if not self.monitor or self.monitor == "Any":
+            return None
+        display = Gdk.Display.get_default()
+        if not "get_n_monitors" in dir(display) or not "get_monitor" in dir(display):
+            return None
+        screen = self.get_screen()
+        count_monitors = display.get_n_monitors()
+        if count_monitors >= 1:
+            for i in range(0, count_monitors):
+                this_mon = display.get_monitor(i)
+                connector = screen.get_monitor_plug_name(i)
+                if connector == self.monitor:
+                    return this_mon
+        return None
 
     def set_align_x(self, align_right):
         """

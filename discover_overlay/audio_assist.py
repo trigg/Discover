@@ -56,7 +56,7 @@ class DiscoverAudioAssist:
 
     def thread_loop(self):
         # Start an asyncio specific thread. Not the prettiest but I'm not rewriting from ground up for one feature
-        log.info("Staring Audio subsystem assistance")
+        log.info("Starting Audio subsystem assistance")
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.pulse_loop())
         log.info("Stopped Audio subsystem assistance")

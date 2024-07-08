@@ -22,7 +22,6 @@ try:
     from gi.repository import GtkLayerShell
 except (ImportError, ValueError):
     GtkLayerShell = None
-    pass
 
 log = logging.getLogger(__name__)
 

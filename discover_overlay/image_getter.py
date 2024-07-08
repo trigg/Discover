@@ -83,13 +83,13 @@ class SurfaceGetter():
                     self.func(self.identifier, surface, mask)
                     return
             except ValueError:
-                errors.append("Value Error - Unable to read %s" % (mixpath))
+                errors.append("Value Error - Unable to read %s", self.url)
             except TypeError:
-                errors.append("Type Error - Unable to read %s" % (mixpath))
+                errors.append("Type Error - Unable to read %s", self.url)
             except PIL.UnidentifiedImageError:
-                errors.append("Unknown image type: %s" % (mixpath))
+                errors.append("Unknown image type: %s", self.url)
             except FileNotFoundError:
-                errors.append("File not found: %s" % (mixpath))
+                errors.append("File not found: %s", self.url)
         # Not found in theme, try some common locations
         locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
         for prefix in locations:
@@ -150,7 +150,7 @@ def from_pil(image, alpha=1.0, format='BGRa'):
 def to_pil(surface):
     if surface.get_format() == cairo.Format.ARGB32:
         return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRA", surface.get_stride())
-    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRX", stride)
+    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRX", surface.get_stride())
 
 
 def get_surface(func, identifier, ava, size):

@@ -281,7 +281,7 @@ class NotificationOverlayWindow(OverlayWindow):
             return self.test_content
         return self.content
 
-    def overlay_draw(self, _w, context, data=None):
+    def overlay_draw(self, w, context, data=None):
         """
         Draw the overlay
         """
@@ -509,12 +509,12 @@ class NotificationOverlayWindow(OverlayWindow):
             return
         # key is the url to the image
         key = self.image_list[shape.data]
-        if key not in self.attachment:
+        if key not in self.icons:
             get_surface(self.recv_attach,
                         key,
                         key, None)
             return
-        pix = self.attachment[key]
+        pix = self.icons[key]
         (pos_x, pos_y) = ctx.get_current_point()
         draw_img_to_rect(pix, ctx, pos_x, pos_y - self.text_size, self.text_size,
                          self.text_size, path=path)
