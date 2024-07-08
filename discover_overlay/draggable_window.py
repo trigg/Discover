@@ -11,9 +11,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """An X11 window which can be moved and resized"""
+import logging
 import gi
 import cairo
-import logging
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk  # nopep8
@@ -24,10 +24,12 @@ log = logging.getLogger(__name__)
 class DraggableWindow(Gtk.Window):
     """An X11 window which can be moved and resized"""
 
-    def __init__(self, pos_x=0.0, pos_y=0.0, width=0.1, height=0.1, message="Message", settings=None, monitor=None):
+    def __init__(self, pos_x=0.0, pos_y=0.0, width=0.1, height=0.1,
+                 message="Message", settings=None, monitor=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.POPUP)
         self.monitor = monitor
-        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+        (_screen_x, _screen_y, screen_width,
+         screen_height) = self.get_display_coords()
         self.pos_x = pos_x * screen_width
         self.pos_y = pos_y * screen_height
         self.width = max(40, width * screen_width)
@@ -84,8 +86,8 @@ class DraggableWindow(Gtk.Window):
         if event.state & Gdk.ModifierType.BUTTON1_MASK:
             if self.drag_type == 1:
                 # Center is move
-                (screen_x, screen_y, screen_width,
-                 screen_height) = self.get_display_coords()
+                (screen_x, screen_y, _screen_width,
+                 _screen_height) = self.get_display_coords()
                 self.pos_x = (event.x_root - screen_x) - self.drag_x
                 self.pos_y = (event.y_root - screen_y) - self.drag_y
                 self.force_location()
@@ -151,6 +153,7 @@ class DraggableWindow(Gtk.Window):
         context.fill()
 
     def get_display_coords(self):
+        """Get coordinates for this display"""
         display = Gdk.Display.get_default()
         if "get_monitor" in dir(display):
             monitor = display.get_monitor(self.monitor)
@@ -171,4 +174,5 @@ class DraggableWindow(Gtk.Window):
         height = float(height)
         pos_x = pos_x / scale
         pos_y = pos_y / scale
-        return (pos_x / screen_width, pos_y / screen_height, width / screen_width, height / screen_height)
+        return (pos_x / screen_width, pos_y / screen_height,
+                width / screen_width, height / screen_height)

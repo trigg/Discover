@@ -13,16 +13,15 @@
 """Notification window for text"""
 import logging
 import time
-import re
-import cairo
 import math
+
+import cairo
 import gi
-from .image_getter import get_surface, draw_img_to_rect, get_aspected_size
+from .image_getter import get_surface, draw_img_to_rect
 from .overlay import OverlayWindow
-gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, Pango, PangoCairo  # nopep8
+from gi.repository import Pango, PangoCairo  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -34,12 +33,54 @@ class NotificationOverlayWindow(OverlayWindow):
         OverlayWindow.__init__(self, discover, piggyback)
         self.text_spacing = 4
         self.content = []
-        self.test_content = [{"icon": "https://cdn.discordapp.com/icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96", "title": "Title1"},
-                             {"title": "Title2", "body": "Body", "icon": None},
-                             {"icon": "https://cdn.discordapp.com/icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96", "title": "Title 3",
-                                 "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
-                             {"icon": None, "title": "Title 3", "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
-                             {"icon": "https://cdn.discordapp.com/avatars/147077941317206016/6a6935192076489fa6dc1eb5dafbf6e7.webp?size=128", "title": "PM", "body": "Birdy test"}]
+        self.test_content = [
+            {
+                "icon": (
+                    "https://cdn.discordapp.com/"
+                    "icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96"
+                ),
+                "title": "Title1"
+            },
+            {
+                "title": "Title2",
+                "body": "Body",
+                "icon": None
+            },
+            {
+                "icon": ("https://cdn.discordapp.com/"
+                         "icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96"
+                         ),
+                "title": "Title 3",
+                "body": ("Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+                         " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                         "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
+                         "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+                         "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
+                         "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa "
+                         "qui officia deserunt mollit anim id est laborum."
+                         )
+            },
+            {
+                "icon": None,
+                "title": "Title 3",
+                "body": ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
+                         "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                         "Ut enim ad minim veniam, quis nostrud exercitation ullamco "
+                         "laboris nisi ut aliquip ex ea commodo consequat. Duis aute "
+                         "irure dolor in reprehenderit in voluptate velit esse cillum "
+                         "dolore eu fugiat nulla pariatur. Excepteur sint occaecat "
+                         "cupidatat non proident, sunt in culpa qui officia deserunt "
+                         "mollit anim id est laborum."
+                         )
+            },
+            {
+                "icon": ("https://cdn.discordapp.com/"
+                         "avatars/147077941317206016/6a6935192076489fa6dc1eb5dafbf6e7.webp?size=128"
+                         ),
+                "title": "PM",
+                "body": "Birdy test"
+            }
+        ]
         self.text_font = None
         self.text_size = 13
         self.text_time = None
@@ -67,11 +108,12 @@ class NotificationOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_blank(self):
+        """Set to no data and redraw"""
         self.content = []
         self.set_needs_redraw()
 
     def tick(self):
-        # This doesn't really belong in overlay or settings
+        """Remove old messages from dataset"""
         now = time.time()
         newlist = []
         oldsize = len(self.content)
@@ -85,6 +127,7 @@ class NotificationOverlayWindow(OverlayWindow):
             self.set_needs_redraw()
 
     def add_notification_message(self, data):
+        """Add new message to dataset"""
         noti = None
         data = data['data']
         message_id = data['message']['id']
@@ -108,59 +151,50 @@ class NotificationOverlayWindow(OverlayWindow):
             self.get_all_images()
 
     def set_padding(self, padding):
-        """
-        Set the padding between notifications
-        """
+        """Config option: Padding between notifications, in window-space pixels"""
         if self.padding != padding:
             self.padding = padding
             self.set_needs_redraw()
 
     def set_border_radius(self, radius):
-        """
-        Set the radius of the border
-        """
+        """Config option: Radius of the border, in window-space pixels"""
         if self.border_radius != radius:
             self.border_radius = radius
             self.set_needs_redraw()
 
     def set_icon_size(self, size):
-        """
-        Set Icon size
-        """
+        """Config option: Size of icons, in window-space pixels"""
         if self.icon_size != size:
             self.icon_size = size
             self.image_list = {}
             self.get_all_images()
 
     def set_icon_pad(self, pad):
-        """
-        Set padding between icon and message
-        """
+        """Config option: Padding between icon and message, in window-space pixels"""
         if self.icon_pad != pad:
             self.icon_pad = pad
             self.set_needs_redraw()
 
     def set_icon_left(self, left):
+        """Config option: Icon on left or right of text"""
         if self.icon_left != left:
             self.icon_left = left
             self.set_needs_redraw()
 
     def set_text_time(self, timer):
-        """
-        Set the duration that a message will be visible for.
-        """
+        """Config option: Duration that a message will be visible for, in seconds"""
         self.text_time = timer
         self.timer_after_draw = timer
 
     def set_limit_width(self, limit):
-        """
-        Set the word wrap limit in pixels
+        """Config option: Word wrap limit, in window-space pixels
         """
         if self.limit_width != limit:
             self.limit_width = limit
             self.set_needs_redraw()
 
     def get_all_images(self):
+        """Return a list of all downloaded images"""
         the_list = self.content
         if self.testing:
             the_list = self.test_content
@@ -171,47 +205,38 @@ class NotificationOverlayWindow(OverlayWindow):
                 get_surface(self.recv_icon, icon, icon,
                             self.icon_size)
 
-    def recv_icon(self, identifier, pix, mask):
-        """
-        Called when image_getter has downloaded an image
-        """
+    def recv_icon(self, identifier, pix, _mask):
+        """Callback from image_getter for icons"""
         self.image_list[identifier] = pix
         self.set_needs_redraw()
 
     def set_fg(self, fg_col):
-        """
-        Set default text colour
-        """
+        """Config option: Set default text colour"""
         if self.fg_col != fg_col:
             self.fg_col = fg_col
             self.set_needs_redraw()
 
     def set_bg(self, bg_col):
-        """
-        Set background colour
-        """
+        """Config option: Set background colour"""
         if self.bg_col != bg_col:
             self.bg_col = bg_col
             self.set_needs_redraw()
 
     def set_show_icon(self, icon):
-        """
-        Set if icons should be shown inline
-        """
+        """Config option: Set if icons should be shown inline"""
         if self.show_icon != icon:
             self.show_icon = icon
             self.set_needs_redraw()
             self.get_all_images()
 
     def set_reverse_order(self, rev):
+        """Config option: Reverse order of messages"""
         if self.reverse_order != rev:
             self.reverse_order = rev
             self.set_needs_redraw()
 
     def set_font(self, font):
-        """
-        Set font used to render text
-        """
+        """Config option: Font used to render text"""
         if self.text_font != font:
             self.text_font = font
 
@@ -222,13 +247,13 @@ class NotificationOverlayWindow(OverlayWindow):
             self.set_needs_redraw()
 
     def recv_attach(self, identifier, pix):
-        """
-        Called when an image has been downloaded by image_getter
-        """
+        """Callback from image_getter for attachments"""
         self.icons[identifier] = pix
         self.set_needs_redraw()
 
     def calc_all_height(self):
+        """Return the height in window-space pixels required
+           to draw this overlay with current dataset"""
         h = 0
         my_list = self.content
         if self.testing:
@@ -240,6 +265,7 @@ class NotificationOverlayWindow(OverlayWindow):
         return h
 
     def calc_height(self, line):
+        """Return height in window-space pixels required to draw individual notification"""
         icon_width = 0
         icon_pad = 0
         icon = line['icon']
@@ -257,9 +283,8 @@ class NotificationOverlayWindow(OverlayWindow):
         layout = self.create_pango_layout(message)
         layout.set_auto_dir(True)
         layout.set_markup(message, -1)
-        attr = layout.get_attributes()
-        (floating_x, floating_y, floating_width,
-         floating_height) = self.get_floating_coords()
+        (_floating_x, _floating_y, floating_width,
+         _floating_height) = self.get_floating_coords()
         width = self.limit_width if floating_width > self.limit_width else floating_width
         layout.set_width((Pango.SCALE * (width -
                          (self.border_radius * 4 + icon_width + icon_pad))))
@@ -267,12 +292,13 @@ class NotificationOverlayWindow(OverlayWindow):
         if self.text_font:
             font = Pango.FontDescription(self.text_font)
             layout.set_font_description(font)
-        text_width, text_height = layout.get_pixel_size()
+        _text_width, text_height = layout.get_pixel_size()
         if text_height < icon_width:
             text_height = icon_width
         return text_height + (self.border_radius*4) + self.padding
 
     def has_content(self):
+        """Return true if this overlay has meaningful content to show"""
         if not self.enabled:
             return False
         if self.hidden:
@@ -282,15 +308,13 @@ class NotificationOverlayWindow(OverlayWindow):
         return self.content
 
     def overlay_draw(self, w, context, data=None):
-        """
-        Draw the overlay
-        """
+        """Draw the overlay"""
         if self.piggyback:
             self.piggyback.overlay_draw(w, context, data)
         if not self.enabled:
             return
         self.context = context
-        (width, height) = self.get_size()
+        (_width, height) = self.get_size()
         if not self.piggyback_parent:
             context.set_antialias(cairo.ANTIALIAS_GOOD)
 
@@ -319,7 +343,6 @@ class NotificationOverlayWindow(OverlayWindow):
             current_y = 0
         if self.align_vert == 1:  # Center. Oh god why
             current_y = (height/2.0) - (self.calc_all_height() / 2.0)
-        tnow = time.time()
         if self.testing:
             the_list = self.test_content
         else:
@@ -354,10 +377,7 @@ class NotificationOverlayWindow(OverlayWindow):
         self.context = None
 
     def draw_text(self, pos_y, text, icon):
-        """
-        Draw a text message, returning the Y position of the next message
-        """
-
+        """Draw a text message, returning the Y position of the next message"""
         icon_width = self.icon_size
         icon_pad = self.icon_pad
         if not self.show_icon:
@@ -371,8 +391,8 @@ class NotificationOverlayWindow(OverlayWindow):
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        (floating_x, floating_y, floating_width,
-         floating_height) = self.get_floating_coords()
+        (_floating_x, _floating_y, floating_width,
+         _floating_height) = self.get_floating_coords()
         width = self.limit_width if floating_width > self.limit_width else floating_width
         layout.set_width((Pango.SCALE * (width -
                          (self.border_radius * 4 + icon_width + icon_pad))))
@@ -475,7 +495,6 @@ class NotificationOverlayWindow(OverlayWindow):
                 self.get_pango_context(), self.render_custom, None)
 
             text = layout.get_text()
-            count = 0
 
             layout.set_attributes(attr)
 
@@ -486,7 +505,6 @@ class NotificationOverlayWindow(OverlayWindow):
                 self.get_pango_context(), self.render_custom, None)
 
             text = layout.get_text()
-            count = 0
 
             layout.set_attributes(attr)
 
@@ -501,11 +519,9 @@ class NotificationOverlayWindow(OverlayWindow):
         return next_y
 
     def render_custom(self, ctx, shape, path, _data):
-        """
-        Draw an inline image as a custom emoticon
-        """
+        """Draw an inline image as a custom emoticon"""
         if shape.data >= len(self.image_list):
-            log.warning(f"{shape.data} >= {len(self.image_list)}")
+            log.warning("%s >= %s", shape.data, len(self.image_list))
             return
         # key is the url to the image
         key = self.image_list[shape.data]
@@ -521,9 +537,7 @@ class NotificationOverlayWindow(OverlayWindow):
         return True
 
     def sanitize_string(self, string):
-        """
-        Sanitize a text message so that it doesn't intefere with Pango's XML format
-        """
+        """Sanitize a text message so that it doesn't intefere with Pango's XML format"""
         string = string.replace("&", "&amp;")
         string = string.replace("<", "&lt;")
         string = string .replace(">", "&gt;")
@@ -532,6 +546,7 @@ class NotificationOverlayWindow(OverlayWindow):
         return string
 
     def set_testing(self, testing):
+        """Toggle placeholder images for testing"""
         self.testing = testing
         self.set_needs_redraw()
         self.get_all_images()

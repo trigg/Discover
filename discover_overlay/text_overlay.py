@@ -21,7 +21,7 @@ from .overlay import OverlayWindow
 gi.require_version("Gtk", "3.0")
 gi.require_version('PangoCairo', '1.0')
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo, GLib  # nopep8
+from gi.repository import Pango, PangoCairo  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -56,10 +56,12 @@ class TextOverlayWindow(OverlayWindow):
         self.redraw()
 
     def set_blank(self):
+        """ Set contents blank and redraw """
         self.content = []
         self.set_needs_redraw()
 
     def tick(self):
+        """ Check for old images """
         if len(self.attachment) > self.line_limit:
             # We've probably got old images!
             oldlist = self.attachment
@@ -72,57 +74,43 @@ class TextOverlayWindow(OverlayWindow):
                     self.attachment[url] = oldlist[url]
 
     def set_text_time(self, timer):
-        """
-        Set the duration that a message will be visible for.
-        """
+        """Config option: Time before messages disappear from overlay"""
         if self.text_time != timer or self.timer_after_draw != timer:
             self.text_time = timer
             self.timer_after_draw = timer
             self.set_needs_redraw()
 
     def set_text_list(self, tlist, altered):
-        """
-        Update the list of text messages to show
-        """
+        """Change contents of overlay"""
         self.content = tlist[-self.line_limit:]
         if altered:
             self.set_needs_redraw()
 
     def set_fg(self, fg_col):
-        """
-        Set default text colour
-        """
+        """Config option: Sets the text colour"""
         if self.fg_col != fg_col:
             self.fg_col = fg_col
             self.set_needs_redraw()
 
     def set_bg(self, bg_col):
-        """
-        Set background colour
-        """
+        """Config option: Set the background colour"""
         if self.bg_col != bg_col:
             self.bg_col = bg_col
             self.set_needs_redraw()
 
     def set_show_attach(self, attachment):
-        """
-        Set if attachments should be shown inline
-        """
+        """Config option: Show image attachments"""
         if self.attachment != attachment:
             self.show_attach = attachment
             self.set_needs_redraw()
 
     def set_popup_style(self, boolean):
-        """
-        Set if message disappear after a certain duration
-        """
+        """Config option: Messages should disappear after being shown for some time"""
         if self.popup_style != boolean:
             self.popup_style = boolean
 
     def set_font(self, font):
-        """
-        Set font used to render text
-        """
+        """Config option: Set font used for rendering"""
         if self.text_font != font:
             self.text_font = font
 
@@ -133,28 +121,24 @@ class TextOverlayWindow(OverlayWindow):
             self.set_needs_redraw()
 
     def set_line_limit(self, limit):
-        """
-        Change maximum number of lines in overlay
-        """
+        """Config option: Limit number of lines rendered"""
         if self.line_limit != limit:
             self.line_limit = limit
 
     def make_line(self, message):
-        """
-        Decode a recursive JSON object into pango markup.
-        """
+        """Decode a recursive JSON object into pango markup."""
         ret = ""
         if isinstance(message, list):
             for inner_message in message:
-                ret = "%s%s" % (ret, self.make_line(inner_message))
+                ret = f"{ret}{self.make_line(inner_message)}"
         elif isinstance(message, str):
             ret = self.sanitize_string(message)
         elif message['type'] == 'strong':
-            ret = "<b>%s</b>" % (self.make_line(message['content']))
+            ret = f"<b>{self.make_line(message['content'])}</b>"
         elif message['type'] == 'text':
             ret = self.sanitize_string(message['content'])
         elif message['type'] == 'link':
-            ret = "<u>%s</u>" % (self.make_line(message['content']))
+            ret = f"<u>{self.make_line(message['content'])}</u>"
         elif message['type'] == 'emoji':
             if 'surrogate' in message:
                 # ['src'] is SVG URL
@@ -163,20 +147,21 @@ class TextOverlayWindow(OverlayWindow):
             else:
                 ### Add Image ###
                 self.image_list.append(
-                    f"https://cdn.discordapp.com/emojis/{message['emojiId']}.png?v=1"
+                    f"https://cdn.discordapp.com/emojis/{
+                        message['emojiId']}.png?v=1"
                 )
                 ret = "`"
         elif (message['type'] == 'inlineCode' or
               message['type'] == 'codeBlock' or
               message['type'] == 'blockQuote'):
-            ret = "<span font_family=\"monospace\" background=\"#0004\">%s</span>" % (
-                self.make_line(message['content']))
+            ret = f"<span font_family=\"monospace\" background=\"#0004\">{
+                self.make_line(message['content'])}</span>"
         elif message['type'] == 'u':
-            ret = "<u>%s</u>" % (self.make_line(message['content']))
+            ret = f"<u>{self.make_line(message['content'])}</u>"
         elif message['type'] == 'em':
-            ret = "<i>%s</i>" % (self.make_line(message['content']))
+            ret = f"<i>{self.make_line(message['content'])}</i>"
         elif message['type'] == 's':
-            ret = "<s>%s</s>" % (self.make_line(message['content']))
+            ret = f"<s>{self.make_line(message['content'])}</s>"
         elif message['type'] == 'channel':
             ret = self.make_line(message['content'])
         elif message['type'] == 'mention':
@@ -189,14 +174,13 @@ class TextOverlayWindow(OverlayWindow):
                 self.warned_filetypes.append(message['type'])
         return ret
 
-    def recv_attach(self, identifier, pix, mask):
-        """
-        Called when an image has been downloaded by image_getter
-        """
+    def recv_attach(self, identifier, pix, _mask):
+        """Callback from image_getter"""
         self.attachment[identifier] = pix
         self.set_needs_redraw()
 
     def has_content(self):
+        """Returns true if overlay has meaningful content to render"""
         if self.piggyback and self.piggyback.has_content():
             return True
         if not self.enabled:
@@ -206,15 +190,12 @@ class TextOverlayWindow(OverlayWindow):
         return self.content
 
     def overlay_draw(self, w, context, data=None):
-        """
-        Draw the overlay
-        """
+        """Draw the overlay"""
         if self.piggyback:
             self.piggyback.overlay_draw(w, context, data)
         if not self.enabled:
             return
         self.context = context
-        (width, height) = self.get_size()
         if not self.piggyback_parent:
             context.set_antialias(cairo.ANTIALIAS_GOOD)
             context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
@@ -234,7 +215,6 @@ class TextOverlayWindow(OverlayWindow):
                 context.translate(floating_x, floating_y)
                 context.rectangle(0, 0, floating_width, floating_height)
                 context.clip()
-            pass
         (floating_x, floating_y, floating_width,
          floating_height) = self.get_floating_coords()
         current_y = floating_height
@@ -249,7 +229,7 @@ class TextOverlayWindow(OverlayWindow):
             if 'nick_col' in line and line['nick_col']:
                 col = line['nick_col']
             for in_line in line['content']:
-                out_line = "%s%s" % (out_line, self.make_line(in_line))
+                out_line = f"{out_line}{self.make_line(in_line)}"
             if line['attach'] and self.show_attach:
                 attachment = line['attach'][0]
                 url = attachment['url']
@@ -267,10 +247,8 @@ class TextOverlayWindow(OverlayWindow):
                 else:
                     log.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
-            message = "<span foreground='%s'>%s</span>: %s" % (self.sanitize_string(col),
-                                                               self.sanitize_string(
-                                                                   line["nick"]),
-                                                               out_line)
+            message = f"<span foreground='{self.sanitize_string(col)}'>{self.sanitize_string(
+                line["nick"])}</span>: {out_line}"
             current_y = self.draw_text(current_y, message)
             if current_y <= 0:
                 # We've done enough
@@ -279,10 +257,8 @@ class TextOverlayWindow(OverlayWindow):
         self.context = None
 
     def draw_attach(self, pos_y, url):
-        """
-        Draw an attachment
-        """
-        (floating_x, floating_y, floating_width,
+        """Draw an attachment"""
+        (_floating_x, _floating_y, floating_width,
          floating_height) = self.get_floating_coords()
         if url in self.attachment and self.attachment[url]:
             pix = self.attachment[url]
@@ -302,16 +278,14 @@ class TextOverlayWindow(OverlayWindow):
         return pos_y
 
     def draw_text(self, pos_y, text):
-        """
-        Draw a text message, returning the Y position of the next message
-        """
+        """Draw a text message, returning the Y position of the next message"""
         layout = self.create_pango_layout(text)
         layout.set_auto_dir(True)
         layout.set_markup(text, -1)
         attr = layout.get_attributes()
 
-        (floating_x, floating_y, floating_width,
-         floating_height) = self.get_floating_coords()
+        (_floating_x, _floating_y, floating_width,
+         _floating_height) = self.get_floating_coords()
         layout.set_width(Pango.SCALE * floating_width)
         layout.set_spacing(Pango.SCALE * 3)
         if self.text_font:
@@ -351,11 +325,9 @@ class TextOverlayWindow(OverlayWindow):
         return pos_y - text_height
 
     def render_custom(self, ctx, shape, path, _data):
-        """
-        Draw an inline image as a custom emoticon
-        """
+        """Draw an inline image as a custom emoticon"""
         if shape.data >= len(self.image_list):
-            log.warning(f"{shape.data} >= {len(self.image_list)}")
+            log.warning("%s >= %s", shape.data, len(self.image_list))
             return
         # key is the url to the image
         key = self.image_list[shape.data]
@@ -371,9 +343,7 @@ class TextOverlayWindow(OverlayWindow):
         return True
 
     def sanitize_string(self, string):
-        """
-        Sanitize a text message so that it doesn't intefere with Pango's XML format
-        """
+        """Sanitize a text message so that it doesn't intefere with Pango's XML format"""
         string = string.replace("&", "&amp;")
         string = string.replace("<", "&lt;")
         string = string .replace(">", "&gt;")

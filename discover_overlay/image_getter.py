@@ -11,21 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Functions & Classes to assist image loading."""
-import urllib
 import threading
 import logging
+import os
+import copy
 import gi
 import requests
 import cairo
 import PIL
 import PIL.Image as Image
-import os
-import io
-import copy
 gi.require_version('GdkPixbuf', '2.0')
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
-from gi.repository import Gio, GdkPixbuf, Gtk  # nopep8
+from gi.repository import Gtk  # nopep8
 
 log = logging.getLogger(__name__)
 
@@ -43,7 +41,7 @@ class SurfaceGetter():
         """Downloads and decodes"""
         try:
             resp = requests.get(
-                self.url, stream=True, headers={
+                self.url, stream=True, timeout=10, headers={
                     'Referer': 'https://streamkit.discord.com/overlay/voice',
                     'User-Agent': 'Mozilla/5.0'
                 }
@@ -69,6 +67,7 @@ class SurfaceGetter():
             log.error("Unknown image type:  %s", self.url)
 
     def get_file(self):
+        """Attempt to load the file"""
         errors = []
         # Grab icon from icon theme
         icon_theme = Gtk.IconTheme.get_default()
@@ -99,13 +98,13 @@ class SurfaceGetter():
             try:
                 image = Image.open(mixpath)
             except ValueError:
-                errors.append("Value Error - Unable to read %s" % (mixpath))
+                errors.append(f"Value Error - Unable to read {mixpath}")
             except TypeError:
-                errors.append("Type Error - Unable to read %s" % (mixpath))
+                errors.append(f"Type Error - Unable to read {mixpath}")
             except PIL.UnidentifiedImageError:
-                errors.append("Unknown image type: %s" % (mixpath))
+                errors.append(f"Unknown image type: {mixpath}")
             except FileNotFoundError:
-                errors.append("File not found: %s" % (mixpath))
+                errors.append(f"File not found: {mixpath}")
             if image:
                 (surface, mask) = from_pil(image)
                 if surface:
@@ -115,7 +114,7 @@ class SurfaceGetter():
             log.error(error)
 
 
-def from_pil(image, alpha=1.0, format='BGRa'):
+def from_pil(image, alpha=1.0, image_format='BGRa'):
     """
     :param im: Pillow Image
     :param alpha: 0..1 alpha to add to non-alpha images
@@ -125,10 +124,10 @@ def from_pil(image, alpha=1.0, format='BGRa'):
     mask = bytearray()
     if 'A' not in image.getbands():
         image.putalpha(int(alpha * 255.0))
-        arr = bytearray(image.tobytes('raw', format))
+        arr = bytearray(image.tobytes('raw', image_format))
         mask = arr
     else:
-        arr = bytearray(image.tobytes('raw', format))
+        arr = bytearray(image.tobytes('raw', image_format))
         mask = copy.deepcopy((arr))
         idx = 0
         while idx < len(arr):
@@ -148,9 +147,12 @@ def from_pil(image, alpha=1.0, format='BGRa'):
 
 
 def to_pil(surface):
+    """Return a PIL Image from the Cairo surface"""
     if surface.get_format() == cairo.Format.ARGB32:
-        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRA", surface.get_stride())
-    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()), surface.get_data(), 'raw', "BGRX", surface.get_stride())
+        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()),
+                                surface.get_data(), 'raw', "BGRA", surface.get_stride())
+    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()),
+                            surface.get_data(), 'raw', "BGRX", surface.get_stride())
 
 
 def get_surface(func, identifier, ava, size):

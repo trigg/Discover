@@ -13,16 +13,15 @@
 """Main application class"""
 import gettext
 import os
-import time
 import sys
 import re
 import traceback
 import logging
-import pkg_resources
 import json
 import signal
-import gi
 from configparser import ConfigParser
+import gi
+import pkg_resources
 
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
@@ -33,7 +32,7 @@ from .audio_assist import DiscoverAudioAssist
 
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Gtk, GLib, Gio, Gdk  # nopep8
+from gi.repository import Gtk, GLib, Gio  # nopep8
 
 try:
     from xdg.BaseDirectory import xdg_config_home
@@ -99,7 +98,7 @@ class Discover:
         Read in arg list from command or RPC and act accordingly
         """
         if "--help" in data or "-h" in data:
-            print("%s: discover-overlay [OPTIONS]... " % (_("Usage")))
+            print(f"{_("Usage")}: discover-overlay [OPTIONS]... ")
             print(_("Show an X11 or wlroots overlay with information"))
             print(_("from Discord client"))
             print("")
@@ -158,14 +157,16 @@ class Discover:
                 self.connection.request_text_rooms_for_guild(match.group(1))
 
     def config_set(self, context, key, value):
+        """Set a config value and save to disk"""
         config = self.config()
         if not context in config.sections():
             config.add_section(context)
         config.set(context, key, value)
-        with open(self.config_file, 'w') as file:
+        with open(self.config_file, 'w', encoding="utf-8") as file:
             config.write(file)
 
     def config(self):
+        """Read config from disk"""
         config = ConfigParser(interpolation=None)
         config.read(self.config_file)
         return config
@@ -174,7 +175,7 @@ class Discover:
         """
         Called when the RPC file has been altered
         """
-        with open(self.rpc_file, "r") as tfile:
+        with open(self.rpc_file, "r", encoding="utf-8") as tfile:
             data = tfile.readlines()
             if len(data) >= 1:
                 self.do_args(data[0].strip().split(" "), False)
@@ -249,9 +250,7 @@ class Discover:
 
         self.voice_overlay.set_horizontal(config.getboolean(
             "main", "horizontal", fallback=False))
-        self.voice_overlay.set_guild_ids(self.parse_guild_ids(
-            config.get("main", "guild_ids", fallback="")))
-        self.voice_overlay.set_overflow(
+        self.voice_overlay.set_overflow_style(
             config.getint("main", "overflow", fallback=0))
         self.voice_overlay.set_show_connection(config.getboolean(
             "main", "show_connection", fallback=False))
@@ -259,7 +258,7 @@ class Discover:
             "main", "show_title", fallback=False))
         self.voice_overlay.set_show_disconnected(config.getboolean(
             "main", "show_disconnected", fallback=False))
-        self.voice_overlay.set_border_width(
+        self.voice_overlay.set_drawn_border_width(
             config.getint("main", "border_width", fallback=2))
         self.voice_overlay.set_icon_transparency(config.getfloat(
             "main", "icon_transparency", fallback=1.0))
@@ -432,6 +431,7 @@ class Discover:
                 self.config_file, self.rpc_file, self.channel_file, [])
 
     def toggle_show(self, _obj=None):
+        """Toggle all overlays off or on"""
         if self.voice_overlay:
             hide = not self.voice_overlay.hidden
             self.voice_overlay.set_hidden(hide)
@@ -457,6 +457,8 @@ class Discover:
             self.notification_overlay.set_force_xshape(force)
 
     def set_show_task(self, visible):
+        """Set if the overlay should allow itself to appear on taskbar.
+          Not working at last check"""
         if self.voice_overlay:
             self.voice_overlay.set_task(visible)
         if self.text_overlay:
@@ -465,11 +467,13 @@ class Discover:
             self.notification_overlay.set_task(visible)
 
     def set_mute_async(self, mute):
-        if mute != None:
+        """Set mute status from another thread"""
+        if mute is not None:
             GLib.idle_add(self.connection.set_mute, mute)
 
     def set_deaf_async(self, deaf):
-        if deaf != None:
+        """Set deaf status from another thread"""
+        if deaf is not None:
             GLib.idle_add(self.connection.set_deaf, deaf)
 
 
@@ -499,13 +503,12 @@ def entrypoint():
 
     # Prepare logger
     logging.getLogger().setLevel(logging.INFO)
-    FORMAT = "%(levelname)s - %(name)s - %(message)s"
+    log_format = "%(levelname)s - %(name)s - %(message)s"
     if "--debug" in sys.argv or "-v" in sys.argv:
         logging.getLogger().setLevel(logging.DEBUG)
-        logging.basicConfig(filename=debug_file, format=FORMAT)
+        logging.basicConfig(filename=debug_file, format=log_format)
     else:
-        logging.basicConfig(format=FORMAT)
-    log = logging.getLogger(__name__)
+        logging.basicConfig(format=log_format)
     log.info("Starting Discover Overlay: %s",
              pkg_resources.get_distribution('discover_overlay').version)
 
@@ -520,26 +523,26 @@ def entrypoint():
             # Send command to overlay
             line = ""
             for arg in sys.argv[1:]:
-                line = "%s %s" % (line, arg)
-            with open(rpc_file, "w") as tfile:
+                line = f"{line} {arg}"
+            with open(rpc_file, "w", encoding="utf-8") as tfile:
                 tfile.write(line)
                 log.warning("Sent RPC command")
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
                 # Show config window
-                settings = MainSettingsWindow(
+                _settings = MainSettingsWindow(
                     config_file, rpc_file, channel_file, sys.argv[1:])
                 Gtk.main()
             else:
                 # Tell any other running overlay to close
-                with open(rpc_file, "w") as tfile:
+                with open(rpc_file, "w", encoding="utf-8") as tfile:
                     tfile.write("--close")
                 # Show the overlay
                 Discover(rpc_file, config_file, channel_file,
                          debug_file, sys.argv[1:])
         return
 
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         log.error(ex)
         log.error(traceback.format_exc())
         sys.exit(1)

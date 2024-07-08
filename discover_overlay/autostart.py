@@ -28,7 +28,7 @@ class Autostart:
 
     def __init__(self, app_name):
         if not app_name.endswith(".desktop"):
-            app_name = "%s.desktop" % (app_name)
+            app_name = f"{app_name}.desktop"
         self.app_name = app_name
         self.auto_locations = [os.path.join(
             xdg_config_home, 'autostart/'), '/etc/xdg/autostart/']
@@ -77,7 +77,7 @@ class BazziteAutostart:
 
     def __init__(self):
         self.auto = False
-        with open("/etc/default/discover-overlay") as f:
+        with open("/etc/default/discover-overlay", encoding="utf-8") as f:
             content = f.readlines()
             for line in content:
                 if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
@@ -94,14 +94,15 @@ class BazziteAutostart:
         self.auto = enable
 
     def change_file(self, value):
+        """Alter bazzite config via pkexec and sed"""
         root = ''
         if shutil.which('pkexec'):
             root = 'pkexec'
         else:
             log.error("No ability to request root privs. Cancel")
             return
-        command = " sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY=%s/g' /etc/default/discover-overlay" % (
-            value)
+        command = f" sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY={
+            value}/g' /etc/default/discover-overlay"
         command_with_permissions = root + command
         os.system(command_with_permissions)
 

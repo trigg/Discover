@@ -11,9 +11,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """A Wayland full-screen window which can be moved and resized"""
+import logging
 import cairo
 import gi
-import logging
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position
 from gi.repository import Gtk, Gdk  # nopep8
@@ -29,12 +29,14 @@ log = logging.getLogger(__name__)
 class DraggableWindowWayland(Gtk.Window):
     """A Wayland full-screen window which can be moved and resized"""
 
-    def __init__(self, pos_x=0.0, pos_y=0.0, width=0.1, height=0.1, message="Message", settings=None, steamos=False, monitor=None):
+    def __init__(self, pos_x=0.0, pos_y=0.0, width=0.1, height=0.1,
+                 message="Message", settings=None, steamos=False, monitor=None):
         Gtk.Window.__init__(self, type=Gtk.WindowType.TOPLEVEL)
         if steamos:
             monitor = 0
         self.monitor = monitor
-        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+        (_screen_x, _screen_y, screen_width,
+         screen_height) = self.get_display_coords()
         self.pos_x = pos_x * screen_width
         self.pos_y = pos_y * screen_height
         self.width = max(40, width * screen_width)
@@ -48,8 +50,8 @@ class DraggableWindowWayland(Gtk.Window):
         self.connect('button-press-event', self.button_press)
         self.connect('button-release-event', self.button_release)
 
-        log.info("Starting: %d,%d %d x %d" %
-                 (self.pos_x, self.pos_y, self.width, self.height))
+        log.info("Starting: %d,%d %d x %d",
+                 self.pos_x, self.pos_y, self.width, self.height)
 
         self.set_app_paintable(True)
 
@@ -76,21 +78,24 @@ class DraggableWindowWayland(Gtk.Window):
         self.force_location()
 
     def set_steamos_window_size(self):
+        """Prepare window for a gamescope steamos session"""
         # Huge bunch of assumptions.
         # Gamescope only has one monitor
         # Gamescope has no scale factor
+        # Probably never possible to reach here, as Gamescope/SteamOS
+        # is X11 for overlays
         display = Gdk.Display.get_default()
         if "get_monitor" in dir(display):
             monitor = display.get_monitor(0)
             if monitor:
                 geometry = monitor.get_geometry()
-                scale_factor = monitor.get_scale_factor()
-                log.info("%d %d" % (geometry.width, geometry.height))
+                log.info("%d %d", geometry.width, geometry.height)
                 self.set_size_request(geometry.width, geometry.height)
 
     def force_location(self):
         """Move the window to previously given co-ords. In wayland just clip to current screen"""
-        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
+        (_screen_x, _screen_y, screen_width,
+         screen_height) = self.get_display_coords()
         self.width = min(self.width, screen_width)
         self.height = min(self.height, screen_height)
         self.pos_x = max(0, self.pos_x)
@@ -189,6 +194,7 @@ class DraggableWindowWayland(Gtk.Window):
         context.restore()
 
     def get_display_coords(self):
+        """Get coordinates from display"""
         display = Gdk.Display.get_default()
         if "get_monitor" in dir(display):
             monitor = display.get_monitor(self.monitor)
@@ -199,5 +205,7 @@ class DraggableWindowWayland(Gtk.Window):
 
     def get_coords(self):
         """Return the position and size of the window"""
-        (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
-        return (float(self.pos_x) / screen_width, float(self.pos_y) / screen_height, float(self.width) / screen_width, float(self.height) / screen_height)
+        (_screen_x, _screen_y, screen_width,
+         screen_height) = self.get_display_coords()
+        return (float(self.pos_x) / screen_width, float(self.pos_y) / screen_height,
+                float(self.width) / screen_width, float(self.height) / screen_height)
