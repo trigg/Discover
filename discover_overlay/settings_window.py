@@ -1231,7 +1231,9 @@ class MainSettingsWindow():
     def text_monitor_changed(self, button):
         screen = self.window.get_screen()
         plug = "Any"
-        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        monitor = None
+        if(button.get_active()>0):
+            monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
         self.config_set("text", "monitor", plug)
@@ -1272,7 +1274,9 @@ class MainSettingsWindow():
     def notification_monitor_changed(self, button):
         screen = self.window.get_screen()
         plug = "Any"
-        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        monitor = None
+        if(button.get_active()>0):
+            monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
         self.config_set("notification", "monitor", plug)
