@@ -1232,7 +1232,7 @@ class MainSettingsWindow():
         screen = self.window.get_screen()
         plug = "Any"
         monitor = None
-        if(button.get_active()>0):
+        if button.get_active()>0:
             monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
@@ -1275,7 +1275,7 @@ class MainSettingsWindow():
         screen = self.window.get_screen()
         plug = "Any"
         monitor = None
-        if(button.get_active()>0):
+        if button.get_active()>0:
             monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
