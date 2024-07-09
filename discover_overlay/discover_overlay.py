@@ -81,8 +81,8 @@ class Discover:
         self.connection.connect()
         self.audio_assist = DiscoverAudioAssist(self)
 
-        rpc_file = Gio.File.new_for_path(rpc_file)
-        monitor = rpc_file.monitor_file(0, None)
+        rpc_file_gio = Gio.File.new_for_path(rpc_file)
+        monitor = rpc_file_gio.monitor_file(0, None)
         monitor.connect("changed", self.rpc_changed)
 
         config_file = Gio.File.new_for_path(config_file)
@@ -125,7 +125,7 @@ class Discover:
             if normal_close:
                 sys.exit(0)
         if "--close" in data or "-x" in data:
-            sys.exit(0)
+            os.kill(os.getpid(), signal.SIGTERM)
         if "--steamos" in data or "-s" in data:
             self.steamos = True
         if "--hide" in data:
