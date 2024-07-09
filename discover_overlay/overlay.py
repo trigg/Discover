@@ -15,7 +15,6 @@ Overlay parent class. Helpful if we need more overlay
 types without copy-and-pasting too much code
 """
 import os
-import sys
 import logging
 import gi
 import cairo
@@ -75,7 +74,7 @@ class OverlayWindow(Gtk.Window):
         if not self.get_display().supports_input_shapes():
             log.info(
                 "Input shapes not available. Quitting")
-            sys.exit(1)
+            self.discover.exit()
         if visual:
             # Set the visual even if we can't use it right now
             self.set_visual(visual)
@@ -125,7 +124,7 @@ class OverlayWindow(Gtk.Window):
 
     def window_exited(self, _window=None):
         """Window closed. Exit app"""
-        sys.exit(1)
+        self.discover.exit()
 
     def set_gamescope_xatom(self, enabled):
         """Set Gamescope XAtom to identify self as an overlay candidate"""
@@ -160,7 +159,7 @@ class OverlayWindow(Gtk.Window):
                 log.info(
                     "GTK Layer Shell is not supported on this wayland compositor")
                 log.info("Currently not possible: Gnome, Weston")
-                sys.exit(0)
+                self.discover.exit()
             if not GtkLayerShell.is_layer_window(self):
                 GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)

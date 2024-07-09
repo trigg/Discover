@@ -125,7 +125,7 @@ class Discover:
             if normal_close:
                 sys.exit(0)
         if "--close" in data or "-x" in data:
-            os.kill(os.getpid(), signal.SIGTERM)
+            self.exit()
         if "--steamos" in data or "-s" in data:
             self.steamos = True
         if "--hide" in data:
@@ -155,6 +155,9 @@ class Discover:
         if any((match := guild_pattern.match(x)) for x in data):
             if self.connection:
                 self.connection.request_text_rooms_for_guild(match.group(1))
+
+    def exit(self):
+        os.kill(os.getpid(), signal.SIGTERM)
 
     def config_set(self, context, key, value):
         """Set a config value and save to disk"""

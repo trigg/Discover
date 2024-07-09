@@ -23,7 +23,6 @@ CHANNEL - Often called 'Rooms'. Both voice and text channels are types of channe
 import select
 import time
 import json
-import sys
 import logging
 import calendar
 import websocket
@@ -110,7 +109,7 @@ class DiscordConnector:
             log.error("No access token in json response")
             log.error(response.text)
             log.error("The user most likely denied permission for this app")
-            sys.exit(1)
+            self.discover.exit()
 
     def set_channel(self, channel, guild, need_req=True):
         """
@@ -280,7 +279,7 @@ class DiscordConnector:
                 self.get_access_token_stage2(j["data"]["code"])
             else:
                 log.error("Authorization rejected")
-                sys.exit(0)
+                self.discover.exit()
             return
         elif j["cmd"] == "DISPATCH":
             if j["evt"] == "READY":
