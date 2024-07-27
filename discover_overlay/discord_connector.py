@@ -307,6 +307,7 @@ class DiscordConnector:
                 # We've joined a room... but where?
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
+                self.userlist[thisuser["id"]]["lastspoken"] = time.perf_counter()
             elif j["evt"] == "VOICE_STATE_DELETE":
                 self.list_altered = True
                 self.set_in_room(j["data"]["user"]["id"], False)
@@ -319,7 +320,7 @@ class DiscordConnector:
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
-                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.time()
+                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.perf_counter()
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True

@@ -44,9 +44,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.avatars = {}
         self.avatar_masks = {}
 
-        # Cache for when somebody last spoke, used for "only_speaking" grace period
-        self.speaker_cache = {}
-
         self.dummy_data = []
         mostly_false = [False, False, False, False, False, False, False, True]
         for i in range(0, 100):
@@ -529,6 +526,8 @@ class VoiceOverlayWindow(OverlayWindow):
         if self.use_dummy:  # Sorting every frame is an awful idea. Maybe put this off elsewhere?
             users_to_draw = self.sort_list(self.dummy_data[0:self.dummy_count])
             userlist = self.dummy_data
+        now = perf_counter()
+
         for user in userlist:
             # Bad object equality here, so we need to reassign
             if "id" in self_user and user["id"] == self_user["id"]:
@@ -544,17 +543,16 @@ class VoiceOverlayWindow(OverlayWindow):
             if self.only_speaking:
                 speaking = "speaking" in user and user["speaking"]
 
-                # Update the speaker cache
+                # Extend timer if mid-speaking
                 if speaking:
-                    self.speaker_cache[user["username"]] = perf_counter()
-
+                    user['lastspoken'] = perf_counter()
                 if not speaking:
                     grace = self.only_speaking_grace_period
 
                     if (
                         grace > 0
-                        and (last_spoke := self.speaker_cache.get(user["username"]))
-                        and (perf_counter() - last_spoke) < grace
+                        and (last_spoke := user['lastspoken'])
+                        and (now - last_spoke) < grace
                     ):
                         # The user spoke within the grace period, so don't hide
                         # them just yet
