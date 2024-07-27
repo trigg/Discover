@@ -1,0 +1,4 @@
+[MAIN]
+max-line-length=150
+max-module-lines=2000
+generated-member=cairo.*

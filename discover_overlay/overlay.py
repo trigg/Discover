@@ -15,11 +15,9 @@ Overlay parent class. Helpful if we need more overlay
 types without copy-and-pasting too much code
 """
 import os
-import sys
 import logging
 import gi
 import cairo
-import Xlib
 from Xlib.display import Display
 from Xlib import X, Xatom
 gi.require_version("Gtk", "3.0")
@@ -46,7 +44,7 @@ class OverlayWindow(Gtk.Window):
         """
         window = Gtk.Window()
         screen = window.get_screen()
-        screen_type = "%s" % (screen)
+        screen_type = f"{screen}"
         self.is_wayland = False
         if "Wayland" in screen_type:
             self.is_wayland = True
@@ -76,7 +74,7 @@ class OverlayWindow(Gtk.Window):
         if not self.get_display().supports_input_shapes():
             log.info(
                 "Input shapes not available. Quitting")
-            sys.exit(1)
+            self.discover.exit()
         if visual:
             # Set the visual even if we can't use it right now
             self.set_visual(visual)
@@ -124,10 +122,12 @@ class OverlayWindow(Gtk.Window):
         # this process hanging if it happens
         self.connect('destroy', self.window_exited)
 
-    def window_exited(self, window=None):
-        sys.exit(1)
+    def window_exited(self, _window=None):
+        """Window closed. Exit app"""
+        self.discover.exit()
 
     def set_gamescope_xatom(self, enabled):
+        """Set Gamescope XAtom to identify self as an overlay candidate"""
         if self.piggyback_parent:
             return
 
@@ -136,7 +136,7 @@ class OverlayWindow(Gtk.Window):
         self.is_xatom_set = enabled
         display = Display()
         atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
-        opaq = display.intern_atom("_NET_WM_WINDOW_OPACITY")
+        # Since unused: _NET_WM_WINDOW_OPACITY
 
         if self.get_toplevel().get_window():
             topw = display.create_resource_object(
@@ -148,7 +148,7 @@ class OverlayWindow(Gtk.Window):
             log.info("Setting GAMESCOPE_EXTERNAL_OVERLAY to %s", enabled)
             display.sync()
         else:
-            log.warn("Unable to set GAMESCOPE_EXTERNAL_OVERLAY")
+            log.warning("Unable to set GAMESCOPE_EXTERNAL_OVERLAY")
 
     def set_wayland_state(self):
         """
@@ -159,7 +159,7 @@ class OverlayWindow(Gtk.Window):
                 log.info(
                     "GTK Layer Shell is not supported on this wayland compositor")
                 log.info("Currently not possible: Gnome, Weston")
-                sys.exit(0)
+                self.discover.exit()
             if not GtkLayerShell.is_layer_window(self):
                 GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
@@ -169,13 +169,16 @@ class OverlayWindow(Gtk.Window):
             GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.TOP, True)
 
     def set_piggyback(self, other_overlay):
+        """Sets as piggybacking off the given (other) overlay"""
         other_overlay.piggyback = self
         self.piggyback_parent = other_overlay
 
     def has_content(self):
+        """Return true if overlay has meaningful content"""
         return False
 
     def overlay_draw_pre(self, _w, context, data=None):
+        """Prepare for drawing the overlay. Calls overlay_draw after preparations"""
         content = self.has_content()
         if self.piggyback and self.piggyback.has_content():
             content = True
@@ -224,16 +227,18 @@ class OverlayWindow(Gtk.Window):
         """
         if width > 1.0 and height > 1.0:
             # Old data.
-            (screen_x, screen_y, screen_width,
+            (_screen_x, _screen_y, screen_width,
              screen_height) = self.get_display_coords()
             pos_x = float(pos_x) / screen_width
             pos_y = float(pos_y) / screen_height
             width = float(width) / screen_width
             height = float(height) / screen_height
 
-        if self.floating != floating or self.pos_x != pos_x or self.pos_y != pos_y or self.width != width or self.height != height:
+        if (self.floating != floating or self.pos_x != pos_x or
+           self.pos_y != pos_y or self.width != width or self.height != height):
             # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
-            if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
+            if ('XDG_SESSION_DESKTOP' in os.environ and
+                    os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon'):
                 floating = True
 
             self.floating = floating
@@ -258,6 +263,7 @@ class OverlayWindow(Gtk.Window):
         self.input_shape_combine_region(reg)
 
     def set_hide_on_mouseover(self, hide):
+        """Set if the overlay should hide when mouse moves over it"""
         if self.hide_on_mouseover != hide:
             self.hide_on_mouseover = hide
             if self.hide_on_mouseover:
@@ -266,6 +272,7 @@ class OverlayWindow(Gtk.Window):
                 self.set_untouchable()
 
     def set_mouseover_timer(self, time):
+        """Set the time until the overlay reappears after mouse over"""
         self.timeout_mouse_over = time
 
     def unset_shape(self):
@@ -299,6 +306,7 @@ class OverlayWindow(Gtk.Window):
         self.set_needs_redraw()
 
     def get_display_coords(self):
+        """Get screen space co-ordinates of the monitor"""
         if self.piggyback_parent:
             return self.piggyback_parent.get_display_coords()
         monitor = self.get_monitor_from_plug()
@@ -311,29 +319,35 @@ class OverlayWindow(Gtk.Window):
         return (0, 0, 1920, 1080)
 
     def get_floating_coords(self):
+        """Get screen space co-ordinates of the window"""
         (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
         if self.floating:
-            if self.pos_x == None or self.pos_y == None or self.width == None or self.height == None:
+            if (self.pos_x is None or self.pos_y is None or
+                    self.width is None or self.height is None):
                 log.error("No usable floating position")
 
             if not self.is_wayland:
-                return (screen_x + self.pos_x * screen_width, screen_y + self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
-            return (self.pos_x * screen_width, self.pos_y * screen_height, self.width * screen_width, self.height * screen_height)
+                return (screen_x + self.pos_x * screen_width, screen_y + self.pos_y * screen_height,
+                        self.width * screen_width, self.height * screen_height)
+            return (self.pos_x * screen_width, self.pos_y * screen_height,
+                    self.width * screen_width, self.height * screen_height)
         else:
             return (screen_x, screen_y, screen_width, screen_height)
 
     def set_needs_redraw(self, be_pushy=False):
+        """Schedule this overlay for a redraw. If part of a
+           piggyback chain, pass it up to be redrawn by topmost parent"""
         if (not self.hidden and self.enabled) or be_pushy:
             if self.piggyback_parent:
                 self.piggyback_parent.set_needs_redraw(be_pushy=True)
 
-            if self.redraw_id == None:
+            if self.redraw_id is None:
                 self.redraw_id = GLib.idle_add(self.redraw)
             else:
                 log.debug("Already awaiting paint")
 
             # If this overlay has data that expires after draw, plan for that here
-            if self.timer_after_draw != None:
+            if self.timer_after_draw is not None:
                 GLib.timeout_add_seconds(self.timer_after_draw, self.redraw)
 
     def redraw(self):
@@ -364,6 +378,7 @@ class OverlayWindow(Gtk.Window):
         return False
 
     def set_hidden(self, hidden):
+        """Set if the overlay should be hidden"""
         self.hidden = hidden
         self.set_enabled(self.enabled)
 
@@ -371,7 +386,7 @@ class OverlayWindow(Gtk.Window):
         """
         Set the monitor this overlay should display on.
         """
-        plug_name = "%s" % (idx)
+        plug_name = f"{idx}"
         if self.monitor != plug_name:
             self.monitor = plug_name
             if self.is_wayland:
@@ -387,6 +402,8 @@ class OverlayWindow(Gtk.Window):
             self.set_needs_redraw()
 
     def get_monitor_from_plug(self):
+        """Return a GDK Monitor filtered by plug name
+           (HDMI-1, eDP-1, VGA etc)"""
         if not self.monitor or self.monitor == "Any":
             return None
         display = Gdk.Display.get_default()
@@ -454,26 +471,31 @@ class OverlayWindow(Gtk.Window):
             self.hide()
 
     def set_task(self, visible):
+        """Set visible on taskbar. Not working at last check"""
         self.set_skip_pager_hint(not visible)
         self.set_skip_taskbar_hint(not visible)
 
     def check_composite(self, _a=None, _b=None):
-        # Called when an X11 session switched compositing on or off
+        """Callback for compositing started/stopped in X11"""
         self.redraw()
 
-    def screen_changed(self, screen=None):
+    def screen_changed(self, _screen=None):
+        """Callback to set monitor to display on"""
         self.set_monitor(self.monitor)
 
-    def mouseover(self, a=None, b=None):
+    def mouseover(self, _a=None, _b=None):
+        """Callback when mouseover occurs, hides overlay"""
         self.draw_blank = True
         self.set_needs_redraw()
         return True
 
-    def mouseout(self, a=None, b=None):
+    def mouseout(self, _a=None, _b=None):
+        """Callback when mouseout occurs, sets a timer to show overlay"""
         GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
         return True
 
-    def mouseout_timed(self, a=None, b=None):
+    def mouseout_timed(self, _a=None, _b=None):
+        """Callback a short while after mouseout occured, shows overlay"""
         self.draw_blank = False
         self.set_needs_redraw()
         return False

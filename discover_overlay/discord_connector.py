@@ -23,13 +23,11 @@ CHANNEL - Often called 'Rooms'. Both voice and text channels are types of channe
 import select
 import time
 import json
-import sys
 import logging
 import calendar
 import websocket
 import requests
 
-import gi
 from gi.repository import GLib
 
 log = logging.getLogger(__name__)
@@ -94,9 +92,14 @@ class DiscordConnector:
         """
         url = "https://streamkit.discord.com/overlay/token"
         myobj = {"code": code1}
-        response = requests.post(url, json=myobj)
+        response = requests.post(url, json=myobj, timeout=10)
         try:
             jsonresponse = json.loads(response.text)
+        except requests.exceptions.Timeout:
+            # TODO This probably needs a retry, not a quit
+            jsonresponse = {}
+        except requests.exceptions.TooManyRedirects:
+            jsonresponse = {}
         except json.JSONDecodeError:
             jsonresponse = {}
         if "access_token" in jsonresponse:
@@ -106,7 +109,7 @@ class DiscordConnector:
             log.error("No access token in json response")
             log.error(response.text)
             log.error("The user most likely denied permission for this app")
-            sys.exit(1)
+            self.discover.exit()
 
     def set_channel(self, channel, guild, need_req=True):
         """
@@ -192,8 +195,7 @@ class DiscordConnector:
         """
         Update a line of text
         """
-        for idx in range(0, len(self.text)):
-            message = self.text[idx]
+        for idx, message in enumerate(self.text):
             if message['id'] == message_in['id']:
                 new_message = {'id': message['id'],
                                'content': self.get_message_from_message(message_in),
@@ -209,8 +211,7 @@ class DiscordConnector:
         """
         Delete a line of text
         """
-        for idx in range(0, len(self.text)):
-            message = self.text[idx]
+        for idx, message in enumerate(self.text):
             if message['id'] == message_in['id']:
                 del self.text[idx]
                 self.text_altered = True
@@ -278,7 +279,7 @@ class DiscordConnector:
                 self.get_access_token_stage2(j["data"]["code"])
             else:
                 log.error("Authorization rejected")
-                sys.exit(0)
+                self.discover.exit()
             return
         elif j["cmd"] == "DISPATCH":
             if j["evt"] == "READY":
@@ -306,6 +307,7 @@ class DiscordConnector:
                 # We've joined a room... but where?
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
+                self.userlist[thisuser["id"]]["lastspoken"] = time.perf_counter()
             elif j["evt"] == "VOICE_STATE_DELETE":
                 self.list_altered = True
                 self.set_in_room(j["data"]["user"]["id"], False)
@@ -318,7 +320,7 @@ class DiscordConnector:
             elif j["evt"] == "SPEAKING_START":
                 self.list_altered = True
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
-                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.time()
+                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.perf_counter()
                 self.set_in_room(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
                 self.list_altered = True
@@ -386,7 +388,8 @@ class DiscordConnector:
                 self.dump_channel_data()
             return
         elif j["cmd"] == "GET_GUILD":
-            # We currently only get here because of a "CHANNEL_CREATE" event. Stupidly long winded way around
+            # We currently only get here because of a "CHANNEL_CREATE" event.
+            # Stupidly long winded way around
             if j["data"]:
                 guild = j["data"]
             self.dump_channel_data()
@@ -417,7 +420,8 @@ class DiscordConnector:
                 self.set_channel(j['data']['id'], j['data']['guild_id'])
                 self.discover.voice_overlay.set_channel_title(
                     j["data"]["name"])
-                if self.current_guild in self.guilds and 'icon_url' in self.guilds[self.current_guild]:
+                if (self.current_guild in self.guilds and
+                   'icon_url' in self.guilds[self.current_guild]):
                     self.discover.voice_overlay.set_channel_icon(
                         self.guilds[self.current_guild]['icon_url'])
                 else:
@@ -460,7 +464,8 @@ class DiscordConnector:
         log.warning(j)
 
     def dump_channel_data(self):
-        with open(self.discover.channel_file, 'w') as f:
+        """ Write all channel data out to file"""
+        with open(self.discover.channel_file, 'w', encoding="utf-8") as f:
             f.write(json.dumps(
                 {'channels': self.channels, 'guild': self.guilds}))
 
@@ -536,7 +541,7 @@ class DiscordConnector:
         if guild in self.guilds:
             self.rate_limited_channels.append(guild)
         else:
-            log.warning(f"Didn't find guild with id {guild}")
+            log.warning("Didn't find guild with id %s", guild)
 
     def req_channel_details(self, channel, nonce=None):
         """message
@@ -669,6 +674,7 @@ class DiscordConnector:
             self.websocket.send(json.dumps(cmd))
 
     def set_mute(self, muted):
+        """ Set client muted status """
         cmd = {
             "cmd": "SET_VOICE_SETTINGS",
             "args": {"mute": muted},
@@ -679,6 +685,7 @@ class DiscordConnector:
         return False
 
     def set_deaf(self, deaf):
+        """ Set client deafened status """
         cmd = {
             "cmd": "SET_VOICE_SETTINGS",
             "args": {"deaf": deaf},
@@ -688,14 +695,14 @@ class DiscordConnector:
             self.websocket.send(json.dumps(cmd))
         return False
 
-    def change_voice_room(self, id):
+    def change_voice_room(self, room_id):
         """
         Switch to another voice room
         """
         cmd = {
             "cmd": "SELECT_VOICE_CHANNEL",
             "args": {
-                "channel_id": id,
+                "channel_id": room_id,
                 "force": True
             },
             "nonce": "deadbeef"
@@ -703,14 +710,14 @@ class DiscordConnector:
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
 
-    def change_text_room(self, id):
+    def change_text_room(self, room_id):
         """
         Switch to another text room
         """
         cmd = {
             "cmd": "SELECT_TEXT_CHANNEL",
             "args": {
-                "channel_id": id
+                "channel_id": room_id
             },
             "nonce": "deadbeef"
         }
@@ -718,7 +725,8 @@ class DiscordConnector:
             self.websocket.send(json.dumps(cmd))
 
     def update_overlays_from_data(self):
-        if self.websocket == None:
+        """Send new data out to overlay windows"""
+        if self.websocket is None:
             self.discover.voice_overlay.set_blank()
             if self.discover.text_overlay:
                 self.discover.text_overlay.set_blank()
@@ -773,12 +781,13 @@ class DiscordConnector:
 
         This will be mixed in with 'None' in the list where a voice channel is
         """
-        if (guild_id == 0):
+        if guild_id == 0:
             return
         self.rate_limited_channels.append(guild_id)
 
     def schedule_reconnect(self):
-        if self.reconnect_cb == None:
+        """Set a timer to attempt reconnection"""
+        if self.reconnect_cb is None:
             log.info("Scheduled a reconnect")
             self.reconnect_cb = GLib.timeout_add_seconds(60, self.connect)
         else:
@@ -792,25 +801,30 @@ class DiscordConnector:
         """
         log.info("Connecting...")
         if self.websocket:
-            log.warn("Already connected?")
+            log.warning("Already connected?")
             return
         if self.reconnect_cb:
             GLib.source_remove(self.reconnect_cb)
             self.reconnect_cb = None
         try:
             self.websocket = websocket.create_connection(
-                "ws://127.0.0.1:6463/?v=1&client_id=%s" % (self.oauth_token),
+                f"ws://127.0.0.1:6463/?v=1&client_id={self.oauth_token}",
                 origin="http://localhost:3000",
                 timeout=0.1
             )
             if self.socket_watch:
                 GLib.source_remove(self.socket_watch)
             self.socket_watch = GLib.io_add_watch(
-                self.websocket.sock, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR, self.socket_glib)
-        except ConnectionError as error:
+                self.websocket.sock,
+                GLib.PRIORITY_DEFAULT_IDLE,
+                GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR,
+                self.socket_glib
+            )
+        except ConnectionError as _error:
             self.schedule_reconnect()
 
-    def socket_glib(self, fd, condition):
+    def socket_glib(self, _fd, condition):
+        """Handle new data on socket"""
         if condition == GLib.IO_IN and self.websocket:
             recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
             while recv:

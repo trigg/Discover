@@ -11,18 +11,19 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Settings window holding all settings tab"""
+# pylint: disable=missing-function-docstring
 import gettext
-import gi
 import logging
-import pkg_resources
 import sys
 import os
 import json
+from configparser import ConfigParser
+import gi
+import pkg_resources
 from .autostart import Autostart, BazziteAutostart
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
 
-from configparser import ConfigParser
 gi.require_version("Gtk", "3.0")
 # pylint: disable=wrong-import-position,wrong-import-order
 from gi.repository import Gtk, Gdk, Gio  # nopep8
@@ -75,6 +76,14 @@ class MainSettingsWindow():
         self.current_guild = "0"
         self.current_channel = "0"
         self.hidden_overlay = False
+        self.voice_floating_x = 0
+        self.voice_floating_y = 0
+        self.voice_floating_w = 0
+        self.voice_floating_h = 0
+        self.text_floating_x = 0
+        self.text_floating_y = 0
+        self.text_floating_w = 0
+        self.text_floating_h = 0
 
         self.menu = self.make_menu()
         self.make_sys_tray_icon(self.menu)
@@ -111,16 +120,30 @@ class MainSettingsWindow():
                 if name.endswith("_all"):
                     widget.set_label(_(widget.get_label()))
 
-        self.widget['overview_main_text'].set_markup("<span size=\"larger\">%s (%s)</span>\n\n%s\n\n%s (<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>) %s (<a href=\"https://github.com/trigg/Discover\">https://github.com/trigg/Discover</a>)\n\n\n\n\n\n" % (
-            _("Welcome to Discover Overlay"),
-            pkg_resources.get_distribution('discover_overlay').version,
-            _("Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to show who is currently talking on discord or it can be set to display text and images from a preconfigured channel. It is fully customisable and can be configured to display anywhere on the screen. We fully support X11 and wlroots based environments. We felt the need to make this project due to the shortcomings in support on Linux by the official discord client."),
-            _("Please visit our discord"),
-            _(" for support. Or open an issue on our GitHub ")
-        ))
+        self.widget['overview_main_text'].set_markup(
+            "%s%s (%s)%s%s\n\n%s %s %s %s%s\n\n\n\n\n\n" % (
+                "<span size=\"larger\">",
+                _("Welcome to Discover Overlay"),
+                pkg_resources.get_distribution('discover_overlay').version,
+                "</span>\n\n",
+                _(("Discover-Overlay is a GTK3 overlay written in Python3."
+                   " It can be configured to show who is currently talking"
+                   " on discord or it can be set to display text and images"
+                   " from a preconfigured channel. It is fully customisable"
+                   " and can be configured to display anywhere on the screen."
+                   " We fully support X11 and wlroots based environments. We "
+                   "felt the need to make this project due to the shortcomings"
+                   " in support on Linux by the official discord client.")),
+                _("Please visit our discord"),
+                "(<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>)",
+                _(" for support. Or open an issue on our GitHub "),
+                "(<a href=\"https://github.com/trigg/Discover\">",
+                "https://github.com/trigg/Discover</a>)"
+            )
+        )
 
         screen = window.get_screen()
-        screen_type = "%s" % (screen)
+        screen_type = f"{screen}"
         self.is_wayland = False
         if "Wayland" in screen_type:
             self.is_wayland = True
@@ -185,6 +208,7 @@ class MainSettingsWindow():
             self.widget['window'].set_default_icon_name(self.icon_name)
 
     def set_steamos_window_size(self):
+        """Set window based on steamos usage"""
         # Huge bunch of assumptions.
         # Gamescope only has one monitor
         # Gamescope has no scale factor
@@ -193,23 +217,21 @@ class MainSettingsWindow():
             monitor = display.get_monitor(0)
             if monitor:
                 geometry = monitor.get_geometry()
-                scale_factor = monitor.get_scale_factor()
-                log.info("%d %d" % (geometry.width, geometry.height))
+                log.info("%d %d", geometry.width, geometry.height)
                 self.window.set_size_request(geometry.width, geometry.height)
 
     def keypress_in_settings(self, window, event):
+        """Callback to steal keypresses to assist SteamOS gamepad control"""
         if self.spinning_focus:
             match event.keyval:
                 case Gdk.KEY_Right:
                     step = self.spinning_focus.get_increments().step
                     value = self.spinning_focus.get_value()
                     self.spinning_focus.set_value(value + step)
-                    pass
                 case Gdk.KEY_Left:
                     step = self.spinning_focus.get_increments().step
                     value = self.spinning_focus.get_value()
                     self.spinning_focus.set_value(value - step)
-                    pass
                 case Gdk.KEY_Up:
                     step = self.spinning_focus.get_increments().step
                     value = self.spinning_focus.get_value()
@@ -230,11 +252,9 @@ class MainSettingsWindow():
                 case Gdk.KEY_Right:
                     value = self.scale_focus.get_value()
                     self.scale_focus.set_value(value + 0.1)
-                    pass
                 case Gdk.KEY_Left:
                     value = self.scale_focus.get_value()
                     self.scale_focus.set_value(value - 0.1)
-                    pass
                 case Gdk.KEY_Up:
                     value = self.scale_focus.get_value()
                     self.scale_focus.set_value(value + 0.1)
@@ -267,7 +287,7 @@ class MainSettingsWindow():
                     widget = self.window.get_focus()
                     if widget:
                         # I really want there to be a better way...
-                        widget_type = "%s" % (widget)
+                        widget_type = f"{widget}"
                         if 'Gtk.SpinButton' in widget_type:
                             self.spinning_focus = widget
 
@@ -285,16 +305,19 @@ class MainSettingsWindow():
         return True
 
     def request_channels_from_guild(self, guild_id):
-        with open(self.rpc_file, 'w') as f:
-            f.write('--rpc --guild-request=%s' % (guild_id))
+        """Send RPC to overlay to request updated channel list"""
+        with open(self.rpc_file, 'w', encoding="utf-8") as f:
+            f.write(f"--rpc --guild-request={guild_id}")
 
     def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None):
+        """Read guild data and repopulate widget.
+         Disable signal handling meanwhile to avoid recursive logic"""
         g = self.widget['text_server']
         c = self.widget['text_channel']
         g.handler_block(self.server_handler)
         c.handler_block(self.channel_handler)
         try:
-            with open(self.channel_file, "r") as tfile:
+            with open(self.channel_file, "r", encoding="utf-8") as tfile:
                 data = tfile.readlines()
                 if len(data) >= 1:
                     data = json.loads(data[0])
@@ -322,21 +345,22 @@ class MainSettingsWindow():
         c.handler_unblock(self.channel_handler)
 
     def populate_monitor_menus(self, _a=None, _b=None):
-        v = self.widget['voice_monitor']
-        t = self.widget['text_monitor']
-        m = self.widget['notification_monitor']
+        """Get Monitor list from GTK and repopulate widget"""
+        voice = self.widget['voice_monitor']
+        text = self.widget['text_monitor']
+        notify = self.widget['notification_monitor']
 
-        v_value = v.get_active()
-        t_value = t.get_active()
-        m_value = m.get_active()
+        v_value = voice.get_active()
+        t_value = text.get_active()
+        m_value = notify.get_active()
 
-        v.remove_all()
-        t.remove_all()
-        m.remove_all()
+        voice.remove_all()
+        text.remove_all()
+        notify.remove_all()
 
-        v.append_text("Any")
-        t.append_text("Any")
-        m.append_text("Any")
+        voice.append_text("Any")
+        text.append_text("Any")
+        notify.append_text("Any")
 
         display = Gdk.Display.get_default()
         screen = self.window.get_screen()
@@ -348,41 +372,38 @@ class MainSettingsWindow():
                     manufacturer = this_mon.get_manufacturer()
                     model = this_mon.get_model()
                     connector = screen.get_monitor_plug_name(i)
-                    monitor_label = "%s %s\n%s" % (
-                        manufacturer, model, connector)
-                    v.append_text(monitor_label)
-                    t.append_text(monitor_label)
-                    m.append_text(monitor_label)
+                    monitor_label = f"{manufacturer} {model}\n{connector}"
+                    voice.append_text(monitor_label)
+                    text.append_text(monitor_label)
+                    notify.append_text(monitor_label)
 
-        v.set_active(v_value)
-        t.set_active(t_value)
-        m.set_active(m_value)
+        voice.set_active(v_value)
+        text.set_active(t_value)
+        notify.set_active(m_value)
 
-    def close_window(self, widget=None, event=None):
-        """
-        Hide the settings window for use at a later date
-        """
+    def close_window(self, _widget=None, _event=None):
+        """Hide the settings window for use at a later date"""
         self.window.hide()
-        if self.ind == None and self.tray == None:
+        if self.ind is None and self.tray is None:
             sys.exit(0)
-        if self.ind != None:
+        if self.ind is not None:
             # pylint: disable=import-outside-toplevel
             from gi.repository import AppIndicator3
             if self.ind.get_status() == AppIndicator3.IndicatorStatus.PASSIVE:
                 sys.exit(0)
         return True
 
-    def close_app(self, widget=None, event=None):
+    def close_app(self, _widget=None, _event=None):
+        """Close the app"""
         sys.exit(0)
 
     def present_settings(self, _a=None):
-        """
-        Show the settings window
-        """
+        """Show the settings window"""
         self.widget['notebook'].set_current_page(0)
         self.window.show()
 
     def set_alignment_labels(self, horz):
+        """Relabel alignment pulldowns"""
         m1 = self.widget['voice_align_1'].get_model()
         m2 = self.widget['voice_align_2'].get_model()
         i = m1.get_iter_first()
@@ -409,6 +430,7 @@ class MainSettingsWindow():
             m2.set_value(i2, 0, _("Bottom"))
 
     def read_config(self):
+        """Read config from disk"""
         self.loading_config = True
 
         # Read config and put into gui
@@ -522,8 +544,8 @@ class MainSettingsWindow():
         self.widget['voice_square_avatar'].set_active(config.getboolean(
             "main", "square_avatar", fallback=True))
 
-        self.widget['voice_fancy_avatar_shapes'].set_active(config.getboolean("main",
-                                                                              "fancy_border", fallback=True))
+        self.widget['voice_fancy_avatar_shapes'].set_active(
+            config.getboolean("main", "fancy_border", fallback=True))
 
         self.widget['voice_order_avatars_by'].set_active(
             config.getint("main", "order", fallback=0))
@@ -719,6 +741,7 @@ class MainSettingsWindow():
         self.loading_config = False
 
     def make_colour(self, col):
+        """Create a Gdk Color from a col tuple"""
         col = json.loads(col)
         return Gdk.RGBA(col[0], col[1], col[2], col[3])
 
@@ -732,6 +755,7 @@ class MainSettingsWindow():
         return guild_ids
 
     def get_monitor_index_from_plug(self, monitor):
+        """Get monitor index from plug name"""
         if not monitor or monitor == "Any":
             return 0
         display = Gdk.Display.get_default()
@@ -746,9 +770,7 @@ class MainSettingsWindow():
         return 0
 
     def get_monitor_obj(self, idx):
-        """
-        Helper function to find the monitor object of the monitor
-        """
+        """Helper function to find the monitor object of the monitor"""
         display = Gdk.Display.get_default()
         return display.get_monitor(idx)
 
@@ -780,17 +802,13 @@ class MainSettingsWindow():
             self.tray.set_visible(False)
 
     def show_menu(self, obj, button, time):
-        """
-        Show menu when System Tray icon is clicked
-        """
+        """Show menu when System Tray icon is clicked"""
         self.menu.show_all()
         self.menu.popup(
             None, None, Gtk.StatusIcon.position_menu, obj, button, time)
 
     def set_sys_tray_icon_visible(self, visible):
-        """
-        Sets whether the tray icon is visible
-        """
+        """Sets whether the tray icon is visible"""
         if self.ind is not None:
             # pylint: disable=import-outside-toplevel
             from gi.repository import AppIndicator3
@@ -800,9 +818,7 @@ class MainSettingsWindow():
             self.tray.set_visible(visible)
 
     def make_menu(self):
-        """
-        Create System Menu
-        """
+        """Create System Menu"""
         menu = Gtk.Menu()
         settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
         self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide overlay"))
@@ -822,11 +838,13 @@ class MainSettingsWindow():
         return menu
 
     def toggle_overlay(self, _a=None, _b=None):
+        """Toggle overlay visibility"""
         self.hidden_overlay = not self.hidden_overlay
-        self.config_set("general", "hideoverlay", "%s" % (self.hidden_overlay))
+        self.config_set("general", "hideoverlay", f"{self.hidden_overlay}")
         self.update_toggle_overlay()
 
     def update_toggle_overlay(self, _a=None, _b=None):
+        """Update gui to reflect state of overlay visibility"""
         self.widget['core_hide_overlay'].handler_block(
             self.hidden_overlay_handler)
 
@@ -840,14 +858,17 @@ class MainSettingsWindow():
             self.toggle_opt.set_label(_("Hide overlay"))
 
     def close_overlay(self, _a=None, _b=None):
-        with open(self.rpc_file, 'w') as f:
+        """Send RPC to tell the overlay to close"""
+        with open(self.rpc_file, 'w', encoding="utf-8") as f:
             f.write('--rpc --close')
 
-    def overview_close(self, button):
+    def overview_close(self, _button):
+        """Gui callback to close overlay. Remove and use close_overlay?"""
         log.info("Quit pressed")
         self.close_overlay()
 
     def voice_place_window(self, button):
+        """Toggle the voice placement"""
         if self.voice_placement_window:
             (pos_x, pos_y, width, height) = self.voice_placement_window.get_coords()
             self.voice_floating_x = pos_x
@@ -857,18 +878,14 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
-            if not "main" in config.sections():
+            if "main" not in config.sections():
                 config.add_section("main")
-            config.set("main", "floating_x", "%f" %
-                       (self.voice_floating_x))
-            config.set("main", "floating_y", "%f" %
-                       (self.voice_floating_y))
-            config.set("main", "floating_w", "%f" %
-                       (self.voice_floating_w))
-            config.set("main", "floating_h", "%f" %
-                       (self.voice_floating_h))
+            config.set("main", "floating_x", f"{self.voice_floating_x:f}")
+            config.set("main", "floating_y", f"{self.voice_floating_y:f}")
+            config.set("main", "floating_w", f"{self.voice_floating_w:f}")
+            config.set("main", "floating_h", f"{self.voice_floating_h:f}")
 
-            with open(self.config_file, 'w') as file:
+            with open(self.config_file, 'w', encoding="utf-8") as file:
                 config.write(file)
             if button:
                 button.set_label(_("Place Window"))
@@ -890,11 +907,13 @@ class MainSettingsWindow():
                 self.voice_placement_window = DraggableWindow(
                     pos_x=self.voice_floating_x, pos_y=self.voice_floating_y,
                     width=self.voice_floating_w, height=self.voice_floating_h,
-                    message=_("Place & resize this window then press Save!"), settings=self, monitor=self.widget['voice_monitor'].get_active()-1)
+                    message=_("Place & resize this window then press Save!"),
+                    settings=self, monitor=self.widget['voice_monitor'].get_active()-1)
                 if button:
                     button.set_label(_("Save this position"))
 
     def text_place_window(self, button):
+        """Toggle the text placement"""
         if self.text_placement_window:
             (pos_x, pos_y, width, height) = self.text_placement_window.get_coords()
             self.text_floating_x = pos_x
@@ -904,18 +923,14 @@ class MainSettingsWindow():
 
             config = ConfigParser(interpolation=None)
             config.read(self.config_file)
-            if not "text" in config.sections():
+            if "text" not in config.sections():
                 config.add_section("text")
-            config.set("text", "floating_x", "%f" %
-                       (self.text_floating_x))
-            config.set("text", "floating_y", "%f" %
-                       (self.text_floating_y))
-            config.set("text", "floating_w", "%f" %
-                       (self.text_floating_w))
-            config.set("text", "floating_h", "%f" %
-                       (self.text_floating_h))
+            config.set("text", "floating_x", f"{self.text_floating_x:f}")
+            config.set("text", "floating_y", f"{self.text_floating_y:f}")
+            config.set("text", "floating_w", f"{self.text_floating_w:f}")
+            config.set("text", "floating_h", f"{self.text_floating_h:f}")
 
-            with open(self.config_file, 'w') as file:
+            with open(self.config_file, 'w', encoding="utf-8") as file:
                 config.write(file)
             if button:
                 button.set_label(_("Place Window"))
@@ -937,21 +952,25 @@ class MainSettingsWindow():
                 self.text_placement_window = DraggableWindow(
                     pos_x=self.text_floating_x, pos_y=self.text_floating_y,
                     width=self.text_floating_w, height=self.text_floating_h,
-                    message=_("Place & resize this window then press Save!"), settings=self, monitor=self.widget['text_monitor'].get_active()-1)
+                    message=_("Place & resize this window then press Save!"),
+                    settings=self, monitor=self.widget['text_monitor'].get_active()-1)
                 if button:
                     button.set_label(_("Save this position"))
 
     def change_placement(self, placement_window):
+        """Finish window placement"""
         if placement_window == self.text_placement_window:
             self.text_place_window(None)
         elif placement_window == self.voice_placement_window:
             self.voice_place_window(None)
 
-    def text_server_refresh(self, button):
-        with open(self.rpc_file, 'w') as f:
+    def text_server_refresh(self, _button):
+        """Send RPC to overlay to request a list of text channels"""
+        with open(self.rpc_file, 'w', encoding="utf-8") as f:
             f.write('--rpc --refresh-guilds')
 
     def config_set(self, context, key, value):
+        """Write one key to config and save to disk"""
         if self.loading_config:
             return
         config = ConfigParser(interpolation=None)
@@ -959,10 +978,11 @@ class MainSettingsWindow():
         if not context in config.sections():
             config.add_section(context)
         config.set(context, key, value)
-        with open(self.config_file, 'w') as file:
+        with open(self.config_file, 'w', encoding="utf-8") as file:
             config.write(file)
 
     def config_remove_section(self, context):
+        """Remove a section from config and save to disk"""
         if self.loading_config:
             return
         config = ConfigParser(interpolation=None)
@@ -970,12 +990,12 @@ class MainSettingsWindow():
         if context in config.sections():
             config.remove_section(context)
         else:
-            log.error("Unable to remove section %s" % (context))
-        with open(self.config_file, 'w') as file:
+            log.error("Unable to remove section %s", context)
+        with open(self.config_file, 'w', encoding="utf-8") as file:
             config.write(file)
 
     def voice_anchor_float_changed(self, button):
-        self.config_set("main", "floating", "%s" % (button.get_active() == 0))
+        self.config_set("main", "floating", f"{(button.get_active() == 0)}")
         self.update_floating_anchor()
 
     def update_floating_anchor(self):
@@ -1003,10 +1023,10 @@ class MainSettingsWindow():
         self.config_set("main", "monitor", plug)
 
     def voice_align_1_changed(self, button):
-        self.config_set("main", "rightalign", "%s" % (button.get_active()))
+        self.config_set("main", "rightalign", f"{button.get_active()}")
 
     def voice_align_2_changed(self, button):
-        self.config_set("main", "topalign", "%s" % (button.get_active()))
+        self.config_set("main", "topalign", f"{button.get_active()}")
 
     def voice_font_changed(self, button):
         self.config_set("main", "font", button.get_font())
@@ -1015,41 +1035,39 @@ class MainSettingsWindow():
         self.config_set("main", "title_font", button.get_font())
 
     def voice_icon_spacing_changed(self, button):
-        self.config_set("main", "icon_spacing", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "icon_spacing", f"{int(button.get_value())}")
 
     def voice_text_padding_changed(self, button):
-        self.config_set("main", "text_padding", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "text_padding", f"{int(button.get_value())}")
 
     def voice_text_vertical_offset_changed(self, button):
-        self.config_set("main", "text_baseline_adj", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "text_baseline_adj",
+                        f"{int(button.get_value())}")
 
     def voice_vertical_padding_changed(self, button):
-        self.config_set("main", "vert_edge_padding", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "vert_edge_padding",
+                        f"{int(button.get_value())}")
 
     def voice_horizontal_padding_changed(self, button):
-        self.config_set("main", "horz_edge_padding", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "horz_edge_padding",
+                        f"{int(button.get_value())}")
 
     def voice_display_horizontally_changed(self, button):
-        self.config_set("main", "horizontal", "%s" % (button.get_active()))
+        self.config_set("main", "horizontal", f"{button.get_active()}")
         self.set_alignment_labels(button.get_active())
 
     def voice_highlight_self_changed(self, button):
-        self.config_set("main", "highlight_self", "%s" % (button.get_active()))
+        self.config_set("main", "highlight_self", f"{button.get_active()}")
 
     def voice_display_speakers_only(self, button):
-        self.config_set("main", "only_speaking", "%s" % (button.get_active()))
+        self.config_set("main", "only_speaking", f"{button.get_active()}")
 
     def voice_display_speakers_grace_period(self, button):
-        self.config_set("main", "only_speaking_grace", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "only_speaking_grace",
+                        f"{int(button.get_value())}")
 
     def voice_toggle_test_content(self, button):
-        self.config_set("main", "show_dummy", "%s" % (button.get_active()))
+        self.config_set("main", "show_dummy", f"{button.get_active()}")
 
     def voice_talking_foreground_changed(self, button):
         colour = button.get_rgba()
@@ -1097,54 +1115,48 @@ class MainSettingsWindow():
         self.config_set("main", "avatar_bg_col", json.dumps(colour))
 
     def voice_avatar_opacity_changed(self, button):
-        self.config_set("main", "icon_transparency", "%.2f" %
-                        (button.get_value()))
+        self.config_set("main", "icon_transparency",
+                        f"{button.get_value():.2f}")
 
     def voice_avatar_size_changed(self, button):
-        self.config_set("main", "avatar_size", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "avatar_size", f"{int(button.get_value())}")
 
     def voice_nick_length_changed(self, button):
-        self.config_set("main", "nick_length", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "nick_length", f"{int(button.get_value())}")
 
     def voice_display_icon_only_changed(self, button):
-        self.config_set("main", "icon_only", "%s" % (not button.get_active()))
+        self.config_set("main", "icon_only", f"{(not button.get_active())}")
         self.voice_show_name_hide_others(button.get_active())
 
     def voice_square_avatar_changed(self, button):
-        self.config_set("main", "square_avatar", "%s" % (button.get_active()))
+        self.config_set("main", "square_avatar", f"{button.get_active()}")
 
     def voice_fancy_avatar_shapes_changed(self, button):
-        self.config_set("main", "fancy_border", "%s" % (button.get_active()))
+        self.config_set("main", "fancy_border", f"{button.get_active()}")
 
     def voice_order_avatars_by_changed(self, button):
-        self.config_set("main", "order", "%s" % (button.get_active()))
+        self.config_set("main", "order", f"{button.get_active()}")
 
     def voice_border_width_changed(self, button):
-        self.config_set("main", "border_width", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "border_width", f"{int(button.get_value())}")
 
     def voice_overflow_style_changed(self, button):
-        self.config_set("main", "overflow", "%s" % (int(button.get_active())))
+        self.config_set("main", "overflow", f"{int(button.get_active())}")
 
     def voice_show_title_changed(self, button):
-        self.config_set("main", "show_title", "%s" % (button.get_active()))
+        self.config_set("main", "show_title", f"{button.get_active()}")
 
     def voice_show_connection_status_changed(self, button):
-        self.config_set("main", "show_connection", "%s" %
-                        (button.get_active()))
+        self.config_set("main", "show_connection", f"{button.get_active()}")
 
     def voice_show_disconnected_changed(self, button):
-        self.config_set("main", "show_disconnected", "%s" %
-                        (button.get_active()))
+        self.config_set("main", "show_disconnected", f"{button.get_active()}")
 
     def voice_dummy_count_changed(self, button):
-        self.config_set("main", "dummy_count", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "dummy_count", f"{int(button.get_value())}")
 
     def voice_show_avatar_changed(self, button):
-        self.config_set("main", "show_avatar", "%s" % (button.get_active()))
+        self.config_set("main", "show_avatar", f"{button.get_active()}")
         self.voice_show_avatar_hide_others(button.get_active())
 
     def voice_show_name_hide_others(self, val):
@@ -1176,13 +1188,13 @@ class MainSettingsWindow():
             self.widget['voice_avatar_opacity'].set_sensitive(False)
 
     def text_enable_changed(self, button):
-        self.config_set("text", "enabled", "%s" % (button.get_active()))
+        self.config_set("text", "enabled", f"{button.get_active()}")
 
     def text_popup_style_changed(self, button):
-        self.config_set("text", "popup_style", "%s" % (button.get_active()))
+        self.config_set("text", "popup_style", f"{button.get_active()}")
 
     def text_popup_time_changed(self, button):
-        self.config_set("text", "text_time", "%s" % (int(button.get_value())))
+        self.config_set("text", "text_time", f"{int(button.get_value())}")
 
     def text_server_changed(self, button):
         if button.get_active() < 0:
@@ -1219,31 +1231,32 @@ class MainSettingsWindow():
     def text_monitor_changed(self, button):
         screen = self.window.get_screen()
         plug = "Any"
-        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        monitor = None
+        if button.get_active()>0:
+            monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
         self.config_set("text", "monitor", plug)
 
     def text_show_attachments_changed(self, button):
-        self.config_set("text", "show_attach", "%s" % (button.get_active()))
+        self.config_set("text", "show_attach", f"{button.get_active()}")
 
     def text_line_limit_changed(self, button):
-        self.config_set("text", "line_limit", "%s" % (int(button.get_value())))
+        self.config_set("text", "line_limit", f"{int(button.get_value())}")
 
     def notification_enable_changed(self, button):
-        self.config_set("notification", "enabled", "%s" %
-                        (button.get_active()))
+        self.config_set("notification", "enabled", f"{button.get_active()}")
 
     def notification_reverse_order_changed(self, button):
-        self.config_set("notification", "rev", "%s" % (button.get_active()))
+        self.config_set("notification", "rev", f"{button.get_active()}")
 
     def notification_popup_timer_changed(self, button):
-        self.config_set("notification", "text_time", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "text_time",
+                        f"{int(button.get_value())}")
 
     def notification_limit_popup_width_changed(self, button):
-        self.config_set("notification", "limit_width", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "limit_width",
+                        f"{int(button.get_value())}")
 
     def notification_font_changed(self, button):
         self.config_set("notification", "font", button.get_font())
@@ -1261,46 +1274,44 @@ class MainSettingsWindow():
     def notification_monitor_changed(self, button):
         screen = self.window.get_screen()
         plug = "Any"
-        monitor = screen.get_monitor_plug_name(button.get_active()-1)
+        monitor = None
+        if button.get_active()>0:
+            monitor = screen.get_monitor_plug_name(button.get_active()-1)
         if monitor:
             plug = monitor
         self.config_set("notification", "monitor", plug)
 
     def notification_align_1_changed(self, button):
-        self.config_set("notification", "rightalign", "%s" %
-                        (button.get_active()))
+        self.config_set("notification", "rightalign", f"{button.get_active()}")
 
     def notification_align_2_changed(self, button):
-        self.config_set("notification", "topalign", "%s" %
-                        (button.get_active()))
+        self.config_set("notification", "topalign", f"{button.get_active()}")
 
     def notification_show_icon(self, button):
-        self.config_set("notification", "show_icon", "%s" %
-                        (button.get_active()))
+        self.config_set("notification", "show_icon", f"{button.get_active()}")
 
     def notification_icon_position_changed(self, button):
-        self.config_set("notification", "icon_left", "%s" %
-                        (int(button.get_active() != 1)))
+        self.config_set("notification", "icon_left", f"{
+                        int(button.get_active() != 1)}")
 
     def notification_icon_padding_changed(self, button):
-        self.config_set("notification", "icon_padding", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "icon_padding",
+                        f"{int(button.get_value())}")
 
     def notification_icon_size_changed(self, button):
-        self.config_set("notification", "icon_size", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "icon_size",
+                        f"{int(button.get_value())}")
 
     def notification_padding_between_changed(self, button):
-        self.config_set("notification", "padding", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "padding",
+                        f"{int(button.get_value())}")
 
     def notification_border_radius_changed(self, button):
-        self.config_set("notification", "border_radius", "%s" %
-                        (int(button.get_value())))
+        self.config_set("notification", "border_radius",
+                        f"{int(button.get_value())}")
 
     def notification_show_test_content_changed(self, button):
-        self.config_set("notification", "show_dummy", "%s" %
-                        (button.get_active()))
+        self.config_set("notification", "show_dummy", f"{button.get_active()}")
 
     def core_run_on_startup_changed(self, button):
         self.autostart_helper.set_autostart(button.get_active())
@@ -1309,65 +1320,60 @@ class MainSettingsWindow():
         self.autostart_helper_conf.set_autostart(button.get_active())
 
     def core_force_xshape_changed(self, button):
-        self.config_set("general", "xshape", "%s" % (button.get_active()))
+        self.config_set("general", "xshape", f"{button.get_active()}")
 
     def core_show_tray_icon_changed(self, button):
         self.set_sys_tray_icon_visible(button.get_active())
-        self.config_set("general", "showsystray", "%s" % (button.get_active()))
+        self.config_set("general", "showsystray", f"{button.get_active()}")
         self.widget['core_settings_min'].set_sensitive(button.get_active())
 
-    def core_hide_overlay_changed(self, button):
+    def core_hide_overlay_changed(self, _button):
         self.toggle_overlay()
 
     def core_settings_min_changed(self, button):
-        self.config_set("general", "start_min", "%s" % (button.get_active()))
+        self.config_set("general", "start_min", f"{button.get_active()}")
 
-    def core_reset_all(self, button):
+    def core_reset_all(self, _button):
         self.config_remove_section("general")
         self.read_config()
 
-    def voice_reset_all(self, button):
+    def voice_reset_all(self, _button):
         self.config_remove_section("main")
         self.read_config()
 
-    def text_reset_all(self, button):
+    def text_reset_all(self, _button):
         self.config_remove_section("text")
         self.read_config()
 
-    def notification_reset_all(self, button):
+    def notification_reset_all(self, _button):
         self.config_remove_section("notification")
         self.read_config()
 
     def voice_hide_mouseover_changed(self, button):
-        self.config_set("main", "autohide", "%s" % (button.get_active()))
+        self.config_set("main", "autohide", f"{button.get_active()}")
 
     def text_hide_mouseover_changed(self, button):
-        self.config_set("text", "autohide", "%s" % (button.get_active()))
+        self.config_set("text", "autohide", f"{button.get_active()}")
 
     def voice_mouseover_timeout_changed(self, button):
-        self.config_set("main", "autohide_timer", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "autohide_timer", f"{int(button.get_value())}")
 
     def text_mouseover_timeout_changed(self, button):
-        self.config_set("text", "autohide_timer", "%s" %
-                        (int(button.get_value())))
+        self.config_set("text", "autohide_timer", f"{int(button.get_value())}")
 
     def inactive_fade_changed(self, button):
-        self.config_set("main", "fade_out_inactive", "%s" %
-                        (button.get_active()))
+        self.config_set("main", "fade_out_inactive", f"{button.get_active()}")
 
     def inactive_fade_opacity_changed(self, button):
-        self.config_set("main", "fade_out_limit", "%.2f" %
-                        (button.get_value()))
+        self.config_set("main", "fade_out_limit",
+                        f"{button.get_value():.2f}")
 
     def inactive_time_changed(self, button):
-        self.config_set("main", "inactive_time", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "inactive_time", f"{int(button.get_value())}")
 
     def inactive_fade_time_changed(self, button):
-        self.config_set("main", "inactive_fade_time", "%s" %
-                        (int(button.get_value())))
+        self.config_set("main", "inactive_fade_time",
+                        f"{int(button.get_value())}")
 
     def core_audio_assist_changed(self, button):
-        self.config_set("general", "audio_assist", "%s" %
-                        (button.get_active()))
+        self.config_set("general", "audio_assist", f"{button.get_active()}")
