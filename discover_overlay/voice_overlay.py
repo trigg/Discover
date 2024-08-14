@@ -544,9 +544,11 @@ class VoiceOverlayWindow(OverlayWindow):
                 speaking = "speaking" in user and user["speaking"]
 
                 # Extend timer if mid-speaking
+                if self.highlight_self and self_user == user:
+                    continue
                 if speaking:
                     user['lastspoken'] = perf_counter()
-                if not speaking:
+                else:
                     grace = self.only_speaking_grace_period
 
                     if (
