@@ -122,8 +122,8 @@ class NotificationOverlayWindow(OverlayWindow):
             if message['time'] + self.text_time > now:
                 newlist.append(message)
         self.content = newlist
-        # If the list is different than before
-        if oldsize != len(newlist):
+        # If there is still content to remove
+        if len(newlist) > 0 or oldsize != len(newlist):
             self.set_needs_redraw()
 
     def add_notification_message(self, data):
