@@ -1291,8 +1291,7 @@ class MainSettingsWindow():
         self.config_set("notification", "show_icon", f"{button.get_active()}")
 
     def notification_icon_position_changed(self, button):
-        self.config_set("notification", "icon_left", f"{
-                        int(button.get_active() != 1)}")
+        self.config_set("notification", "icon_left", f"{int(button.get_active() != 1)}")
 
     def notification_icon_padding_changed(self, button):
         self.config_set("notification", "icon_padding",

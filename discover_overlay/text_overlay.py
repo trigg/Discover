@@ -146,16 +146,12 @@ class TextOverlayWindow(OverlayWindow):
                 ret = message['surrogate']
             else:
                 ### Add Image ###
-                self.image_list.append(
-                    f"https://cdn.discordapp.com/emojis/{
-                        message['emojiId']}.png?v=1"
-                )
+                self.image_list.append(f"https://cdn.discordapp.com/emojis/{message['emojiId']}.png?v=1")
                 ret = "`"
         elif (message['type'] == 'inlineCode' or
               message['type'] == 'codeBlock' or
               message['type'] == 'blockQuote'):
-            ret = f"<span font_family=\"monospace\" background=\"#0004\">{
-                self.make_line(message['content'])}</span>"
+            ret = f"<span font_family=\"monospace\" background=\"#0004\">{self.make_line(message['content'])}</span>"
         elif message['type'] == 'u':
             ret = f"<u>{self.make_line(message['content'])}</u>"
         elif message['type'] == 'em':
@@ -247,8 +243,7 @@ class TextOverlayWindow(OverlayWindow):
                 else:
                     log.warning("Unknown file extension '%s'", extension)
                 # cy = self.draw_text(cy, "%s" % (line['attach']))
-            message = f"<span foreground='{self.sanitize_string(col)}'>{self.sanitize_string(
-                line["nick"])}</span>: {out_line}"
+            message = f"<span foreground='{self.sanitize_string(col)}'>{self.sanitize_string(line['nick'])}</span>: {out_line}"
             current_y = self.draw_text(current_y, message)
             if current_y <= 0:
                 # We've done enough

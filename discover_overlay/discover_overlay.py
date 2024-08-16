@@ -98,7 +98,7 @@ class Discover:
         Read in arg list from command or RPC and act accordingly
         """
         if "--help" in data or "-h" in data:
-            print(f"{_("Usage")}: discover-overlay [OPTIONS]... ")
+            print(f"{_('Usage')}: discover-overlay [OPTIONS]... ")
             print(_("Show an X11 or wlroots overlay with information"))
             print(_("from Discord client"))
             print("")

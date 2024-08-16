@@ -790,8 +790,7 @@ class VoiceOverlayWindow(OverlayWindow):
         """Draw avatar at given Y position. Includes both text and image based on settings"""
         # Ensure pixbuf for avatar
         if user["id"] not in self.avatars and user["avatar"] and avatar_size > 0:
-            url = f"https://cdn.discordapp.com/avatars/{
-                user['id']}/{user['avatar']}.png"
+            url = f"https://cdn.discordapp.com/avatars/{user['id']}/{user['avatar']}.png"
             get_surface(self.recv_avatar, url, user["id"],
                         self.avatar_size)
 

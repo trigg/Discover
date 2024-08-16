@@ -101,8 +101,7 @@ class BazziteAutostart:
         else:
             log.error("No ability to request root privs. Cancel")
             return
-        command = f" sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY={
-            value}/g' /etc/default/discover-overlay"
+        command = f" sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY={value}/g' /etc/default/discover-overlay"
         command_with_permissions = root + command
         os.system(command_with_permissions)
 
