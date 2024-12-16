@@ -14,6 +14,7 @@
 Overlay parent class. Helpful if we need more overlay
 types without copy-and-pasting too much code
 """
+import sys
 import os
 import logging
 import gi
@@ -156,10 +157,9 @@ class OverlayWindow(Gtk.Window):
         """
         if self.is_wayland:
             if not GtkLayerShell.is_supported():
-                log.info(
-                    "GTK Layer Shell is not supported on this wayland compositor")
-                log.info("Currently not possible: Gnome, Weston")
-                self.discover.exit()
+                log.warn("GTK Layer Shell is not supported on this Wayland compositor.  Falling back to X11...")
+                os.environ["GDK_BACKEND"] = "x11"
+                os.execv(sys.argv[0], sys.argv)
             if not GtkLayerShell.is_layer_window(self):
                 GtkLayerShell.init_for_window(self)
             GtkLayerShell.set_layer(self, GtkLayerShell.Layer.OVERLAY)
