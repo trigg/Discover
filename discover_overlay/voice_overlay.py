@@ -862,7 +862,7 @@ class VoiceOverlayWindow(OverlayWindow):
         if font:
             font = Pango.FontDescription(font)
             layout.set_font_description(font)
-        (_ink_rect, logical_rect) = layout.get_pixel_extents()
+        (ink_rect, logical_rect) = layout.get_pixel_extents()
         text_height = logical_rect.height
         text_width = logical_rect.width
 
@@ -883,9 +883,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
             self.col(tx_col)
             context.move_to(
-                pos_x - text_width - self.text_pad,
+                pos_x - text_width - self.text_pad - ink_rect.x,
                 pos_y + text_y_offset
             )
+            layout.set_alignment(Pango.Alignment.RIGHT)
             PangoCairo.show_layout(self.context, layout)
         else:
             context.move_to(0, 0)
@@ -900,9 +901,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
             self.col(tx_col)
             context.move_to(
-                pos_x + self.text_pad + avatar_size,
+                pos_x + self.text_pad + avatar_size- ink_rect.x,
                 pos_y + text_y_offset
             )
+            layout.set_alignment(Pango.Alignment.LEFT)
             PangoCairo.show_layout(self.context, layout)
         context.restore()
         return text_width
