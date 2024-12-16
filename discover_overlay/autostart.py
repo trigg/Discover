@@ -61,6 +61,7 @@ class Autostart:
             # Enable
             directory = os.path.join(xdg_config_home, 'autostart')
             self.auto = os.path.join(directory, self.app_name)
+            os.makedirs(directory, exist_ok=True)
             os.symlink(self.desktop, self.auto)
         elif not enable and self.auto:
             # Disable
