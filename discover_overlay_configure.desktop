@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Discover Overlay Configuration
+Name[fr]=Configuration de Discover Overlay
 Comment=Voice chat overlay configuration
+Comment[fr]=Configuration de l’overlay de chat vocal
 Exec=discover-overlay --configure
 Icon=discover-overlay
 Terminal=false
