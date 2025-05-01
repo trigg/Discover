@@ -1,10 +1,10 @@
-# Noé Lopez <noelopez@free.fr>, 2023, 2024.
+# Noé Lopez <noelopez@free.fr>, 2023, 2024, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: discover 0.7.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-05-01 20:54+0200\n"
-"PO-Revision-Date: 2024-04-03 22:46+0200\n"
+"PO-Revision-Date: 2025-05-01 21:05+0200\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: Noé Lopez <noelopez@free.fr>\n"
 "Language: fr_FR\n"
@@ -112,19 +112,19 @@ msgid "Discover Overlay Configuration"
 msgstr "Configuration de Discover Overlay"
 
 msgid "Open Configuration"
-msgstr ""
+msgstr "Ouvrir la configuration"
 
 msgid "Hide Overlay"
-msgstr ""
+msgstr "Cacher l’overlay"
 
 msgid "Quit Overlay"
-msgstr ""
+msgstr "Quitter l’overlay"
 
 msgid "Quit Configuration"
-msgstr ""
+msgstr "Quitter la configuration"
 
 msgid "Show Overlay"
-msgstr ""
+msgstr "Montrer l’overlay"
 
 msgid "Place Window"
 msgstr "Choisir la position de la fenêtre"
@@ -193,7 +193,7 @@ msgid "Close overlay"
 msgstr "Fermer l’overlay"
 
 msgid "About"
-msgstr ""
+msgstr "À propos"
 
 msgid "Display Horizontally"
 msgstr "Afficher horizontalement"
