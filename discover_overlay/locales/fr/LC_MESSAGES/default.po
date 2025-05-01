@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discover 0.7.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"POT-Creation-Date: 2025-05-01 20:54+0200\n"
 "PO-Revision-Date: 2024-04-03 22:46+0200\n"
 "Last-Translator: Noé Lopez <noelopez@free.fr>\n"
 "Language-Team: Noé Lopez <noelopez@free.fr>\n"
@@ -108,14 +108,23 @@ msgstr "Milieu"
 msgid "Right"
 msgstr "Droite"
 
-msgid "Settings"
-msgstr "Paramètres"
+msgid "Discover Overlay Configuration"
+msgstr "Configuration de Discover Overlay"
 
-msgid "Close Overlay"
-msgstr "Fermer l’overlay"
+msgid "Open Configuration"
+msgstr ""
 
-msgid "Close Settings"
-msgstr "Ouvrir les paramètres"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
+msgstr ""
 
 msgid "Place Window"
 msgstr "Choisir la position de la fenêtre"
@@ -177,17 +186,14 @@ msgstr "Retour à la ligne"
 msgid "None"
 msgstr "Aucun"
 
-msgid "Discover Overlay Configuration"
-msgstr "Configuration de Discover Overlay"
-
 msgid "INTRO TEXT"
 msgstr "TEXT D’INTRO"
 
 msgid "Close overlay"
 msgstr "Fermer l’overlay"
 
-msgid "Overview"
-msgstr "Aperçu"
+msgid "About"
+msgstr ""
 
 msgid "Display Horizontally"
 msgstr "Afficher horizontalement"
@@ -425,6 +431,18 @@ msgstr "Intégration avec Pipewire/Pulseaudio"
 
 msgid "Core"
 msgstr "Noyau"
+
+#~ msgid "Settings"
+#~ msgstr "Paramètres"
+
+#~ msgid "Close Overlay"
+#~ msgstr "Fermer l’overlay"
+
+#~ msgid "Close Settings"
+#~ msgstr "Ouvrir les paramètres"
+
+#~ msgid "Overview"
+#~ msgstr "Aperçu"
 
 #~ msgid "Show Advanced Options"
 #~ msgstr "Afficher les options avancées"

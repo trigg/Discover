@@ -126,14 +126,14 @@ class MainSettingsWindow():
                 _("Welcome to Discover Overlay"),
                 pkg_resources.get_distribution('discover_overlay').version,
                 "</span>\n\n",
-                _(("Discover-Overlay is a GTK3 overlay written in Python3."
+                _("Discover-Overlay is a GTK3 overlay written in Python3."
                    " It can be configured to show who is currently talking"
                    " on discord or it can be set to display text and images"
                    " from a preconfigured channel. It is fully customisable"
                    " and can be configured to display anywhere on the screen."
                    " We fully support X11 and wlroots based environments. We "
                    "felt the need to make this project due to the shortcomings"
-                   " in support on Linux by the official discord client.")),
+                   " in support on Linux by the official discord client."),
                 _("Please visit our discord"),
                 "(<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>)",
                 _(" for support. Or open an issue on our GitHub "),
