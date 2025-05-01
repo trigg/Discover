@@ -820,10 +820,10 @@ class MainSettingsWindow():
     def make_menu(self):
         """Create System Menu"""
         menu = Gtk.Menu()
-        settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
-        self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide overlay"))
-        close_overlay_opt = Gtk.MenuItem.new_with_label(_("Close Overlay"))
-        close_opt = Gtk.MenuItem.new_with_label(_("Close Settings"))
+        settings_opt = Gtk.MenuItem.new_with_label(_("Open Configuration"))
+        self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide Overlay"))
+        close_overlay_opt = Gtk.MenuItem.new_with_label(_("Quit Overlay"))
+        close_opt = Gtk.MenuItem.new_with_label(_("Quit Configuration"))
 
         menu.append(settings_opt)
         menu.append(self.toggle_opt)
@@ -853,9 +853,9 @@ class MainSettingsWindow():
         self.widget['core_hide_overlay'].handler_unblock(
             self.hidden_overlay_handler)
         if self.hidden_overlay:
-            self.toggle_opt.set_label(_("Show overlay"))
+            self.toggle_opt.set_label(_("Show Overlay"))
         else:
-            self.toggle_opt.set_label(_("Hide overlay"))
+            self.toggle_opt.set_label(_("Hide Overlay"))
 
     def close_overlay(self, _a=None, _b=None):
         """Send RPC to tell the overlay to close"""

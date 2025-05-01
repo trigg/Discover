@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Discover Overlay Configure
+Name=Discover Overlay Configuration
 Comment=Voice chat overlay configuration
 Exec=discover-overlay --configure
 Icon=discover-overlay
