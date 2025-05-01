@@ -109,13 +109,13 @@ msgid "Right"
 msgstr "Droite"
 
 msgid "Settings"
-msgstr "Paramètres"
+msgstr "Ouvrir les Paramètres"
 
 msgid "Close Overlay"
-msgstr "Fermer l’overlay"
+msgstr "Désactiver l’overlay"
 
 msgid "Close Settings"
-msgstr "Ouvrir les paramètres"
+msgstr "Quitter"
 
 msgid "Place Window"
 msgstr "Choisir la position de la fenêtre"
@@ -187,7 +187,7 @@ msgid "Close overlay"
 msgstr "Fermer l’overlay"
 
 msgid "Overview"
-msgstr "Aperçu"
+msgstr "Informations"
 
 msgid "Display Horizontally"
 msgstr "Afficher horizontalement"
@@ -424,7 +424,7 @@ msgid "Integrate with Pipewire/Pulseaudio"
 msgstr "Intégration avec Pipewire/Pulseaudio"
 
 msgid "Core"
-msgstr "Noyau"
+msgstr "Réglages"
 
 #~ msgid "Show Advanced Options"
 #~ msgstr "Afficher les options avancées"
