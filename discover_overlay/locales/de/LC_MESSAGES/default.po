@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"POT-Creation-Date: 2025-05-01 20:54+0200\n"
 "PO-Revision-Date: 2022-09-23 23:05+0200\n"
 "Last-Translator: Baumfinder <baumkartoffel@outlook.de>\n"
 "Language-Team: German <baumkartoffel@outlook.de>\n"
@@ -115,14 +115,23 @@ msgstr "Mitte"
 msgid "Right"
 msgstr "Rechts"
 
-msgid "Settings"
-msgstr "Einstellungen"
+msgid "Discover Overlay Configuration"
+msgstr "Disorder Overlay Konfiguration"
 
-msgid "Close Overlay"
-msgstr "Overlay schließen"
+msgid "Open Configuration"
+msgstr ""
 
-msgid "Close Settings"
-msgstr "Einstellungen schließen"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
+msgstr ""
 
 msgid "Place Window"
 msgstr "Fenster platzieren"
@@ -188,17 +197,14 @@ msgstr "Wickeln"
 msgid "None"
 msgstr "Keine"
 
-msgid "Discover Overlay Configuration"
-msgstr "Disorder Overlay Konfiguration"
-
 msgid "INTRO TEXT"
 msgstr "EINLEITUNGSTEXT"
 
 msgid "Close overlay"
 msgstr "Overlay schließen"
 
-msgid "Overview"
-msgstr "Übersicht"
+msgid "About"
+msgstr ""
 
 msgid "Display Horizontally"
 msgstr "Horizontal anzeigen"
@@ -436,6 +442,18 @@ msgstr ""
 
 msgid "Core"
 msgstr "Kern"
+
+#~ msgid "Settings"
+#~ msgstr "Einstellungen"
+
+#~ msgid "Close Overlay"
+#~ msgstr "Overlay schließen"
+
+#~ msgid "Close Settings"
+#~ msgstr "Einstellungen schließen"
+
+#~ msgid "Overview"
+#~ msgstr "Übersicht"
 
 #~ msgid "Icon Spacing"
 #~ msgstr "Symbolabstand"

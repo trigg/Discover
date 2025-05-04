@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Discover Overlay
+Name[fr]=Discover Overlay
 Comment=Voice chat overlay
+Comment[fr]=Overlay de chat vocal
 Exec=discover-overlay
 Icon=discover-overlay
 Terminal=false

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"POT-Creation-Date: 2025-05-01 20:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,14 +112,23 @@ msgstr "Canol"
 msgid "Right"
 msgstr "Dde"
 
-msgid "Settings"
-msgstr "Gosodiadau"
+msgid "Discover Overlay Configuration"
+msgstr "Discover Overlay Cyfluniad"
 
-msgid "Close Overlay"
-msgstr "Cau troslun"
+msgid "Open Configuration"
+msgstr ""
 
-msgid "Close Settings"
-msgstr "Cau Gosodiadau"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
+msgstr ""
 
 msgid "Place Window"
 msgstr "Rhowch y ffenestr"
@@ -181,17 +190,14 @@ msgstr "Lapio"
 msgid "None"
 msgstr "Dim"
 
-msgid "Discover Overlay Configuration"
-msgstr "Discover Overlay Cyfluniad"
-
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
 msgstr "Cau troslun"
 
-msgid "Overview"
-msgstr "Trosolwg"
+msgid "About"
+msgstr ""
 
 msgid "Display Horizontally"
 msgstr "Arddangos yn llorweddol"
@@ -429,6 +435,18 @@ msgstr "Integrate with Pipewire/Pulseaudio"
 
 msgid "Core"
 msgstr "Craidd"
+
+#~ msgid "Settings"
+#~ msgstr "Gosodiadau"
+
+#~ msgid "Close Overlay"
+#~ msgstr "Cau troslun"
+
+#~ msgid "Close Settings"
+#~ msgstr "Cau Gosodiadau"
+
+#~ msgid "Overview"
+#~ msgstr "Trosolwg"
 
 #~ msgid "Icon Spacing"
 #~ msgstr "Bylchiad eiconau"

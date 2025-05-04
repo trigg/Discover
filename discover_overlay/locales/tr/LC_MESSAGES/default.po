@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"POT-Creation-Date: 2025-05-01 20:54+0200\n"
 "PO-Revision-Date: 2023-04-17 15:44+0300\n"
 "Last-Translator: Ahmet Arda Kavakcı <ahmetardakavakci@gmail.com>\n"
 "Language-Team: Turkish <ahmetardakavakci@gmail.com>\n"
@@ -111,14 +111,23 @@ msgstr "Orta"
 msgid "Right"
 msgstr "Sağ"
 
-msgid "Settings"
-msgstr "Ayarlar"
+msgid "Discover Overlay Configuration"
+msgstr "Discover Arayüz Yapılandırması"
 
-msgid "Close Overlay"
-msgstr "Arayüzü Kapat"
+msgid "Open Configuration"
+msgstr ""
 
-msgid "Close Settings"
-msgstr "Ayarları Kapat"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
+msgstr ""
 
 msgid "Place Window"
 msgstr "Pencereyi Yerleştir"
@@ -180,17 +189,14 @@ msgstr "Gizle"
 msgid "None"
 msgstr "Yok"
 
-msgid "Discover Overlay Configuration"
-msgstr "Discover Arayüz Yapılandırması"
-
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
 msgstr "Arayüzü kapat"
 
-msgid "Overview"
-msgstr "Genel Bakış"
+msgid "About"
+msgstr ""
 
 msgid "Display Horizontally"
 msgstr "Yatay Olarak Göster"
@@ -428,3 +434,15 @@ msgstr ""
 
 msgid "Core"
 msgstr "Çekirdek"
+
+#~ msgid "Settings"
+#~ msgstr "Ayarlar"
+
+#~ msgid "Close Overlay"
+#~ msgstr "Arayüzü Kapat"
+
+#~ msgid "Close Settings"
+#~ msgstr "Ayarları Kapat"
+
+#~ msgid "Overview"
+#~ msgstr "Genel Bakış"

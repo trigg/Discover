@@ -126,14 +126,14 @@ class MainSettingsWindow():
                 _("Welcome to Discover Overlay"),
                 pkg_resources.get_distribution('discover_overlay').version,
                 "</span>\n\n",
-                _(("Discover-Overlay is a GTK3 overlay written in Python3."
+                _("Discover-Overlay is a GTK3 overlay written in Python3."
                    " It can be configured to show who is currently talking"
                    " on discord or it can be set to display text and images"
                    " from a preconfigured channel. It is fully customisable"
                    " and can be configured to display anywhere on the screen."
                    " We fully support X11 and wlroots based environments. We "
                    "felt the need to make this project due to the shortcomings"
-                   " in support on Linux by the official discord client.")),
+                   " in support on Linux by the official discord client."),
                 _("Please visit our discord"),
                 "(<a href=\"https://discord.gg/jRKWMuDy5V\">https://discord.gg/jRKWMuDy5V</a>)",
                 _(" for support. Or open an issue on our GitHub "),
@@ -820,10 +820,10 @@ class MainSettingsWindow():
     def make_menu(self):
         """Create System Menu"""
         menu = Gtk.Menu()
-        settings_opt = Gtk.MenuItem.new_with_label(_("Settings"))
-        self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide overlay"))
-        close_overlay_opt = Gtk.MenuItem.new_with_label(_("Close Overlay"))
-        close_opt = Gtk.MenuItem.new_with_label(_("Close Settings"))
+        settings_opt = Gtk.MenuItem.new_with_label(_("Open Configuration"))
+        self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide Overlay"))
+        close_overlay_opt = Gtk.MenuItem.new_with_label(_("Quit Overlay"))
+        close_opt = Gtk.MenuItem.new_with_label(_("Quit Configuration"))
 
         menu.append(settings_opt)
         menu.append(self.toggle_opt)
@@ -853,9 +853,9 @@ class MainSettingsWindow():
         self.widget['core_hide_overlay'].handler_unblock(
             self.hidden_overlay_handler)
         if self.hidden_overlay:
-            self.toggle_opt.set_label(_("Show overlay"))
+            self.toggle_opt.set_label(_("Show Overlay"))
         else:
-            self.toggle_opt.set_label(_("Hide overlay"))
+            self.toggle_opt.set_label(_("Hide Overlay"))
 
     def close_overlay(self, _a=None, _b=None):
         """Send RPC to tell the overlay to close"""

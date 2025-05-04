@@ -84,13 +84,22 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-msgid "Settings"
+msgid "Discover Overlay Configuration"
 msgstr ""
 
-msgid "Close Overlay"
+msgid "Open Configuration"
 msgstr ""
 
-msgid "Close Settings"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
 msgstr ""
 
 msgid "Place Window"
@@ -153,16 +162,13 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-msgid "Discover Overlay Configuration"
-msgstr ""
-
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
 msgstr ""
 
-msgid "Overview"
+msgid "About"
 msgstr ""
 
 msgid "Display Horizontally"

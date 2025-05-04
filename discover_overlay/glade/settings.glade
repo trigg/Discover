@@ -282,7 +282,7 @@
             <property name="name">notebook_overview_label</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="label" translatable="yes">Overview</property>
+            <property name="label" translatable="yes">About</property>
           </object>
           <packing>
             <property name="tab-fill">False</property>

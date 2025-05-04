@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-03 22:48+0200\n"
+"POT-Creation-Date: 2025-05-01 20:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,13 +103,22 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
-msgid "Settings"
+msgid "Discover Overlay Configuration"
 msgstr ""
 
-msgid "Close Overlay"
+msgid "Open Configuration"
 msgstr ""
 
-msgid "Close Settings"
+msgid "Hide Overlay"
+msgstr ""
+
+msgid "Quit Overlay"
+msgstr ""
+
+msgid "Quit Configuration"
+msgstr ""
+
+msgid "Show Overlay"
 msgstr ""
 
 msgid "Place Window"
@@ -172,16 +181,13 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-msgid "Discover Overlay Configuration"
-msgstr ""
-
 msgid "INTRO TEXT"
 msgstr ""
 
 msgid "Close overlay"
 msgstr ""
 
-msgid "Overview"
+msgid "About"
 msgstr ""
 
 msgid "Display Horizontally"
