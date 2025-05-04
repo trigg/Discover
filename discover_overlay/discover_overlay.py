@@ -114,8 +114,10 @@ class Discover:
                   _("Send command, not start new instance."))
             print("      --mute             ", _("Set own user to mute"))
             print("      --unmute           ", _("Set unmuted"))
+            print("      --toggle-mute           ", _("Toggle muted"))
             print("      --deaf             ", _("Set own user to deafened"))
             print("      --undeaf           ", _("Unset user deafened state"))
+            print("      --toggle-deaf           ", _("Toggle deaf"))
             print("      --moveto=XX        ",
                   _("Move the user into voice room, by Room ID"))
             print("      --minimized        ",
@@ -144,6 +146,12 @@ class Discover:
         if "--undeaf" in data:
             if self.connection:
                 self.connection.set_deaf(False)
+        if "--toggle-mute" in data:
+            if self.connection:
+                self.connection.set_mute(not self.connection.muted)
+        if "--toggle-deaf" in data:
+            if self.connection:
+                self.connection.set_deaf(not self.connection.deafened)
         if "--refresh-guilds" in data:
             if self.connection:
                 self.connection.req_guilds()
