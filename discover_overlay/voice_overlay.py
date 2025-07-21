@@ -599,7 +599,7 @@ class VoiceOverlayWindow(OverlayWindow):
             current_y = 0 + self.vert_edge_padding
             offset_y = avatar_size + self.icon_spacing
             if self.align_right:  # A lie. Align bottom
-                current_y = self.height - avatar_size - self.vert_edge_padding
+                current_y = (height - avatar_size) - self.vert_edge_padding
                 offset_y = -(avatar_size + self.icon_spacing)
             rows_to_draw = []
             while len(users_to_draw) > 0:
