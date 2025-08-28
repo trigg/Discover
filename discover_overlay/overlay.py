@@ -192,10 +192,6 @@ class OverlayWindow(Gtk.Window):
         if self.hide_on_mouseover:
             # We've mouse-overed
             if self.draw_blank:
-                self.set_untouchable()
-                context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
-                context.set_operator(cairo.OPERATOR_SOURCE)
-                context.paint()
                 return
             else:
                 (width, height) = self.get_size()
@@ -236,10 +232,6 @@ class OverlayWindow(Gtk.Window):
 
         if (self.floating != floating or self.pos_x != pos_x or
            self.pos_y != pos_y or self.width != width or self.height != height):
-            # Special case for Cinnamon desktop : see https://github.com/trigg/Discover/issues/322
-            if ('XDG_SESSION_DESKTOP' in os.environ and
-                    os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon'):
-                floating = True
 
             self.floating = floating
             self.pos_x = pos_x
@@ -487,15 +479,17 @@ class OverlayWindow(Gtk.Window):
         """Callback when mouseover occurs, hides overlay"""
         self.draw_blank = True
         self.set_needs_redraw()
+        self.hide()
+        GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
         return True
 
     def mouseout(self, _a=None, _b=None):
         """Callback when mouseout occurs, sets a timer to show overlay"""
-        GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
         return True
 
     def mouseout_timed(self, _a=None, _b=None):
         """Callback a short while after mouseout occured, shows overlay"""
         self.draw_blank = False
+        self.show()
         self.set_needs_redraw()
         return False

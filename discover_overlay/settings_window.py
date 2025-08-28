@@ -732,9 +732,6 @@ class MainSettingsWindow():
 
         self.widget['core_settings_min'].set_sensitive(self.show_sys_tray_icon)
 
-        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
-            self.widget['voice_anchor_float'].set_sensitive(False)
-
         self.widget['core_audio_assist'].set_active(
             config.getboolean("general", "audio_assist", fallback=False))
 
@@ -1000,8 +997,6 @@ class MainSettingsWindow():
 
     def update_floating_anchor(self):
         floating = self.widget['voice_anchor_float'].get_active() == 0
-        if 'XDG_SESSION_DESKTOP' in os.environ and os.environ['XDG_SESSION_DESKTOP'] == 'cinnamon':
-            floating = True
 
         if floating:
             self.widget['voice_align_1'].hide()
