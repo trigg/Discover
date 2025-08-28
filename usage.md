@@ -8,6 +8,10 @@ Development is focused on X11 and wlroots-based environments, Plasma on wayland 
 
 Choose `Discover Overlay Configuration` from your application menu. Changes made here or directly to the config file take effect on any running overlays
 
+## Autostart
+
+The Configuration 'Start on boot' option is grayed out in the flatpak version. This can be achieved by adding `Discover Overlay` to your desktop autostart list
+
 ## Nothing shows up?
 
 By default the overlay itself with show nothing if there's nothing to display.

@@ -1,5 +1,7 @@
 # Installing Discover Overlay via Python PIP
 
+This is not an advised way to install directly, but is helpful for those who cannot get it from a package manager and don't want to use flatpak
+
 - If you don't have it, [get PIP](https://pip.pypa.io/en/stable/installation/)
 - run the command `python -m pip install discover-overlay`
 

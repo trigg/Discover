@@ -10,11 +10,10 @@ Considerably lighter on system resources and less hack-and-slash included than d
 ### Try it: 
 - [Desktop](usage)
 - [Steam Deck](deckaddnonsteamgame)
-- [Bazzite](bazzite)
 
 ### Support, Feature requests etc are welcone:
+- [Leave an Issue on GitHub](https://github.com/trigg/Discover/issues)
 - [Join our Discord!](https://discord.gg/jRKWMuDy5V)
-- [issue on GitHub](https://github.com/trigg/Discover/issues)
 
 ### Video
 [![GamingOnLinux video showcasing Discover overlay](youtube_preview.jpg)](https://www.youtube.com/watch?v=9-Eu4o3AzMc)
