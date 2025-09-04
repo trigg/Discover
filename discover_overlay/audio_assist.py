@@ -28,7 +28,10 @@ class DiscoverAudioAssist:
 
         self.thread = None
         self.enabled = False
-        self.source = None  # String containing the name of the PA/PW microphone or other input
+
+        # String containing the name of the PA/PW microphone or other input
+        self.source = None
+
         self.sink = None  # String containing the name of the PA/PW output
 
         self.discover = discover
@@ -68,9 +71,9 @@ class DiscoverAudioAssist:
     async def listen(self):
         """Async to connect to pulse and listen for events"""
         try:
-            async with pulsectl_asyncio.PulseAsync('Discover-Monitor') as pulse:
+            async with pulsectl_asyncio.PulseAsync("Discover-Monitor") as pulse:
                 await self.get_device_details(pulse)
-                async for event in pulse.subscribe_events('all'):
+                async for event in pulse.subscribe_events("all"):
                     await self.handle_events(pulse, event)
         except pulsectl.pulsectl.PulseDisconnected:
             log.info("Pulse has gone away")
@@ -118,28 +121,28 @@ class DiscoverAudioAssist:
             self.discover.set_mute_async(mute)
 
     async def handle_events(self, pulse, ev):
-        """ `Sink` and `Source` events are fired for changes to output and inputs
-            `Server` is fired when default sink or source changes."""
+        """`Sink` and `Source` events are fired for changes to output and inputs
+        `Server` is fired when default sink or source changes."""
         if not self.enabled:
             return
 
         match ev.facility:
-            case 'sink':
+            case "sink":
                 await self.get_device_details(pulse)
 
-            case 'source':
+            case "source":
                 await self.get_device_details(pulse)
 
-            case 'server':
+            case "server":
                 await self.get_device_details(pulse)
 
-            case 'source_output':
+            case "source_output":
                 pass
 
-            case 'sink_input':
+            case "sink_input":
                 pass
 
-            case 'client':
+            case "client":
                 pass
 
             case _:

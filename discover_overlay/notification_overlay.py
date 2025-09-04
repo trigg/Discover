@@ -13,15 +13,13 @@
 """Notification window for text"""
 import logging
 import time
-import math
-
-import cairo
+import json
 import gi
-from .image_getter import get_surface, draw_img_to_rect
+from .image_getter import get_surface
 from .overlay import OverlayWindow
-gi.require_version('PangoCairo', '1.0')
-# pylint: disable=wrong-import-position,wrong-import-order
-from gi.repository import Pango, PangoCairo  # nopep8
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk
 
 log = logging.getLogger(__name__)
 
@@ -39,55 +37,52 @@ class NotificationOverlayWindow(OverlayWindow):
                     "https://cdn.discordapp.com/"
                     "icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96"
                 ),
-                "title": "Title1"
+                "title": "Title1",
             },
+            {"title": "Title2", "body": "Body", "icon": None},
             {
-                "title": "Title2",
-                "body": "Body",
-                "icon": None
-            },
-            {
-                "icon": ("https://cdn.discordapp.com/"
-                         "icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96"
-                         ),
+                "icon": (
+                    "https://cdn.discordapp.com/"
+                    "icons/951077080769114172/991abffc0d2a5c040444be4d1a4085f4.webp?size=96"
+                ),
                 "title": "Title 3",
-                "body": ("Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-                         " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                         "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
-                         "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
-                         "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
-                         "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa "
-                         "qui officia deserunt mollit anim id est laborum."
-                         )
+                "body": (
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+                    " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris "
+                    "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in "
+                    "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla "
+                    "pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa "
+                    "qui officia deserunt mollit anim id est laborum."
+                ),
             },
             {
                 "icon": None,
                 "title": "Title 3",
-                "body": ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
-                         "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                         "Ut enim ad minim veniam, quis nostrud exercitation ullamco "
-                         "laboris nisi ut aliquip ex ea commodo consequat. Duis aute "
-                         "irure dolor in reprehenderit in voluptate velit esse cillum "
-                         "dolore eu fugiat nulla pariatur. Excepteur sint occaecat "
-                         "cupidatat non proident, sunt in culpa qui officia deserunt "
-                         "mollit anim id est laborum."
-                         )
+                "body": (
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, "
+                    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco "
+                    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute "
+                    "irure dolor in reprehenderit in voluptate velit esse cillum "
+                    "dolore eu fugiat nulla pariatur. Excepteur sint occaecat "
+                    "cupidatat non proident, sunt in culpa qui officia deserunt "
+                    "mollit anim id est laborum."
+                ),
             },
             {
-                "icon": ("https://cdn.discordapp.com/"
-                         "avatars/147077941317206016/6a6935192076489fa6dc1eb5dafbf6e7.webp?size=128"
-                         ),
+                "icon": (
+                    "https://cdn.discordapp.com/"
+                    "avatars/147077941317206016/6a6935192076489fa6dc1eb5dafbf6e7.webp?size=128"
+                ),
                 "title": "PM",
-                "body": "Birdy test"
-            }
+                "body": "Birdy test",
+            },
         ]
         self.text_font = None
         self.text_size = 13
         self.text_time = None
         self.show_icon = None
-        self.pango_rect = Pango.Rectangle()
-        self.pango_rect.width = self.text_size * Pango.SCALE
-        self.pango_rect.height = self.text_size * Pango.SCALE
 
         self.connected = True
         self.bg_col = [0.0, 0.6, 0.0, 0.1]
@@ -105,12 +100,10 @@ class NotificationOverlayWindow(OverlayWindow):
         self.image_list = {}
         self.warned_filetypes = []
         self.set_title("Discover Notifications")
-        self.redraw()
 
     def set_blank(self):
         """Set to no data and redraw"""
         self.content = []
-        self.set_needs_redraw()
 
     def tick(self):
         """Remove old messages from dataset"""
@@ -119,48 +112,51 @@ class NotificationOverlayWindow(OverlayWindow):
         oldsize = len(self.content)
         # Iterate over and remove messages older than 30s
         for message in self.content:
-            if message['time'] + self.text_time > now:
+            if message["time"] + self.text_time > now:
                 newlist.append(message)
         self.content = newlist
         # If there is still content to remove
         if len(newlist) > 0 or oldsize != len(newlist):
-            self.set_needs_redraw()
+            pass
 
     def add_notification_message(self, data):
         """Add new message to dataset"""
         noti = None
-        data = data['data']
-        message_id = data['message']['id']
+        data = data["data"]
+        message_id = data["message"]["id"]
         for message in self.content:
-            if message['id'] == message_id:
+            if message["id"] == message_id:
                 return
-        if 'body' in data and 'title' in data:
-            if 'icon_url' in data:
-                noti = {"icon": data['icon_url'],
-                        "title": data['title'],
-                        "body": data['body'], "time": time.time(),
-                        "id": message_id}
+        if "body" in data and "title" in data:
+            if "icon_url" in data:
+                noti = {
+                    "icon": data["icon_url"],
+                    "title": data["title"],
+                    "body": data["body"],
+                    "time": time.time(),
+                    "id": message_id,
+                }
             else:
-                noti = {"title": data['title'],
-                        "body": data['body'], "time": time.time(),
-                        "id": message_id}
+                noti = {
+                    "title": data["title"],
+                    "body": data["body"],
+                    "time": time.time(),
+                    "id": message_id,
+                }
 
         if noti:
             self.content.append(noti)
-            self.set_needs_redraw()
             self.get_all_images()
 
     def set_padding(self, padding):
         """Config option: Padding between notifications, in window-space pixels"""
         if self.padding != padding:
             self.padding = padding
-            self.set_needs_redraw()
 
     def set_border_radius(self, radius):
         """Config option: Radius of the border, in window-space pixels"""
         if self.border_radius != radius:
             self.border_radius = radius
-            self.set_needs_redraw()
 
     def set_icon_size(self, size):
         """Config option: Size of icons, in window-space pixels"""
@@ -173,13 +169,11 @@ class NotificationOverlayWindow(OverlayWindow):
         """Config option: Padding between icon and message, in window-space pixels"""
         if self.icon_pad != pad:
             self.icon_pad = pad
-            self.set_needs_redraw()
 
     def set_icon_left(self, left):
         """Config option: Icon on left or right of text"""
         if self.icon_left != left:
             self.icon_left = left
-            self.set_needs_redraw()
 
     def set_text_time(self, timer):
         """Config option: Duration that a message will be visible for, in seconds"""
@@ -187,11 +181,9 @@ class NotificationOverlayWindow(OverlayWindow):
         self.timer_after_draw = timer
 
     def set_limit_width(self, limit):
-        """Config option: Word wrap limit, in window-space pixels
-        """
+        """Config option: Word wrap limit, in window-space pixels"""
         if self.limit_width != limit:
             self.limit_width = limit
-            self.set_needs_redraw()
 
     def get_all_images(self):
         """Return a list of all downloaded images"""
@@ -202,100 +194,41 @@ class NotificationOverlayWindow(OverlayWindow):
             icon = line["icon"]
 
             if icon and icon not in self.image_list:
-                get_surface(self.recv_icon, icon, icon,
-                            self.icon_size)
+                get_surface(self.recv_icon, icon, icon, self.get_display())
 
-    def recv_icon(self, identifier, pix, _mask):
+    def recv_icon(self, identifier, pix):
         """Callback from image_getter for icons"""
         self.image_list[identifier] = pix
-        self.set_needs_redraw()
 
     def set_fg(self, fg_col):
         """Config option: Set default text colour"""
         if self.fg_col != fg_col:
             self.fg_col = fg_col
-            self.set_needs_redraw()
 
     def set_bg(self, bg_col):
         """Config option: Set background colour"""
         if self.bg_col != bg_col:
             self.bg_col = bg_col
-            self.set_needs_redraw()
 
     def set_show_icon(self, icon):
         """Config option: Set if icons should be shown inline"""
         if self.show_icon != icon:
             self.show_icon = icon
-            self.set_needs_redraw()
             self.get_all_images()
 
     def set_reverse_order(self, rev):
         """Config option: Reverse order of messages"""
         if self.reverse_order != rev:
             self.reverse_order = rev
-            self.set_needs_redraw()
 
     def set_font(self, font):
         """Config option: Font used to render text"""
         if self.text_font != font:
             self.text_font = font
 
-            self.pango_rect = Pango.Rectangle()
-            font = Pango.FontDescription(self.text_font)
-            self.pango_rect.width = font.get_size() * Pango.SCALE
-            self.pango_rect.height = font.get_size() * Pango.SCALE
-            self.set_needs_redraw()
-
     def recv_attach(self, identifier, pix):
         """Callback from image_getter for attachments"""
         self.icons[identifier] = pix
-        self.set_needs_redraw()
-
-    def calc_all_height(self):
-        """Return the height in window-space pixels required
-           to draw this overlay with current dataset"""
-        h = 0
-        my_list = self.content
-        if self.testing:
-            my_list = self.test_content
-        for line in my_list:
-            h += self.calc_height(line)
-        if h > 0:
-            h -= self.padding  # Remove one unneeded padding
-        return h
-
-    def calc_height(self, line):
-        """Return height in window-space pixels required to draw individual notification"""
-        icon_width = 0
-        icon_pad = 0
-        icon = line['icon']
-        if self.show_icon and icon and icon in self.image_list and self.image_list[icon]:
-            icon_width = self.icon_size
-            icon_pad = self.icon_pad
-        message = ""
-        if 'body' in line and len(line['body']) > 0:
-            m_no_body = "<span>%s</span>\n%s"
-            message = m_no_body % (self.sanitize_string(line["title"]),
-                                   self.sanitize_string(line['body']))
-        else:
-            m_with_body = "<span>%s</span>"
-            message = m_with_body % (self.sanitize_string(line["title"]))
-        layout = self.create_pango_layout(message)
-        layout.set_auto_dir(True)
-        layout.set_markup(message, -1)
-        (_floating_x, _floating_y, floating_width,
-         _floating_height) = self.get_floating_coords()
-        width = self.limit_width if floating_width > self.limit_width else floating_width
-        layout.set_width((Pango.SCALE * (width -
-                         (self.border_radius * 4 + icon_width + icon_pad))))
-        layout.set_spacing(Pango.SCALE * 3)
-        if self.text_font:
-            font = Pango.FontDescription(self.text_font)
-            layout.set_font_description(font)
-        _text_width, text_height = layout.get_pixel_size()
-        if text_height < icon_width:
-            text_height = icon_width
-        return text_height + (self.border_radius*4) + self.padding
 
     def has_content(self):
         """Return true if this overlay has meaningful content to show"""
@@ -307,246 +240,39 @@ class NotificationOverlayWindow(OverlayWindow):
             return self.test_content
         return self.content
 
-    def overlay_draw(self, w, context, data=None):
-        """Draw the overlay"""
-        if self.piggyback:
-            self.piggyback.overlay_draw(w, context, data)
-        if not self.enabled:
-            return
-        self.context = context
-        (_width, height) = self.get_size()
-        if not self.piggyback_parent:
-            context.set_antialias(cairo.ANTIALIAS_GOOD)
-
-            # Make background transparent
-            context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
-            context.set_operator(cairo.OPERATOR_SOURCE)
-            context.paint()
-
-        self.tick()
-        context.save()
-        if self.is_wayland or self.piggyback_parent or self.discover.steamos:
-            # Special case!
-            # The window is full-screen regardless of what the user has selected.
-            # We need to set a clip and a transform to imitate original behaviour
-            # Used in wlroots & gamescope
-            (floating_x, floating_y, floating_width,
-             floating_height) = self.get_floating_coords()
-            if self.floating:
-                context.new_path()
-                context.translate(floating_x, floating_y)
-                context.rectangle(0, 0, floating_width, floating_height)
-                context.clip()
-
-        current_y = height
-        if self.align_vert == 0:
-            current_y = 0
-        if self.align_vert == 1:  # Center. Oh god why
-            current_y = (height/2.0) - (self.calc_all_height() / 2.0)
-        if self.testing:
-            the_list = self.test_content
-        else:
-            the_list = self.content
-        if self.reverse_order:
-            the_list = reversed(the_list)
-        for line in the_list:
-            col = "#fff"
-            if 'body' in line and len(line['body']) > 0:
-                m_no_body = "<span foreground='%s'>%s</span>\n%s"
-                message = m_no_body % (self.sanitize_string(col),
-                                       self.sanitize_string(line["title"]),
-                                       self.sanitize_string(line['body']))
-            else:
-                m_with_body = "<span foreground='%s'>%s</span>"
-                message = m_with_body % (self.sanitize_string(col),
-                                         self.sanitize_string(line["title"]))
-
-            icon = None
-            # If we've got an embedded image
-            if "icon_surface" in line and line["icon_surface"]:
-                icon = line["icon_surface"]
-            # If we're given an icon name, it's in the list of icons, and it's not none
-            elif line["icon"] and line["icon"] in self.image_list and self.image_list[line["icon"]]:
-                icon = self.image_list[line["icon"]]
-
-            current_y = self.draw_text(current_y, message, icon)
-            if current_y <= 0:
-                # We've done enough
-                break
-        context.restore()
-        self.context = None
-
-    def draw_text(self, pos_y, text, icon):
-        """Draw a text message, returning the Y position of the next message"""
-        icon_width = self.icon_size
-        icon_pad = self.icon_pad
-        if not self.show_icon:
-            icon = None
-        if not icon:
-            icon_pad = 0
-            icon_width = 0
-
-        layout = self.create_pango_layout(text)
-        layout.set_auto_dir(True)
-        layout.set_markup(text, -1)
-        attr = layout.get_attributes()
-
-        (_floating_x, _floating_y, floating_width,
-         _floating_height) = self.get_floating_coords()
-        width = self.limit_width if floating_width > self.limit_width else floating_width
-        layout.set_width((Pango.SCALE * (width -
-                         (self.border_radius * 4 + icon_width + icon_pad))))
-        layout.set_spacing(Pango.SCALE * 3)
-        if self.text_font:
-            font = Pango.FontDescription(self.text_font)
-            layout.set_font_description(font)
-        text_width, text_height = layout.get_pixel_size()
-        self.col(self.bg_col)
-        top = 0
-        if self.align_vert == 2:  # Bottom align
-            top = pos_y - (text_height + self.border_radius * 4)
-        else:  # Top align
-            top = pos_y
-        if text_height < icon_width:
-            text_height = icon_width
-        shape_height = text_height + self.border_radius * 4
-        shape_width = text_width + self.border_radius*4 + icon_width + icon_pad
-
-        left = 0
-        if self.align_right:
-            left = floating_width - shape_width
-
-        self.context.save()
-        # Draw Background
-        self.context.translate(left, top)
-        # self.context.rectangle(self.border_radius, 0,
-        #                       shape_width - (self.border_radius*2), shape_height)
-        # self.context.fill()
-        # self.context.rectangle(0, self.border_radius,
-        #                       shape_width, shape_height - (self.border_radius * 2))
-
-        # self.context.arc(0.7, 0.3, 0.035, 1.25 * math.pi, 2.25 * math.pi)
-        # self.context.arc(0.3, 0.7, 0.035, .25 * math.pi, 1.25 * math.pi)
-        if self.border_radius == 0:
-
-            self.context.move_to(0.0, 0.0)
-            self.context.line_to(shape_width, 0.0)
-            self.context.line_to(shape_width, shape_height)
-            self.context.line_to(0.0, shape_height)
-            self.context.close_path()
-            self.context.fill()
-        else:
-            # Edge top
-            self.context.move_to(self.border_radius, 0.0)
-            self.context.line_to(shape_width - self.border_radius, 0.0)
-
-            # Arc topright
-            self.context.arc(shape_width - self.border_radius, self.border_radius,
-                             self.border_radius, 1.5 * math.pi, 2 * math.pi)
-
-            # Edge right
-            self.context.line_to(
-                shape_width, shape_height - self.border_radius)
-
-            # Arc bottomright
-            self.context.arc(shape_width - self.border_radius, shape_height - self.border_radius,
-                             self.border_radius, 0.0, 0.5 * math.pi)
-
-            # Edge bottom
-            self.context.line_to(self.border_radius, shape_height)
-
-            # Arch bottomleft
-            self.context.arc(self.border_radius, shape_height -
-                             self.border_radius, self.border_radius, 0.5 * math.pi, math.pi)
-
-            # Edge left
-            self.context.line_to(0.0, self.border_radius)
-
-            # Arc topleft
-            self.context.arc(self.border_radius, self.border_radius,
-                             self.border_radius, math.pi, 1.5 * math.pi)
-
-            # End
-            self.context.close_path()
-            self.context.fill()
-
-        self.context.set_operator(cairo.OPERATOR_OVER)
-        # Draw Image
-        if icon:
-            self.context.save()
-            if self.icon_left:
-                self.context.translate(
-                    self.border_radius*2, self.border_radius*2)
-                draw_img_to_rect(icon, self.context, 0, 0,
-                                 icon_width, icon_width)
-            else:
-                self.context.translate(
-                    self.border_radius*2 + text_width + icon_pad, self.border_radius*2)
-                draw_img_to_rect(icon, self.context, 0, 0,
-                                 icon_width, icon_width)
-            self.context.restore()
-
-        self.col(self.fg_col)
-
-        if self.icon_left:
-            self.context.translate(
-                self.border_radius*2 + icon_width + icon_pad, self.border_radius*2)
-            PangoCairo.context_set_shape_renderer(
-                self.get_pango_context(), self.render_custom, None)
-
-            text = layout.get_text()
-
-            layout.set_attributes(attr)
-
-            PangoCairo.show_layout(self.context, layout)
-        else:
-            self.context.translate(self.border_radius*2, self.border_radius*2)
-            PangoCairo.context_set_shape_renderer(
-                self.get_pango_context(), self.render_custom, None)
-
-            text = layout.get_text()
-
-            layout.set_attributes(attr)
-
-            PangoCairo.show_layout(self.context, layout)
-
-        self.context.restore()
-        next_y = 0
-        if self.align_vert == 2:
-            next_y = pos_y - (shape_height + self.padding)
-        else:
-            next_y = pos_y + shape_height + self.padding
-        return next_y
-
-    def render_custom(self, ctx, shape, path, _data):
-        """Draw an inline image as a custom emoticon"""
-        if shape.data >= len(self.image_list):
-            log.warning("%s >= %s", shape.data, len(self.image_list))
-            return
-        # key is the url to the image
-        key = self.image_list[shape.data]
-        if key not in self.icons:
-            get_surface(self.recv_attach,
-                        key,
-                        key, None)
-            return
-        pix = self.icons[key]
-        (pos_x, pos_y) = ctx.get_current_point()
-        draw_img_to_rect(pix, ctx, pos_x, pos_y - self.text_size, self.text_size,
-                         self.text_size, path=path)
-        return True
-
     def sanitize_string(self, string):
         """Sanitize a text message so that it doesn't intefere with Pango's XML format"""
         string = string.replace("&", "&amp;")
         string = string.replace("<", "&lt;")
-        string = string .replace(">", "&gt;")
+        string = string.replace(">", "&gt;")
         string = string.replace("'", "&#39;")
-        string = string.replace("\"", "&#34;")
+        string = string.replace('"', "&#34;")
         return string
 
     def set_testing(self, testing):
         """Toggle placeholder images for testing"""
         self.testing = testing
-        self.set_needs_redraw()
         self.get_all_images()
+
+    def set_config(self, config):
+        OverlayWindow.set_config(self, config)
+        self.set_enabled(config.getboolean("enabled", fallback=False))
+
+        font = config.get("font", fallback=None)
+        self.set_bg(json.loads(config.get("bg_col", fallback="[0.0,0.0,0.0,0.5]")))
+        self.set_fg(json.loads(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+        self.set_text_time(config.getint("text_time", fallback=10))
+        self.set_show_icon(config.getboolean("show_icon", fallback=True))
+        self.set_reverse_order(config.getboolean("rev", fallback=False))
+        self.set_limit_width(config.getint("limit_width", fallback=400))
+        self.set_icon_left(config.getboolean("icon_left", fallback=True))
+        self.set_icon_pad(config.getint("icon_padding", fallback=8))
+        self.set_icon_size(config.getint("icon_size", fallback=32))
+        self.set_padding(config.getint("padding", fallback=8))
+        self.set_border_radius(config.getint("border_radius", fallback=8))
+        self.set_testing(config.getboolean("show_dummy", fallback=False))
+
+        if font:
+            self.set_font(font)
+
+        self.set_monitor(config.get("monitor", fallback="Any"))

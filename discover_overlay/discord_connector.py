@@ -44,7 +44,8 @@ class DiscordConnector:
         self.discover = discover
         self.websocket = None
         self.access_token = discover.config().get(
-            "cache", "access_token", fallback=None)
+            "cache", "access_token", fallback=None
+        )
         self.oauth_token = "207646673902501888"
 
         self.guilds = {}
@@ -78,13 +79,12 @@ class DiscordConnector:
             return
         cmd = {
             "cmd": "AUTHORIZE",
-            "args":
-            {
+            "args": {
                 "client_id": self.oauth_token,
                 "scopes": ["rpc", "messages.read", "rpc.notifications.read"],
                 "prompt": "none",
             },
-            "nonce": "deadbeef"
+            "nonce": "deadbeef",
         }
         self.websocket.send(json.dumps(cmd))
 
@@ -169,28 +169,33 @@ class DiscordConnector:
         """
         utc_time = None
         try:
-            utc_time = time.strptime(
-                message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            utc_time = time.strptime(message["timestamp"], "%Y-%m-%dT%H:%M:%S.%f%z")
         except ValueError:
-            utc_time = time.strptime(
-                message["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
+            utc_time = time.strptime(message["timestamp"], "%Y-%m-%dT%H:%M:%S%z")
 
         epoch_time = calendar.timegm(utc_time)
         username = message["author"]["username"]
-        if ("nick" in message and message['nick'] and len(message["nick"]) > 1
-                and 'object Object' not in json.dumps(message["nick"])):
+        if (
+            "nick" in message
+            and message["nick"]
+            and len(message["nick"]) > 1
+            and "object Object" not in json.dumps(message["nick"])
+        ):
             username = message["nick"]
         colour = "#ffffff"
         if "author_color" in message:
             colour = message["author_color"]
 
-        self.text.append({'id': message["id"],
-                          'content': self.get_message_from_message(message),
-                          'nick': username,
-                          'nick_col': colour,
-                          'time': epoch_time,
-                          'attach': self.get_attachment_from_message(message),
-                          })
+        self.text.append(
+            {
+                "id": message["id"],
+                "content": self.get_message_from_message(message),
+                "nick": username,
+                "nick_col": colour,
+                "time": epoch_time,
+                "attach": self.get_attachment_from_message(message),
+            }
+        )
         self.text_altered = True
 
     def update_text(self, message_in):
@@ -198,13 +203,15 @@ class DiscordConnector:
         Update a line of text
         """
         for idx, message in enumerate(self.text):
-            if message['id'] == message_in['id']:
-                new_message = {'id': message['id'],
-                               'content': self.get_message_from_message(message_in),
-                               'nick': message['nick'],
-                               'nick_col': message['nick_col'],
-                               'time': message['time'],
-                               'attach': message['attach']}
+            if message["id"] == message_in["id"]:
+                new_message = {
+                    "id": message["id"],
+                    "content": self.get_message_from_message(message_in),
+                    "nick": message["nick"],
+                    "nick_col": message["nick_col"],
+                    "time": message["time"],
+                    "attach": message["attach"],
+                }
                 self.text[idx] = new_message
                 self.text_altered = True
                 return
@@ -214,7 +221,7 @@ class DiscordConnector:
         Delete a line of text
         """
         for idx, message in enumerate(self.text):
-            if message['id'] == message_in['id']:
+            if message["id"] == message_in["id"]:
                 del self.text[idx]
                 self.text_altered = True
                 return
@@ -277,7 +284,7 @@ class DiscordConnector:
         """
         j = json.loads(message)
         if j["cmd"] == "AUTHORIZE":
-            if 'data' in j and 'code' in j['data']:
+            if "data" in j and "code" in j["data"]:
                 self.get_access_token_stage2(j["data"]["code"])
             else:
                 log.error("Authorization rejected")
@@ -287,17 +294,26 @@ class DiscordConnector:
             if j["evt"] == "READY":
                 self.req_auth()
             elif j["evt"] == "VOICE_STATE_UPDATE":
-                self.list_altered = True
+                # self.list_altered = True
                 thisuser = j["data"]["user"]
                 nick = j["data"]["nick"]
                 thisuser["nick"] = nick
-                mute = (j["data"]["voice_state"]["mute"] or
-                        j["data"]["voice_state"]["self_mute"] or
-                        j["data"]["voice_state"]["suppress"])
-                deaf = j["data"]["voice_state"]["deaf"] or j["data"]["voice_state"]["self_deaf"]
-                thisuser["mute"] = mute
-                thisuser["deaf"] = deaf
+                mute = (
+                    j["data"]["voice_state"]["mute"]
+                    or j["data"]["voice_state"]["self_mute"]
+                    or j["data"]["voice_state"]["suppress"]
+                )
+                deaf = (
+                    j["data"]["voice_state"]["deaf"]
+                    or j["data"]["voice_state"]["self_deaf"]
+                )
                 if self.current_voice != "0":
+                    if "mute" not in thisuser or thisuser["mute"] != mute:
+                        thisuser["mute"] = mute
+                        self.discover.voice_overlay.set_mute(thisuser["id"], mute)
+                    if "deaf" not in thisuser or thisuser["deaf"] != deaf:
+                        thisuser["deaf"] = deaf
+                        self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
                     self.update_user(thisuser)
                 self.set_in_room(thisuser["id"], True)
             elif j["evt"] == "VOICE_STATE_CREATE":
@@ -320,19 +336,20 @@ class DiscordConnector:
                     self.discover.voice_overlay.set_channel_icon(None)
                     # User might have been forcibly moved room
             elif j["evt"] == "SPEAKING_START":
-                self.list_altered = True
+                # self.list_altered = True
                 self.userlist[j["data"]["user_id"]]["speaking"] = True
                 self.userlist[j["data"]["user_id"]]["lastspoken"] = time.perf_counter()
                 self.set_in_room(j["data"]["user_id"], True)
+                self.discover.voice_overlay.set_talking(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
-                self.list_altered = True
+                # self.list_altered = True
                 if j["data"]["user_id"] in self.userlist:
                     self.userlist[j["data"]["user_id"]]["speaking"] = False
                 self.set_in_room(j["data"]["user_id"], True)
+                self.discover.voice_overlay.set_talking(j["data"]["user_id"], False)
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
                 if j["data"]["channel_id"]:
-                    self.set_channel(j["data"]["channel_id"],
-                                     j["data"]["guild_id"])
+                    self.set_channel(j["data"]["channel_id"], j["data"]["guild_id"])
                 else:
                     self.set_channel(None, None)
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
@@ -348,20 +365,20 @@ class DiscordConnector:
                     self.delete_text(j["data"]["message"])
             elif j["evt"] == "CHANNEL_CREATE":
                 # We haven't been told what guild this is in
-                self.req_channel_details(j["data"]["id"], 'new')
+                self.req_channel_details(j["data"]["id"], "new")
             elif j["evt"] == "NOTIFICATION_CREATE":
                 self.discover.notification_overlay.add_notification_message(j)
             elif j["evt"] == "VOICE_SETTINGS_UPDATE":
-                source = j['data']['input']['device_id']
-                sink = j['data']['output']['device_id']
-                if sink == 'default':
-                    for available_sink in j['data']['output']['available_devices']:
-                        if available_sink['id'] == 'default':
-                            sink = available_sink['name'][9:]
-                if source == 'default':
-                    for available_source in j['data']['input']['available_devices']:
-                        if available_source['id'] == 'default':
-                            source = available_source['name'][9:]
+                source = j["data"]["input"]["device_id"]
+                sink = j["data"]["output"]["device_id"]
+                if sink == "default":
+                    for available_sink in j["data"]["output"]["available_devices"]:
+                        if available_sink["id"] == "default":
+                            sink = available_sink["name"][9:]
+                if source == "default":
+                    for available_source in j["data"]["input"]["available_devices"]:
+                        if available_source["id"] == "default":
+                            source = available_source["name"][9:]
                 self.discover.audio_assist.set_devices(sink, source)
 
             else:
@@ -373,14 +390,11 @@ class DiscordConnector:
                 self.get_access_token_stage1()
                 return
             else:
-                self.discover.config_set(
-                    "cache", "access_token", self.access_token)
+                self.discover.config_set("cache", "access_token", self.access_token)
                 self.req_guilds()
                 self.user = j["data"]["user"]
-                log.info(
-                    "ID is %s", self.user["id"])
-                log.info(
-                    "Logged in as %s", self.user["username"])
+                log.info("ID is %s", self.user["id"])
+                log.info("Logged in as %s", self.user["username"])
                 self.authed = True
                 self.on_connected()
                 return
@@ -398,13 +412,13 @@ class DiscordConnector:
 
             return
         elif j["cmd"] == "GET_CHANNELS":
-            if j['evt'] == 'ERROR':
-                log.error('%s', j['data']['message'])
+            if j["evt"] == "ERROR":
+                log.error("%s", j["data"]["message"])
                 return
-            self.guilds[j['nonce']]["channels"] = j["data"]["channels"]
+            self.guilds[j["nonce"]]["channels"] = j["data"]["channels"]
             for channel in j["data"]["channels"]:
-                channel['guild_id'] = j['nonce']
-                channel['guild_name'] = self.guilds[j['nonce']]["name"]
+                channel["guild_id"] = j["nonce"]
+                channel["guild_name"] = self.guilds[j["nonce"]]["name"]
                 self.channels[channel["id"]] = channel
                 if channel["type"] == 2:
                     self.req_channel_details(channel["id"])
@@ -412,31 +426,35 @@ class DiscordConnector:
             return
         elif j["cmd"] == "SUBSCRIBE":
             # Only log errors
-            if j['evt']:
+            if j["evt"]:
                 log.warning(j)
             return
         elif j["cmd"] == "UNSUBSCRIBE":
             return
         elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
-            if 'data' in j and j['data'] and 'id' in j['data']:
-                self.set_channel(j['data']['id'], j['data']['guild_id'])
-                self.discover.voice_overlay.set_channel_title(
-                    j["data"]["name"])
-                if (self.current_guild in self.guilds and
-                   'icon_url' in self.guilds[self.current_guild]):
+            if "data" in j and j["data"] and "id" in j["data"]:
+                self.set_channel(j["data"]["id"], j["data"]["guild_id"])
+                self.discover.voice_overlay.set_channel_title(j["data"]["name"])
+                if (
+                    self.current_guild in self.guilds
+                    and "icon_url" in self.guilds[self.current_guild]
+                ):
                     self.discover.voice_overlay.set_channel_icon(
-                        self.guilds[self.current_guild]['icon_url'])
+                        self.guilds[self.current_guild]["icon_url"]
+                    )
                 else:
                     self.discover.voice_overlay.set_channel_icon(None)
                 self.list_altered = True
                 self.in_room = []
-                for u in j['data']['voice_states']:
+                for u in j["data"]["voice_states"]:
                     thisuser = u["user"]
                     nick = u["nick"]
                     thisuser["nick"] = nick
-                    mute = (u["voice_state"]["mute"] or
-                            u["voice_state"]["self_mute"] or
-                            u["voice_state"]["suppress"])
+                    mute = (
+                        u["voice_state"]["mute"]
+                        or u["voice_state"]["self_mute"]
+                        or u["voice_state"]["suppress"]
+                    )
                     deaf = u["voice_state"]["deaf"] or u["voice_state"]["self_deaf"]
                     thisuser["mute"] = mute
                     thisuser["deaf"] = deaf
@@ -445,8 +463,7 @@ class DiscordConnector:
             return
         elif j["cmd"] == "GET_CHANNEL":
             if j["evt"] == "ERROR":
-                log.info(
-                    "Could not get room")
+                log.info("Could not get room")
                 return
             if j["nonce"] == "new":
                 self.req_channels(j["data"]["guild_id"])
@@ -460,18 +477,17 @@ class DiscordConnector:
         elif j["cmd"] == "SELECT_VOICE_CHANNEL":
             return
         elif j["cmd"] == "SET_VOICE_SETTINGS":
-            self.muted = j['data']['mute']
-            self.deafened = j['data']['deaf']
+            self.muted = j["data"]["mute"]
+            self.deafened = j["data"]["deaf"]
             return
         elif j["cmd"] == "GET_VOICE_SETTINGS":
             return
         log.warning(j)
 
     def dump_channel_data(self):
-        """ Write all channel data out to file"""
-        with open(self.discover.channel_file, 'w', encoding="utf-8") as f:
-            f.write(json.dumps(
-                {'channels': self.channels, 'guild': self.guilds}))
+        """Write all channel data out to file"""
+        with open(self.discover.channel_file, "w", encoding="utf-8") as f:
+            f.write(json.dumps({"channels": self.channels, "guild": self.guilds}))
 
     def on_connected(self):
         """
@@ -507,10 +523,8 @@ class DiscordConnector:
         """
         cmd = {
             "cmd": "AUTHENTICATE",
-            "args": {
-                "access_token": self.access_token
-            },
-            "nonce": "deadbeef"
+            "args": {"access_token": self.access_token},
+            "nonce": "deadbeef",
         }
         self.websocket.send(json.dumps(cmd))
 
@@ -518,22 +532,16 @@ class DiscordConnector:
         """
         Request info on one guild
         """
-        cmd = {
-            "cmd": "GET_GUILD",
-            "args": {"guild_id": guild_id},
-            "nonce": nonce
-        }
+        cmd = {"cmd": "GET_GUILD", "args": {"guild_id": guild_id}, "nonce": nonce}
         self.websocket.send(json.dumps(cmd))
 
     def req_guilds(self):
         """
         Request all guilds information for logged in user
         """
-        cmd = {
-            "cmd": "GET_GUILDS",
-            "args": {},
-            "nonce": "deadbeef"
-        }
+        if not self.websocket:
+            return
+        cmd = {"cmd": "GET_GUILDS", "args": {}, "nonce": "deadbeef"}
         self.websocket.send(json.dumps(cmd))
 
     def req_channels(self, guild):
@@ -555,13 +563,7 @@ class DiscordConnector:
             return
         if not nonce:
             nonce = channel
-        cmd = {
-            "cmd": "GET_CHANNEL",
-            "args": {
-                "channel_id": channel
-            },
-            "nonce": nonce
-        }
+        cmd = {"cmd": "GET_CHANNEL", "args": {"channel_id": channel}, "nonce": nonce}
         self.websocket.send(json.dumps(cmd))
 
     def find_user(self):
@@ -569,37 +571,21 @@ class DiscordConnector:
         Find the user
         """
 
-        cmd = {
-            "cmd": "GET_SELECTED_VOICE_CHANNEL",
-            "args": {
-
-            },
-            "nonce": "test"
-        }
+        cmd = {"cmd": "GET_SELECTED_VOICE_CHANNEL", "args": {}, "nonce": "test"}
         self.websocket.send(json.dumps(cmd))
 
     def sub_raw(self, event, args, nonce):
         """
         Subscribe to event helper function
         """
-        cmd = {
-            "cmd": "SUBSCRIBE",
-            "args": args,
-            "evt": event,
-            "nonce": nonce
-        }
+        cmd = {"cmd": "SUBSCRIBE", "args": args, "evt": event, "nonce": nonce}
         self.websocket.send(json.dumps(cmd))
 
     def unsub_raw(self, event, args, nonce):
         """
         Subscribe to event helper function
         """
-        cmd = {
-            "cmd": "UNSUBSCRIBE",
-            "args": args,
-            "evt": event,
-            "nonce": nonce
-        }
+        cmd = {"cmd": "UNSUBSCRIBE", "args": args, "evt": event, "nonce": nonce}
         self.websocket.send(json.dumps(cmd))
 
     def sub_server(self):
@@ -669,32 +655,24 @@ class DiscordConnector:
         """
         Request a recent version of voice settings
         """
-        cmd = {
-            "cmd": "GET_VOICE_SETTINGS",
-            "args": {},
-            "nonce": "deadbeef"
-        }
+        cmd = {"cmd": "GET_VOICE_SETTINGS", "args": {}, "nonce": "deadbeef"}
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
 
     def set_mute(self, muted):
-        """ Set client muted status """
+        """Set client muted status"""
         cmd = {
             "cmd": "SET_VOICE_SETTINGS",
             "args": {"mute": muted},
-            "nonce": "deadbeef"
+            "nonce": "deadbeef",
         }
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
         return False
 
     def set_deaf(self, deaf):
-        """ Set client deafened status """
-        cmd = {
-            "cmd": "SET_VOICE_SETTINGS",
-            "args": {"deaf": deaf},
-            "nonce": "deadbeef"
-        }
+        """Set client deafened status"""
+        cmd = {"cmd": "SET_VOICE_SETTINGS", "args": {"deaf": deaf}, "nonce": "deadbeef"}
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
         return False
@@ -705,11 +683,8 @@ class DiscordConnector:
         """
         cmd = {
             "cmd": "SELECT_VOICE_CHANNEL",
-            "args": {
-                "channel_id": room_id,
-                "force": True
-            },
-            "nonce": "deadbeef"
+            "args": {"channel_id": room_id, "force": True},
+            "nonce": "deadbeef",
         }
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
@@ -720,10 +695,8 @@ class DiscordConnector:
         """
         cmd = {
             "cmd": "SELECT_TEXT_CHANNEL",
-            "args": {
-                "channel_id": room_id
-            },
-            "nonce": "deadbeef"
+            "args": {"channel_id": room_id},
+            "nonce": "deadbeef",
         }
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
@@ -746,8 +719,7 @@ class DiscordConnector:
         if self.discover.text_overlay.popup_style:
             self.text_altered = True
         if self.text_altered:
-            self.discover.text_overlay.set_text_list(
-                self.text, self.text_altered)
+            self.discover.text_overlay.set_text_list(self.text, self.text_altered)
             self.text_altered = False
 
         if self.authed and len(self.rate_limited_channels) > 0:
@@ -757,10 +729,8 @@ class DiscordConnector:
 
                 cmd = {
                     "cmd": "GET_CHANNELS",
-                    "args": {
-                        "guild_id": guild
-                    },
-                    "nonce": guild
+                    "args": {"guild_id": guild},
+                    "nonce": guild,
                 }
                 self.websocket.send(json.dumps(cmd))
                 self.last_rate_limit_send = now
@@ -814,7 +784,7 @@ class DiscordConnector:
             self.websocket = websocket.create_connection(
                 f"ws://127.0.0.1:6463/?v=1&client_id={self.oauth_token}",
                 origin="http://localhost:3000",
-                timeout=0.1
+                timeout=0.1,
             )
             if self.socket_watch:
                 GLib.source_remove(self.socket_watch)
@@ -822,7 +792,7 @@ class DiscordConnector:
                 self.websocket.sock,
                 GLib.PRIORITY_DEFAULT_IDLE,
                 GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR,
-                self.socket_glib
+                self.socket_glib,
             )
         except ConnectionError as _error:
             self.schedule_reconnect()
@@ -839,9 +809,11 @@ class DiscordConnector:
                     if not self.websocket:
                         # Connection was closed in the meantime
                         break
-                    recv, _w, _e = select.select(
-                        (self.websocket.sock,), (), (), 0)
-                except (websocket.WebSocketConnectionClosedException, json.decoder.JSONDecodeError):
+                    recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
+                except (
+                    websocket.WebSocketConnectionClosedException,
+                    json.decoder.JSONDecodeError,
+                ):
                     self.on_close()
                     break
             self.update_overlays_from_data()

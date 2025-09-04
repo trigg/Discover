@@ -14,151 +14,124 @@
 import threading
 import logging
 import os
-import copy
 import gi
 import requests
-import cairo
-import PIL
-import PIL.Image as Image
-gi.require_version('GdkPixbuf', '2.0')
-gi.require_version("Gtk", "3.0")
-# pylint: disable=wrong-import-position
-from gi.repository import Gtk  # nopep8
+
+gi.require_version("GdkPixbuf", "2.0")
+gi.require_version("Gtk", "4.0")
+
+from gi.repository import Gtk, GdkPixbuf, GLib
 
 log = logging.getLogger(__name__)
 
 
-class SurfaceGetter():
+class SurfaceGetter:
     """Download and decode image using PIL and store as a cairo surface"""
 
-    def __init__(self, func, url, identifier, size):
+    def __init__(self, func, url, identifier, display):
         self.func = func
         self.identifier = identifier
         self.url = url
-        self.size = size
+        self.display = display
 
     def get_url(self):
         """Downloads and decodes"""
+        pixbuf = None
+        resp = None
         try:
             resp = requests.get(
-                self.url, stream=True, timeout=10, headers={
-                    'Referer': 'https://streamkit.discord.com/overlay/voice',
-                    'User-Agent': 'Mozilla/5.0'
-                }
+                self.url,
+                stream=True,
+                timeout=10,
+                headers={
+                    "Referer": "https://streamkit.discord.com/overlay/voice",
+                    "User-Agent": "Mozilla/5.0",
+                },
             )
-            raw = resp.raw
-            image = Image.open(raw)
-            (surface, mask) = from_pil(image)
-
-            self.func(self.identifier, surface, mask)
         except requests.HTTPError:
             log.error("Unable to open %s", self.url)
+            return
         except requests.TooManyRedirects:
             log.error("Unable to open %s - Too many redirects", self.url)
+            return
         except requests.Timeout:
             log.error("Unable to open %s - Timeout", self.url)
+            return
         except requests.ConnectionError:
             log.error("Unable to open %s - Connection error", self.url)
-        except ValueError:
-            log.error("Unable to read %s", self.url)
-        except TypeError:
-            log.error("Unable to read %s", self.url)
-        except PIL.UnidentifiedImageError:
-            log.error("Unknown image type:  %s", self.url)
+            return
+
+        loader = GdkPixbuf.PixbufLoader()
+        try:
+            loader.write(resp.content)
+            loader.close()
+        except ValueError as e:
+            log.error("Unable to open %s - Value error %s", self.url, e)
+            return
+        except TypeError as e:
+            log.error("Unable to open %s - Type error %s", self.url, e)
+            return
+        except GLib.GError as e:
+            log.error("Unable to open %s - GError %s", self.url, e)
+            return
+        pixbuf = loader.get_pixbuf()
+        self.func(self.identifier, pixbuf)
 
     def get_file(self):
         """Attempt to load the file"""
         errors = []
         # Grab icon from icon theme
-        icon_theme = Gtk.IconTheme.get_default()
-        icon = icon_theme.choose_icon(
-            [self.url, None], -1, Gtk.IconLookupFlags.NO_SVG)
+        icon_theme = Gtk.IconTheme.get_for_display(self.display)
+        icon = icon_theme.lookup_icon(
+            self.url,
+            None,
+            -1,
+            1,
+            Gtk.TextDirection.NONE,
+            Gtk.IconLookupFlags.FORCE_REGULAR,
+        )
 
         if icon:
             try:
-                image = Image.open(icon.get_filename())
-                (surface, mask) = from_pil(image)
-                if surface:
-                    self.func(self.identifier, surface, mask)
-                    return
-            except ValueError:
-                errors.append("Value Error - Unable to read %s", self.url)
-            except TypeError:
-                errors.append("Type Error - Unable to read %s", self.url)
-            except PIL.UnidentifiedImageError:
-                errors.append("Unknown image type: %s", self.url)
-            except FileNotFoundError:
-                errors.append("File not found: %s", self.url)
+                image = GdkPixbuf.Pixbuf.new_from_file(icon.get_file().get_path())
+                self.func(self.identifier, image)
+                return
+            except ValueError as e:
+                errors.append(f"Value Error - Unable to read {self.url} {e}")
+            except FileNotFoundError as e:
+                errors.append(f"File not found: {self.url} {e}")
+        else:
+            errors.append("Not an icon : self.url")
         # Not found in theme, try some common locations
-        locations = [os.path.expanduser('~/.local/'), '/usr/', '/app']
+        locations = [os.path.expanduser("~/.local/"), "/usr/", "/app"]
         for prefix in locations:
-            mixpath = os.path.join(os.path.join(
-                prefix, 'share/icons/hicolor/256x256/apps/'), self.url + ".png")
+            mixpath = os.path.join(
+                os.path.join(prefix, "share/icons/hicolor/256x256/apps/"),
+                self.url + ".png",
+            )
+            if not os.path.isfile(mixpath):
+                errors.append(f"File not found: {mixpath}")
+                continue
             image = None
             try:
-                image = Image.open(mixpath)
+                image = GdkPixbuf.Pixbuf.new_from_file(mixpath)
             except ValueError:
                 errors.append(f"Value Error - Unable to read {mixpath}")
             except TypeError:
                 errors.append(f"Type Error - Unable to read {mixpath}")
-            except PIL.UnidentifiedImageError:
-                errors.append(f"Unknown image type: {mixpath}")
             except FileNotFoundError:
                 errors.append(f"File not found: {mixpath}")
             if image:
-                (surface, mask) = from_pil(image)
-                if surface:
-                    self.func(self.identifier, surface, mask)
-                    return
+                self.func(self.identifier, image)
+                return
         for error in errors:
             log.error(error)
 
 
-def from_pil(image, alpha=1.0, image_format='BGRa'):
-    """
-    :param im: Pillow Image
-    :param alpha: 0..1 alpha to add to non-alpha images
-    :param format: Pixel format for output surface
-    """
-    arr = bytearray()
-    mask = bytearray()
-    if 'A' not in image.getbands():
-        image.putalpha(int(alpha * 255.0))
-        arr = bytearray(image.tobytes('raw', image_format))
-        mask = arr
-    else:
-        arr = bytearray(image.tobytes('raw', image_format))
-        mask = copy.deepcopy((arr))
-        idx = 0
-        while idx < len(arr):
-            if arr[idx] > 0:
-                mask[idx] = 255
-            else:
-                mask[idx] = 0
-            # Cairo expects the raw data to be pre-multiplied alpha
-            # This means when we change the alpha level we need to change the RGB channels equally
-            arr[idx] = int(arr[idx] * alpha)
-            idx += 1
-    surface = cairo.ImageSurface.create_for_data(
-        arr, cairo.FORMAT_ARGB32, image.width, image.height)
-    mask = cairo.ImageSurface.create_for_data(
-        mask, cairo.FORMAT_ARGB32, image.width, image.height)
-    return (surface, mask)
-
-
-def to_pil(surface):
-    """Return a PIL Image from the Cairo surface"""
-    if surface.get_format() == cairo.Format.ARGB32:
-        return Image.frombuffer('RGBA', (surface.get_width(), surface.get_height()),
-                                surface.get_data(), 'raw', "BGRA", surface.get_stride())
-    return Image.frombuffer("RGB", (surface.get_width(), surface.get_height()),
-                            surface.get_data(), 'raw', "BGRX", surface.get_stride())
-
-
-def get_surface(func, identifier, ava, size):
+def get_surface(func, identifier, ava, display):
     """Download to cairo surface"""
-    image_getter = SurfaceGetter(func, identifier, ava, size)
-    if identifier.startswith('http'):
+    image_getter = SurfaceGetter(func, identifier, ava, display)
+    if identifier.startswith("http"):
         thread = threading.Thread(target=image_getter.get_url)
         thread.start()
     else:
@@ -192,80 +165,3 @@ def get_aspected_size(img, width, height, anchor=0, hanchor=0):
         if hanchor == 1:
             offset_x = offset_x + ((old_width - width) / 2)
     return (offset_x, offset_y, width, height)
-
-
-def draw_img_to_rect(img, ctx,
-                     pos_x, pos_y,
-                     width, height,
-                     path=False, aspect=False,
-                     anchor=0, hanchor=0, alpha=1.0):
-    """Draw cairo surface onto context
-
-    Path - only add the path do not fill : True/False
-    Aspect - keep aspect ratio : True/False
-    Anchor - with aspect : 0=left 1=middle 2=right
-    HAnchor - with apect : 0=bottom 1=middle 2=top
-    """
-
-    ctx.save()
-    offset_x = 0
-    offset_y = 0
-    if aspect:
-        (offset_x, offset_y, width, height) = get_aspected_size(
-            img, width, height, anchor=anchor, hanchor=hanchor)
-
-    ctx.translate(pos_x + offset_x, pos_y + offset_y)
-    ctx.scale(width, height)
-    ctx.scale(1 / img.get_width(), 1 / img.get_height())
-
-    if alpha != 1.0:
-        # Honestly, couldn't find a 'use-image-with-modifier' option
-        # Tried RasterSourcePattern but it appears... broken? in the python implementation
-        # Or just lacking documentation.
-
-        # Pass raw data to PIL and then back with an alpha modifier
-        ctx.set_source_surface(
-            from_pil(
-                to_pil(img),
-                alpha
-            )[0],
-            0, 0)
-    else:
-        ctx.set_source_surface(img, 0, 0)
-
-    ctx.rectangle(0, 0, img.get_width(), img.get_height())
-    if not path:
-        ctx.fill()
-    ctx.restore()
-    return (width, height)
-
-
-def draw_img_to_mask(img, ctx,
-                     pos_x, pos_y,
-                     width, height,
-                     path=False, aspect=False,
-                     anchor=0, hanchor=0):
-    """Draw cairo surface as mask into context
-
-    Path - only add the path do not fill : True/False
-    Aspect - keep aspect ratio : True/False
-    Anchor - with aspect : 0=left 1=middle 2=right
-    HAnchor - with apect : 0=bottom 1=middle 2=top
-    """
-
-    ctx.save()
-    offset_x = 0
-    offset_y = 0
-    if aspect:
-        (offset_x, offset_y, width, height) = get_aspected_size(
-            img, width, height, anchor=anchor, hanchor=hanchor)
-
-    ctx.translate(pos_x + offset_x, pos_y + offset_y)
-    ctx.scale(width, height)
-    ctx.scale(1 / img.get_width(), 1 / img.get_height())
-
-    ctx.rectangle(0, 0, img.get_width(), img.get_height())
-    if not path:
-        ctx.mask_surface(img, 0, 0)
-    ctx.restore()
-    return (width, height)
