@@ -13,7 +13,6 @@
 """A class to assist auto-start"""
 import os
 import logging
-import shutil
 
 try:
     from xdg.BaseDirectory import xdg_config_home, xdg_data_home

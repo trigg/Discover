@@ -21,7 +21,7 @@ import importlib_resources
 from configparser import ConfigParser
 import gi
 from .autostart import Autostart
-from .font_helper import desc_to_css_font
+from .overlay import get_h_align, get_v_align
 from _version import __version__
 
 gi.require_version("Gtk", "4.0")
@@ -59,8 +59,6 @@ class Settings(Gtk.Application):
         self.steamos = False
         self.voice_placement_window = None
         self.text_placement_window = None
-        self.tray = None  # Systemtray as fallback
-        self.ind = None  # AppIndicator
         self.autostart_helper = Autostart("discover_overlay")
         self.autostart_helper_conf = Autostart("discover_overlay_configure")
         self.ind = None
@@ -74,15 +72,11 @@ class Settings(Gtk.Application):
         self.is_wayland = False
         self.window = None
         self.super_focus = None
-        self.start_minimized = False
         self.server_handler = None
         self.channel_handler = None
         self.hidden_overlay_handler = None
 
-    def start(self, x):
-
-        self.menu = self.make_menu()
-        self.make_sys_tray_icon(self.menu)
+    def start(self, _x):
 
         builder = Gtk.Builder(self)
         with importlib_resources.as_file(
@@ -153,7 +147,7 @@ class Settings(Gtk.Application):
             # pylint: disable=E1120
             settings = Gtk.Settings.get_default()
             if settings:
-                settings.set_property("gtk-application-prefer-dark-theme", Gtk.true)
+                settings.set_property("gtk-application-prefer-dark-theme", True)
             self.set_steamos_window_size()
 
             # pylint: disable=E1120
@@ -179,7 +173,9 @@ class Settings(Gtk.Application):
         # Fill monitor & guild menus
         self.populate_monitor_menus()
         # TODO Monitor callback
-        # window.get_display().connect("monitors-changed", self.populate_monitor_menus)
+        self.window.get_display().get_monitors().connect(
+            "items-changed", self.populate_monitor_menus
+        )
 
         channel_file = Gio.File.new_for_path(self.channel_file)
         monitor_channel = channel_file.monitor_file(0, None)
@@ -202,16 +198,13 @@ class Settings(Gtk.Application):
         # TODO Re-fix gamepad support
         # window.connect('key-press-event', self.keypress_in_settings)
 
-        if "--minimized" in self.args:
-            self.start_minimized = True
-        if not self.start_minimized or not self.show_sys_tray_icon:
-            window.show()
-
         if self.icon_name != "discover-overlay":
             self.widget["overview_image"].set_from_icon_name(
                 self.icon_name, Gtk.IconSize.DIALOG
             )
             self.widget["window"].set_default_icon_name(self.icon_name)
+
+        self.window.show()
 
     def set_steamos_window_size(self):
         """Set window based on steamos usage"""
@@ -219,13 +212,11 @@ class Settings(Gtk.Application):
         # Gamescope only has one monitor
         # Gamescope has no scale factor
 
-        display = Gdk.Display.get_default()
-        if "get_monitor" in dir(display):
-            monitor = display.get_monitor(0)
-            if monitor:
-                geometry = monitor.get_geometry()
-                log.info("%d %d", geometry.width, geometry.height)
-                self.window.set_size_request(geometry.width, geometry.height)
+        monitor = self.window.get_display().get_monitors().get_item(0)
+        if monitor:
+            geometry = monitor.get_geometry()
+            log.info("%d %d", geometry.width, geometry.height)
+            self.window.set_size_request(geometry.width, geometry.height)
 
     def keypress_in_settings(self, window, event):
         """Callback to steal keypresses to assist SteamOS gamepad control"""
@@ -381,20 +372,14 @@ class Settings(Gtk.Application):
         text.append_text("Any")
         notify.append_text("Any")
 
-        display = Gdk.Display.get_default()
-        screen = self.window.get_display()
-        if "get_n_monitors" in dir(display):
-            count_monitors = display.get_n_monitors()
-            if count_monitors >= 1:
-                for i in range(0, count_monitors):
-                    this_mon = display.get_monitor(i)
-                    manufacturer = this_mon.get_manufacturer()
-                    model = this_mon.get_model()
-                    connector = screen.get_monitor_plug_name(i)
-                    monitor_label = f"{manufacturer} {model}\n{connector}"
-                    voice.append_text(monitor_label)
-                    text.append_text(monitor_label)
-                    notify.append_text(monitor_label)
+        for monitor in self.window.get_display().get_monitors():
+            manufacturer = monitor.get_manufacturer()
+            model = monitor.get_model()
+            connector = monitor.get_connector()
+            monitor_label = f"{manufacturer} {model}\n{connector}"
+            voice.append_text(monitor_label)
+            text.append_text(monitor_label)
+            notify.append_text(monitor_label)
 
         voice.set_active(v_value)
         text.set_active(t_value)
@@ -402,16 +387,7 @@ class Settings(Gtk.Application):
 
     def close_window(self, _widget=None, _event=None):
         """Hide the settings window for use at a later date"""
-        self.window.hide()
-        if self.ind is None and self.tray is None:
-            sys.exit(0)
-        if self.ind is not None:
-
-            from gi.repository import AppIndicator3
-
-            if self.ind.get_status() == AppIndicator3.IndicatorStatus.PASSIVE:
-                sys.exit(0)
-        return True
+        sys.exit(0)
 
     def close_app(self, _widget=None, _event=None):
         """Close the app"""
@@ -432,10 +408,10 @@ class Settings(Gtk.Application):
 
         # Read Voice section
         self.widget["voice_align_1"].set_active(
-            config.getboolean("main", "rightalign", fallback=False)
+            get_h_align(config.get("main", "x_align", fallback="left")).value
         )
         self.widget["voice_align_2"].set_active(
-            config.getint("main", "topalign", fallback=1)
+            get_v_align(config.get("main", "y_align", fallback="middle")).value
         )
 
         self.widget["voice_monitor"].set_active(
@@ -596,6 +572,18 @@ class Settings(Gtk.Application):
         )
 
         # Read Text section
+        self.widget["text_align_1"].set_active(
+            get_h_align(config.get("text", "x_align", fallback="left")).value
+        )
+        self.widget["text_align_2"].set_active(
+            get_v_align(config.get("text", "y_align", fallback="middle")).value
+        )
+
+        self.widget["text_monitor"].set_active(
+            self.get_monitor_index_from_plug(
+                config.get("text", "monitor", fallback="Any")
+            )
+        )
         self.widget["text_enable"].set_active(
             config.getboolean("text", "enabled", fallback=False)
         )
@@ -650,10 +638,6 @@ class Settings(Gtk.Application):
             config.getboolean("notification", "enabled", fallback=False)
         )
 
-        self.widget["notification_reverse_order"].set_active(
-            config.getboolean("notification", "rev", fallback=False)
-        )
-
         self.widget["notification_popup_timer"].set_value(
             config.getint("notification", "text_time", fallback=10)
         )
@@ -684,11 +668,10 @@ class Settings(Gtk.Application):
         )
 
         self.widget["notification_align_1"].set_active(
-            config.getboolean("notification", "rightalign", fallback=True)
+            get_h_align(config.get("notification", "x_align", fallback="left")).value
         )
-
         self.widget["notification_align_2"].set_active(
-            config.getint("notification", "topalign", fallback=2)
+            get_v_align(config.get("notification", "y_align", fallback="middle")).value
         )
 
         self.widget["notification_show_icon"].set_active(
@@ -696,7 +679,7 @@ class Settings(Gtk.Application):
         )
 
         self.widget["notification_icon_position"].set_active(
-            config.getboolean("notification", "icon_left", fallback=True)
+            0 if config.getboolean("notification", "icon_left", fallback=True) else 1
         )
 
         self.widget["notification_icon_padding"].set_value(
@@ -715,8 +698,8 @@ class Settings(Gtk.Application):
             config.getint("notification", "border_radius", fallback=8)
         )
 
-        self.widget["notification_show_test_content"].set_active(
-            config.getboolean("notification", "show_dummy", fallback=False)
+        self.widget["notification_text_justify"].set_active(
+            get_h_align(config.get("notification", "text_align", fallback="left")).value
         )
 
         # Read Core section
@@ -731,22 +714,10 @@ class Settings(Gtk.Application):
             self.widget["core_run_on_startup"].set_sensitive(False)
             self.widget["core_run_conf_on_startup"].set_sensitive(False)
 
-        self.show_sys_tray_icon = config.getboolean(
-            "general", "showsystray", fallback=True
-        )
-        self.set_sys_tray_icon_visible(self.show_sys_tray_icon)
-        self.widget["core_show_tray_icon"].set_active(self.show_sys_tray_icon)
-
         self.hidden_overlay = config.getboolean(
             "general", "hideoverlay", fallback=False
         )
         self.update_toggle_overlay()
-
-        self.start_minimized = config.getboolean("general", "start_min", fallback=False)
-
-        self.widget["core_settings_min"].set_active(self.start_minimized)
-
-        self.widget["core_settings_min"].set_sensitive(self.show_sys_tray_icon)
 
         self.widget["core_audio_assist"].set_active(
             config.getboolean("general", "audio_assist", fallback=False)
@@ -768,91 +739,25 @@ class Settings(Gtk.Application):
                 guild_ids.append(guild_id)
         return guild_ids
 
-    def get_monitor_index_from_plug(self, monitor):
+    def get_monitor_index_from_plug(self, plug):
         """Get monitor index from plug name"""
-        if not monitor or monitor == "Any":
+        if not plug or plug == "Any":
             return 0
 
-        display = Gdk.Display.get_default()
-        screen = self.window.get_display()
-        if "get_n_monitors" in dir(display):
-            count_monitors = display.get_n_monitors()
-            if count_monitors >= 1:
-                for i in range(0, count_monitors):
-                    connector = screen.get_monitor_plug_name(i)
-                    if connector == monitor:
-                        return i + 1
+        i = 0
+        for monitor in self.window.get_display().get_monitors():
+            connector = monitor.get_connector()
+            if connector == plug:
+                return i + 1
+            i += 1
         return 0
 
     def get_monitor_obj(self, idx):
         """Helper function to find the monitor object of the monitor"""
-
-        display = Gdk.Display.get_default()
-        return display.get_monitor(idx)
-
-    def make_sys_tray_icon(self, menu):
-        """
-        Attempt to create an AppIndicator icon, failing that attempt to make
-        a systemtray icon
-        """
-        try:
-            gi.require_version("AppIndicator3", "0.1")
-
-            from gi.repository import AppIndicator3
-
-            self.ind = AppIndicator3.Indicator.new(
-                "discover_overlay",
-                self.tray_icon_name,
-                AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
-            )
-            self.ind.set_title(_("Discover Overlay Configuration"))
-            # Hide for now since we don't know if it should be shown yet
-            self.ind.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
-            self.ind.set_menu(menu)
-        except (ImportError, ValueError) as exception:
-            # Create System Tray
-            log.info("No AppIndicator : %s", exception)
-
-    def show_menu(self, obj, button, time):
-        """Show menu when System Tray icon is clicked"""
-        return  # TODO Menu
-        self.menu.show_all()
-        self.menu.popup(None, None, Gtk.StatusIcon.position_menu, obj, button, time)
-
-    def set_sys_tray_icon_visible(self, visible):
-        """Sets whether the tray icon is visible"""
-        if self.ind is not None:
-
-            from gi.repository import AppIndicator4
-
-            self.ind.set_status(
-                AppIndicator4.IndicatorStatus.ACTIVE
-                if visible
-                else AppIndicator4.IndicatorStatus.PASSIVE
-            )
-        elif self.tray is not None:
-            self.tray.set_visible(visible)
-
-    def make_menu(self):
-        """Create System Menu"""
-        return None  # TODO Menu
-        # menu = Gtk.Menu()
-        # settings_opt = Gtk.MenuItem.new_with_label(_("Open Configuration"))
-        # self.toggle_opt = Gtk.MenuItem.new_with_label(_("Hide Overlay"))
-        # close_overlay_opt = Gtk.MenuItem.new_with_label(_("Quit Overlay"))
-        # close_opt = Gtk.MenuItem.new_with_label(_("Quit Configuration"))
-
-        # menu.append(settings_opt)
-        # menu.append(self.toggle_opt)
-        # menu.append(close_overlay_opt)
-        # menu.append(close_opt)
-
-        # settings_opt.connect("activate", self.present_settings)
-        # self.toggle_opt.connect("activate", self.toggle_overlay)
-        # close_overlay_opt.connect("activate", self.close_overlay)
-        # close_opt.connect("activate", self.close_app)
-        # menu.show_all()
-        # return menu
+        display = self.window.get_display()
+        if idx == 0:
+            return None
+        return display.get_monitors().get_item(idx - 1)
 
     def toggle_overlay(self, _a=None, _b=None):
         """Toggle overlay visibility"""
@@ -914,13 +819,10 @@ class Settings(Gtk.Application):
             config.write(file)
 
     def voice_monitor_changed(self, button):
-        screen = self.window.get_display()
         idx = button.get_active()
         plug = "Any"
         if idx > 0:
-            monitor = screen.get_monitor_plug_name(button.get_active() - 1)
-            if monitor:
-                plug = monitor
+            plug = self.get_monitor_obj(idx).get_connector()
         self.config_set("main", "monitor", plug)
 
     def voice_align_1_changed(self, button):
@@ -944,12 +846,10 @@ class Settings(Gtk.Application):
         self.config_set("main", "y_align", f"{value}")
 
     def voice_font_changed(self, button):
-        desc = button.get_font_description()
-        self.config_set("main", "font", desc_to_css_font(desc))
+        self.config_set("main", "font", button.get_font())
 
     def voice_title_font_changed(self, button):
-        desc = button.get_font_description()
-        self.config_set("main", "title_font", desc_to_css_font(desc))
+        self.config_set("main", "title_font", button.get_font())
 
     def voice_icon_spacing_changed(self, button):
         self.config_set("main", "icon_spacing", f"{int(button.get_value())}")
@@ -1115,8 +1015,7 @@ class Settings(Gtk.Application):
             self.config_set("text", "channel", channel)
 
     def text_font_changed(self, button):
-        desc = button.get_font_description()
-        self.config_set("text", "font", desc_to_css_font(desc))
+        self.config_set("text", "font", button.get_font())
 
     def text_colour_changed(self, button):
         colour = button.get_rgba()
@@ -1129,13 +1028,10 @@ class Settings(Gtk.Application):
         self.config_set("text", "bg_col", json.dumps(colour))
 
     def text_monitor_changed(self, button):
-        screen = self.window.get_display()
+        idx = button.get_active()
         plug = "Any"
-        monitor = None
-        if button.get_active() > 0:
-            monitor = screen.get_monitor_plug_name(button.get_active() - 1)
-        if monitor:
-            plug = monitor
+        if idx > 0:
+            plug = self.get_monitor_obj(idx).get_connector()
         self.config_set("text", "monitor", plug)
 
     def text_align_1_changed(self, button):
@@ -1167,9 +1063,6 @@ class Settings(Gtk.Application):
     def notification_enable_changed(self, button):
         self.config_set("notification", "enabled", f"{button.get_active()}")
 
-    def notification_reverse_order_changed(self, button):
-        self.config_set("notification", "rev", f"{button.get_active()}")
-
     def notification_popup_timer_changed(self, button):
         self.config_set("notification", "text_time", f"{int(button.get_value())}")
 
@@ -1177,8 +1070,7 @@ class Settings(Gtk.Application):
         self.config_set("notification", "limit_width", f"{int(button.get_value())}")
 
     def notification_font_changed(self, button):
-        desc = button.get_font_description()
-        self.config_set("notification", "font", desc_to_css_font(desc))
+        self.config_set("notification", "font", button.get_font())
 
     def notification_text_colour_changed(self, button):
         colour = button.get_rgba()
@@ -1191,13 +1083,10 @@ class Settings(Gtk.Application):
         self.config_set("notification", "bg_col", json.dumps(colour))
 
     def notification_monitor_changed(self, button):
-        screen = self.window.get_display()
+        idx = button.get_active()
         plug = "Any"
-        monitor = None
-        if button.get_active() > 0:
-            monitor = screen.get_monitor_plug_name(button.get_active() - 1)
-        if monitor:
-            plug = monitor
+        if idx > 0:
+            plug = self.get_monitor_obj(idx).get_connector()
         self.config_set("notification", "monitor", plug)
 
     def notification_align_1_changed(self, button):
@@ -1238,19 +1127,15 @@ class Settings(Gtk.Application):
     def notification_border_radius_changed(self, button):
         self.config_set("notification", "border_radius", f"{int(button.get_value())}")
 
-    def notification_show_test_content_changed(self, button):
-        self.config_set("notification", "show_dummy", f"{button.get_active()}")
+    def notification_show_test_content_changed(self, _button):
+        log.error("FUCK SAKE")
+        self.config_set("notification", "show_dummy", "True")
 
     def core_run_on_startup_changed(self, button):
         self.autostart_helper.set_autostart(button.get_active())
 
     def core_run_conf_on_startup_changed(self, button):
         self.autostart_helper_conf.set_autostart(button.get_active())
-
-    def core_show_tray_icon_changed(self, button):
-        self.set_sys_tray_icon_visible(button.get_active())
-        self.config_set("general", "showsystray", f"{button.get_active()}")
-        self.widget["core_settings_min"].set_sensitive(button.get_active())
 
     def core_hide_overlay_changed(self, _button):
         self.toggle_overlay()
@@ -1303,3 +1188,11 @@ class Settings(Gtk.Application):
 
     def voice_text_side_changed(self, button):
         self.config_set("main", "text_side", f"{int(button.get_active())}")
+
+    def notification_text_justify_changed(self, button):
+        value = "left"
+        if button.get_active() == 1:
+            value = "middle"
+        elif button.get_active() == 2:
+            value = "right"
+        self.config_set("notification", "text_align", value)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="4.0"/>
+  <requires lib="gtk+" version="4.0" />
   <object class="GtkAdjustment" id="ava_opacity_adj">
     <property name="lower">0.10</property>
     <property name="upper">1</property>
@@ -65,7 +65,7 @@
   </object>
   <object class="GtkListStore" id="order_avatar_list">
     <columns>
-      <column type="gchararray"/>
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -81,7 +81,7 @@
   </object>
   <object class="GtkListStore" id="overflow_style_list">
     <columns>
-      <column type="gchararray"/>
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -123,7 +123,7 @@
   </object>
   <object class="GtkListStore" id="voice_align_1_list">
     <columns>
-      <column type="gchararray"/>
+      <column type="gchararray" />
     </columns>
     <data>
       <row>
@@ -242,7 +242,7 @@
                     <property name="name">overview_close_button</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="overview_close" swapped="no"/>
+                    <signal name="clicked" handler="overview_close" swapped="no" />
                     <layout>
                       <property name="column">0</property>
                       <property name="row">3</property>
@@ -251,19 +251,19 @@
                   </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
               </object>
             </property>
@@ -307,7 +307,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_display_horizontally</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_display_horizontally_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">5</property>
@@ -404,7 +404,7 @@
                     <property name="name">voice_talking_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_foreground_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_talking_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">1</property>
@@ -416,7 +416,7 @@
                     <property name="name">voice_talking_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_background_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_talking_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">1</property>
@@ -428,7 +428,7 @@
                     <property name="name">voice_talking_border</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_border_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_talking_border_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">1</property>
@@ -440,7 +440,7 @@
                     <property name="name">voice_idle_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_foreground_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_idle_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">2</property>
@@ -452,7 +452,7 @@
                     <property name="name">voice_idle_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_background_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_idle_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">2</property>
@@ -464,7 +464,7 @@
                     <property name="name">voice_idle_border</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_border_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_idle_border_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">2</property>
@@ -476,7 +476,7 @@
                     <property name="name">voice_mute_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_mute_foreground_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_mute_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">3</property>
@@ -488,7 +488,7 @@
                     <property name="name">voice_mute_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_mute_background_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_mute_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">3</property>
@@ -500,7 +500,7 @@
                     <property name="name">voice_avatar_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_avatar_background_changed" swapped="no"/>
+                    <signal name="color-set" handler="voice_avatar_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">4</property>
@@ -522,7 +522,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_hide_mouseover</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_hide_mouseover_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_hide_mouseover_changed" swapped="no" />
                     <layout>
                       <property name="column">7</property>
                       <property name="row">1</property>
@@ -547,7 +547,8 @@
                     <property name="text">1</property>
                     <property name="adjustment">voice_show_mouseover_adj</property>
                     <property name="value">1</property>
-                    <signal name="value-changed" handler="voice_mouseover_timeout_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_mouseover_timeout_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">7</property>
                       <property name="row">2</property>
@@ -568,7 +569,7 @@
                 <child>
                   <object class="GtkComboBoxText" id="voice_monitor">
                     <property name="name">voice_monitor</property>
-                    <signal name="changed" handler="voice_monitor_changed" swapped="no"/>
+                    <signal name="changed" handler="voice_monitor_changed" swapped="no" />
                     <layout>
                       <property name="column">0</property>
                       <property name="row">1</property>
@@ -585,7 +586,7 @@
                       <item translatable="yes">Middle</item>
                       <item translatable="yes">Right</item>
                     </items>
-                    <signal name="changed" handler="voice_align_1_changed" swapped="no"/>
+                    <signal name="changed" handler="voice_align_1_changed" swapped="no" />
                     <layout>
                       <property name="column">0</property>
                       <property name="row">2</property>
@@ -602,85 +603,13 @@
                       <item translatable="yes">Middle</item>
                       <item translatable="yes">Bottom</item>
                     </items>
-                    <signal name="changed" handler="voice_align_2_changed" swapped="no"/>
+                    <signal name="changed" handler="voice_align_2_changed" swapped="no" />
                     <layout>
                       <property name="column">0</property>
                       <property name="row">3</property>
                       <property name="column-span">2</property>
                     </layout>
                   </object>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
             </property>
@@ -743,7 +672,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_display_icon_only</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_display_icon_only_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_display_icon_only_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">0</property>
@@ -769,7 +698,7 @@
                     <property name="font">Sans 12</property>
                     <property name="language">en-us</property>
                     <property name="preview-text"></property>
-                    <signal name="font-set" handler="voice_font_changed" swapped="no"/>
+                    <signal name="font-set" handler="voice_font_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">1</property>
@@ -793,14 +722,14 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">text_padding_adj</property>
-                    <signal name="value-changed" handler="voice_text_padding_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_text_padding_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">2</property>
                     </layout>
                   </object>
                 </child>
-                
+
                 <child>
                   <object class="GtkLabel">
                     <property name="name">voice_show_title_label</property>
@@ -816,7 +745,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_show_title</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_show_title_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_show_title_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">0</property>
@@ -838,7 +767,8 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_show_connection_status</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_show_connection_status_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_show_connection_status_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">2</property>
@@ -853,7 +783,7 @@
                     <property name="font">Sans 12</property>
                     <property name="language">en-us</property>
                     <property name="preview-text"></property>
-                    <signal name="font-set" handler="voice_title_font_changed" swapped="no"/>
+                    <signal name="font-set" handler="voice_title_font_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">1</property>
@@ -877,7 +807,8 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">voice_vertical_padding_adj</property>
-                    <signal name="value-changed" handler="voice_vertical_padding_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_vertical_padding_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">4</property>
@@ -901,7 +832,8 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">voice_horizontal_padding_adj</property>
-                    <signal name="value-changed" handler="voice_horizontal_padding_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_horizontal_padding_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">5</property>
@@ -923,7 +855,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_show_test_content</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_toggle_test_content" swapped="no"/>
+                    <signal name="toggled" handler="voice_toggle_test_content" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">7</property>
@@ -948,7 +880,7 @@
                     <property name="text">50</property>
                     <property name="adjustment">voice_dummy_count_adj</property>
                     <property name="value">50</property>
-                    <signal name="value-changed" handler="voice_dummy_count_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_dummy_count_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">8</property>
@@ -970,7 +902,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_show_disconnected</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_show_disconnected_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_show_disconnected_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">3</property>
@@ -1006,7 +938,7 @@
                     <property name="text">32</property>
                     <property name="adjustment">voice_nick_lenght_adj</property>
                     <property name="value">32</property>
-                    <signal name="value-changed" handler="voice_nick_length_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_nick_length_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">4</property>
@@ -1028,7 +960,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_show_avatar</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_show_avatar_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_show_avatar_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">5</property>
@@ -1053,7 +985,7 @@
                     <property name="text">48</property>
                     <property name="adjustment">avatar_size_adj</property>
                     <property name="value">48</property>
-                    <signal name="value-changed" handler="voice_avatar_size_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_avatar_size_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">8</property>
@@ -1078,7 +1010,7 @@
                     <property name="focusable">1</property>
                     <property name="adjustment">ava_opacity_adj</property>
                     <property name="round-digits">3</property>
-                    <signal name="value-changed" handler="voice_avatar_opacity_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_avatar_opacity_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">9</property>
@@ -1100,7 +1032,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_display_speakers_only</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_display_speakers_only" swapped="no"/>
+                    <signal name="toggled" handler="voice_display_speakers_only" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">0</property>
@@ -1124,7 +1056,8 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">voice_display_speakers_grace_period_adj</property>
-                    <signal name="value-changed" handler="voice_display_speakers_grace_period" swapped="no"/>
+                    <signal name="value-changed" handler="voice_display_speakers_grace_period"
+                      swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">1</property>
@@ -1150,7 +1083,7 @@
                       <item translatable="yes">ID</item>
                       <item translatable="yes">Last Spoken</item>
                     </items>
-                    <signal name="changed" handler="voice_order_avatars_by_changed" swapped="no"/>
+                    <signal name="changed" handler="voice_order_avatars_by_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">3</property>
@@ -1172,7 +1105,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_highlight_self</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="voice_highlight_self_changed" swapped="no"/>
+                    <signal name="toggled" handler="voice_highlight_self_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">4</property>
@@ -1197,7 +1130,7 @@
                     <property name="text">1</property>
                     <property name="adjustment">border_width_adj</property>
                     <property name="value">1</property>
-                    <signal name="value-changed" handler="voice_border_width_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_border_width_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">5</property>
@@ -1221,7 +1154,7 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">icon_spacing_adj</property>
-                    <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no"/>
+                    <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">6</property>
@@ -1234,7 +1167,7 @@
                     <property name="name">voice_reset_all</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="voice_reset_all" swapped="no"/>
+                    <signal name="clicked" handler="voice_reset_all" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">12</property>
@@ -1289,7 +1222,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">voice_inactive_fade</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="inactive_fade_changed" swapped="no"/>
+                    <signal name="toggled" handler="inactive_fade_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">7</property>
@@ -1303,7 +1236,8 @@
                     <property name="focusable">1</property>
                     <property name="adjustment">voice_inactive_fade_opacity</property>
                     <property name="round-digits">1</property>
-                    <signal name="value-changed" handler="inactive_fade_opacity_changed" swapped="no"/>
+                    <signal name="value-changed" handler="inactive_fade_opacity_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">8</property>
@@ -1316,7 +1250,7 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">voice_inactive_time_range</property>
-                    <signal name="value-changed" handler="inactive_time_changed" swapped="no"/>
+                    <signal name="value-changed" handler="inactive_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">9</property>
@@ -1329,7 +1263,7 @@
                     <property name="focusable">1</property>
                     <property name="text">0</property>
                     <property name="adjustment">voice_inactive_fade_time_range</property>
-                    <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no"/>
+                    <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">10</property>
@@ -1374,7 +1308,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">text_enable</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="text_enable_changed" swapped="no"/>
+                    <signal name="toggled" handler="text_enable_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">0</property>
@@ -1396,7 +1330,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">text_popup_style</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="text_popup_style_changed" swapped="no"/>
+                    <signal name="toggled" handler="text_popup_style_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">1</property>
@@ -1421,7 +1355,7 @@
                     <property name="text">10</property>
                     <property name="adjustment">text_line_limit_adj</property>
                     <property name="value">10</property>
-                    <signal name="value-changed" handler="text_line_limit_changed" swapped="no"/>
+                    <signal name="value-changed" handler="text_line_limit_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">12</property>
@@ -1443,7 +1377,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">text_show_attachments</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="text_show_attachments_changed" swapped="no"/>
+                    <signal name="toggled" handler="text_show_attachments_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">11</property>
@@ -1458,16 +1392,6 @@
                     <layout>
                       <property name="column">0</property>
                       <property name="row">10</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText">
-                    <property name="name">text_monitor</property>
-                    <signal name="changed" handler="text_monitor_changed" swapped="no"/>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">9</property>
                     </layout>
                   </object>
                 </child>
@@ -1487,7 +1411,7 @@
                     <property name="name">text_background_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="text_background_colour_changed" swapped="no"/>
+                    <signal name="color-set" handler="text_background_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">8</property>
@@ -1510,7 +1434,7 @@
                     <property name="name">text_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="text_colour_changed" swapped="no"/>
+                    <signal name="color-set" handler="text_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">7</property>
@@ -1525,7 +1449,7 @@
                     <property name="font">Sans 12</property>
                     <property name="language">en-us</property>
                     <property name="preview-text"></property>
-                    <signal name="font-set" handler="text_font_changed" swapped="no"/>
+                    <signal name="font-set" handler="text_font_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">6</property>
@@ -1569,7 +1493,7 @@
                     <property name="name">text_refresh_server_button</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="text_server_refresh" swapped="no"/>
+                    <signal name="clicked" handler="text_server_refresh" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">4</property>
@@ -1612,7 +1536,7 @@
                     <property name="name">text_popup_time</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">text_popup_time_adj</property>
-                    <signal name="value-changed" handler="text_popup_time_changed" swapped="no"/>
+                    <signal name="value-changed" handler="text_popup_time_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">2</property>
@@ -1647,10 +1571,10 @@
                     <property name="name">text_reset_all</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="text_reset_all" swapped="no"/>
+                    <signal name="clicked" handler="text_reset_all" swapped="no" />
                     <layout>
                       <property name="column">1</property>
-                      <property name="row">15</property>
+                      <property name="row">20</property>
                     </layout>
                   </object>
                 </child>
@@ -1658,7 +1582,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">text_hide_mouseover</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="text_hide_mouseover_changed" swapped="no"/>
+                    <signal name="toggled" handler="text_hide_mouseover_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">13</property>
@@ -1672,7 +1596,8 @@
                     <property name="text" translatable="1">1</property>
                     <property name="adjustment">text_show_mouseover_adj</property>
                     <property name="value">1</property>
-                    <signal name="value-changed" handler="text_mouseover_timeout_changed" swapped="no"/>
+                    <signal name="value-changed" handler="text_mouseover_timeout_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">14</property>
@@ -1680,13 +1605,46 @@
                   </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText">
+                    <property name="name">text_monitor</property>
+                    <signal name="changed" handler="text_monitor_changed" swapped="no" />
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">15</property>
+                    </layout>
+                  </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="text_align_1">
+                    <property name="name">text_align_1</property>
+                    <property name="active">0</property>
+                    <items>
+                      <item translatable="yes">Left</item>
+                      <item translatable="yes">Middle</item>
+                      <item translatable="yes">Right</item>
+                    </items>
+                    <signal name="changed" handler="text_align_1_changed" swapped="no" />
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">16</property>
+                    </layout>
+                  </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GtkComboBoxText" id="text_align_2">
+                    <property name="name">text_align_2</property>
+                    <property name="active">0</property>
+                    <items>
+                      <item translatable="yes">Top</item>
+                      <item translatable="yes">Middle</item>
+                      <item translatable="yes">Bottom</item>
+                    </items>
+                    <signal name="changed" handler="text_align_2_changed" swapped="no" />
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">17</property>
+                    </layout>
+                  </object>
                 </child>
               </object>
             </property>
@@ -1713,23 +1671,38 @@
                 <property name="column-spacing">1</property>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">notification_text_justify_label</property>
+                    <property name="label" translatable="1">Text Justification</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">16</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="notification_text_justify">
+                    <property name="name">notification_text_justify</property>
+                    <items>
+                      <item translatable="yes">Left</item>
+                      <item translatable="yes">Middle</item>
+                      <item translatable="yes">Right</item>
+                    </items>
+                    <signal name="changed" handler="notification_text_justify_changed" swapped="no" />
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">16</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">notification_enable_label</property>
                     <property name="label" translatable="1">Enable</property>
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">0</property>
                       <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">notification_reverse_order_label</property>
-                    <property name="label" translatable="1">Reverse Order</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">1</property>
                     </layout>
                   </object>
                 </child>
@@ -1814,21 +1787,10 @@
                   <object class="GtkCheckButton">
                     <property name="name">notification_enable</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="notification_enable_changed" swapped="no"/>
+                    <signal name="toggled" handler="notification_enable_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">notification_reverse_order</property>
-                    <property name="focusable">1</property>
-                    <signal name="toggled" handler="notification_reverse_order_changed" swapped="no"/>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">1</property>
                     </layout>
                   </object>
                 </child>
@@ -1837,7 +1799,8 @@
                     <property name="name">notification_popup_timer</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_popup_timer_adj</property>
-                    <signal name="value-changed" handler="notification_popup_timer_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_popup_timer_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">2</property>
@@ -1849,7 +1812,8 @@
                     <property name="name">notification_limit_popup_width</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_limit_width_adj</property>
-                    <signal name="value-changed" handler="notification_limit_popup_width_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_limit_popup_width_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">3</property>
@@ -1864,7 +1828,7 @@
                     <property name="font">Sans 12</property>
                     <property name="language">en-us</property>
                     <property name="preview-text"></property>
-                    <signal name="font-set" handler="notification_font_changed" swapped="no"/>
+                    <signal name="font-set" handler="notification_font_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">4</property>
@@ -1876,7 +1840,7 @@
                     <property name="name">notification_text_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="notification_text_colour_changed" swapped="no"/>
+                    <signal name="color-set" handler="notification_text_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">5</property>
@@ -1888,7 +1852,8 @@
                     <property name="name">notification_background_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="notification_background_colour_changed" swapped="no"/>
+                    <signal name="color-set" handler="notification_background_colour_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">6</property>
@@ -1899,7 +1864,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">notification_show_icon</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="notification_show_icon" swapped="no"/>
+                    <signal name="toggled" handler="notification_show_icon" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">10</property>
@@ -1907,24 +1872,15 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkCheckButton">
+                  <object class="GtkButton">
+                    <property name="label">Show Test Content</property>
                     <property name="name">notification_show_test_content</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="notification_show_test_content_changed" swapped="no"/>
+                    <signal name="clicked" handler="notification_show_test_content_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
-                      <property name="row">16</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">notification_show_test_content_label</property>
-                    <property name="label" translatable="1">Show Test Content</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">16</property>
+                      <property name="row">17</property>
                     </layout>
                   </object>
                 </child>
@@ -1977,7 +1933,8 @@
                     <property name="name">notification_icon_padding</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_icon_padding_adj</property>
-                    <signal name="value-changed" handler="notification_icon_padding_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_icon_padding_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">12</property>
@@ -1989,7 +1946,8 @@
                     <property name="name">notification_icon_size</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_icon_size_adj</property>
-                    <signal name="value-changed" handler="notification_icon_size_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_icon_size_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">13</property>
@@ -2001,7 +1959,8 @@
                     <property name="name">notification_padding_between</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_padding_adj</property>
-                    <signal name="value-changed" handler="notification_padding_between_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_padding_between_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">14</property>
@@ -2013,7 +1972,8 @@
                     <property name="name">notification_border_radius</property>
                     <property name="focusable">1</property>
                     <property name="adjustment">notification_border_radius_adj</property>
-                    <signal name="value-changed" handler="notification_border_radius_changed" swapped="no"/>
+                    <signal name="value-changed" handler="notification_border_radius_changed"
+                      swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">15</property>
@@ -2027,7 +1987,7 @@
                     <items>
                       <item translatable="yes">Unknown</item>
                     </items>
-                    <signal name="changed" handler="notification_monitor_changed" swapped="no"/>
+                    <signal name="changed" handler="notification_monitor_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">7</property>
@@ -2043,7 +2003,7 @@
                       <item translatable="yes">Middle</item>
                       <item translatable="yes">Right</item>
                     </items>
-                    <signal name="changed" handler="notification_align_1_changed" swapped="no"/>
+                    <signal name="changed" handler="notification_align_1_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">8</property>
@@ -2059,7 +2019,7 @@
                       <item translatable="yes">Middle</item>
                       <item translatable="yes">Bottom</item>
                     </items>
-                    <signal name="changed" handler="notification_align_2_changed" swapped="no"/>
+                    <signal name="changed" handler="notification_align_2_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">9</property>
@@ -2071,10 +2031,9 @@
                     <property name="name">notification_icon_position</property>
                     <items>
                       <item translatable="yes">Left</item>
-                      <item translatable="yes">Middle</item>
                       <item translatable="yes">Right</item>
                     </items>
-                    <signal name="changed" handler="notification_icon_position_changed" swapped="no"/>
+                    <signal name="changed" handler="notification_icon_position_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">11</property>
@@ -2087,15 +2046,15 @@
                     <property name="name">notification_reset_all</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="notification_reset_all" swapped="no"/>
+                    <signal name="clicked" handler="notification_reset_all" swapped="no" />
                     <layout>
                       <property name="column">1</property>
-                      <property name="row">17</property>
+                      <property name="row">18</property>
                     </layout>
                   </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
               </object>
             </property>
@@ -2135,7 +2094,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">core_run_on_startup</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="core_run_on_startup_changed" swapped="no"/>
+                    <signal name="toggled" handler="core_run_on_startup_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">0</property>
@@ -2157,54 +2116,10 @@
                   <object class="GtkCheckButton">
                     <property name="name">core_run_conf_on_startup</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="core_run_conf_on_startup_changed" swapped="no"/>
+                    <signal name="toggled" handler="core_run_conf_on_startup_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">1</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">core_show_tray_icon_label</property>
-                    <property name="label" translatable="1">Show Tray Icon</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">3</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">core_show_tray_icon</property>
-                    <property name="focusable">1</property>
-                    <signal name="toggled" handler="core_show_tray_icon_changed" swapped="no"/>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">3</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="name">core_settings_min_label</property>
-                    <property name="label" translatable="1">Start Settings Minimized</property>
-                    <property name="xalign">0</property>
-                    <layout>
-                      <property name="column">0</property>
-                      <property name="row">4</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton">
-                    <property name="name">core_settings_min</property>
-                    <property name="focusable">1</property>
-                    <signal name="toggled" handler="core_settings_min_changed" swapped="no"/>
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">4</property>
                     </layout>
                   </object>
                 </child>
@@ -2235,7 +2150,7 @@
                     <property name="name">core_reset_all</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="activate" handler="core_reset_all" swapped="no"/>
+                    <signal name="clicked" handler="core_reset_all" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">7</property>
@@ -2257,7 +2172,7 @@
                   <object class="GtkCheckButton">
                     <property name="name">core_audio_assist</property>
                     <property name="focusable">1</property>
-                    <signal name="toggled" handler="core_audio_assist_changed" swapped="no"/>
+                    <signal name="toggled" handler="core_audio_assist_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">6</property>
@@ -2265,7 +2180,7 @@
                   </object>
                 </child>
                 <child>
-                  <placeholder/>
+                  <placeholder />
                 </child>
               </object>
             </property>

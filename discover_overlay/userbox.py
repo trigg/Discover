@@ -13,8 +13,8 @@
 """A Gtk Box with direction"""
 import logging
 import gi
-from enum import Enum
 from .image_getter import get_surface
+from .overlay import Direction
 
 gi.require_version("Gtk", "4.0")
 
@@ -24,32 +24,25 @@ from gi.repository import Gtk, GLib, Gdk
 log = logging.getLogger(__name__)
 
 
-class UserBoxDirection(Enum):
-    LTR = 0
-    RTL = 1
-    TTB = 2
-    BTT = 3
-
-
 class UserBoxLayout(Gtk.LayoutManager):
 
     def do_allocate(self, widget, width, height, _baseline):
-        direction = UserBoxDirection(widget.overlay.text_side)
+        direction = Direction(widget.overlay.text_side)
         asize = widget.overlay.avatar_size
         img_alloc = Gdk.Rectangle()
         lbl_alloc = Gdk.Rectangle()
 
         img_alloc.width = img_alloc.height = asize
-        if direction == UserBoxDirection.LTR:
+        if direction == Direction.LTR:
             img_alloc.x = img_alloc.y = lbl_alloc.y = 0
             lbl_alloc.x = asize
             lbl_alloc.height = img_alloc.height = height
             lbl_alloc.width = width - asize
-        elif direction == UserBoxDirection.RTL:
+        elif direction == Direction.RTL:
             lbl_alloc.x = img_alloc.y = lbl_alloc.y = 0
             lbl_alloc.height = img_alloc.height = height
             lbl_alloc.width = img_alloc.x = width - asize
-        elif direction == UserBoxDirection.TTB:
+        elif direction == Direction.TTB:
             img_alloc.x = img_alloc.y = lbl_alloc.x = 0
             lbl_alloc.y = asize
             lbl_alloc.width = img_alloc.width = width
@@ -78,17 +71,17 @@ class UserBoxLayout(Gtk.LayoutManager):
         widget.label.size_allocate(lbl_alloc, -1)
 
     def do_measure(self, widget, orientation, for_size):
-        direction = UserBoxDirection(widget.overlay.text_side)
+        direction = Direction(widget.overlay.text_side)
 
         im_m = widget.image.measure(orientation, for_size)
         lb_m = widget.label.measure(orientation, for_size)
 
         if (
             orientation == Gtk.Orientation.VERTICAL
-            and (direction == UserBoxDirection.TTB or direction == UserBoxDirection.BTT)
+            and (direction == Direction.TTB or direction == Direction.BTT)
         ) or (
             orientation == Gtk.Orientation.HORIZONTAL
-            and (direction == UserBoxDirection.LTR or direction == UserBoxDirection.RTL)
+            and (direction == Direction.LTR or direction == Direction.RTL)
         ):
             return (im_m[0] + lb_m[0], im_m[1] + lb_m[1], -1, -1)
         else:
@@ -222,6 +215,9 @@ class UserBoxConnection(UserBox):
             return ""
 
     def set_connection(self, level):
+        if not level:
+            self.hide()
+            return
         if level == self.last:
             return
 
@@ -277,6 +273,10 @@ class UserBoxTitle(UserBox):
         self.last = ""
 
     def set_label(self, label):
+        self.last = label
+        if not label:
+            self.hide()
+            return
         if self.show_title:
             self.show()
         if self.overlay.icon_only:
@@ -284,7 +284,6 @@ class UserBoxTitle(UserBox):
         else:
             self.label.show()
         self.label.set_text(label)
-        self.last = label
 
     def set_image(self, image):
         if self.show_title:
@@ -306,7 +305,7 @@ class UserBoxTitle(UserBox):
             self.hide()
 
     def should_show(self):
-        return self.show_title
+        return self.show_title and self.last
 
     def update_image(self, user):
         if not self.overlay.show_avatar:
@@ -324,7 +323,10 @@ class UserBoxTitle(UserBox):
             self.label.hide()
             return
         self.label.show()
-        if len(self.last) < self.overlay.nick_length:
-            self.label.set_text(self.last)
-        else:
-            self.label.set_text(self.last[: (self.overlay.nick_length - 1)] + "\u2026")
+        if self.last:
+            if len(self.last) < self.overlay.nick_length:
+                self.label.set_text(self.last)
+            else:
+                self.label.set_text(
+                    self.last[: (self.overlay.nick_length - 1)] + "\u2026"
+                )

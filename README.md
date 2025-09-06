@@ -140,29 +140,18 @@ It is advised to install python-gobject from your system's own package manager.
 
 #### Debian/Ubuntu
 
-`apt install python3-gi python3-gi-cairo libappindicator3-dev`
+`apt install python4-gi gtk4-layer-shell libgtk4-layer-shell-dev`
 
 Libappindicator might conflict with other installed packages, but is optional
 
-with Wayland support
-
-`apt install gtk-layer-shell libgtk-layer-shell-dev`
-
 #### Arch
 
-`pacman -S python-gobject libappindicator-gtk3`
-
-with Wayland support
-
-`pacman -S gtk-layer-shell`
+`pacman -S python-gobject gtk4-layer-shell`
 
 #### Fedora
 
-`dnf install python3-pip python3-gobject gtk3-devel python3-cairo python-devel python-gobject python-gobject-devel`
+`dnf install python3-pip python3-gobject gtk4-devel python3-cairo python-devel python-gobject python-gobject-devel gtk4-layer-shell`
 
-with Wayland support
-
-`dnf install gtk-layer-shell`
 
 ## Usage
 

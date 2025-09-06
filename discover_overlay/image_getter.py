@@ -16,6 +16,8 @@ import logging
 import os
 import gi
 import requests
+import PIL.Image as Image
+import io
 
 gi.require_version("GdkPixbuf", "2.0")
 gi.require_version("Gtk", "4.0")
@@ -26,7 +28,7 @@ log = logging.getLogger(__name__)
 
 
 class SurfaceGetter:
-    """Download and decode image using PIL and store as a cairo surface"""
+    """Download and decode image to Pixbuf"""
 
     def __init__(self, func, url, identifier, display):
         self.func = func
@@ -57,13 +59,18 @@ class SurfaceGetter:
         except requests.Timeout:
             log.error("Unable to open %s - Timeout", self.url)
             return
-        except requests.ConnectionError:
-            log.error("Unable to open %s - Connection error", self.url)
+        except requests.ConnectionError as e:
+            log.error("Unable to open %s - Connection error %s", self.url, e)
             return
+
+        pimage = Image.open(resp.raw)
+        img_byte_arr = io.BytesIO()
+        pimage.save(img_byte_arr, format="PNG")
+        content = GLib.Bytes(img_byte_arr.getvalue())
 
         loader = GdkPixbuf.PixbufLoader()
         try:
-            loader.write(resp.content)
+            loader.write_bytes(content)
             loader.close()
         except ValueError as e:
             log.error("Unable to open %s - Value error %s", self.url, e)
@@ -129,7 +136,7 @@ class SurfaceGetter:
 
 
 def get_surface(func, identifier, ava, display):
-    """Download to cairo surface"""
+    """Download to Pixbuf"""
     image_getter = SurfaceGetter(func, identifier, ava, display)
     if identifier.startswith("http"):
         thread = threading.Thread(target=image_getter.get_url)

@@ -18,7 +18,6 @@ import sys
 import re
 import traceback
 import logging
-import json
 import signal
 import importlib_resources
 from configparser import ConfigParser, RawConfigParser
@@ -35,13 +34,6 @@ from .text_overlay import TextOverlayWindow
 from .notification_overlay import NotificationOverlayWindow
 from .discord_connector import DiscordConnector
 from .audio_assist import DiscoverAudioAssist
-from .overlay import get_h_align, get_v_align, HorzAlign, VertAlign
-
-try:
-    gi.require_version("Gtk4LayerShell", "1.0")
-    from gi.repository import Gtk4LayerShell
-except (ImportError, ValueError):
-    pass
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib, Gio
@@ -67,6 +59,12 @@ class Discover:
     """Main application class"""
 
     def __init__(self, rpc_file, config_file, channel_file, debug_file, args):
+        unsupported_desktops = ["gnome", "weston", "gamescope"]
+        if os.getenv("XDG_SESSION_DESKTOP", "none").lower() in unsupported_desktops:
+            log.warning(
+                "GTK Layer Shell is not supported on this Wayland compositor. Removing WAYLAND_DISPLAY to fallback to X11"
+            )
+            os.unsetenv("WAYLAND_DISPLAY")
         # pylint: disable=E1120
         Gtk.init()
         self.mix_settings = False
@@ -81,6 +79,7 @@ class Discover:
         self.channel_file = channel_file
         self.config_file = config_file
         self.rpc_file = rpc_file
+        self.skip_config_read = False
 
         self.do_args(args, True)
         if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
@@ -194,16 +193,19 @@ class Discover:
                 self.connection.request_text_rooms_for_guild(match.group(1))
 
     def exit(self):
+        """Kills self, works from threads"""
         os.kill(os.getpid(), signal.SIGTERM)
 
     def config_set(self, context, key, value):
-        """Set a config value and save to disk"""
+        """Set a config value and save to disk. Avoid re-reading automatically"""
         config = self.config()
+        self.skip_config_read = True
         if not context in config.sections():
             config.add_section(context)
         config.set(context, key, value)
         with open(self.config_file, "w", encoding="utf-8") as file:
             config.write(file)
+        self.skip_config_read = False
 
     def config(self):
         """Read config from disk"""
@@ -224,6 +226,9 @@ class Discover:
         """
         Called when the config file has been altered
         """
+        if self.skip_config_read:
+            log.warning("Config skipped")
+            return
         # Read new config
         config = self.config()
 
@@ -239,6 +244,10 @@ class Discover:
         self.text_overlay.set_config(text_section)
 
         # Set Notification overlay options
+        notification_section = RawConfigParser("")
+        if config.has_section("notification"):
+            notification_section = config["notification"]
+        self.notification_overlay.set_config(notification_section)
 
         hidden = config.getboolean("general", "hideoverlay", fallback=False)
         self.voice_overlay.set_hidden(hidden)
@@ -299,16 +308,6 @@ class Discover:
         End of the program
         """
         sys.exit()
-
-    def set_show_task(self, visible):
-        """Set if the overlay should allow itself to appear on taskbar.
-        Not working at last check"""
-        if self.voice_overlay:
-            self.voice_overlay.set_task(visible)
-        if self.text_overlay:
-            self.text_overlay.set_task(visible)
-        if self.notification_overlay:
-            self.notification_overlay.set_task(visible)
 
     def set_mute_async(self, mute):
         """Set mute status from another thread"""

@@ -93,8 +93,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.def_avatar = None
         self.mute_avatar = None
         self.deaf_avatar = None
-        self.channel_icon = None
-        self.channel_icon_url = None
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
@@ -115,7 +113,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.inactive_timeout = None
         self.fadeout_timeout = None
 
-        self.square_avatar = False
         self.icon_only = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
         self.text_col = [1.0, 1.0, 1.0, 1.0]
@@ -128,7 +125,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.border_col = [0.0, 0.0, 0.0, 0.0]
         self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
         self.userlist = []
-        self.connection_status = "DISCONNECTED"
         self.horizontal = False
         self.guild_ids = tuple()
         self.force_location()
@@ -140,6 +136,10 @@ class VoiceOverlayWindow(OverlayWindow):
         )
         get_surface(self.recv_avatar, "audio-volume-muted", "deaf", self.get_display())
         self.set_title("Discover Voice")
+        self.title.set_label(None)
+        self.connection.set_connection(None)
+        self.title.update_label(None)
+        self.connection.update_image(None)
         self.populate()
 
     def all_users(self, func):
@@ -242,10 +242,6 @@ class VoiceOverlayWindow(OverlayWindow):
                     elif user in users_to_draw:
                         users_to_draw.remove(user)
 
-        if self.show_connection:
-            connectionlabel = Gtk.Label()
-            connectionlabel.set_text(_(self.connection_status))
-
         self.title.update_image(None)
         self.title.update_label(None)
         self.connection.update_image(None)
@@ -333,10 +329,10 @@ class VoiceOverlayWindow(OverlayWindow):
     def set_blank(self):
         """Set data to blank and redraw"""
         self.userlist = []
-        self.channel_icon = None
-        self.channel_icon_url = None
-        self.channel_title = None
-        self.connection_status = "DISCONNECTED"
+        self.title.set_label(None)
+        self.connection.set_connection(None)
+        self.title.update_label(None)
+        self.connection.update_image(None)
         self.populate()
 
     def set_fade_out_inactive(self, enabled, fade_time, fade_duration, fade_to):
@@ -457,7 +453,6 @@ class VoiceOverlayWindow(OverlayWindow):
             self.deaf_avatar = pix
             self.all_users(lambda user, widget: widget.update_image(user))
         elif identifier == "channel":
-            self.channel_icon = pix
             self.title.set_image(pix)
 
     def unused_fn_needed_translations(self):
@@ -543,8 +538,6 @@ class VoiceOverlayWindow(OverlayWindow):
             ".userlabel { padding: %spx; }"
             % (config.getint("text_padding", fallback=6)),
         )
-
-        self.square_avatar = config.getboolean("square_avatar", fallback=True)
 
         self.only_speaking = config.getboolean("only_speaking", fallback=False)
 

@@ -24,30 +24,44 @@ import gi
 import cairo
 from Xlib.display import Display
 from Xlib import X, Xatom
-from .font_helper import desc_to_css_font, font_string_to_css_font_string
+from ewmh import EWMH
+from .font_helper import font_string_to_css_font_string
 
 gi.require_version("Gtk", "4.0")
+gi.require_version("GdkWayland", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 
 
-from gi.repository import Gtk, Gdk, GLib, Gtk4LayerShell
+from gi.repository import Gtk, Gdk, GLib, GdkX11, GdkWayland, Gtk4LayerShell
 
 log = logging.getLogger(__name__)
 
 
+class Direction(Enum):
+    LTR = 0
+    RTL = 1
+    TTB = 2
+    BTT = 3
+
+
 class VertAlign(Enum):
+    """Possible positions for overlay"""
+
     TOP = 0
     MIDDLE = 1
     BOTTOM = 2
 
 
 class HorzAlign(Enum):
+    """Possible positions for overlay"""
+
     LEFT = 0
     MIDDLE = 1
     RIGHT = 2
 
 
 def get_h_align(in_str):
+    """Get a HorzAlign or None, from a string"""
     assert isinstance(in_str, str)
     if in_str.lower() == "left":
         return HorzAlign.LEFT
@@ -60,6 +74,7 @@ def get_h_align(in_str):
 
 
 def get_v_align(in_str):
+    """Get a VertAlign or None, from a string"""
     assert isinstance(in_str, str)
     if in_str.lower() == "top":
         return VertAlign.TOP
@@ -79,13 +94,6 @@ class OverlayWindow(Gtk.Window):
 
     def __init__(self, discover, piggyback=None):
         Gtk.Window.__init__(self)
-
-        window = Gtk.Window()
-        display = window.get_display()
-        screen_type = f"{display}"
-        self.is_wayland = False
-        if "Wayland" in screen_type:
-            self.is_wayland = True
         self.css_prov = {}
 
         self.set_css(
@@ -109,16 +117,8 @@ class OverlayWindow(Gtk.Window):
             log.info("Input shapes not available. Quitting")
             self.discover.exit()
 
-        # self.set_app_paintable(True)
-        self.set_untouchable()
-        # self.set_skip_pager_hint(True)
-        # self.set_skip_taskbar_hint(True)
-        # self.set_keep_above(True)
-        self.set_decorated(True)
-        self.set_can_focus(False)
         self.horzalign = HorzAlign.LEFT
         self.vertalign = VertAlign.TOP
-        self.set_wayland_state()
         self.piggyback = None
         self.piggyback_parent = None
         if not piggyback:
@@ -136,11 +136,11 @@ class OverlayWindow(Gtk.Window):
         if piggyback:
             self.set_piggyback(piggyback)
 
-        # TODO Find compositor-change for GTK4
+        self.get_display().connect("setting-changed", self.screen_changed)
+        # TODO Find compositor-change for GTK4. Currently only checks once at start
         # self.connect("composited-changed", self.check_composite)
 
-        # TODO Find monitor hook for GTK4
-        # self.get_display().connect("monitors-changed", self.screen_changed)
+        self.get_display().get_monitors().connect("items-changed", self.screen_changed)
 
         # TODO Find monitor resize hook for GTK4
         # self.get_display().connect("size-changed", self.screen_changed)
@@ -161,11 +161,13 @@ class OverlayWindow(Gtk.Window):
         self.connect("destroy", self.window_exited)
 
     def remove_css(self, cssid):
+        """Removes a CSS Rule by id"""
         if id in self.css_prov:
             self.get_style_context().remove_provider(self.css_prov[id])
             del self.css_prov[cssid]
 
     def set_css(self, cssid, rules):
+        """Create or update a CSS rule by id"""
         if id not in self.css_prov:
 
             # pylint: disable=E1120
@@ -184,6 +186,26 @@ class OverlayWindow(Gtk.Window):
         """Window closed. Exit app"""
         self.discover.exit()
 
+    def set_x11_window_location(self, x, y):
+        """Set Window location using X11"""
+        if self.piggyback_parent:
+            return
+
+        if isinstance(self.get_surface(), GdkX11.X11Surface):
+            display = Display()
+            topw = display.create_resource_object(
+                "window", self.get_surface().get_xid()
+            )
+
+            topw.configure(x=x, y=y)
+            screen = display.screen()
+            ewmh = EWMH(display, screen.root)
+            ewmh.setWmState(topw, 1, "_NET_WM_STATE_ABOVE")
+            display.flush()
+            display.sync()
+        else:
+            log.warning("Unable to set X11 location")
+
     def set_gamescope_xatom(self, enabled):
         """Set Gamescope XAtom to identify self as an overlay candidate"""
         if self.piggyback_parent:
@@ -195,9 +217,9 @@ class OverlayWindow(Gtk.Window):
         display = Display()
         atom = display.intern_atom("GAMESCOPE_EXTERNAL_OVERLAY")
         # pylint: disable=E1101
-        if self.get_toplevel().get_window():
+        if isinstance(self.get_surface(), GdkX11.X11Surface):
             topw = display.create_resource_object(
-                "window", self.get_toplevel().get_window().get_xid()
+                "window", self.get_surface().get_xid()
             )
 
             topw.change_property(atom, Xatom.CARDINAL, 32, [enabled], X.PropModeReplace)
@@ -210,29 +232,30 @@ class OverlayWindow(Gtk.Window):
         """
         If wayland is in use then attempt to set up a Gtk4LayerShell
         """
-        if self.is_wayland:
-            # pylint: disable=E1120
-            if not Gtk4LayerShell.is_supported():
-                return
-            if not Gtk4LayerShell.is_layer_window(self):
-                Gtk4LayerShell.init_for_window(self)
-            Gtk4LayerShell.set_layer(self, Gtk4LayerShell.Layer.OVERLAY)
-            if not isinstance(self.horzalign, HorzAlign):
-                log.error("Invalid y align : %s", self.horzalign)
-            if not isinstance(self.vertalign, VertAlign):
-                log.error("Invalid x align : %s", self.vertalign)
-            Gtk4LayerShell.set_anchor(
-                self, Gtk4LayerShell.Edge.LEFT, self.horzalign == HorzAlign.LEFT
-            )
-            Gtk4LayerShell.set_anchor(
-                self, Gtk4LayerShell.Edge.RIGHT, self.horzalign == HorzAlign.RIGHT
-            )
-            Gtk4LayerShell.set_anchor(
-                self, Gtk4LayerShell.Edge.BOTTOM, self.vertalign == VertAlign.BOTTOM
-            )
-            Gtk4LayerShell.set_anchor(
-                self, Gtk4LayerShell.Edge.TOP, self.vertalign == VertAlign.TOP
-            )
+        # pylint: disable=E1120
+        if not Gtk4LayerShell.is_supported():
+            log.error("Desktop session has no LayerShell support. Exiting")
+            self.discover.exit()
+            return
+        if not Gtk4LayerShell.is_layer_window(self):
+            Gtk4LayerShell.init_for_window(self)
+        Gtk4LayerShell.set_layer(self, Gtk4LayerShell.Layer.OVERLAY)
+        if not isinstance(self.horzalign, HorzAlign):
+            log.error("Invalid y align : %s", self.horzalign)
+        if not isinstance(self.vertalign, VertAlign):
+            log.error("Invalid x align : %s", self.vertalign)
+        Gtk4LayerShell.set_anchor(
+            self, Gtk4LayerShell.Edge.LEFT, self.horzalign == HorzAlign.LEFT
+        )
+        Gtk4LayerShell.set_anchor(
+            self, Gtk4LayerShell.Edge.RIGHT, self.horzalign == HorzAlign.RIGHT
+        )
+        Gtk4LayerShell.set_anchor(
+            self, Gtk4LayerShell.Edge.BOTTOM, self.vertalign == VertAlign.BOTTOM
+        )
+        Gtk4LayerShell.set_anchor(
+            self, Gtk4LayerShell.Edge.TOP, self.vertalign == VertAlign.TOP
+        )
 
     def set_piggyback(self, other_overlay):
         """Sets as piggybacking off the given (other) overlay"""
@@ -249,15 +272,32 @@ class OverlayWindow(Gtk.Window):
         """
         self.set_css("font", "* { font: %s; }" % (font_string_to_css_font_string(font)))
 
+    def css_changed(self, change):
+        Gtk.Window.css_changed(self, change)
+        self.set_untouchable()
+
     def set_untouchable(
-        self, a=None, b=None, c=None
+        self, _a=None, _b=None, _c=None
     ):  # Throw away args to allow size_allocate
         """
         Create a custom input shape and tell it that all of the window is a cut-out
         This allows us to have a window above everything but that never gets clicked on
         """
-        if self.get_surface():
-            self.get_surface().set_input_region(cairo.Region())
+        surface = self.get_surface()
+        display = self.get_display()
+        if surface:
+
+            bb_region = cairo.Region()
+            if not display.is_composited() or self.hide_on_mouseover:
+                # TODO Add bounding boxes of all labels and images in widget tree
+                # bb_region = bb_region.union()
+                pass
+
+            surface.set_input_region(bb_region)
+            if not display.is_composited():
+                # TODO Maybe XLib + XShape
+                log.error("Unable to set XShape - exiting")
+                self.discover.exit()
 
     def set_hide_on_mouseover(self, hide):
         """Set if the overlay should hide when mouse moves over it"""
@@ -279,24 +319,31 @@ class OverlayWindow(Gtk.Window):
         On Gamescope enforce size of display but only if it's the primary overlay
         """
         (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
-
+        self.set_decorated(True)
+        self.set_can_focus(False)
         # chosen_width = self.width_limit if self.width_limit > 0 else screen_width/4
         # chosen_height = self.height_limit if self.height_limit > 0 else screen_height/4
         # self.set_size_request(chosen_width, chosen_height)
+        surface = self.get_surface()
 
-        if self.is_wayland:
+        if isinstance(surface, GdkWayland.WaylandSurface):
             self.set_wayland_state()
-        else:
+        elif isinstance(surface, GdkX11.X11Surface):
+            # if not self.get_display().is_composited():
+            #    log.error("Unable to function without compositor")
+            #    self.discover.exit()
+            surface.set_skip_pager_hint(True)
+            surface.set_skip_taskbar_hint(True)
             self.set_decorated(False)
-            self.set_keep_above(True)
-            self.resize(screen_width, screen_height)
-            self.move(screen_x, screen_y)
+            self.set_size_request(screen_width, screen_height)
+            self.set_x11_window_location(screen_x, screen_y)
+        else:
+            log.error("Unknown windowing system. Exiting")
+            self.discover.exit()
         self.set_untouchable()
 
     def get_display_coords(self):
         """Get screen space co-ordinates of the monitor"""
-        if self.piggyback_parent:
-            return self.piggyback_parent.get_display_coords()
         monitor = self.get_monitor_from_plug()
         if not monitor:
             monitor = self.get_display().get_monitors()[0]
@@ -318,7 +365,7 @@ class OverlayWindow(Gtk.Window):
         plug_name = f"{idx}"
         if self.monitor != plug_name:
             self.monitor = plug_name
-            if self.is_wayland:
+            if isinstance(self.get_surface(), GdkWayland.WaylandSurface):
                 monitor = self.get_monitor_from_plug()
                 if monitor:
                     Gtk4LayerShell.set_monitor(self, monitor)
@@ -335,17 +382,13 @@ class OverlayWindow(Gtk.Window):
         if not self.monitor or self.monitor == "Any":
             return None
 
-        display = Gdk.Display.get_default()
-        if not "get_n_monitors" in dir(display) or not "get_monitor" in dir(display):
-            return None
-        screen = self.get_screen()
-        count_monitors = display.get_n_monitors()
-        if count_monitors >= 1:
-            for i in range(0, count_monitors):
-                this_mon = display.get_monitor(i)
-                connector = screen.get_monitor_plug_name(i)
-                if connector == self.monitor:
-                    return this_mon
+        # pylint: disable=E1120
+        display = self.get_display()
+        monitors = display.get_monitors()
+        for monitor in monitors:
+            if self.monitor == monitor.get_connector():
+                return monitor
+        log.warning("Unable to find monitor for : %s : Using Any", self.monitor)
         return None
 
     def set_align_x(self, align: HorzAlign):
@@ -370,12 +413,6 @@ class OverlayWindow(Gtk.Window):
         self.vertalign = align
         self.force_location()
 
-    def col(self, col, alpha=1.0):
-        """
-        Convenience function to set the cairo context next colour
-        """
-        self.context.set_source_rgba(col[0], col[1], col[2], col[3] * alpha)
-
     def set_enabled(self, enabled):
         """
         Set if this overlay should be visible
@@ -394,6 +431,9 @@ class OverlayWindow(Gtk.Window):
 
     def screen_changed(self, _screen=None):
         """Callback to set monitor to display on"""
+        if not self.get_display().is_composited():
+            log.error("Unable to function without compositor")
+            self.discover.exit()
         self.set_monitor(self.monitor)
 
     def mouseover(self, _a=None, _b=None):

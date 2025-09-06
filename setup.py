@@ -49,6 +49,9 @@ setup(
         "setuptools",
         "pulsectl-asyncio",
         "importlib_resources",
+        "cairo",
+        "ewmh",
+        "pillow",
     ],
     entry_points={
         "console_scripts": [

@@ -20,18 +20,21 @@ from gi.repository import Gtk, Pango
 # https://toshiocp.github.io/Gtk4-tutorial/sec23.html
 # TODO Weights, Italics
 def desc_to_css_font(desc):
-    size = ""
+    """Formats a font description into a CSS rule"""
     if desc.get_size_is_absolute():
-        size = "%dpx" % (desc.get_size() / Pango.SCALE)
+        size = f"{desc.get_size() / Pango.SCALE}px"
     else:
-        size = "%dpt" % (desc.get_size() / Pango.SCALE)
+        size = f"{desc.get_size() / Pango.SCALE}pt"
     mods = ""
     family = desc.get_family()
-    font = '%s %s "%s"' % (mods, size, family)
+    font = f'{size} {mods} "{family}"'
     return font
 
 
 def font_string_to_css_font_string(string_in):
+    """Takes a string of uncertain origin and feeds it into a
+    Gtk.FontButton in the hopes of turning it into a font
+    description, then turning that into a CSS rule"""
     if string_in[0].isnumeric():  # If it starts with a number it is Probably correct
         return string_in
     # It might be an old-style font string...
