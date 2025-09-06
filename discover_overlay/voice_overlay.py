@@ -81,12 +81,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.show_avatar = True
         self.avatar_size = 48
         self.nick_length = 32
-        self.text_pad = 6
-        self.text_font = None
-        self.title_font = None
-        self.text_size = 13
-        self.text_baseline_adj = 0
-        self.icon_spacing = 8
         self.only_speaking = None
         self.highlight_self = None
         self.order = None
@@ -96,11 +90,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
-        self.show_connection = True
-        self.show_disconnected = True
         self.border_width = 2
-        self.icon_transparency = 0.0
-        self.fancy_border = False
         self.only_speaking_grace_period = 0
         self.text_side = 3
 
@@ -116,17 +106,11 @@ class VoiceOverlayWindow(OverlayWindow):
         self.icon_only = True
         self.talk_col = [0.0, 0.6, 0.0, 0.1]
         self.text_col = [1.0, 1.0, 1.0, 1.0]
-        self.text_hili_col = [1.0, 1.0, 1.0, 1.0]
-        self.norm_col = [0.0, 0.0, 0.0, 0.5]
-        self.wind_col = [0.0, 0.0, 0.0, 0.0]
         self.mute_col = [0.7, 0.0, 0.0, 1.0]
         self.mute_bg_col = [0.0, 0.0, 0.0, 0.5]
-        self.hili_col = [0.0, 0.0, 0.0, 0.9]
         self.border_col = [0.0, 0.0, 0.0, 0.0]
         self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
         self.userlist = []
-        self.horizontal = False
-        self.guild_ids = tuple()
         self.force_location()
         get_surface(
             self.recv_avatar, "discover-overlay-default", "def", self.get_display()

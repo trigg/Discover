@@ -30,7 +30,6 @@ class NotificationOverlayWindow(OverlayWindow):
         OverlayWindow.__init__(self, discover, piggyback)
         self.box = Gtk.Box()
         self.box.set_orientation(Gtk.Orientation.VERTICAL)
-        self.text_spacing = 4
         self.test_content = [
             {
                 "icon_url": (
@@ -79,25 +78,14 @@ class NotificationOverlayWindow(OverlayWindow):
                 "body": "Birdy test",
             },
         ]
-
-        self.text_font = None
-        self.text_size = 13
         self.text_time = None
         self.show_icon = None
-
-        self.connected = True
-        self.icons = []
-        self.reverse_order = False
         self.padding = 10
         self.border_radius = 5
         self.limit_width = 100
-        self.testing = False
         self.icon_size = 64
         self.icon_pad = 16
         self.icon_left = True
-
-        self.image_list = {}
-        self.warned_filetypes = []
         self.text_align = "left"
         self.set_title("Discover Notifications")
         self.set_child(self.box)
@@ -133,8 +121,8 @@ class NotificationOverlayWindow(OverlayWindow):
         self.update_all()
 
     def set_border_radius(self, radius):
-        self.padding = radius
         """Config option: Radius of the border, in window-space pixels"""
+        self.padding = radius
         self.set_css(
             "border-radius", ".notification { border-radius: %spx; }" % (radius)
         )
@@ -162,10 +150,6 @@ class NotificationOverlayWindow(OverlayWindow):
             child.set_size_request(limit, -1)
             child = child.get_next_sibling()
 
-    def recv_icon(self, identifier, pix):
-        """Callback from image_getter for icons"""
-        self.image_list[identifier] = pix
-
     def set_fg(self, fg_col):
         """Config option: Set default text colour"""
         self.set_css(
@@ -188,11 +172,6 @@ class NotificationOverlayWindow(OverlayWindow):
         while child:
             child.queue_allocate()
             child = child.get_next_sibling()
-
-    def set_reverse_order(self, rev):
-        """Config option: Reverse order of messages"""
-        if self.reverse_order != rev:
-            self.reverse_order = rev
 
     def set_font(self, font):
         """Config option: Font used to render text"""
@@ -244,7 +223,6 @@ class NotificationOverlayWindow(OverlayWindow):
         self.set_fg(json.loads(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]")))
         self.set_text_time(config.getint("text_time", fallback=10))
         self.set_show_icon(config.getboolean("show_icon", fallback=True))
-        self.set_reverse_order(config.getboolean("rev", fallback=False))
         self.set_limit_width(config.getint("limit_width", fallback=400))
         self.set_icon_left(config.getboolean("icon_left", fallback=True))
         self.set_icon_size(config.getint("icon_size", fallback=32))
