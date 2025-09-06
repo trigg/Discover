@@ -31,26 +31,11 @@ class TextOverlayWindow(OverlayWindow):
     def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
         self.box = MessageBox(self)
-        self.text_spacing = 4
-        self.text_font = None
-        self.text_size = 13
+
         self.text_time = None
         self.show_attach = None
         self.popup_style = None
-        self.line_limit = 100
-        # 0, 0, self.text_size, self.text_size)
-        self.pango_rect = Pango.Rectangle()
-        self.pango_rect.width = self.text_size * Pango.SCALE
-        self.pango_rect.height = self.text_size * Pango.SCALE
 
-        self.connected = True
-        self.bg_col = [0.0, 0.6, 0.0, 0.1]
-        self.fg_col = [1.0, 1.0, 1.0, 1.0]
-        self.attachment = {}
-
-        self.image_list = []
-        self.img_finder = re.compile(r"`")
-        self.warned_filetypes = []
         self.set_title("Discover Text")
         self.width_limit = 500
         self.height_limit = 300
@@ -82,45 +67,17 @@ class TextOverlayWindow(OverlayWindow):
             self.text_time = timer
             self.set_blank()
 
-    def set_fg(self, fg_col):
-        """Config option: Sets the text colour"""
-        if self.fg_col != fg_col:
-            self.fg_col = fg_col
-
-    def set_bg(self, bg_col):
-        """Config option: Set the background colour"""
-        if self.bg_col != bg_col:
-            self.bg_col = bg_col
-
     def set_show_attach(self, attachment):
         """Config option: Show image attachments"""
-        if self.attachment != attachment:
+        if self.show_attach != attachment:
             self.show_attach = attachment
+            self.update_all()
 
     def set_popup_style(self, boolean):
         """Config option: Messages should disappear after being shown for some time"""
         if self.popup_style != boolean:
             self.popup_style = boolean
             self.set_blank()
-
-    def set_font(self, font):
-        """Config option: Set font used for rendering"""
-        if self.text_font != font:
-            self.text_font = font
-
-            self.pango_rect = Pango.Rectangle()
-            font = Pango.FontDescription(self.text_font)
-            self.pango_rect.width = font.get_size() * Pango.SCALE
-            self.pango_rect.height = font.get_size() * Pango.SCALE
-
-    def set_line_limit(self, limit):
-        """Config option: Limit number of lines rendered"""
-        if self.line_limit != limit:
-            self.line_limit = limit
-
-    def recv_attach(self, identifier, pix):
-        """Callback from image_getter"""
-        self.attachment[identifier] = pix
 
     def has_content(self):
         """Returns true if overlay has meaningful content to render"""
@@ -136,6 +93,13 @@ class TextOverlayWindow(OverlayWindow):
         """Call when removing a message automatically, allows hiding of overlay when empty"""
         if not self.has_content():
             self.hide()
+
+    def update_all(self):
+        """Tell all messages we've had something changed"""
+        child = self.box.get_first_child()
+        while child:
+            child.update()
+            child = child.get_next_sibling()
 
     def set_config(self, config):
         OverlayWindow.set_config(self, config)
@@ -160,7 +124,6 @@ class TextOverlayWindow(OverlayWindow):
         self.set_popup_style(config.getboolean("popup_style", fallback=False))
         self.set_text_time(config.getint("text_time", fallback=30))
         self.set_show_attach(config.getboolean("show_attach", fallback=True))
-        self.set_line_limit(config.getint("line_limit", fallback=20))
         self.set_hide_on_mouseover(config.getboolean("autohide", fallback=False))
         self.set_mouseover_timer(config.getint("autohide_timer", fallback=1))
 

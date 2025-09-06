@@ -83,7 +83,12 @@ class Message(Gtk.Box):
             else:
                 self.skip = True
 
+    def update(self):
+        """Something has changed. Check for attachments, edits to text..."""
+        # TODO Update
+
     def exit(self):
+        """Remove self from overlay"""
         self.overlay.box.remove(self)
         self.overlay.update()
 
