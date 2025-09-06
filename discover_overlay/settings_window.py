@@ -170,9 +170,7 @@ class Settings(Gtk.Application):
             )
         )
 
-        # Fill monitor & guild menus
         self.populate_monitor_menus()
-        # TODO Monitor callback
         self.window.get_display().get_monitors().connect(
             "items-changed", self.populate_monitor_menus
         )
@@ -319,9 +317,10 @@ class Settings(Gtk.Application):
         with open(self.rpc_file, "w", encoding="utf-8") as f:
             f.write(f"--rpc --guild-request={guild_id}")
 
-    def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None):
+    def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None, _e=None):
         """Read guild data and repopulate widget.
         Disable signal handling meanwhile to avoid recursive logic"""
+        log.info("Populating guild and channel")
         g = self.widget["text_server"]
         c = self.widget["text_channel"]
         g.handler_block(self.server_handler)
@@ -340,10 +339,15 @@ class Settings(Gtk.Application):
                         self.guild_ids.append(guild["id"])
                         if guild["id"] == self.current_guild and "channels" in guild:
                             for channel in guild["channels"]:
+                                log.info(
+                                    "Channel : %s   Guild : %s",
+                                    channel["name"],
+                                    guild["name"],
+                                )
                                 c.append_text(channel["name"])
                                 self.channel_ids.append(channel["id"])
         except FileNotFoundError:
-            pass
+            log.error("Could not open channels file")
 
         if self.current_guild != "0" and self.current_guild in self.guild_ids:
             g.set_active(self.guild_ids.index(self.current_guild))
@@ -354,7 +358,7 @@ class Settings(Gtk.Application):
         g.handler_unblock(self.server_handler)
         c.handler_unblock(self.channel_handler)
 
-    def populate_monitor_menus(self, _a=None, _b=None):
+    def populate_monitor_menus(self, _a=None, _b=None, _c=None, _d=None):
         """Get Monitor list from GTK and repopulate widget"""
         voice = self.widget["voice_monitor"]
         text = self.widget["text_monitor"]

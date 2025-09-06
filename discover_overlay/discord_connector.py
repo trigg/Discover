@@ -58,7 +58,6 @@ class DiscordConnector:
         self.current_text = "0"
         self.current_text_guild = "0"
         self.list_altered = False
-        self.text_altered = False
         self.text = []
         self.authed = False
         self.last_rate_limit_send = 0
@@ -69,6 +68,8 @@ class DiscordConnector:
 
         self.rate_limited_channels = []
         self.reconnect_cb = None
+
+        self.rate_limit = None
 
     def get_access_token_stage1(self):
         """
@@ -186,7 +187,7 @@ class DiscordConnector:
         if "author_color" in message:
             colour = message["author_color"]
 
-        self.text.append(
+        self.discover.text_overlay.new_line(
             {
                 "id": message["id"],
                 "content": self.get_message_from_message(message),
@@ -196,35 +197,18 @@ class DiscordConnector:
                 "attach": self.get_attachment_from_message(message),
             }
         )
-        self.text_altered = True
 
     def update_text(self, message_in):
         """
         Update a line of text
         """
-        for idx, message in enumerate(self.text):
-            if message["id"] == message_in["id"]:
-                new_message = {
-                    "id": message["id"],
-                    "content": self.get_message_from_message(message_in),
-                    "nick": message["nick"],
-                    "nick_col": message["nick_col"],
-                    "time": message["time"],
-                    "attach": message["attach"],
-                }
-                self.text[idx] = new_message
-                self.text_altered = True
-                return
+        self.discover.text_overlay.update_message(message_in["id"], message_in)
 
     def delete_text(self, message_in):
         """
         Delete a line of text
         """
-        for idx, message in enumerate(self.text):
-            if message["id"] == message_in["id"]:
-                del self.text[idx]
-                self.text_altered = True
-                return
+        self.discover.text_overlay.update_message(message_in["id"])
 
     def get_message_from_message(self, message):
         """
@@ -469,7 +453,7 @@ class DiscordConnector:
                 self.req_channels(j["data"]["guild_id"])
             if j["data"]["type"] == 0:  # Text channel
                 if self.current_text == j["data"]["id"]:
-                    self.text = []
+                    self.discover.text_overlay.set_blank()
                     for message in j["data"]["messages"]:
                         self.add_text(message)
 
@@ -701,6 +685,23 @@ class DiscordConnector:
         if self.websocket:
             self.websocket.send(json.dumps(cmd))
 
+    def channel_rate_limit(self):
+        """Called regularly to pull in any required channels"""
+        if self.authed and len(self.rate_limited_channels) > 0:
+            guild = self.rate_limited_channels.pop()
+            log.info("Getting guild : %s", guild)
+            cmd = {
+                "cmd": "GET_CHANNELS",
+                "args": {"guild_id": guild},
+                "nonce": guild,
+            }
+            self.websocket.send(json.dumps(cmd))
+
+        continue_rate_limit = len(self.rate_limited_channels) > 0
+        if not continue_rate_limit:
+            self.rate_limit = None
+        return continue_rate_limit
+
     def update_overlays_from_data(self):
         """Send new data out to overlay windows"""
         if self.websocket is None:
@@ -715,25 +716,6 @@ class DiscordConnector:
             newlist.append(self.userlist[userid])
         self.discover.voice_overlay.set_user_list(newlist, self.list_altered)
         self.list_altered = False
-        # Update text list
-        if self.discover.text_overlay.popup_style:
-            self.text_altered = True
-        if self.text_altered:
-            self.discover.text_overlay.set_text_list(self.text, self.text_altered)
-            self.text_altered = False
-
-        if self.authed and len(self.rate_limited_channels) > 0:
-            now = time.time()
-            if self.last_rate_limit_send < now - 60:
-                guild = self.rate_limited_channels.pop()
-
-                cmd = {
-                    "cmd": "GET_CHANNELS",
-                    "args": {"guild_id": guild},
-                    "nonce": guild,
-                }
-                self.websocket.send(json.dumps(cmd))
-                self.last_rate_limit_send = now
 
     def start_listening_text(self, channel):
         """
@@ -757,7 +739,13 @@ class DiscordConnector:
         """
         if guild_id == 0:
             return
-        self.rate_limited_channels.append(guild_id)
+        if guild_id not in self.rate_limited_channels:
+            self.rate_limited_channels.append(guild_id)
+        if not self.rate_limit:
+            # Run once now and schedule for 15 seconds.
+            # Any others added suddently will have to wait, or timeout will clear eventually
+            self.channel_rate_limit()
+            self.rate_limit = GLib.timeout_add_seconds(15, self.channel_rate_limit)
 
     def schedule_reconnect(self):
         """Set a timer to attempt reconnection"""

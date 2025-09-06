@@ -16,10 +16,11 @@ import re
 import json
 import gi
 from .overlay import OverlayWindow
+from .message import Message, MessageBox
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Pango
+from gi.repository import Pango, Gtk
 
 log = logging.getLogger(__name__)
 
@@ -29,8 +30,8 @@ class TextOverlayWindow(OverlayWindow):
 
     def __init__(self, discover, piggyback=None):
         OverlayWindow.__init__(self, discover, piggyback)
+        self.box = MessageBox(self)
         self.text_spacing = 4
-        self.content = []
         self.text_font = None
         self.text_size = 13
         self.text_time = None
@@ -53,35 +54,33 @@ class TextOverlayWindow(OverlayWindow):
         self.set_title("Discover Text")
         self.width_limit = 500
         self.height_limit = 300
+        self.set_child(self.box)
+        if self.popup_style and not self.has_content():
+            self.hide()
 
     def set_blank(self):
         """Set contents blank and redraw"""
-        self.content = []
+        child = self.box.get_first_child()
+        while child:
+            n_child = child.get_next_sibling()
+            self.box.remove(child)
+            child = n_child
+        if self.popup_style and not self.has_content():
+            self.hide()
 
-    def tick(self):
-        """Check for old images"""
-        if len(self.attachment) > self.line_limit:
-            # We've probably got old images!
-            oldlist = self.attachment
-            self.attachment = {}
-            log.info("Cleaning old images")
-            for message in self.content:
-                if "attach" in message and message["attach"]:
-                    url = message["attach"][0]["url"]
-                    log.info("keeping %s", url)
-                    self.attachment[url] = oldlist[url]
+    def new_line(self, message):
+        """Add a new message to text overlay. Does not sanity check the data"""
+        message = Message(self, message)
+        if not message.skip:
+            self.box.append(message)
+        if self.has_content():
+            self.show()
 
     def set_text_time(self, timer):
         """Config option: Time before messages disappear from overlay"""
-        if self.text_time != timer or self.timer_after_draw != timer:
+        if self.text_time != timer:
             self.text_time = timer
-            self.timer_after_draw = timer
-
-    def set_text_list(self, tlist, altered):
-        """Change contents of overlay"""
-        self.content = tlist[-self.line_limit :]
-        if altered:
-            pass
+            self.set_blank()
 
     def set_fg(self, fg_col):
         """Config option: Sets the text colour"""
@@ -102,6 +101,7 @@ class TextOverlayWindow(OverlayWindow):
         """Config option: Messages should disappear after being shown for some time"""
         if self.popup_style != boolean:
             self.popup_style = boolean
+            self.set_blank()
 
     def set_font(self, font):
         """Config option: Set font used for rendering"""
@@ -118,55 +118,6 @@ class TextOverlayWindow(OverlayWindow):
         if self.line_limit != limit:
             self.line_limit = limit
 
-    def make_line(self, message):
-        """Decode a recursive JSON object into pango markup."""
-        ret = ""
-        if isinstance(message, list):
-            for inner_message in message:
-                ret = f"{ret}{self.make_line(inner_message)}"
-        elif isinstance(message, str):
-            ret = self.sanitize_string(message)
-        elif message["type"] == "strong":
-            ret = f"<b>{self.make_line(message['content'])}</b>"
-        elif message["type"] == "text":
-            ret = self.sanitize_string(message["content"])
-        elif message["type"] == "link":
-            ret = f"<u>{self.make_line(message['content'])}</u>"
-        elif message["type"] == "emoji":
-            if "surrogate" in message:
-                # ['src'] is SVG URL
-                # ret = msg
-                ret = message["surrogate"]
-            else:
-                ### Add Image ###
-                self.image_list.append(
-                    f"https://cdn.discordapp.com/emojis/{message['emojiId']}.png?v=1"
-                )
-                ret = "`"
-        elif (
-            message["type"] == "inlineCode"
-            or message["type"] == "codeBlock"
-            or message["type"] == "blockQuote"
-        ):
-            ret = f"<span font_family=\"monospace\" background=\"#0004\">{self.make_line(message['content'])}</span>"
-        elif message["type"] == "u":
-            ret = f"<u>{self.make_line(message['content'])}</u>"
-        elif message["type"] == "em":
-            ret = f"<i>{self.make_line(message['content'])}</i>"
-        elif message["type"] == "s":
-            ret = f"<s>{self.make_line(message['content'])}</s>"
-        elif message["type"] == "channel":
-            ret = self.make_line(message["content"])
-        elif message["type"] == "mention":
-            ret = self.make_line(message["content"])
-        elif message["type"] == "br":
-            ret = "\n"
-        else:
-            if message["type"] not in self.warned_filetypes:
-                log.error("Unknown text type : %s", message["type"])
-                self.warned_filetypes.append(message["type"])
-        return ret
-
     def recv_attach(self, identifier, pix):
         """Callback from image_getter"""
         self.attachment[identifier] = pix
@@ -179,16 +130,12 @@ class TextOverlayWindow(OverlayWindow):
             return False
         if self.hidden:
             return False
-        return self.content
+        return self.box.get_first_child() is not None
 
-    def sanitize_string(self, string):
-        """Sanitize a text message so that it doesn't intefere with Pango's XML format"""
-        string = string.replace("&", "&amp;")
-        string = string.replace("<", "&lt;")
-        string = string.replace(">", "&gt;")
-        string = string.replace("'", "&#39;")
-        string = string.replace('"', "&#34;")
-        return string
+    def update(self):
+        """Call when removing a message automatically, allows hiding of overlay when empty"""
+        if not self.has_content():
+            self.hide()
 
     def set_config(self, config):
         OverlayWindow.set_config(self, config)
@@ -199,8 +146,17 @@ class TextOverlayWindow(OverlayWindow):
         self.discover.connection.set_text_channel(channel, guild)
 
         font = config.get("font", fallback=None)
-        self.set_bg(json.loads(config.get("bg_col", fallback="[0.0,0.0,0.0,0.5]")))
-        self.set_fg(json.loads(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]")))
+
+        self.set_css(
+            "background",
+            ".messagebox { background-color: %s; }"
+            % (self.col_to_css(config.get("bg_col", fallback="[0.0,0.0,0.0,0.5]"))),
+        )
+        self.set_css(
+            "text-color",
+            ".messagebox .message { color: %s; }"
+            % (self.col_to_css(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]"))),
+        )
         self.set_popup_style(config.getboolean("popup_style", fallback=False))
         self.set_text_time(config.getint("text_time", fallback=30))
         self.set_show_attach(config.getboolean("show_attach", fallback=True))
@@ -208,6 +164,10 @@ class TextOverlayWindow(OverlayWindow):
         self.set_hide_on_mouseover(config.getboolean("autohide", fallback=False))
         self.set_mouseover_timer(config.getint("autohide_timer", fallback=1))
 
+        self.width_limit = config.getint("width_limit", fallback=500)
+        self.height_limit = config.getint("height_limit", fallback=300)
+        self.set_size_request(self.width_limit, self.height_limit)
+        self.box.set_size_request(self.width_limit, self.height_limit)
         self.set_monitor(config.get("monitor", fallback="Any"))
 
         if font:

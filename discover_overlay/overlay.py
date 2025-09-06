@@ -372,7 +372,8 @@ class OverlayWindow(Gtk.Window):
                 else:
                     self.hide()
                     self.set_wayland_state()
-                    self.show()
+                    if self.has_content():
+                        self.show()
                 self.set_untouchable()
             self.force_location()
 
