@@ -228,7 +228,6 @@ class NotificationOverlayWindow(OverlayWindow):
             self.add_notification_message(test)
 
     def set_text_align(self, text_align):
-        log.error("ALIGN CHANGE %s", text_align)
         self.text_align = text_align
         self.update_all()
 
