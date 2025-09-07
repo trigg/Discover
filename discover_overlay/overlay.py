@@ -19,18 +19,16 @@ from ctypes import CDLL
 CDLL("libgtk4-layer-shell.so")
 from enum import Enum
 import logging
-import json
 import gi
 import cairo
 from Xlib.display import Display
 from Xlib import X, Xatom
 from ewmh import EWMH
-from .font_helper import font_string_to_css_font_string
+from .css_helper import font_string_to_css_font_string
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("GdkWayland", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
-
 
 from gi.repository import Gtk, Gdk, GLib, GdkX11, GdkWayland, Gtk4LayerShell
 
@@ -86,13 +84,55 @@ def get_v_align(in_str):
     return None
 
 
+class AmalgamationLayout(Gtk.LayoutManager):
+
+    def do_allocate(self, widget, width, height, _baseline):
+        child = widget.get_first_child()
+        while child:
+            (h_a, v_a) = child.get_align()
+            vert = child.measure(Gtk.Orientation.VERTICAL, width)
+            horz = child.measure(Gtk.Orientation.HORIZONTAL, height)
+            pref_w = horz[0]
+            pref_h = vert[0]
+            if pref_w > width:
+                pref_w = width
+
+            alloc = Gdk.Rectangle()
+            if h_a == HorzAlign.LEFT:
+                alloc.x = 0
+            elif h_a == HorzAlign.MIDDLE:
+                alloc.x = width / 2 - int(pref_w / 2)
+            else:
+                alloc.x = width - pref_w
+            if v_a == VertAlign.TOP:
+                alloc.y = 0
+            elif v_a == HorzAlign.MIDDLE:
+                alloc.y = height / 2 - int(pref_h / 2)
+            else:
+                alloc.y = height - pref_h
+            alloc.width = pref_w
+            alloc.height = pref_h
+            child.size_allocate(alloc, -1)
+            child = child.get_next_sibling()
+
+    def do_measure(self, widget, orientation, for_size):
+        (screen_x, screen_y, screen_width, screen_height) = (
+            widget.get_parent().get_display_coords()
+        )
+
+        if orientation == Gtk.Orientation.VERTICAL:
+            return (screen_height, screen_height, -1, -1)
+        else:
+            return (screen_width, screen_width, -1, -1)
+
+
 class OverlayWindow(Gtk.Window):
     """
     Overlay parent class. Helpful if we need more overlay
     types without copy-and-pasting too much code
     """
 
-    def __init__(self, discover, piggyback=None):
+    def __init__(self, discover):
         Gtk.Window.__init__(self)
         self.css_prov = {}
 
@@ -101,9 +141,10 @@ class OverlayWindow(Gtk.Window):
         )
         self.is_xatom_set = False
 
+        self.widget = None
+        self.amalgamation = None
+
         self.discover = discover
-        self.text_font = None
-        self.text_size = None
         self.pos_x = None
         self.pos_y = None
         self.width = None
@@ -119,12 +160,6 @@ class OverlayWindow(Gtk.Window):
 
         self.horzalign = HorzAlign.LEFT
         self.vertalign = VertAlign.TOP
-        self.piggyback = None
-        self.piggyback_parent = None
-        if not piggyback:
-            self.show()
-            if discover.steamos:
-                self.set_gamescope_xatom(1)
         self.monitor = "Any"
         self.context = None
 
@@ -133,8 +168,6 @@ class OverlayWindow(Gtk.Window):
         self.timeout_mouse_over = 1
 
         self.timer_after_draw = None
-        if piggyback:
-            self.set_piggyback(piggyback)
 
         self.get_display().connect("setting-changed", self.screen_changed)
         # TODO Find compositor-change for GTK4. Currently only checks once at start
@@ -188,9 +221,6 @@ class OverlayWindow(Gtk.Window):
 
     def set_x11_window_location(self, x, y):
         """Set Window location using X11"""
-        if self.piggyback_parent:
-            return
-
         if isinstance(self.get_surface(), GdkX11.X11Surface):
             display = Display()
             topw = display.create_resource_object(
@@ -208,8 +238,6 @@ class OverlayWindow(Gtk.Window):
 
     def set_gamescope_xatom(self, enabled):
         """Set Gamescope XAtom to identify self as an overlay candidate"""
-        if self.piggyback_parent:
-            return
 
         if enabled == self.is_xatom_set:
             return
@@ -256,11 +284,6 @@ class OverlayWindow(Gtk.Window):
         Gtk4LayerShell.set_anchor(
             self, Gtk4LayerShell.Edge.TOP, self.vertalign == VertAlign.TOP
         )
-
-    def set_piggyback(self, other_overlay):
-        """Sets as piggybacking off the given (other) overlay"""
-        other_overlay.piggyback = self
-        self.piggyback_parent = other_overlay
 
     def has_content(self):
         """Return true if overlay has meaningful content"""
@@ -318,6 +341,7 @@ class OverlayWindow(Gtk.Window):
         On Wayland just store for later
         On Gamescope enforce size of display but only if it's the primary overlay
         """
+        self.show()
         (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
         self.set_decorated(True)
         self.set_can_focus(False)
@@ -325,20 +349,19 @@ class OverlayWindow(Gtk.Window):
         # chosen_height = self.height_limit if self.height_limit > 0 else screen_height/4
         # self.set_size_request(chosen_width, chosen_height)
         surface = self.get_surface()
-
         if isinstance(surface, GdkWayland.WaylandSurface):
             self.set_wayland_state()
         elif isinstance(surface, GdkX11.X11Surface):
-            # if not self.get_display().is_composited():
-            #    log.error("Unable to function without compositor")
-            #    self.discover.exit()
+            if not self.get_display().is_composited():
+                log.error("Unable to function without compositor")
+                self.discover.exit()
             surface.set_skip_pager_hint(True)
             surface.set_skip_taskbar_hint(True)
             self.set_decorated(False)
             self.set_size_request(screen_width, screen_height)
             self.set_x11_window_location(screen_x, screen_y)
         else:
-            log.error("Unknown windowing system. Exiting")
+            log.error("Unknown windowing system. %s, Exiting", surface)
             self.discover.exit()
         self.set_untouchable()
 
@@ -419,18 +442,15 @@ class OverlayWindow(Gtk.Window):
         Set if this overlay should be visible
         """
         self.enabled = enabled
-        if self.piggyback_parent or self.piggyback:
-
-            if not self.piggyback_parent:
-                self.set_gamescope_xatom(1 if enabled else 0)
-            return
+        if self.discover.steamos:
+            self.set_gamescope_xatom(1 if enabled else 0)
         if enabled and not self.hidden:
             self.present()
             self.show()
         else:
             self.hide()
 
-    def screen_changed(self, _screen=None):
+    def screen_changed(self, _screen=None, a_=None, _b=None, _c=None):
         """Callback to set monitor to display on"""
         if not self.get_display().is_composited():
             log.error("Unable to function without compositor")
@@ -452,17 +472,6 @@ class OverlayWindow(Gtk.Window):
         """Callback a short while after mouseout occured, shows overlay"""
         self.show()
         return False
-
-    def col_to_css(self, col):
-        """Convert a JSON-encoded string or a tuple into a CSS colour"""
-        if isinstance(col, str):
-            col = json.loads(col)
-        assert len(col) == 4
-        red = int(col[0] * 255)
-        green = int(col[1] * 255)
-        blue = int(col[2] * 255)
-        alpha = col[3]
-        return f"rgba({red},{green},{blue},{alpha:2.2f})"
 
     def set_config(self, config):
         """Set the configuration of this overlay from the given config section"""
@@ -488,3 +497,45 @@ class OverlayWindow(Gtk.Window):
         self.set_align_y(y_align)
 
         self.set_monitor(config.get("monitor", fallback="Any"))
+
+        self.set_hide_on_mouseover(config.getboolean("autohide", fallback=False))
+        self.set_mouseover_timer(config.getint("autohide_timer", fallback=1))
+        self.set_enabled(config.getboolean("enabled", fallback=True))
+
+        self.set_visibility()
+
+    def overlay(self, widget):
+        self.widget = widget
+        self.set_child(widget)
+
+    def merged_overlay(self, widget_list):
+        self.amalgamation = widget_list
+        box = Gtk.Box()
+        for widget in self.amalgamation:
+            box.append(widget)
+        self.set_child(box)
+        box.set_layout_manager(AmalgamationLayout())
+
+        # We won't receive config in this mode
+        box.show()
+        self.set_enabled(True)
+
+    def set_visibility(self):
+        if self.should_show():
+            self.show()
+        else:
+            self.hide()
+
+    def should_show(self):
+        """Should this show? Returns true if the overlay should be shown to user"""
+        if not self.enabled:
+            return False
+        if self.hidden:
+            return False
+        if self.widget and self.widget.should_show():
+            return True
+        if self.amalgamation:
+            for widget in self.amalgamation:
+                if widget.should_show():
+                    return True
+        return False

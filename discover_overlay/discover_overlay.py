@@ -28,6 +28,7 @@ CDLL("libgtk4-layer-shell.so")
 
 import gi
 
+from .overlay import OverlayWindow
 from .settings_window import Settings
 from .voice_overlay import VoiceOverlayWindow
 from .text_overlay import TextOverlayWindow
@@ -232,27 +233,36 @@ class Discover:
         # Read new config
         config = self.config()
 
+        hidden = config.getboolean("general", "hideoverlay", fallback=False)
+
         if not config.has_section("main"):
             config["main"] = {}
         voice_section = config["main"]
+        if self.voice_overlay_window:
+            self.voice_overlay_window.set_config(voice_section)
+            self.voice_overlay_window.set_hidden(hidden)
         self.voice_overlay.set_config(voice_section)
 
         # Set Text overlay options
         if not config.has_section("text"):
             config["text"] = {}
         text_section = config["text"]
+        if self.text_overlay_window:
+            self.text_overlay_window.set_config(text_section)
+            self.text_overlay_window.set_hidden(hidden)
         self.text_overlay.set_config(text_section)
 
         # Set Notification overlay options
         if not config.has_section("notification"):
             config["notification"] = {}
         notification_section = config["notification"]
+        if self.notification_overlay_window:
+            self.notification_overlay_window.set_config(notification_section)
+            self.notification_overlay_window.set_hidden(hidden)
         self.notification_overlay.set_config(notification_section)
 
-        hidden = config.getboolean("general", "hideoverlay", fallback=False)
-        self.voice_overlay.set_hidden(hidden)
-        self.text_overlay.set_hidden(hidden)
-        self.notification_overlay.set_hidden(hidden)
+        if self.one_window:
+            self.one_window.set_hidden(hidden)
 
         self.audio_assist.set_enabled(
             config.getboolean("general", "audio_assist", fallback=False)
@@ -271,16 +281,30 @@ class Discover:
         """
         Create Systray & associated menu, overlays & settings windows
         """
-        self.voice_overlay = VoiceOverlayWindow(self)
+        self.one_window = self.voice_overlay_window = self.text_overlay_window = (
+            self.notification_overlay_window
+        ) = None
 
         if self.steamos:
-            self.text_overlay = TextOverlayWindow(self, self.voice_overlay)
-            self.notification_overlay = NotificationOverlayWindow(
-                self, self.text_overlay
-            )
-        else:
+            self.one_window = OverlayWindow(self)
+            self.voice_overlay = VoiceOverlayWindow(self)
             self.text_overlay = TextOverlayWindow(self)
             self.notification_overlay = NotificationOverlayWindow(self)
+            self.one_window.merged_overlay(
+                [self.voice_overlay, self.text_overlay, self.notification_overlay]
+            )
+        else:
+            self.voice_overlay_window = OverlayWindow(self)
+            self.voice_overlay = VoiceOverlayWindow(self)
+            self.voice_overlay_window.overlay(self.voice_overlay)
+
+            self.text_overlay_window = OverlayWindow(self)
+            self.text_overlay = TextOverlayWindow(self)
+            self.text_overlay_window.overlay(self.text_overlay)
+
+            self.notification_overlay_window = OverlayWindow(self)
+            self.notification_overlay = NotificationOverlayWindow(self)
+            self.notification_overlay_window.overlay(self.notification_overlay)
 
         if self.mix_settings:
             app = Settings(
@@ -292,16 +316,6 @@ class Discover:
                 sys.argv[1:],
             )
             app.connect("activate", app.start)
-
-    def toggle_show(self, _obj=None):
-        """Toggle all overlays off or on"""
-        if self.voice_overlay:
-            hide = not self.voice_overlay.hidden
-            self.voice_overlay.set_hidden(hide)
-            if self.text_overlay:
-                self.text_overlay.set_hidden(hide)
-            if self.notification_overlay:
-                self.notification_overlay.set_hidden(hide)
 
     def close(self, _a=None, _b=None, _c=None):
         """
@@ -360,6 +374,7 @@ def entrypoint():
     # Hedge against the bet gamescope ships with some WAYLAND_DISPLAY
     # Compatibility and we're not ready yet
     if "GAMESCOPE_WAYLAND_DISPLAY" in os.environ:
+        os.environ["GDK_BACKEND"] = "x11"
         os.unsetenv("WAYLAND_DISPLAY")
 
     # Catch any errors and log them

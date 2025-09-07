@@ -18,9 +18,9 @@ import locale
 import json
 import importlib_resources
 from time import perf_counter
-from .overlay import OverlayWindow, HorzAlign, VertAlign
+from .overlay import HorzAlign, VertAlign
 from .image_getter import get_surface
-from .font_helper import font_string_to_css_font_string
+from .css_helper import font_string_to_css_font_string, col_to_css
 from .userbox import UserBox, UserBoxConnection, UserBoxTitle
 import gi
 
@@ -40,18 +40,17 @@ with importlib_resources.as_file(
     _ = t.gettext
 
 
-class VoiceOverlayWindow(OverlayWindow):
+class VoiceOverlayWindow(Gtk.Box):
     """Overlay window for voice"""
 
-    def __init__(self, discover, piggyback=None):
-        OverlayWindow.__init__(self, discover, piggyback)
-        self.box = Gtk.Box()
+    def __init__(self, discover):
+        Gtk.Box.__init__(self)
         self.connection = UserBoxConnection(self)
+        self.discover = discover
         self.title = UserBoxTitle(self)
-        self.box.append(self.title)
-        self.box.append(self.connection)
-        self.box.add_css_class("container")
-        self.set_child(self.box)
+        self.append(self.title)
+        self.append(self.connection)
+        self.add_css_class("container")
         self.dummy_data = []
         mostly_false = [False, False, False, False, False, False, False, True]
         for i in range(0, 100):
@@ -94,6 +93,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.only_speaking_grace_period = 0
         self.text_side = 3
         self.rounded_avatar = True
+        self.align_x = None
+        self.align_y = None
 
         self.fade_out_inactive = True
         self.fade_out_limit = 0.1
@@ -112,7 +113,6 @@ class VoiceOverlayWindow(OverlayWindow):
         self.border_col = [0.0, 0.0, 0.0, 0.0]
         self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
         self.userlist = []
-        self.force_location()
         with importlib_resources.as_file(
             importlib_resources.files("discover_overlay")
             / "img/discover-overlay-default.png"
@@ -123,12 +123,12 @@ class VoiceOverlayWindow(OverlayWindow):
                 "def",
                 self.get_display(),
             )
-        self.set_title("Discover Voice")
         self.title.set_label(None)
         self.connection.set_connection(None)
         self.title.update_label(None)
         self.connection.update_image(None)
         self.populate()
+        self.show()
 
     def recolour_icons(self):
         with importlib_resources.as_file(
@@ -155,7 +155,7 @@ class VoiceOverlayWindow(OverlayWindow):
             )
 
     def all_users(self, func):
-        child = self.box.get_first_child()
+        child = self.get_first_child()
         while child:
             user = self.get_user(child.userid)
             func(user, child)
@@ -168,7 +168,7 @@ class VoiceOverlayWindow(OverlayWindow):
         return None
 
     def get_user_widget(self, userid):
-        child = self.box.get_first_child()
+        child = self.get_first_child()
         while child:
             if userid == child.userid:
                 return child
@@ -176,27 +176,30 @@ class VoiceOverlayWindow(OverlayWindow):
         return None
 
     def set_align_x(self, align):
-        OverlayWindow.set_align_x(self, align)
+        self.align_x = align
         if align == HorzAlign.LEFT:
-            self.box.set_halign(Gtk.Align.START)
+            self.set_halign(Gtk.Align.START)
         elif align == HorzAlign.MIDDLE:
-            self.box.set_halign(Gtk.Align.CENTER)
+            self.set_halign(Gtk.Align.CENTER)
         else:
-            self.box.set_halign(Gtk.Align.END)
+            self.set_halign(Gtk.Align.END)
 
     def set_align_y(self, align):
-        OverlayWindow.set_align_y(self, align)
+        self.align_y = align
         if align == VertAlign.TOP:
-            self.box.set_valign(Gtk.Align.START)
+            self.set_valign(Gtk.Align.START)
         elif align == VertAlign.MIDDLE:
-            self.box.set_valign(Gtk.Align.CENTER)
+            self.set_valign(Gtk.Align.CENTER)
         else:
-            self.box.set_valign(Gtk.Align.END)
+            self.set_valign(Gtk.Align.END)
+
+    def get_align(self):
+        return (self.align_x, self.align_y)
 
     def populate(self):
-        child = self.box.get_last_child()
+        child = self.get_last_child()
         self.queue_resize()
-        self.box.queue_resize()
+        self.queue_resize()
         while child:
             child.queue_resize()
             n_child = child.get_prev_sibling()
@@ -204,7 +207,7 @@ class VoiceOverlayWindow(OverlayWindow):
                 child = n_child
                 continue
             if child.userid not in self.userlist:
-                self.box.remove(child)
+                self.remove(child)
             child.hide()
             child = n_child
         connection = self.discover.connection
@@ -266,9 +269,9 @@ class VoiceOverlayWindow(OverlayWindow):
             userbox.update_image(user)
             userbox.update_label(user)
 
-            self.box.append(userbox)
+            self.append(userbox)
             userbox.show()
-        self.box.show()
+        self.show()
 
     def set_talking(self, userid, talking):
         log.info("Talking %s %s", userid, talking)
@@ -371,6 +374,12 @@ class VoiceOverlayWindow(OverlayWindow):
             self.fade_out_limit = fade_to
             self.reset_action_timer()
 
+    def set_font(self, font):
+        """
+        Set the font used by the overlay
+        """
+        self.set_css("font", "* { font: %s; }" % (font_string_to_css_font_string(font)))
+
     def set_title_font(self, font):
         """
         Set the font used by the overlay
@@ -387,8 +396,8 @@ class VoiceOverlayWindow(OverlayWindow):
 
     def set_borders(self):
         width = self.border_width
-        col = self.col_to_css(self.border_col)
-        talk_col = self.col_to_css(self.talk_col)
+        col = col_to_css(self.border_col)
+        talk_col = col_to_css(self.talk_col)
         rounded = "border-radius: 50%;" if self.rounded_avatar else ""
 
         drop_shadow_normal = ""
@@ -413,6 +422,7 @@ class VoiceOverlayWindow(OverlayWindow):
             {{
                 {rounded}
             }}
+            .container {{ padding: {width*2}px; }}
             """,
         )
 
@@ -455,15 +465,11 @@ class VoiceOverlayWindow(OverlayWindow):
             in_list.sort(key=lambda x: locale.strxfrm(x["friendlyname"]))
         return in_list
 
-    def has_content(self):
+    def should_show(self):
         """Returns true if overlay has meaningful content to render"""
-        if not self.enabled:
-            return False
-        if self.hidden:
-            return False
         if self.use_dummy:
             return True
-        return self.userlist
+        return len(self.userlist) > 0
 
     def recv_avatar(self, identifier, pix):
         """Called when image_getter has downloaded an image"""
@@ -497,8 +503,6 @@ class VoiceOverlayWindow(OverlayWindow):
         _("VOICE_CONNECTED")
 
     def set_config(self, config):
-        OverlayWindow.set_config(self, config)
-
         horizontal = config.getboolean("horizontal", fallback=False)
 
         mute_col = json.loads(config.get("mt_col", fallback="[0.6,0.0,0.0,1.0]"))
@@ -510,14 +514,14 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_css(
             "foreground-color",
             "* { color: "
-            + self.col_to_css(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]"))
+            + col_to_css(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]"))
             + ";}",
         )
         # Text colour while talking
         self.set_css(
             "talking-text",
             ".talking .userlabel { color: "
-            + self.col_to_css(config.get("fg_hi_col", fallback="[1.0,1.0,1.0,1.0]"))
+            + col_to_css(config.get("fg_hi_col", fallback="[1.0,1.0,1.0,1.0]"))
             + ";}",
         )
         self.talk_col = json.loads(config.get("tk_col", fallback="[0.0,0.7,0.0,0.2]"))
@@ -525,13 +529,11 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_css(
             "background-color",
             ".usericon, .userlabel { background-color: "
-            + self.col_to_css(config.get("bg_col", fallback="[0.0,0.0,0.0,0.2]"))
+            + col_to_css(config.get("bg_col", fallback="[0.0,0.0,0.0,0.2]"))
             + ";}",
         )
         # Mute/deaf background colour
-        m_bg_col = self.col_to_css(
-            config.get("mt_bg_col", fallback=[0.0, 0.0, 0.0, 0.5])
-        )
+        m_bg_col = col_to_css(config.get("mt_bg_col", fallback=[0.0, 0.0, 0.0, 0.5]))
         self.set_css(
             "mute-background",
             f".usermute, .userdeaf {{  filter: drop-shadow(-3px -3px {m_bg_col}) drop-shadow(3px -3px {m_bg_col}) drop-shadow(-3px 3px {m_bg_col}) drop-shadow(3px 3px {m_bg_col});}}",
@@ -539,7 +541,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_css(
             "talking-background",
             ".talking .userlabel, .talking .usericon { background-color: "
-            + self.col_to_css(config.get("hi_col", fallback="[0.0,0.0,0.0,0.5]"))
+            + col_to_css(config.get("hi_col", fallback="[0.0,0.0,0.0,0.5]"))
             + ";}",
         )
 
@@ -549,7 +551,7 @@ class VoiceOverlayWindow(OverlayWindow):
         self.set_css(
             "avatar-bg-color",
             ".usericon { background-color: "
-            + self.col_to_css(config.get("avatar_bg_col", fallback="[0.0,0.0,0.0,0.0]"))
+            + col_to_css(config.get("avatar_bg_col", fallback="[0.0,0.0,0.0,0.0]"))
             + ";}",
         )
 
@@ -562,7 +564,7 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.nick_length = config.getint("nick_length", fallback=32)
 
-        self.box.set_spacing(config.getint("icon_spacing", fallback=8))
+        self.set_spacing(config.getint("icon_spacing", fallback=8))
 
         self.set_css(
             "text_padding",
@@ -592,10 +594,7 @@ class VoiceOverlayWindow(OverlayWindow):
         )
         self.order = config.getint("order", fallback=0)
 
-        self.set_hide_on_mouseover(config.getboolean("autohide", fallback=False))
-        self.set_mouseover_timer(config.getint("autohide_timer", fallback=1))
-
-        self.box.set_orientation(
+        self.set_orientation(
             Gtk.Orientation.HORIZONTAL if horizontal else Gtk.Orientation.VERTICAL
         )
 
@@ -624,8 +623,6 @@ class VoiceOverlayWindow(OverlayWindow):
 
         self.dummy_count = config.getint("dummy_count", fallback=10)
 
-        self.set_enabled(True)
-
         font = config.get("font", fallback=None)
         title_font = config.get("title_font", fallback=None)
         if font:
@@ -646,3 +643,6 @@ class VoiceOverlayWindow(OverlayWindow):
         )
 
         self.populate()
+
+    def set_css(self, id, rule):
+        self.get_native().set_css(id, rule)

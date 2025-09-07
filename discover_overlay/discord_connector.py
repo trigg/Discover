@@ -772,7 +772,7 @@ class DiscordConnector:
             self.websocket = websocket.create_connection(
                 f"ws://127.0.0.1:6463/?v=1&client_id={self.oauth_token}",
                 origin="http://localhost:3000",
-                timeout=0.1,
+                timeout=0.2,
             )
             if self.socket_watch:
                 GLib.source_remove(self.socket_watch)
@@ -782,6 +782,8 @@ class DiscordConnector:
                 GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR,
                 self.socket_glib,
             )
+        except websocket._exceptions.WebSocketTimeoutException:
+            self.schedule_reconnect()
         except ConnectionError as _error:
             self.schedule_reconnect()
 

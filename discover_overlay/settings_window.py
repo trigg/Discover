@@ -28,6 +28,7 @@ gi.require_version("Gtk", "4.0")
 
 from gi.repository import Gtk, Gdk, Gio
 
+logging.basicConfig(stream=sys.stdout)
 log = logging.getLogger(__name__)
 with importlib_resources.as_file(
     importlib_resources.files("discover_overlay") / "locales"
@@ -75,6 +76,7 @@ class Settings(Gtk.Application):
         self.server_handler = None
         self.channel_handler = None
         self.hidden_overlay_handler = None
+        self.monitor_channel = None
 
     def start(self, _x):
 
@@ -175,9 +177,10 @@ class Settings(Gtk.Application):
             "items-changed", self.populate_monitor_menus
         )
 
+        log.info(self.channel_file)
         channel_file = Gio.File.new_for_path(self.channel_file)
-        monitor_channel = channel_file.monitor_file(0, None)
-        monitor_channel.connect("changed", self.populate_guild_menu)
+        self.monitor_channel = channel_file.monitor_file(0, None)
+        self.monitor_channel.connect("changed", self.populate_guild_menu)
 
         self.server_handler = self.widget["text_server"].connect(
             "changed", self.text_server_changed
@@ -191,8 +194,6 @@ class Settings(Gtk.Application):
 
         self.read_config()
 
-        self.populate_guild_menu()
-
         # TODO Re-fix gamepad support
         # window.connect('key-press-event', self.keypress_in_settings)
 
@@ -203,6 +204,8 @@ class Settings(Gtk.Application):
             self.widget["window"].set_default_icon_name(self.icon_name)
 
         self.window.show()
+
+        self.populate_guild_menu()
 
     def set_steamos_window_size(self):
         """Set window based on steamos usage"""
@@ -317,9 +320,12 @@ class Settings(Gtk.Application):
         with open(self.rpc_file, "w", encoding="utf-8") as f:
             f.write(f"--rpc --guild-request={guild_id}")
 
-    def populate_guild_menu(self, _a=None, _b=None, _c=None, _d=None, _e=None):
+    def populate_guild_menu(
+        self, _file=None, _o_file=None, _event=None, _d=None, _e=None
+    ):
         """Read guild data and repopulate widget.
         Disable signal handling meanwhile to avoid recursive logic"""
+        log.info(_o_file)
         log.info("Populating guild and channel")
         g = self.widget["text_server"]
         c = self.widget["text_channel"]
@@ -1010,7 +1016,10 @@ class Settings(Gtk.Application):
         if guild and self.current_guild != guild:
             self.current_guild = guild
             self.config_set("text", "guild", guild)
+            self.populate_guild_menu()
             self.request_channels_from_guild(guild)
+        else:
+            log.warning("Unable to select GUILD : %s", guild)
 
     def text_channel_changed(self, button):
         if button.get_active() < 0:

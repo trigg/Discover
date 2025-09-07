@@ -14,8 +14,9 @@
 import logging
 import json
 import gi
-from .overlay import OverlayWindow, get_h_align
+from .overlay import get_h_align, get_v_align, HorzAlign, VertAlign
 from .notification import Notification
+from .css_helper import col_to_css, font_string_to_css_font_string
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
@@ -23,13 +24,14 @@ from gi.repository import Gtk
 log = logging.getLogger(__name__)
 
 
-class NotificationOverlayWindow(OverlayWindow):
+class NotificationOverlayWindow(Gtk.Box):
     """Overlay window for notifications"""
 
     def __init__(self, discover, piggyback=None):
-        OverlayWindow.__init__(self, discover, piggyback)
-        self.box = Gtk.Box()
-        self.box.set_orientation(Gtk.Orientation.VERTICAL)
+        Gtk.Box.__init__(self)
+        self.discover = discover
+
+        self.set_orientation(Gtk.Orientation.VERTICAL)
         self.test_content = [
             {
                 "icon_url": (
@@ -87,8 +89,9 @@ class NotificationOverlayWindow(OverlayWindow):
         self.icon_pad = 16
         self.icon_left = True
         self.text_align = "left"
-        self.set_title("Discover Notifications")
-        self.set_child(self.box)
+        self.align_x = HorzAlign.RIGHT
+        self.align_y = VertAlign.TOP
+        self.show()
 
     def set_blank(self):
         """Set to no data and redraw"""
@@ -106,7 +109,7 @@ class NotificationOverlayWindow(OverlayWindow):
                 data["body"] if "body" in data else "",
                 self.text_time,
             )
-            self.box.append(n_not)
+            self.append(n_not)
             n_not.show()
             # n_not.set_reveal_child(True)
         else:
@@ -114,7 +117,13 @@ class NotificationOverlayWindow(OverlayWindow):
 
     def set_padding(self, padding):
         """Config option: Padding between notifications, in window-space pixels"""
-        self.box.set_spacing(padding)
+        self.set_spacing(padding)
+
+    def set_font(self, font):
+        """
+        Set the font used by the overlay
+        """
+        self.set_css("font", "* { font: %s; }" % (font_string_to_css_font_string(font)))
 
     def set_icon_padding(self, padding):
         self.icon_pad = padding
@@ -144,8 +153,7 @@ class NotificationOverlayWindow(OverlayWindow):
 
     def set_limit_width(self, limit):
         """Config option: Word wrap limit, in window-space pixels"""
-        self.set_default_size(limit, -1)
-        child = self.box.get_first_child()
+        child = self.get_first_child()
         while child:
             child.set_size_request(limit, -1)
             child = child.get_next_sibling()
@@ -155,36 +163,27 @@ class NotificationOverlayWindow(OverlayWindow):
         self.set_css(
             "text-col",
             ".notification .message, .notification .title { color: %s; }"
-            % (self.col_to_css(fg_col)),
+            % (col_to_css(fg_col)),
         )
 
     def set_bg(self, bg_col):
         """Config option: Set background colour"""
         self.set_css(
             "background",
-            ".notification { background-color: %s; }" % (self.col_to_css(bg_col)),
+            ".notification { background-color: %s; }" % (col_to_css(bg_col)),
         )
 
     def set_show_icon(self, icon):
         """Config option: Set if icons should be shown inline"""
         self.show_icon = icon
-        child = self.box.get_first_child()
+        child = self.get_first_child()
         while child:
             child.queue_allocate()
             child = child.get_next_sibling()
 
-    def set_font(self, font):
-        """Config option: Font used to render text"""
-        OverlayWindow.set_font(self, font)
-        self.update_all()
-
-    def has_content(self):
+    def should_show(self):
         """Return true if this overlay has meaningful content to show"""
-        if not self.enabled:
-            return False
-        if self.hidden:
-            return False
-        if self.box.get_first_child() is not None:
+        if self.get_first_child() is not None:
             return True
         return False
 
@@ -207,14 +206,15 @@ class NotificationOverlayWindow(OverlayWindow):
         self.update_all()
 
     def update_all(self):
-        child = self.box.get_first_child()
+        child = self.get_first_child()
         while child:
             child.update()
             child = child.get_next_sibling()
 
     def set_config(self, config):
-        OverlayWindow.set_config(self, config)
         font = config.get("font", fallback=None)
+        self.align_x = get_h_align(config.get("align_x", "right"))
+        self.align_y = get_v_align(config.get("align_y", "top"))
         self.set_bg(json.loads(config.get("bg_col", fallback="[0.0,0.0,0.0,0.5]")))
         self.set_fg(json.loads(config.get("fg_col", fallback="[1.0,1.0,1.0,1.0]")))
         self.set_text_time(config.getint("text_time", fallback=10))
@@ -235,5 +235,8 @@ class NotificationOverlayWindow(OverlayWindow):
         if font:
             self.set_font(font)
 
-        self.set_monitor(config.get("monitor", fallback="Any"))
-        self.set_enabled(config.getboolean("enabled", fallback=False))
+    def set_css(self, id, rule):
+        self.get_native().set_css(id, rule)
+
+    def get_align(self):
+        return (self.align_x, self.align_y)

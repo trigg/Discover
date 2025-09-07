@@ -41,19 +41,9 @@ class MessageBoxLayout(Gtk.LayoutManager):
 
     def do_measure(self, widget, orientation, _for_size):
         if orientation == Gtk.Orientation.VERTICAL:
-            return (widget.overlay.height_limit, widget.overlay.height_limit, -1, -1)
+            return (widget.height_limit, widget.height_limit, -1, -1)
         else:
-            return (widget.overlay.width_limit, widget.overlay.width_limit, -1, -1)
-
-
-class MessageBox(Gtk.Box):
-    def __init__(self, overlay):
-        Gtk.Box.__init__(self)
-        self.overlay = overlay
-        self.set_layout_manager(MessageBoxLayout())
-        self.set_overflow(Gtk.Overflow.HIDDEN)
-        self.set_orientation(Gtk.Orientation.VERTICAL)
-        self.add_css_class("messagebox")
+            return (widget.width_limit, widget.width_limit, -1, -1)
 
 
 class Message(Gtk.Box):
@@ -89,7 +79,7 @@ class Message(Gtk.Box):
 
     def exit(self):
         """Remove self from overlay"""
-        self.overlay.box.remove(self)
+        self.overlay.remove(self)
         self.overlay.update()
 
     def make_line(self, message):

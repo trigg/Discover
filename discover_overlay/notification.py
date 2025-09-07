@@ -170,7 +170,7 @@ class Notification(Gtk.Box):
 
     def exit(self):
         """Remove self from visible notifications"""
-        self.overlay.box.remove(self)
+        self.overlay.remove(self)
 
     def update(self):
         """Change child properties based on config of overlay"""
