@@ -232,21 +232,21 @@ class Discover:
         # Read new config
         config = self.config()
 
-        voice_section = RawConfigParser("")
-        if config.has_section("main"):
-            voice_section = config["main"]
+        if not config.has_section("main"):
+            config["main"] = {}
+        voice_section = config["main"]
         self.voice_overlay.set_config(voice_section)
 
         # Set Text overlay options
-        text_section = RawConfigParser("")
-        if config.has_section("text"):
-            text_section = config["text"]
+        if not config.has_section("text"):
+            config["text"] = {}
+        text_section = config["text"]
         self.text_overlay.set_config(text_section)
 
         # Set Notification overlay options
-        notification_section = RawConfigParser("")
-        if config.has_section("notification"):
-            notification_section = config["notification"]
+        if not config.has_section("notification"):
+            config["notification"] = {}
+        notification_section = config["notification"]
         self.notification_overlay.set_config(notification_section)
 
         hidden = config.getboolean("general", "hideoverlay", fallback=False)

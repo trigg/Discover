@@ -34,23 +34,27 @@ class UserBoxLayout(Gtk.LayoutManager):
 
         img_alloc.width = img_alloc.height = asize
         if direction == Direction.LTR:
-            img_alloc.x = img_alloc.y = lbl_alloc.y = 0
+            img_alloc.y = height / 2 - int(asize / 2)
+            img_alloc.x = lbl_alloc.y = 0
             lbl_alloc.x = asize
-            lbl_alloc.height = img_alloc.height = height
+            lbl_alloc.height = height
             lbl_alloc.width = width - asize
         elif direction == Direction.RTL:
-            lbl_alloc.x = img_alloc.y = lbl_alloc.y = 0
-            lbl_alloc.height = img_alloc.height = height
+            img_alloc.y = height / 2 - int(asize / 2)
+            lbl_alloc.x = lbl_alloc.y = 0
+            lbl_alloc.height = height
             lbl_alloc.width = img_alloc.x = width - asize
         elif direction == Direction.TTB:
-            img_alloc.x = img_alloc.y = lbl_alloc.x = 0
+            img_alloc.x = width / 2 - int(asize / 2)
+            img_alloc.y = lbl_alloc.x = 0
             lbl_alloc.y = asize
-            lbl_alloc.width = img_alloc.width = width
+            lbl_alloc.width = width
             lbl_alloc.height = height - asize
         else:
+            img_alloc.x = width / 2 - int(asize / 2)
             img_alloc.y = lbl_alloc.height = height - asize
-            img_alloc.x = lbl_alloc.x = lbl_alloc.y = 0
-            lbl_alloc.width = img_alloc.width = width
+            lbl_alloc.x = lbl_alloc.y = 0
+            lbl_alloc.width = width
 
         tx = widget.overlay.text_x_align
         if tx == "left":
@@ -69,6 +73,8 @@ class UserBoxLayout(Gtk.LayoutManager):
 
         widget.image.size_allocate(img_alloc, -1)
         widget.label.size_allocate(lbl_alloc, -1)
+        widget.mute.size_allocate(img_alloc, -1)
+        widget.deaf.size_allocate(img_alloc, -1)
 
     def do_measure(self, widget, orientation, for_size):
         direction = Direction(widget.overlay.text_side)
@@ -98,15 +104,30 @@ class UserBox(Gtk.Box):
 
         self.image = Gtk.Image()
         self.label = Gtk.Label()
+        self.mute = Gtk.Image()
+        self.deaf = Gtk.Image()
+
+        self.image.set_overflow(Gtk.Overflow.HIDDEN)
 
         self.image.add_css_class("usericon")
         self.label.add_css_class("userlabel")
+        self.mute.add_css_class("usermute")
+        self.deaf.add_css_class("userdeaf")
 
         self.image.set_halign(Gtk.Align.CENTER)
         self.image.set_valign(Gtk.Align.CENTER)
+        self.mute.set_halign(Gtk.Align.CENTER)
+        self.mute.set_valign(Gtk.Align.CENTER)
+        self.deaf.set_halign(Gtk.Align.CENTER)
+        self.deaf.set_valign(Gtk.Align.CENTER)
 
-        self.append(self.image)
         self.append(self.label)
+        self.append(self.image)
+        self.append(self.mute)
+        self.append(self.deaf)
+
+        self.mute.hide()
+        self.deaf.hide()
 
         self.pixbuf = None
         self.pixbuf_requested = False
@@ -130,6 +151,11 @@ class UserBox(Gtk.Box):
             )
 
     def update_image(self, user):
+        if self.overlay.deafpix:
+            self.deaf.set_from_pixbuf(self.overlay.deafpix)
+        if self.overlay.mutepix:
+            self.mute.set_from_pixbuf(self.overlay.mutepix)
+
         if not self.overlay.show_avatar:
             self.image.hide()
             return
@@ -153,11 +179,31 @@ class UserBox(Gtk.Box):
             self.image.set_from_pixbuf(self.overlay.def_avatar)
 
     def recv_avatar(self, _identifier, pix):
+        """Callback to return an image to main thread"""
         self.pixbuf = pix
         self.pixbuf_requested = False
         self.image.set_from_pixbuf(self.pixbuf)
 
+    def set_mute(self, mute):
+        """Set this user to display as muted"""
+        if mute:
+            self.add_css_class("mute")
+            self.mute.show()
+        else:
+            self.remove_css_class("mute")
+            self.mute.hide()
+
+    def set_deaf(self, deaf):
+        """Set this user to display as deafened"""
+        if deaf:
+            self.add_css_class("deaf")
+            self.deaf.show()
+        else:
+            self.remove_css_class("deaf")
+            self.deaf.hide()
+
     def set_talking(self, talking):
+        """Called by connector when user starts or stops talking"""
         if self.grace_timeout:
             GLib.source_remove(self.grace_timeout)
         if talking:

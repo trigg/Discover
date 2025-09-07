@@ -85,14 +85,15 @@ class VoiceOverlayWindow(OverlayWindow):
         self.highlight_self = None
         self.order = None
         self.def_avatar = None
-        self.mute_avatar = None
-        self.deaf_avatar = None
+        self.mutepix = None
+        self.deafpix = None
         self.overflow = None
         self.use_dummy = False
         self.dummy_count = 10
         self.border_width = 2
         self.only_speaking_grace_period = 0
         self.text_side = 3
+        self.rounded_avatar = True
 
         self.fade_out_inactive = True
         self.fade_out_limit = 0.1
@@ -112,19 +113,46 @@ class VoiceOverlayWindow(OverlayWindow):
         self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
         self.userlist = []
         self.force_location()
-        get_surface(
-            self.recv_avatar, "discover-overlay-default", "def", self.get_display()
-        )
-        get_surface(
-            self.recv_avatar, "microphone-sensitivity-muted", "mute", self.get_display()
-        )
-        get_surface(self.recv_avatar, "audio-volume-muted", "deaf", self.get_display())
+        with importlib_resources.as_file(
+            importlib_resources.files("discover_overlay")
+            / "img/discover-overlay-default.png"
+        ) as def_path:
+            get_surface(
+                self.recv_avatar,
+                str(def_path),
+                "def",
+                self.get_display(),
+            )
         self.set_title("Discover Voice")
         self.title.set_label(None)
         self.connection.set_connection(None)
         self.title.update_label(None)
         self.connection.update_image(None)
         self.populate()
+
+    def recolour_icons(self):
+        with importlib_resources.as_file(
+            importlib_resources.files("discover_overlay")
+            / "img/discover-overlay-mute.png"
+        ) as mute_path:
+            get_surface(
+                self.recv_avatar,
+                str(mute_path),
+                "mute",
+                self.get_display(),
+                self.mute_col,
+            )
+        with importlib_resources.as_file(
+            importlib_resources.files("discover_overlay")
+            / "img/discover-overlay-deaf.png"
+        ) as deaf_path:
+            get_surface(
+                self.recv_avatar,
+                str(deaf_path),
+                "deaf",
+                self.get_display(),
+                self.mute_col,
+            )
 
     def all_users(self, func):
         child = self.box.get_first_child()
@@ -185,9 +213,7 @@ class VoiceOverlayWindow(OverlayWindow):
             self_user_id = connection.user["id"]
 
         # Gather which users to draw
-        if (
-            self.use_dummy
-        ):  # Sorting every frame is an awful idea. Maybe put this off elsewhere?
+        if self.use_dummy:
             users_to_draw = self.sort_list(self.dummy_data.copy()[0 : self.dummy_count])
             userlist = self.dummy_data.copy()
         else:
@@ -256,9 +282,21 @@ class VoiceOverlayWindow(OverlayWindow):
             log.warning("Set talking on missing user")
 
     def set_mute(self, userid, muted):
+        widget = self.get_user_widget(userid)
+        user = self.get_user(userid)
+        if user:
+            user["mute"] = muted
+        if widget:
+            widget.set_mute(muted)
         log.info("Mute %s %s", userid, muted)
 
     def set_deaf(self, userid, deafened):
+        widget = self.get_user_widget(userid)
+        user = self.get_user(userid)
+        if user:
+            user["deaf"] = deafened
+        if widget:
+            widget.set_deaf(deafened)
         log.info("Deaf %s %s", userid, deafened)
 
     def reset_action_timer(self):
@@ -351,26 +389,29 @@ class VoiceOverlayWindow(OverlayWindow):
         width = self.border_width
         col = self.col_to_css(self.border_col)
         talk_col = self.col_to_css(self.talk_col)
+        rounded = "border-radius: 50%;" if self.rounded_avatar else ""
+
+        drop_shadow_normal = ""
+        drop_shadow_talking = ""
+        for i in range(-width, width + 1):
+            for j in range(-width, width + 1):
+                drop_shadow_talking += f" drop-shadow({i}px {j}px 0 {talk_col})"
+                drop_shadow_normal += f" drop-shadow({i}px {j}px 0 {col})"
+
         self.set_css(
             "talking-border",
             f"""
-            .talking .userlabel, .talking .usericon
+            .talking.user
             {{ 
-              filter: drop-shadow({width}px {width}px 0 {talk_col})
-                      drop-shadow(-{width}px -{width}px 0 {talk_col})
-                      drop-shadow(-{width}px {width}px 0 {talk_col})
-                      drop-shadow({width}px -{width}px 0 {talk_col});
+              filter: {drop_shadow_talking};
             }}
-            .userlabel, .usericon
+            .user
             {{
-              filter: drop-shadow({width}px {width}px 0 {col})
-                      drop-shadow(-{width}px -{width}px 0 {col})
-                      drop-shadow(-{width}px {width}px 0 {col})
-                      drop-shadow({width}px -{width}px 0 {col});
+              filter: {drop_shadow_normal};
             }}
-            .usericon
+            .usericon, .usermute, .userdeaf
             {{
-                margin: {width}px;
+                {rounded}
             }}
             """,
         )
@@ -429,12 +470,11 @@ class VoiceOverlayWindow(OverlayWindow):
         if identifier == "def":
             self.def_avatar = pix
             self.all_users(lambda user, widget: widget.update_image(user))
-            return
         elif identifier == "mute":
-            self.mute_avatar = pix
+            self.mutepix = pix
             self.all_users(lambda user, widget: widget.update_image(user))
         elif identifier == "deaf":
-            self.deaf_avatar = pix
+            self.deafpix = pix
             self.all_users(lambda user, widget: widget.update_image(user))
         elif identifier == "channel":
             self.title.set_image(pix)
@@ -461,7 +501,10 @@ class VoiceOverlayWindow(OverlayWindow):
 
         horizontal = config.getboolean("horizontal", fallback=False)
 
-        self.mute_col = json.loads(config.get("mt_col", fallback="[0.6,0.0,0.0,1.0]"))
+        mute_col = json.loads(config.get("mt_col", fallback="[0.6,0.0,0.0,1.0]"))
+        if self.mute_col != mute_col:
+            self.mute_col = mute_col
+            self.recolour_icons()
 
         # Text colour
         self.set_css(
@@ -486,11 +529,12 @@ class VoiceOverlayWindow(OverlayWindow):
             + ";}",
         )
         # Mute/deaf background colour
+        m_bg_col = self.col_to_css(
+            config.get("mt_bg_col", fallback=[0.0, 0.0, 0.0, 0.5])
+        )
         self.set_css(
             "mute-background",
-            ".mute .userlabel, .mute .usericon { background-color: "
-            + self.col_to_css(config.get("mt_bg_col", fallback=[0.0, 0.0, 0.0, 0.5]))
-            + ";}",
+            f".usermute, .userdeaf {{  filter: drop-shadow(-3px -3px {m_bg_col}) drop-shadow(3px -3px {m_bg_col}) drop-shadow(-3px 3px {m_bg_col}) drop-shadow(3px 3px {m_bg_col});}}",
         )
         self.set_css(
             "talking-background",
@@ -498,6 +542,8 @@ class VoiceOverlayWindow(OverlayWindow):
             + self.col_to_css(config.get("hi_col", fallback="[0.0,0.0,0.0,0.5]"))
             + ";}",
         )
+
+        self.rounded_avatar = not config.getboolean("square_avatar", True)
 
         self.border_col = json.loads(config.get("bo_col", fallback="[0.0,0.0,0.0,0.0]"))
         self.set_css(
@@ -510,7 +556,8 @@ class VoiceOverlayWindow(OverlayWindow):
         self.avatar_size = config.getint("avatar_size", fallback=48)
         self.set_css(
             "avatar_size",
-            ".usericon { -gtk-icon-size:%spx; }" % (self.avatar_size),
+            ".usericon, .usermute, .userdeaf { -gtk-icon-size:%spx; }"
+            % (self.avatar_size),
         )
 
         self.nick_length = config.getint("nick_length", fallback=32)

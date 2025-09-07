@@ -92,7 +92,7 @@ class NotificationOverlayWindow(OverlayWindow):
 
     def set_blank(self):
         """Set to no data and redraw"""
-        pass
+        # TODO Consider losing this as everything should time out correctly
 
     def add_notification_message(self, data):
         """Add new message to dataset"""
@@ -177,10 +177,6 @@ class NotificationOverlayWindow(OverlayWindow):
         """Config option: Font used to render text"""
         OverlayWindow.set_font(self, font)
         self.update_all()
-
-    def recv_attach(self, identifier, pix):
-        """Callback from image_getter for attachments"""
-        self.icons[identifier] = pix
 
     def has_content(self):
         """Return true if this overlay has meaningful content to show"""

@@ -969,6 +969,28 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">voice_avatar_circle_label</property>
+                    <property name="label" translatable="1">Circle Avatar</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">2</property>
+                      <property name="row">6</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton">
+                    <property name="name">voice_avatar_circle</property>
+                    <property name="focusable">1</property>
+                    <signal name="toggled" handler="voice_avatar_circle_changed" swapped="no" />
+                    <layout>
+                      <property name="column">3</property>
+                      <property name="row">6</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">voice_avatar_size_label</property>
                     <property name="label" translatable="1">Avatar Size</property>
                     <property name="xalign">0</property>

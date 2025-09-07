@@ -952,6 +952,9 @@ class Settings(Gtk.Application):
     def voice_border_width_changed(self, button):
         self.config_set("main", "border_width", f"{int(button.get_value())}")
 
+    def voice_avatar_circle_changed(self, button):
+        self.config_set("main", "square_avatar", f"{ not button.get_active()}")
+
     def voice_show_title_changed(self, button):
         self.config_set("main", "show_title", f"{button.get_active()}")
 
@@ -1132,7 +1135,6 @@ class Settings(Gtk.Application):
         self.config_set("notification", "border_radius", f"{int(button.get_value())}")
 
     def notification_show_test_content_changed(self, _button):
-        log.error("FUCK SAKE")
         self.config_set("notification", "show_dummy", "True")
 
     def core_run_on_startup_changed(self, button):

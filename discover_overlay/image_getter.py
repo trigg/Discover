@@ -30,11 +30,37 @@ log = logging.getLogger(__name__)
 class SurfaceGetter:
     """Download and decode image to Pixbuf"""
 
-    def __init__(self, func, url, identifier, display):
+    def __init__(self, func, url, identifier, display, recolor):
         self.func = func
         self.identifier = identifier
         self.url = url
         self.display = display
+        self.recolor = recolor
+
+    def pil_recolor(self, image):
+        """Takes a PIL Image object, rejigs the colours, and outputs a GLib.Bytes containing a PNG formatted version of the image"""
+        arr = bytearray(image.tobytes())
+        r_p = self.recolor[0] * self.recolor[3]
+        g_p = self.recolor[1] * self.recolor[3]
+        b_p = self.recolor[2] * self.recolor[3]
+        a_p = self.recolor[3]
+        if image.has_transparency_data:
+            for idx in range(0, len(arr), 4):
+                arr[idx] = int(arr[idx] * r_p)
+                arr[idx + 1] = int(arr[idx + 1] * g_p)
+                arr[idx + 2] = int(arr[idx + 2] * b_p)
+                arr[idx + 3] = int(arr[idx + 3] * a_p)
+        else:
+            for idx in range(0, len(arr), 3):
+                arr[idx] = int(arr[idx] * r_p)
+                arr[idx + 1] = int(arr[idx + 1] * g_p)
+                arr[idx + 2] = int(arr[idx + 2] * b_p)
+        pimage = Image.frombytes(
+            "RGBA" if image.has_transparency_data else "RGB", image.size, arr
+        )
+        img_byte_arr = io.BytesIO()
+        pimage.save(img_byte_arr, format="PNG")
+        return GLib.Bytes(img_byte_arr.getvalue())
 
     def get_url(self):
         """Downloads and decodes"""
@@ -63,10 +89,7 @@ class SurfaceGetter:
             log.error("Unable to open %s - Connection error %s", self.url, e)
             return
 
-        pimage = Image.open(resp.raw)
-        img_byte_arr = io.BytesIO()
-        pimage.save(img_byte_arr, format="PNG")
-        content = GLib.Bytes(img_byte_arr.getvalue())
+        content = self.pil_recolor(Image.open(resp.raw))
 
         loader = GdkPixbuf.PixbufLoader()
         try:
@@ -87,57 +110,82 @@ class SurfaceGetter:
     def get_file(self):
         """Attempt to load the file"""
         errors = []
-        # Grab icon from icon theme
-        icon_theme = Gtk.IconTheme.get_for_display(self.display)
-        icon = icon_theme.lookup_icon(
-            self.url,
-            None,
-            -1,
-            1,
-            Gtk.TextDirection.NONE,
-            Gtk.IconLookupFlags.FORCE_REGULAR,
-        )
+        icon = None
+        content = None
+        log.info("Opening local file : %s", self.url)
+        if "/" in self.url or "." in self.url or "~" in self.url:  # URL is a filename
+            # It's a filename for sure
+            if self.url.startswith("/") or self.url.startswith("~"):
+                # Single path
+                locations = [""]
+            else:
+                # Take pot shots
+                locations = [
+                    "",
+                    os.path.join(
+                        os.path.expanduser("~/.local/"),
+                        "share/icons/hicolor/256x256/apps/",
+                    ),
+                    os.path.join("/usr/", "share/icons/hicolor/256x256/apps/"),
+                    os.path.join("/app", "share/icons/hicolor/256x256/apps/"),
+                ]
 
-        if icon:
-            try:
-                image = GdkPixbuf.Pixbuf.new_from_file(icon.get_file().get_path())
-                self.func(self.identifier, image)
-                return
-            except ValueError as e:
-                errors.append(f"Value Error - Unable to read {self.url} {e}")
-            except FileNotFoundError as e:
-                errors.append(f"File not found: {self.url} {e}")
-        else:
-            errors.append("Not an icon : self.url")
-        # Not found in theme, try some common locations
-        locations = [os.path.expanduser("~/.local/"), "/usr/", "/app"]
-        for prefix in locations:
-            mixpath = os.path.join(
-                os.path.join(prefix, "share/icons/hicolor/256x256/apps/"),
-                self.url + ".png",
+            # Not found in theme, try some common locations
+            for prefix in locations:
+                mixpath = os.path.join(
+                    prefix,
+                    self.url,
+                )
+                if not os.path.isfile(mixpath):
+                    errors.append(f"File not found: {mixpath}")
+                    continue
+                content = self.pil_recolor(Image.open(mixpath))
+        else:  # URL is a GTK icon name
+            icon_theme = Gtk.IconTheme.get_for_display(self.display)
+            icon = icon_theme.lookup_icon(
+                self.url,
+                None,
+                -1,
+                1,
+                Gtk.TextDirection.NONE,
+                Gtk.IconLookupFlags.FORCE_REGULAR,
             )
-            if not os.path.isfile(mixpath):
-                errors.append(f"File not found: {mixpath}")
-                continue
-            image = None
-            try:
-                image = GdkPixbuf.Pixbuf.new_from_file(mixpath)
-            except ValueError:
-                errors.append(f"Value Error - Unable to read {mixpath}")
-            except TypeError:
-                errors.append(f"Type Error - Unable to read {mixpath}")
-            except FileNotFoundError:
-                errors.append(f"File not found: {mixpath}")
-            if image:
-                self.func(self.identifier, image)
-                return
+
+            if icon:
+                try:
+                    image = GdkPixbuf.Pixbuf.new_from_file(icon.get_file().get_path())
+                    self.func(self.identifier, image)
+                    return
+                except ValueError as e:
+                    errors.append(f"Value Error - Unable to read {self.url} {e}")
+                except FileNotFoundError as e:
+                    errors.append(f"File not found: {self.url} {e}")
+
+            errors.append("Not an icon : self.url")
+            return
+
+        loader = GdkPixbuf.PixbufLoader()
+        try:
+            loader.write_bytes(content)
+            loader.close()
+        except ValueError as e:
+            log.error("Unable to open %s - Value error %s", self.url, e)
+            return
+        except TypeError as e:
+            log.error("Unable to open %s - Type error %s", self.url, e)
+            return
+        except GLib.GError as e:
+            log.error("Unable to open %s - GError %s", self.url, e)
+            return
+        pixbuf = loader.get_pixbuf()
+        self.func(self.identifier, pixbuf)
         for error in errors:
             log.error(error)
 
 
-def get_surface(func, identifier, ava, display):
+def get_surface(func, identifier, ava, display, recolor=[1.0, 1.0, 1.0, 1.0]):
     """Download to Pixbuf"""
-    image_getter = SurfaceGetter(func, identifier, ava, display)
+    image_getter = SurfaceGetter(func, identifier, ava, display, recolor)
     if identifier.startswith("http"):
         thread = threading.Thread(target=image_getter.get_url)
         thread.start()
