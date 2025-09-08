@@ -38,8 +38,8 @@ class Notification(Gtk.Box):
         self.append(self.title)
         self.append(self.message)
 
-        self.title.set_text(title)
-        self.message.set_text(message)
+        self.title.set_markup(GLib.markup_escape_text(title))
+        self.message.set_markup(GLib.markup_escape_text(message))
 
         self.title.set_wrap(True)
         self.message.set_wrap(True)
@@ -65,6 +65,8 @@ class Notification(Gtk.Box):
 
         if timeout:
             GLib.timeout_add_seconds(timeout, self.exit)
+        overlay.append(self)
+        self.get_root().set_visibility()
 
     def recv_avatar(self, _ident, pix):
         """A new image touches the notification"""
@@ -85,6 +87,7 @@ class Notification(Gtk.Box):
     def exit(self):
         """Remove self from visible notifications"""
         self.overlay.remove(self)
+        self.overlay.get_root().set_visibility()
 
     def update(self):
         """Change child properties based on config of overlay"""

@@ -270,7 +270,7 @@ class UserBoxConnection(UserBox):
         self.update_label()
         self.update_image()
         self.set_shown()
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def should_show(self):
         """Returns True if this should show in overlay, False otherwise"""

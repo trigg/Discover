@@ -100,6 +100,8 @@ class OverlayWindow(Gtk.Window):
         # Right now, set untouchable
         self.set_untouchable()
         self.force_location()
+        self.get_root().set_visibility()
+
 
     def remove_css(self, cssid):
         """Removes a CSS Rule by id"""
@@ -149,7 +151,6 @@ class OverlayWindow(Gtk.Window):
             elif self.widget:
                 (window_x, window_y) = self.widget.get_align()
                 data = topw.get_geometry()  # Use X11 sizes to account for render scale
-                log.info(data)
                 window_w = data.width
                 window_h = data.height
                 if window_x == HorzAlign.MIDDLE:
@@ -161,13 +162,6 @@ class OverlayWindow(Gtk.Window):
                 elif window_y == VertAlign.BOTTOM:
                     align_y = h - window_h
 
-            log.info(
-                "Window x11 ... x %s y %s w %s h %s",
-                int(x + align_x),
-                int(y + align_y),
-                int(window_w),
-                int(window_h),
-            )
             topw.configure(
                 x=int(x + align_x), y=int(y + align_y), w=int(window_w), h=int(window_h)
             )
@@ -258,10 +252,6 @@ class OverlayWindow(Gtk.Window):
                 bb_region = cairo.Region(boxes)
 
             surface.set_input_region(bb_region)
-            if not display.is_composited():
-                # TODO Maybe XLib + XShape
-                log.error("Unable to set XShape - exiting")
-                self.discover.exit()
 
     def get_boxes(self):
         """Get a collection of bounding boxes from widget(s)"""
@@ -302,9 +292,6 @@ class OverlayWindow(Gtk.Window):
         elif isinstance(surface, GdkWayland.WaylandSurface):
             self.set_wayland_state()
         elif isinstance(surface, GdkX11.X11Surface):
-            if not self.get_display().is_composited():
-                log.error("Unable to function without compositor")
-                self.discover.exit()
             surface.set_skip_pager_hint(True)
             surface.set_skip_taskbar_hint(True)
             self.set_x11_window_location(
@@ -402,9 +389,6 @@ class OverlayWindow(Gtk.Window):
 
     def screen_changed(self, _screen=None, _a=None, _b=None, _c=None):
         """Callback to set monitor to display on"""
-        if not self.get_display().is_composited():
-            log.error("Unable to function without compositor")
-            self.discover.exit()
         self.set_monitor(self.monitor)
 
     def mouseover(self, _a=None, _b=None, _c=None):

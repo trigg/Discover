@@ -34,7 +34,7 @@ class Message(Gtk.Box):
         self.label = Gtk.Label()
         self.label.add_css_class("message")
         self.label.set_wrap(True)
-        self.label.set_markup(f"{message["nick"]}:{self.make_line(message["content"])}")
+        self.label.set_markup(f"{GLib.markup_escape_text(message["nick"])}:{self.make_line(message["content"])}")
         self.append(self.label)
         if overlay.popup_style:
             hide_time = message["time"] + overlay.text_time

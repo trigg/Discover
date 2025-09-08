@@ -106,8 +106,6 @@ class NotificationOverlayWindow(Gtk.Box):
                 data["body"] if "body" in data else "",
                 self.text_time,
             )
-            self.append(n_not)
-            n_not.show()
             # n_not.set_reveal_child(True)
         else:
             log.error("Malformed message %s", data)
@@ -152,7 +150,7 @@ class NotificationOverlayWindow(Gtk.Box):
         """Config option: Word wrap limit, in window-space pixels"""
         child = self.get_first_child()
         while child:
-            child.set_size_request(limit, -1)
+            child.set_size_request(1, 1)
             child = child.get_next_sibling()
 
     def set_fg(self, fg_col):
@@ -183,15 +181,6 @@ class NotificationOverlayWindow(Gtk.Box):
         if self.get_first_child() is not None:
             return True
         return False
-
-    def sanitize_string(self, string):
-        """Sanitize a text message so that it doesn't intefere with Pango's XML format"""
-        string = string.replace("&", "&amp;")
-        string = string.replace("<", "&lt;")
-        string = string.replace(">", "&gt;")
-        string = string.replace("'", "&#39;")
-        string = string.replace('"', "&#34;")
-        return string
 
     def show_testing(self):
         """Pop up test notifications"""
@@ -237,7 +226,7 @@ class NotificationOverlayWindow(Gtk.Box):
 
     def set_css(self, css_id, rule):
         """Add or replace custom css rules"""
-        self.get_native().set_css(css_id, rule)
+        self.get_root().set_css(css_id, rule)
 
     def get_align(self):
         """Get the alignment of this overlay. Used by amalgamation mode"""

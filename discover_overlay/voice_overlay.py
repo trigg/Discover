@@ -229,14 +229,14 @@ class VoiceOverlayWindow(Gtk.Box):
             widget = self.create_user_widget(user)
         widget.update_user_data(user)
         widget.user_join()
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def del_user(self, user):
         """Hide user"""
         widget = self.get_user_widget(user["id"])
         if widget:
             widget.user_left()
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def set_talking(self, userid, talking):
         """Set the user as talking or not"""
@@ -318,7 +318,7 @@ class VoiceOverlayWindow(Gtk.Box):
             child = child.get_next_sibling()
         self.title.set_label(None)
         self.title.update_label()
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def set_fade_out_inactive(self, enabled, fade_time, fade_duration, fade_to):
         """Config option: fade out options"""
@@ -596,7 +596,7 @@ class VoiceOverlayWindow(Gtk.Box):
 
     def set_css(self, css_id, rule):
         """Add or replace CSS Rule"""
-        self.get_native().set_css(css_id, rule)
+        self.get_root().set_css(css_id, rule)
 
     def get_boxes(self):
         """Return a list of cairo.RectangleInt which are bounding boxes of widgets in view"""

@@ -54,14 +54,14 @@ class TextOverlayWindow(Gtk.Box):
             n_child = child.get_next_sibling()
             self.remove(child)
             child = n_child
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def new_line(self, message):
         """Add a new message to text overlay. Does not sanity check the data"""
         message = Message(self, message)
         if not message.skip:
             self.append(message)
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def set_text_time(self, timer):
         """Config option: Time before messages disappear from overlay"""
@@ -93,7 +93,7 @@ class TextOverlayWindow(Gtk.Box):
 
     def update(self):
         """Call when removing a message automatically, allows hiding of overlay when empty"""
-        self.get_native().set_visibility()
+        self.get_root().set_visibility()
 
     def update_all(self):
         """Tell all messages we've had something changed"""
@@ -135,7 +135,7 @@ class TextOverlayWindow(Gtk.Box):
 
     def set_css(self, css_id, rule):
         """Set a CSS Rule on window"""
-        self.get_native().set_css(css_id, rule)
+        self.get_root().set_css(css_id, rule)
 
     def get_align(self):
         """Get alignment requested"""
