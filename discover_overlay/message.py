@@ -14,36 +14,11 @@
 import logging
 import gi
 import time
-from .image_getter import get_surface
-from .overlay import HorzAlign
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, GLib, Pango
+from gi.repository import Gtk, GLib
 
 log = logging.getLogger(__name__)
-
-
-class MessageBoxLayout(Gtk.LayoutManager):
-
-    def do_allocate(self, widget, width, height, _baseline):
-        y = height
-        child = widget.get_last_child()
-        while child:
-            alloc = Gdk.Rectangle()
-            measure = child.measure(Gtk.Orientation.VERTICAL, width)
-            alloc.x = 0
-            alloc.y = y - measure[0]
-            y -= measure[0]
-            alloc.width = width
-            alloc.height = measure[0]
-            child.size_allocate(alloc, -1)
-            child = child.get_prev_sibling()
-
-    def do_measure(self, widget, orientation, _for_size):
-        if orientation == Gtk.Orientation.VERTICAL:
-            return (widget.height_limit, widget.height_limit, -1, -1)
-        else:
-            return (widget.width_limit, widget.width_limit, -1, -1)
 
 
 class Message(Gtk.Box):
@@ -58,11 +33,8 @@ class Message(Gtk.Box):
         self.image = None
         self.label = Gtk.Label()
         self.label.add_css_class("message")
-        # self.label.set_use_markup(True)
         self.label.set_wrap(True)
-        self.label.set_markup(
-            "%s:%s" % (message["nick"], self.make_line(message["content"]))
-        )
+        self.label.set_markup(f"{message["nick"]}:{self.make_line(message["content"])}")
         self.append(self.label)
         if overlay.popup_style:
             hide_time = message["time"] + overlay.text_time

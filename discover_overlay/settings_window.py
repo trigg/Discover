@@ -10,6 +10,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# pylint: disable=C0116
 """Settings window holding all settings tab"""
 
 import gettext
@@ -79,6 +80,7 @@ class Settings(Gtk.Application):
         self.monitor_channel = None
 
     def start(self, _x):
+        """Start the Settings Window"""
 
         builder = Gtk.Builder(self)
         with importlib_resources.as_file(
@@ -551,7 +553,7 @@ class Settings(Gtk.Application):
         )
 
         self.widget["voice_show_disconnected"].set_active(
-            config.getboolean("main", "show_disconnected", fallback=False)
+            config.getboolean("main", "show_disconnected", fallback=True)
         )
 
         self.widget["voice_dummy_count"].set_value(
@@ -782,11 +784,6 @@ class Settings(Gtk.Application):
         self.widget["core_hide_overlay"].set_active(self.hidden_overlay)
 
         self.widget["core_hide_overlay"].handler_unblock(self.hidden_overlay_handler)
-        ## TODO Fix menu
-        # if self.hidden_overlay:
-        #    self.toggle_opt.set_label(_("Show Overlay"))
-        # else:
-        #    self.toggle_opt.set_label(_("Hide Overlay"))
 
     def close_overlay(self, _a=None, _b=None):
         """Send RPC to tell the overlay to close"""
@@ -829,6 +826,7 @@ class Settings(Gtk.Application):
             config.write(file)
 
     def voice_monitor_changed(self, button):
+
         idx = button.get_active()
         plug = "Any"
         if idx > 0:

@@ -27,6 +27,7 @@ import logging
 import calendar
 import websocket
 import requests
+from .connection_state import ConnectionState
 
 from gi.repository import GLib
 
@@ -51,14 +52,10 @@ class DiscordConnector:
         self.guilds = {}
         self.channels = {}
         self.user = {}
-        self.userlist = {}
-        self.in_room = []
         self.current_guild = "0"
         self.current_voice = "0"
         self.current_text = "0"
         self.current_text_guild = "0"
-        self.list_altered = False
-        self.text = []
         self.authed = False
         self.last_rate_limit_send = 0
         self.muted = False
@@ -68,8 +65,11 @@ class DiscordConnector:
 
         self.rate_limited_channels = []
         self.reconnect_cb = None
+        self.reconnect_time = 5
 
         self.rate_limit = None
+
+        self.state = ConnectionState.NO_DISCORD
 
     def get_access_token_stage1(self):
         """
@@ -99,8 +99,8 @@ class DiscordConnector:
         try:
             jsonresponse = json.loads(response.text)
         except requests.exceptions.Timeout:
-            # TODO This probably needs a retry, not a quit
-            jsonresponse = {}
+            self.websocket.close()
+            return
         except requests.exceptions.TooManyRedirects:
             jsonresponse = {}
         except json.JSONDecodeError:
@@ -119,16 +119,18 @@ class DiscordConnector:
         Set currently active voice channel
         """
         if not channel:
+            self.set_state(ConnectionState.NO_VOICE_CHAT)
             if self.current_voice:
                 self.unsub_voice_channel(self.current_voice)
             self.current_voice = "0"
             self.current_guild = "0"
             self.discover.voice_overlay.set_blank()
-            self.in_room = []
             return
         if channel != self.current_voice:
+            self.set_state(ConnectionState.VOICE_CHAT_NOT_CONNECTED)
             if self.current_voice != "0":
                 self.unsub_voice_channel(self.current_voice)
+            self.discover.voice_overlay.set_blank()
             self.sub_voice_channel(channel)
             self.current_voice = channel
             self.current_guild = guild
@@ -152,17 +154,6 @@ class DiscordConnector:
             self.start_listening_text(channel)
             if need_req:
                 self.req_channel_details(channel)
-
-    def set_in_room(self, userid, present):
-        """
-        Set user currently in given room
-        """
-        if present:
-            if userid not in self.in_room:
-                self.in_room.append(userid)
-        else:
-            if userid in self.in_room:
-                self.in_room.remove(userid)
 
     def add_text(self, message):
         """
@@ -237,31 +228,6 @@ class DiscordConnector:
             return message["attachments"]
         return None
 
-    def update_user(self, user):
-        """
-        Update user information
-        Pass along our custom user information from version to version
-        """
-        if user["id"] in self.userlist:
-            olduser = self.userlist[user["id"]]
-            if "mute" not in user and "mute" in olduser:
-                user["mute"] = olduser["mute"]
-            if "deaf" not in user and "deaf" in olduser:
-                user["deaf"] = olduser["deaf"]
-            if "speaking" not in user and "speaking" in olduser:
-                user["speaking"] = olduser["speaking"]
-            if "nick" not in user and "nick" in olduser:
-                user["nick"] = olduser["nick"]
-            if "lastspoken" not in user and "lastspoken" in olduser:
-                user["lastspoken"] = olduser["lastspoken"]
-            if olduser["avatar"] != user["avatar"]:
-                self.discover.voice_overlay.delete_avatar(user["id"])
-        if "lastspoken" not in user:  # Still nothing?
-            user["lastspoken"] = 0  # EEEEPOOCH EEEEEPOCH! BELIEVE MEEEE
-        if "speaking" not in user:
-            user["speaking"] = False
-        self.userlist[user["id"]] = user
-
     def on_message(self, message):
         """
         Recieve websocket message super-function
@@ -278,7 +244,6 @@ class DiscordConnector:
             if j["evt"] == "READY":
                 self.req_auth()
             elif j["evt"] == "VOICE_STATE_UPDATE":
-                # self.list_altered = True
                 thisuser = j["data"]["user"]
                 nick = j["data"]["nick"]
                 thisuser["nick"] = nick
@@ -291,45 +256,47 @@ class DiscordConnector:
                     j["data"]["voice_state"]["deaf"]
                     or j["data"]["voice_state"]["self_deaf"]
                 )
-                if self.current_voice != "0":
-                    if "mute" not in thisuser or thisuser["mute"] != mute:
-                        thisuser["mute"] = mute
-                        self.discover.voice_overlay.set_mute(thisuser["id"], mute)
-                    if "deaf" not in thisuser or thisuser["deaf"] != deaf:
-                        thisuser["deaf"] = deaf
-                        self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
-                    self.update_user(thisuser)
-                self.set_in_room(thisuser["id"], True)
+                if "mute" not in thisuser or thisuser["mute"] != mute:
+                    thisuser["mute"] = mute
+                    self.discover.voice_overlay.set_mute(thisuser["id"], mute)
+                if "deaf" not in thisuser or thisuser["deaf"] != deaf:
+                    thisuser["deaf"] = deaf
+                    self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
+                self.discover.voice_overlay.update_user(thisuser)
             elif j["evt"] == "VOICE_STATE_CREATE":
-                self.list_altered = True
                 thisuser = j["data"]["user"]
                 nick = j["data"]["nick"]
                 thisuser["nick"] = nick
-                self.update_user(thisuser)
+                mute = (
+                    j["data"]["voice_state"]["mute"]
+                    or j["data"]["voice_state"]["self_mute"]
+                    or j["data"]["voice_state"]["suppress"]
+                )
+                deaf = (
+                    j["data"]["voice_state"]["deaf"]
+                    or j["data"]["voice_state"]["self_deaf"]
+                )
+                if "mute" not in thisuser or thisuser["mute"] != mute:
+                    thisuser["mute"] = mute
+                    self.discover.voice_overlay.set_mute(thisuser["id"], mute)
+                if "deaf" not in thisuser or thisuser["deaf"] != deaf:
+                    thisuser["deaf"] = deaf
+                    self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
                 # We've joined a room... but where?
                 if j["data"]["user"]["id"] == self.user["id"]:
                     self.find_user()
-                self.userlist[thisuser["id"]]["lastspoken"] = time.perf_counter()
+                self.discover.voice_overlay.update_user(thisuser)
             elif j["evt"] == "VOICE_STATE_DELETE":
-                self.list_altered = True
-                self.set_in_room(j["data"]["user"]["id"], False)
                 if j["data"]["user"]["id"] == self.user["id"]:
-                    self.in_room = []
+                    # We've left the room, empty overlay and ask where we are now
                     self.find_user()
-                    self.discover.voice_overlay.set_channel_title(None)
-                    self.discover.voice_overlay.set_channel_icon(None)
-                    # User might have been forcibly moved room
+                    self.discover.voice_overlay.set_blank()
+                else:
+                    # Remove this user from overlay
+                    self.discover.voice_overlay.del_user(thisuser)
             elif j["evt"] == "SPEAKING_START":
-                # self.list_altered = True
-                self.userlist[j["data"]["user_id"]]["speaking"] = True
-                self.userlist[j["data"]["user_id"]]["lastspoken"] = time.perf_counter()
-                self.set_in_room(j["data"]["user_id"], True)
                 self.discover.voice_overlay.set_talking(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
-                # self.list_altered = True
-                if j["data"]["user_id"] in self.userlist:
-                    self.userlist[j["data"]["user_id"]]["speaking"] = False
-                self.set_in_room(j["data"]["user_id"], True)
                 self.discover.voice_overlay.set_talking(j["data"]["user_id"], False)
             elif j["evt"] == "VOICE_CHANNEL_SELECT":
                 if j["data"]["channel_id"]:
@@ -337,7 +304,19 @@ class DiscordConnector:
                 else:
                     self.set_channel(None, None)
             elif j["evt"] == "VOICE_CONNECTION_STATUS":
-                self.discover.voice_overlay.set_connection_status(j["data"])
+                state = j["data"]["state"]
+                if (
+                    state == "NO_ROUTE"
+                    or state == "VOICE_DISCONNECTED"
+                    or state == "ICE_CHECKING"
+                    or state == "AWAITING_ENDPOINT"
+                    or state == "AUTHENTICATING"
+                    or state == "VOICE_CONNECTING"
+                    or state == "CONNECTING"
+                ):
+                    self.set_state(ConnectionState.VOICE_CHAT_NOT_CONNECTED)
+                elif state == "CONNECTED" or state == "VOICE_CONNECTED":
+                    self.set_state(ConnectionState.CONNECTED)
             elif j["evt"] == "MESSAGE_CREATE":
                 if self.current_text == j["data"]["channel_id"]:
                     self.add_text(j["data"]["message"])
@@ -369,6 +348,8 @@ class DiscordConnector:
                 log.warning(j)
             return
         elif j["cmd"] == "AUTHENTICATE":
+            self.set_state(ConnectionState.NO_VOICE_CHAT)
+
             if j["evt"] == "ERROR":
                 self.access_token = None
                 self.get_access_token_stage1()
@@ -377,8 +358,7 @@ class DiscordConnector:
                 self.discover.config_set("cache", "access_token", self.access_token)
                 self.req_guilds()
                 self.user = j["data"]["user"]
-                log.info("ID is %s", self.user["id"])
-                log.info("Logged in as %s", self.user["username"])
+                log.info("Successfully connected to a Discord client")
                 self.authed = True
                 self.on_connected()
                 return
@@ -428,8 +408,6 @@ class DiscordConnector:
                     )
                 else:
                     self.discover.voice_overlay.set_channel_icon(None)
-                self.list_altered = True
-                self.in_room = []
                 for u in j["data"]["voice_states"]:
                     thisuser = u["user"]
                     nick = u["nick"]
@@ -442,8 +420,7 @@ class DiscordConnector:
                     deaf = u["voice_state"]["deaf"] or u["voice_state"]["self_deaf"]
                     thisuser["mute"] = mute
                     thisuser["deaf"] = deaf
-                    self.update_user(thisuser)
-                    self.set_in_room(thisuser["id"], True)
+                    self.discover.voice_overlay.update_user(thisuser)
             return
         elif j["cmd"] == "GET_CHANNEL":
             if j["evt"] == "ERROR":
@@ -461,6 +438,7 @@ class DiscordConnector:
         elif j["cmd"] == "SELECT_VOICE_CHANNEL":
             return
         elif j["cmd"] == "SET_VOICE_SETTINGS":
+            # Keep this for toggling mute from RPC
             self.muted = j["data"]["mute"]
             self.deafened = j["data"]["deaf"]
             return
@@ -497,7 +475,7 @@ class DiscordConnector:
             GLib.source_remove(self.socket_watch)
             self.socket_watch = None
         self.websocket = None
-        self.update_overlays_from_data()
+        self.blank_overlays()
         self.current_voice = "0"
         self.schedule_reconnect()
 
@@ -687,7 +665,7 @@ class DiscordConnector:
 
     def channel_rate_limit(self):
         """Called regularly to pull in any required channels"""
-        if self.authed and len(self.rate_limited_channels) > 0:
+        if self.websocket and self.authed and len(self.rate_limited_channels) > 0:
             guild = self.rate_limited_channels.pop()
             log.info("Getting guild : %s", guild)
             cmd = {
@@ -702,20 +680,12 @@ class DiscordConnector:
             self.rate_limit = None
         return continue_rate_limit
 
-    def update_overlays_from_data(self):
-        """Send new data out to overlay windows"""
-        if self.websocket is None:
-            self.discover.voice_overlay.set_blank()
-            if self.discover.text_overlay:
-                self.discover.text_overlay.set_blank()
-            if self.discover.notification_overlay:
-                self.discover.notification_overlay.set_blank()
-            return
-        newlist = []
-        for userid in self.in_room:
-            newlist.append(self.userlist[userid])
-        self.discover.voice_overlay.set_user_list(newlist, self.list_altered)
-        self.list_altered = False
+    def blank_overlays(self):
+        """Clear information from overlays"""
+        self.discover.voice_overlay.set_blank()
+        if self.discover.text_overlay:
+            self.discover.text_overlay.set_blank()
+        return
 
     def start_listening_text(self, channel):
         """
@@ -750,8 +720,13 @@ class DiscordConnector:
     def schedule_reconnect(self):
         """Set a timer to attempt reconnection"""
         if self.reconnect_cb is None:
-            log.info("Scheduled a reconnect")
-            self.reconnect_cb = GLib.timeout_add_seconds(60, self.connect)
+            log.info("Scheduled a reconnect in %s seconds", self.reconnect_time)
+            self.reconnect_cb = GLib.timeout_add_seconds(
+                self.reconnect_time, self.connect
+            )
+            self.reconnect_time += 5
+            if self.reconnect_time > 60:
+                self.reconnect_time = 60
         else:
             log.error("Reconnect already scheduled")
 
@@ -761,6 +736,7 @@ class DiscordConnector:
 
         Should not throw simply for being unable to connect, only for more serious issues
         """
+        self.authed = False
         log.info("Connecting...")
         if self.websocket:
             log.warning("Already connected?")
@@ -782,8 +758,7 @@ class DiscordConnector:
                 GLib.IOCondition.HUP | GLib.IOCondition.IN | GLib.IOCondition.ERR,
                 self.socket_glib,
             )
-        except websocket._exceptions.WebSocketTimeoutException:
-            self.schedule_reconnect()
+            self.reconnect_time = 5
         except ConnectionError as _error:
             self.schedule_reconnect()
 
@@ -800,14 +775,33 @@ class DiscordConnector:
                         # Connection was closed in the meantime
                         break
                     recv, _w, _e = select.select((self.websocket.sock,), (), (), 0)
-                except (
-                    websocket.WebSocketConnectionClosedException,
-                    json.decoder.JSONDecodeError,
-                ):
+                except websocket.WebSocketConnectionClosedException as e:
+                    log.error("Connector Websocket closed : %s", e)
                     self.on_close()
                     break
-            self.update_overlays_from_data()
+                except json.decoder.JSONDecodeError as e:
+                    log.error("Invalid JSON from Discord : %s", e)
+                    log.error("This is probably a modded client...")
+                    self.set_state(ConnectionState.DISCORD_INVALID)
+                    # It's VERY unlikely this will be fixed in sensible time frame
+                    # So set a high retry time to limit wasted CPU
+                    self.reconnect_time = 60
+                    self.on_close()
+                    break
         else:
-            self.update_overlays_from_data()
+            self.blank_overlays()
+            self.authed = False
+            self.set_state(ConnectionState.NO_DISCORD)
             return False
         return True
+
+    def set_state(self, state):
+        """Passes state of play to voice overlay for user feedback"""
+        if (  # This state remains until a successful connection
+            state == ConnectionState.NO_DISCORD
+            and self.state == ConnectionState.DISCORD_INVALID
+        ):
+            return
+        if self.state != state:
+            self.state = state
+            self.discover.voice_overlay.set_connection_status(state)

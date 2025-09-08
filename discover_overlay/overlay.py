@@ -17,7 +17,6 @@ types without copy-and-pasting too much code
 from ctypes import CDLL
 
 CDLL("libgtk4-layer-shell.so")
-from enum import Enum
 import logging
 import gi
 import cairo
@@ -25,105 +24,15 @@ from Xlib.display import Display
 from Xlib import X, Xatom
 from ewmh import EWMH
 from .css_helper import font_string_to_css_font_string
+from .layout import AmalgamationLayout, HorzAlign, VertAlign, get_h_align, get_v_align
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("GdkWayland", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 
-from gi.repository import Gtk, Gdk, GLib, GdkX11, GdkWayland, Gtk4LayerShell
+from gi.repository import Gtk, GLib, GdkX11, GdkWayland, Gtk4LayerShell
 
 log = logging.getLogger(__name__)
-
-
-class Direction(Enum):
-    LTR = 0
-    RTL = 1
-    TTB = 2
-    BTT = 3
-
-
-class VertAlign(Enum):
-    """Possible positions for overlay"""
-
-    TOP = 0
-    MIDDLE = 1
-    BOTTOM = 2
-
-
-class HorzAlign(Enum):
-    """Possible positions for overlay"""
-
-    LEFT = 0
-    MIDDLE = 1
-    RIGHT = 2
-
-
-def get_h_align(in_str):
-    """Get a HorzAlign or None, from a string"""
-    assert isinstance(in_str, str)
-    if in_str.lower() == "left":
-        return HorzAlign.LEFT
-    elif in_str.lower() == "right":
-        return HorzAlign.RIGHT
-    elif in_str.lower() == "middle":
-        return HorzAlign.MIDDLE
-    log.error("Unknown H Align : %s", in_str)
-    return None
-
-
-def get_v_align(in_str):
-    """Get a VertAlign or None, from a string"""
-    assert isinstance(in_str, str)
-    if in_str.lower() == "top":
-        return VertAlign.TOP
-    elif in_str.lower() == "bottom":
-        return VertAlign.BOTTOM
-    elif in_str.lower() == "middle":
-        return VertAlign.MIDDLE
-    log.error("Unknown V Align : %s", in_str)
-    return None
-
-
-class AmalgamationLayout(Gtk.LayoutManager):
-
-    def do_allocate(self, widget, width, height, _baseline):
-        child = widget.get_first_child()
-        while child:
-            (h_a, v_a) = child.get_align()
-            vert = child.measure(Gtk.Orientation.VERTICAL, width)
-            horz = child.measure(Gtk.Orientation.HORIZONTAL, height)
-            pref_w = horz[0]
-            pref_h = vert[0]
-            if pref_w > width:
-                pref_w = width
-
-            alloc = Gdk.Rectangle()
-            if h_a == HorzAlign.LEFT:
-                alloc.x = 0
-            elif h_a == HorzAlign.MIDDLE:
-                alloc.x = width / 2 - int(pref_w / 2)
-            else:
-                alloc.x = width - pref_w
-            if v_a == VertAlign.TOP:
-                alloc.y = 0
-            elif v_a == HorzAlign.MIDDLE:
-                alloc.y = height / 2 - int(pref_h / 2)
-            else:
-                alloc.y = height - pref_h
-            alloc.width = pref_w
-            alloc.height = pref_h
-            child.size_allocate(alloc, -1)
-            child = child.get_next_sibling()
-
-    def do_measure(self, widget, orientation, for_size):
-        (screen_x, screen_y, screen_width, screen_height) = (
-            widget.get_parent().get_display_coords()
-        )
-
-        if orientation == Gtk.Orientation.VERTICAL:
-            return (screen_height, screen_height, -1, -1)
-        else:
-            return (screen_width, screen_width, -1, -1)
 
 
 class OverlayWindow(Gtk.Window):
@@ -164,34 +73,33 @@ class OverlayWindow(Gtk.Window):
         self.context = None
 
         self.redraw_id = None
-        self.draw_blank = False
         self.timeout_mouse_over = 1
 
         self.timer_after_draw = None
 
         self.get_display().connect("setting-changed", self.screen_changed)
-        # TODO Find compositor-change for GTK4. Currently only checks once at start
-        # self.connect("composited-changed", self.check_composite)
 
         self.get_display().get_monitors().connect("items-changed", self.screen_changed)
 
-        # TODO Find monitor resize hook for GTK4
-        # self.get_display().connect("size-changed", self.screen_changed)
+        self.motion_gesture = Gtk.EventControllerMotion()
+        self.motion_gesture.connect("enter", self.mouseover)
+        self.motion_gesture.connect("leave", self.mouseout)
+        self.add_controller(self.motion_gesture)
 
-        # TODO GTK4 mouse events
-        # if self.get_window():
-        #    self.get_window().set_events(self.get_window().get_events()
-        #                                 | Gdk.EventMask.ENTER_NOTIFY_MASK)
-        # self.connect("enter-notify-event", self.mouseover)
-        # self.connect("leave-notify-event", self.mouseout)
-
-        # TODO Find size-allocate for GTK4
-        # self.connect("size-allocate", self.set_untouchable)
         self.mouse_over_timer = None
 
         # It shouldn't be possible, but let's not leave
         # this process hanging if it happens
         self.connect("destroy", self.window_exited)
+        self.connect("map", self.mapped)
+
+    def mapped(self, _a=None):
+        """Called when window is shown"""
+        # When we resize, set untouchable
+        self.get_surface().connect("layout", self.set_untouchable)
+        # Right now, set untouchable
+        self.set_untouchable()
+        self.force_location()
 
     def remove_css(self, cssid):
         """Removes a CSS Rule by id"""
@@ -219,15 +127,50 @@ class OverlayWindow(Gtk.Window):
         """Window closed. Exit app"""
         self.discover.exit()
 
-    def set_x11_window_location(self, x, y):
+    def set_x11_window_location(self, x, y, w, h):
         """Set Window location using X11"""
+        if not self.enabled:
+            return
         if isinstance(self.get_surface(), GdkX11.X11Surface):
             display = Display()
             topw = display.create_resource_object(
                 "window", self.get_surface().get_xid()
             )
+            if x is None:
+                topw.configure(x=0, y=0, w=100, h=100)
+                display.flush()
+                display.sync()
+                return
 
-            topw.configure(x=x, y=y)
+            align_x = align_y = 0
+            if self.amalgamation:
+                window_w = int(w)
+                window_h = int(h)
+            elif self.widget:
+                (window_x, window_y) = self.widget.get_align()
+                data = topw.get_geometry()  # Use X11 sizes to account for render scale
+                log.info(data)
+                window_w = data.width
+                window_h = data.height
+                if window_x == HorzAlign.MIDDLE:
+                    align_x = (w / 2) - int(window_w / 2)
+                elif window_x == HorzAlign.RIGHT:
+                    align_x = w - window_w
+                if window_y == VertAlign.MIDDLE:
+                    align_y = (h / 2) - int(window_h / 2)
+                elif window_y == VertAlign.BOTTOM:
+                    align_y = h - window_h
+
+            log.info(
+                "Window x11 ... x %s y %s w %s h %s",
+                int(x + align_x),
+                int(y + align_y),
+                int(window_w),
+                int(window_h),
+            )
+            topw.configure(
+                x=int(x + align_x), y=int(y + align_y), w=int(window_w), h=int(window_h)
+            )
             screen = display.screen()
             ewmh = EWMH(display, screen.root)
             ewmh.setWmState(topw, 1, "_NET_WM_STATE_ABOVE")
@@ -236,7 +179,7 @@ class OverlayWindow(Gtk.Window):
         else:
             log.warning("Unable to set X11 location")
 
-    def set_gamescope_xatom(self, enabled):
+    def set_gamescope_state(self, enabled):
         """Set Gamescope XAtom to identify self as an overlay candidate"""
 
         if enabled == self.is_xatom_set:
@@ -295,26 +238,24 @@ class OverlayWindow(Gtk.Window):
         """
         self.set_css("font", "* { font: %s; }" % (font_string_to_css_font_string(font)))
 
-    def css_changed(self, change):
-        Gtk.Window.css_changed(self, change)
-        self.set_untouchable()
-
     def set_untouchable(
         self, _a=None, _b=None, _c=None
     ):  # Throw away args to allow size_allocate
         """
         Create a custom input shape and tell it that all of the window is a cut-out
         This allows us to have a window above everything but that never gets clicked on
+
+        If we want to collect mouse-in events to hide the window when mouse goes over it,
+        we need to add shapes, not an empty region
         """
         surface = self.get_surface()
         display = self.get_display()
         if surface:
-
+            # pylint: disable=E1101
             bb_region = cairo.Region()
             if not display.is_composited() or self.hide_on_mouseover:
-                # TODO Add bounding boxes of all labels and images in widget tree
-                # bb_region = bb_region.union()
-                pass
+                boxes = self.get_boxes()
+                bb_region = cairo.Region(boxes)
 
             surface.set_input_region(bb_region)
             if not display.is_composited():
@@ -322,14 +263,22 @@ class OverlayWindow(Gtk.Window):
                 log.error("Unable to set XShape - exiting")
                 self.discover.exit()
 
+    def get_boxes(self):
+        """Get a collection of bounding boxes from widget(s)"""
+        if self.widget:
+            return self.widget.get_boxes()
+        elif self.amalgamation:
+            boxes = []
+            for widget in self.amalgamation:
+                boxes += widget.get_boxes()
+            return boxes
+        raise RuntimeError("Get boxes on empty overlay")
+
     def set_hide_on_mouseover(self, hide):
         """Set if the overlay should hide when mouse moves over it"""
         if self.hide_on_mouseover != hide:
             self.hide_on_mouseover = hide
-            if self.hide_on_mouseover:
-                pass
-            else:
-                self.set_untouchable()
+            self.set_untouchable()
 
     def set_mouseover_timer(self, time):
         """Set the time until the overlay reappears after mouse over"""
@@ -341,15 +290,16 @@ class OverlayWindow(Gtk.Window):
         On Wayland just store for later
         On Gamescope enforce size of display but only if it's the primary overlay
         """
-        self.show()
         (screen_x, screen_y, screen_width, screen_height) = self.get_display_coords()
-        self.set_decorated(True)
+        self.set_decorated(False)
         self.set_can_focus(False)
         # chosen_width = self.width_limit if self.width_limit > 0 else screen_width/4
         # chosen_height = self.height_limit if self.height_limit > 0 else screen_height/4
         # self.set_size_request(chosen_width, chosen_height)
         surface = self.get_surface()
-        if isinstance(surface, GdkWayland.WaylandSurface):
+        if not surface:
+            return
+        elif isinstance(surface, GdkWayland.WaylandSurface):
             self.set_wayland_state()
         elif isinstance(surface, GdkX11.X11Surface):
             if not self.get_display().is_composited():
@@ -357,9 +307,9 @@ class OverlayWindow(Gtk.Window):
                 self.discover.exit()
             surface.set_skip_pager_hint(True)
             surface.set_skip_taskbar_hint(True)
-            self.set_decorated(False)
-            self.set_size_request(screen_width, screen_height)
-            self.set_x11_window_location(screen_x, screen_y)
+            self.set_x11_window_location(
+                screen_x, screen_y, screen_width, screen_height
+            )
         else:
             log.error("Unknown windowing system. %s, Exiting", surface)
             self.discover.exit()
@@ -443,28 +393,27 @@ class OverlayWindow(Gtk.Window):
         """
         self.enabled = enabled
         if self.discover.steamos:
-            self.set_gamescope_xatom(1 if enabled else 0)
+            self.set_gamescope_state(1 if enabled else 0)
         if enabled and not self.hidden:
             self.present()
             self.show()
         else:
             self.hide()
 
-    def screen_changed(self, _screen=None, a_=None, _b=None, _c=None):
+    def screen_changed(self, _screen=None, _a=None, _b=None, _c=None):
         """Callback to set monitor to display on"""
         if not self.get_display().is_composited():
             log.error("Unable to function without compositor")
             self.discover.exit()
         self.set_monitor(self.monitor)
 
-    def mouseover(self, _a=None, _b=None):
+    def mouseover(self, _a=None, _b=None, _c=None):
         """Callback when mouseover occurs, hides overlay"""
-        self.draw_blank = True
         self.hide()
         GLib.timeout_add_seconds(self.timeout_mouse_over, self.mouseout_timed)
         return True
 
-    def mouseout(self, _a=None, _b=None):
+    def mouseout(self, _a=None, _b=None, _c=None):
         """Callback when mouseout occurs, sets a timer to show overlay"""
         return True
 
@@ -499,16 +448,22 @@ class OverlayWindow(Gtk.Window):
         self.set_monitor(config.get("monitor", fallback="Any"))
 
         self.set_hide_on_mouseover(config.getboolean("autohide", fallback=False))
-        self.set_mouseover_timer(config.getint("autohide_timer", fallback=1))
+        self.set_mouseover_timer(config.getint("autohide_timer", fallback=5))
         self.set_enabled(config.getboolean("enabled", fallback=True))
 
         self.set_visibility()
 
     def overlay(self, widget):
+        """Add this widget as the overlay. Must only be used once per overlay, and may not be used if `merged_overlay` has been used"""
+        if self.widget or self.amalgamation:
+            raise RuntimeError("Overlay window may only be set up once")
         self.widget = widget
         self.set_child(widget)
 
     def merged_overlay(self, widget_list):
+        """Add a collection of widgets to the overlay. Must only be used once per overlay, and may not be used if `overlay` has been used"""
+        if self.widget or self.amalgamation:
+            raise RuntimeError("Overlay window may only be set up once")
         self.amalgamation = widget_list
         box = Gtk.Box()
         for widget in self.amalgamation:
@@ -521,8 +476,12 @@ class OverlayWindow(Gtk.Window):
         self.set_enabled(True)
 
     def set_visibility(self):
+        """Called by internal widget to state their own `should_show` may have changed value"""
+        if not self.enabled:
+            return
         if self.should_show():
             self.show()
+            self.set_untouchable()  # Bounding boxes probably moved!
         else:
             self.hide()
 

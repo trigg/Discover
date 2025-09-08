@@ -15,10 +15,11 @@ import random
 import gettext
 import logging
 import locale
+import cairo
 import json
 import importlib_resources
 from time import perf_counter
-from .overlay import HorzAlign, VertAlign
+from .layout import get_h_align, get_v_align, HorzAlign, VertAlign
 from .image_getter import get_surface
 from .css_helper import font_string_to_css_font_string, col_to_css
 from .userbox import UserBox, UserBoxConnection, UserBoxTitle
@@ -45,8 +46,41 @@ class VoiceOverlayWindow(Gtk.Box):
 
     def __init__(self, discover):
         Gtk.Box.__init__(self)
-        self.connection = UserBoxConnection(self)
         self.discover = discover
+
+        # Config initial values
+        self.text_x_align = "middle"
+        self.text_y_align = "middle"
+        self.show_avatar = True
+        self.avatar_size = 48
+        self.nick_length = 32
+        self.only_speaking = None
+        self.highlight_self = None
+        self.order = None
+        self.overflow = None
+        self.use_dummy = False
+        self.dummy_count = 10
+        self.border_width = 2
+        self.only_speaking_grace_period = 0
+        self.text_side = 3
+        self.rounded_avatar = True
+        self.align_x = None
+        self.align_y = None
+        self.fade_out_inactive = True
+        self.fade_out_limit = 0.1
+        self.inactive_time = 10  # Seconds
+        self.inactive_fade_time = 20  # Seconds
+        self.fade_start = 0
+        self.icon_only = True
+        self.talk_col = [0.0, 0.6, 0.0, 0.1]
+        self.text_col = [1.0, 1.0, 1.0, 1.0]
+        self.mute_col = None
+        self.mute_bg_col = [0.0, 0.0, 0.0, 0.5]
+        self.border_col = [0.0, 0.0, 0.0, 0.0]
+        self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
+
+        # Create necessary widgets
+        self.connection = UserBoxConnection(self)
         self.title = UserBoxTitle(self)
         self.append(self.title)
         self.append(self.connection)
@@ -75,44 +109,16 @@ class VoiceOverlayWindow(Gtk.Box):
                     "friendlyname": name,
                 }
             )
-        self.text_x_align = "middle"
-        self.text_y_align = "middle"
-        self.show_avatar = True
-        self.avatar_size = 48
-        self.nick_length = 32
-        self.only_speaking = None
-        self.highlight_self = None
-        self.order = None
+        # Stored pixbufs for userdata
         self.def_avatar = None
         self.mutepix = None
         self.deafpix = None
-        self.overflow = None
-        self.use_dummy = False
-        self.dummy_count = 10
-        self.border_width = 2
-        self.only_speaking_grace_period = 0
-        self.text_side = 3
-        self.rounded_avatar = True
-        self.align_x = None
-        self.align_y = None
 
-        self.fade_out_inactive = True
-        self.fade_out_limit = 0.1
-        self.inactive_time = 10  # Seconds
-        self.inactive_fade_time = 20  # Seconds
-        self.fade_start = 0
-
+        # Glib timeout references
         self.inactive_timeout = None
         self.fadeout_timeout = None
 
-        self.icon_only = True
-        self.talk_col = [0.0, 0.6, 0.0, 0.1]
-        self.text_col = [1.0, 1.0, 1.0, 1.0]
-        self.mute_col = [0.7, 0.0, 0.0, 1.0]
-        self.mute_bg_col = [0.0, 0.0, 0.0, 0.5]
-        self.border_col = [0.0, 0.0, 0.0, 0.0]
-        self.avatar_bg_col = [0.0, 0.0, 1.0, 1.0]
-        self.userlist = []
+        # Start thread to grab default avatar pixbuf
         with importlib_resources.as_file(
             importlib_resources.files("discover_overlay")
             / "img/discover-overlay-default.png"
@@ -123,14 +129,15 @@ class VoiceOverlayWindow(Gtk.Box):
                 "def",
                 self.get_display(),
             )
+
+        # Set widget initial states
+        self.set_overflow(Gtk.Overflow.HIDDEN)
         self.title.set_label(None)
-        self.connection.set_connection(None)
-        self.title.update_label(None)
-        self.connection.update_image(None)
-        self.populate()
+        self.title.update_label()
         self.show()
 
     def recolour_icons(self):
+        """Reload mute and deaf icons from file system"""
         with importlib_resources.as_file(
             importlib_resources.files("discover_overlay")
             / "img/discover-overlay-mute.png"
@@ -154,20 +161,36 @@ class VoiceOverlayWindow(Gtk.Box):
                 self.mute_col,
             )
 
-    def all_users(self, func):
+    def update_all(self):
+        """Update each child widget, assuming changed config"""
         child = self.get_first_child()
         while child:
-            user = self.get_user(child.userid)
-            func(user, child)
+            child.update_label()
+            child.update_image()
             child = child.get_next_sibling()
 
-    def get_user(self, userid):
-        for user in self.dummy_data if self.use_dummy else self.userlist:
-            if user["id"] == userid:
-                return user
-        return None
+    def update_all_images(self):
+        """Update each child widgets image, assuming changed config"""
+        child = self.get_first_child()
+        while child:
+            child.update_image()
+            child = child.get_next_sibling()
+
+    def update_all_labels(self):
+        """Update each child widgets label, assuming changed config"""
+        child = self.get_first_child()
+        while child:
+            child.update_label()
+            child = child.get_next_sibling()
+
+    def create_user_widget(self, user):
+        """Create a widget for the user"""
+        userbox = UserBox(self, user["id"])
+        self.append(userbox)
+        return userbox
 
     def get_user_widget(self, userid):
+        """Get user widget from children"""
         child = self.get_first_child()
         while child:
             if userid == child.userid:
@@ -176,6 +199,7 @@ class VoiceOverlayWindow(Gtk.Box):
         return None
 
     def set_align_x(self, align):
+        """Set layout of self based on user preference"""
         self.align_x = align
         if align == HorzAlign.LEFT:
             self.set_halign(Gtk.Align.START)
@@ -185,6 +209,7 @@ class VoiceOverlayWindow(Gtk.Box):
             self.set_halign(Gtk.Align.END)
 
     def set_align_y(self, align):
+        """Set layout of self based on user preference"""
         self.align_y = align
         if align == VertAlign.TOP:
             self.set_valign(Gtk.Align.START)
@@ -194,113 +219,48 @@ class VoiceOverlayWindow(Gtk.Box):
             self.set_valign(Gtk.Align.END)
 
     def get_align(self):
+        """Get alignment requested"""
         return (self.align_x, self.align_y)
 
-    def populate(self):
-        child = self.get_last_child()
-        self.queue_resize()
-        self.queue_resize()
-        while child:
-            child.queue_resize()
-            n_child = child.get_prev_sibling()
-            if isinstance(child, UserBoxTitle) or isinstance(child, UserBoxConnection):
-                child = n_child
-                continue
-            if child.userid not in self.userlist:
-                self.remove(child)
-            child.hide()
-            child = n_child
-        connection = self.discover.connection
-        self_user_id = None
-        if connection and connection.user and "id" in connection.user:
-            self_user_id = connection.user["id"]
+    def update_user(self, user):
+        """Find users widget and update details in it"""
+        widget = self.get_user_widget(user["id"])
+        if not widget:
+            widget = self.create_user_widget(user)
+        widget.update_user_data(user)
+        widget.user_join()
+        self.get_native().set_visibility()
 
-        # Gather which users to draw
-        if self.use_dummy:
-            users_to_draw = self.sort_list(self.dummy_data.copy()[0 : self.dummy_count])
-            userlist = self.dummy_data.copy()
-        else:
-            users_to_draw = self.userlist.copy()
-            userlist = self.userlist.copy()
-
-        now = perf_counter()
-        for user in userlist:
-            # Update friendly name with nick if possible
-            if "nick" in user:
-                user["friendlyname"] = user["nick"]
-            else:
-                user["friendlyname"] = user["username"]
-
-            # Remove users that haven't spoken within the grace period
-            if self.only_speaking:
-                speaking = "speaking" in user and user["speaking"]
-
-                # Extend timer if mid-speaking
-                if self.highlight_self and self_user_id == user["id"]:
-                    continue
-                if speaking:
-                    user["lastspoken"] = perf_counter()
-                else:
-                    grace = self.only_speaking_grace_period
-
-                    if (
-                        grace > 0
-                        and (last_spoke := user["lastspoken"])
-                        and (now - last_spoke) < grace
-                    ):
-                        # The user spoke within the grace period, so don't hide
-                        # them just yet
-                        pass
-
-                    elif user in users_to_draw:
-                        users_to_draw.remove(user)
-
-        self.title.update_image(None)
-        self.title.update_label(None)
-        self.connection.update_image(None)
-        self.connection.update_label(None)
-        for user in users_to_draw:
-            userbox = self.get_user_widget(user["id"])
-            if userbox:
-                userbox.show()
-                continue
-
-            userbox = UserBox(self, user["id"])
-            userbox.update_image(user)
-            userbox.update_label(user)
-
-            self.append(userbox)
-            userbox.show()
-        self.show()
+    def del_user(self, user):
+        """Hide user"""
+        widget = self.get_user_widget(user["id"])
+        if widget:
+            widget.user_left()
+        self.get_native().set_visibility()
 
     def set_talking(self, userid, talking):
-        log.info("Talking %s %s", userid, talking)
+        """Set the user as talking or not"""
         widget = self.get_user_widget(userid)
-        user = self.get_user(userid)
-        if user:
-            user["talking"] = talking
         if widget:
             widget.set_talking(talking)
         else:
-            log.warning("Set talking on missing user")
+            log.warning("Set talking on missing user: %s", userid)
 
     def set_mute(self, userid, muted):
+        """Set the user as muted or not"""
         widget = self.get_user_widget(userid)
-        user = self.get_user(userid)
-        if user:
-            user["mute"] = muted
         if widget:
             widget.set_mute(muted)
-        log.info("Mute %s %s", userid, muted)
+        else:
+            log.warning("Set mute on missing user: %s", userid)
 
     def set_deaf(self, userid, deafened):
+        """Set the user as deafened or not"""
         widget = self.get_user_widget(userid)
-        user = self.get_user(userid)
-        if user:
-            user["deaf"] = deafened
         if widget:
             widget.set_deaf(deafened)
-        log.info("Deaf %s %s", userid, deafened)
+        else:
+            log.warning("Set deaf on missing user: %s", userid)
 
     def reset_action_timer(self):
         """Reset time since last voice activity"""
@@ -332,7 +292,6 @@ class VoiceOverlayWindow(Gtk.Box):
 
     def overlay_fadeout(self):
         """Repeated callback after inactivity started"""
-        self.populate()
         # There's no guarantee over the granularity of the callback here,
         # so use our time-since to work out how faded out we should be
         # Might look choppy on systems under high cpu usage but that's just how it's going to be
@@ -353,12 +312,13 @@ class VoiceOverlayWindow(Gtk.Box):
 
     def set_blank(self):
         """Set data to blank and redraw"""
-        self.userlist = []
+        child = self.get_first_child()
+        while child:
+            child.user_left()
+            child = child.get_next_sibling()
         self.title.set_label(None)
-        self.connection.set_connection(None)
-        self.title.update_label(None)
-        self.connection.update_image(None)
-        self.populate()
+        self.title.update_label()
+        self.get_native().set_visibility()
 
     def set_fade_out_inactive(self, enabled, fade_time, fade_duration, fade_to):
         """Config option: fade out options"""
@@ -392,9 +352,9 @@ class VoiceOverlayWindow(Gtk.Box):
         """Config option: Change handling of too many users to render"""
         if self.overflow != overflow:
             self.overflow = overflow
-            self.populate()
 
     def set_borders(self):
+        """Update all border CSS rules based on config"""
         width = self.border_width
         col = col_to_css(self.border_col)
         talk_col = col_to_css(self.talk_col)
@@ -411,7 +371,7 @@ class VoiceOverlayWindow(Gtk.Box):
             "talking-border",
             f"""
             .talking.user
-            {{ 
+            {{
               filter: {drop_shadow_talking};
             }}
             .user
@@ -437,22 +397,9 @@ class VoiceOverlayWindow(Gtk.Box):
         else:
             get_surface(self.recv_avatar, url, "channel", self.get_display())
 
-    def set_user_list(self, userlist, alt):
-        """Set the users in list to draw"""
-        self.userlist = userlist
-        for user in userlist:
-            if "nick" in user:
-                user["friendlyname"] = user["nick"]
-            else:
-                user["friendlyname"] = user["username"]
-        self.sort_list(self.userlist)
-        if alt:
-            self.reset_action_timer()
-            self.populate()
-
     def set_connection_status(self, connection):
         """Set if discord has a clean connection to server"""
-        self.connection.set_connection(connection["state"])
+        self.connection.set_connection(connection)
 
     def sort_list(self, in_list):
         """Take a userlist and sort it according to config option"""
@@ -467,43 +414,39 @@ class VoiceOverlayWindow(Gtk.Box):
 
     def should_show(self):
         """Returns true if overlay has meaningful content to render"""
+        if self.connection.show_always:
+            return True
+        if self.connection.should_show():
+            return True
         if self.use_dummy:
             return True
-        return len(self.userlist) > 0
+        child = self.get_first_child()
+        while child:
+            if child.is_user_visible():
+                return True
+            child = child.get_next_sibling()
+        return False
 
     def recv_avatar(self, identifier, pix):
         """Called when image_getter has downloaded an image"""
         if identifier == "def":
             self.def_avatar = pix
-            self.all_users(lambda user, widget: widget.update_image(user))
+            self.update_all_images()
         elif identifier == "mute":
             self.mutepix = pix
-            self.all_users(lambda user, widget: widget.update_image(user))
+            self.update_all_images()
         elif identifier == "deaf":
             self.deafpix = pix
-            self.all_users(lambda user, widget: widget.update_image(user))
+            self.update_all_images()
         elif identifier == "channel":
             self.title.set_image(pix)
 
-    def unused_fn_needed_translations(self):
-        """
-        These are here to force them to be picked up for translations
-
-        They're fed right through from Discord client as string literals
-        """
-        _("DISCONNECTED")
-        _("NO_ROUTE")
-        _("VOICE_DISCONNECTED")
-        _("ICE_CHECKING")
-        _("AWAITING_ENDPOINT")
-        _("AUTHENTICATING")
-        _("CONNECTING")
-        _("CONNECTED")
-        _("VOICE_CONNECTING")
-        _("VOICE_CONNECTED")
-
     def set_config(self, config):
+        """Update self and children from config"""
         horizontal = config.getboolean("horizontal", fallback=False)
+
+        self.set_align_x(get_h_align(config.get("align_x", fallback="middle")))
+        self.set_align_y(get_v_align(config.get("align_y", fallback="top")))
 
         mute_col = json.loads(config.get("mt_col", fallback="[0.6,0.0,0.0,1.0]"))
         if self.mute_col != mute_col:
@@ -536,7 +479,14 @@ class VoiceOverlayWindow(Gtk.Box):
         m_bg_col = col_to_css(config.get("mt_bg_col", fallback=[0.0, 0.0, 0.0, 0.5]))
         self.set_css(
             "mute-background",
-            f".usermute, .userdeaf {{  filter: drop-shadow(-3px -3px {m_bg_col}) drop-shadow(3px -3px {m_bg_col}) drop-shadow(-3px 3px {m_bg_col}) drop-shadow(3px 3px {m_bg_col});}}",
+            f"""
+            .usermute, .userdeaf 
+            {{
+                filter: drop-shadow(-3px -3px {m_bg_col})
+                  drop-shadow(3px -3px {m_bg_col})
+                  drop-shadow(-3px 3px {m_bg_col})
+                  drop-shadow(3px 3px {m_bg_col});
+            }}""",
         )
         self.set_css(
             "talking-background",
@@ -607,7 +557,7 @@ class VoiceOverlayWindow(Gtk.Box):
         self.text_side = config.getint("text_side", fallback=3)
 
         self.connection.set_show_only_disconnected(
-            config.getboolean("show_disconnected", fallback=False)
+            config.getboolean("show_disconnected", fallback=True)
         )
         self.border_width = config.getint("border_width", fallback=2)
 
@@ -642,7 +592,22 @@ class VoiceOverlayWindow(Gtk.Box):
             config.getfloat("fade_out_limit", fallback=0.3),
         )
 
-        self.populate()
+        self.update_all()
 
-    def set_css(self, id, rule):
-        self.get_native().set_css(id, rule)
+    def set_css(self, css_id, rule):
+        """Add or replace CSS Rule"""
+        self.get_native().set_css(css_id, rule)
+
+    def get_boxes(self):
+        """Return a list of cairo.RectangleInt which are bounding boxes of widgets in view"""
+        boxes = []
+        child = self.get_first_child()
+        while child:
+            box = child.get_allocation()
+            # pylint: disable=E1101
+            region = cairo.RectangleInt(
+                x=box.x, y=box.y, width=box.width, height=box.height
+            )
+            boxes.append(region)
+            child = child.get_next_sibling()
+        return boxes

@@ -20,7 +20,7 @@ import traceback
 import logging
 import signal
 import importlib_resources
-from configparser import ConfigParser, RawConfigParser
+from configparser import ConfigParser
 from ctypes import CDLL
 from _version import __version__
 
@@ -316,6 +316,7 @@ class Discover:
                 sys.argv[1:],
             )
             app.connect("activate", app.start)
+            app.run()
 
     def close(self, _a=None, _b=None, _c=None):
         """
@@ -390,6 +391,7 @@ def entrypoint():
         else:
             if "-c" in sys.argv or "--configure" in sys.argv:
                 # Show config window
+                # pylint: disable=E1101
                 app = Settings(
                     "io.github.trigg.discover_overlay",
                     Gio.ApplicationFlags.FLAGS_NONE,

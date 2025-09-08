@@ -12,16 +12,16 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overlay window for text"""
 import logging
-import re
-import json
 import gi
+import cairo
 from .css_helper import col_to_css, font_string_to_css_font_string
-from .message import Message, MessageBoxLayout
+from .message import Message
+from .layout import MessageBoxLayout
 from .overlay import HorzAlign, VertAlign, get_h_align, get_v_align
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Pango, Gtk
+from gi.repository import Gtk
 
 log = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ class TextOverlayWindow(Gtk.Box):
             child = child.get_next_sibling()
 
     def set_config(self, config):
-
+        """Set self and children from config"""
         channel = config.get("channel", fallback="0")
         guild = config.get("guild", fallback="0")
         self.discover.connection.set_text_channel(channel, guild)
@@ -133,8 +133,19 @@ class TextOverlayWindow(Gtk.Box):
         if font:
             self.set_font(font)
 
-    def set_css(self, id, rule):
-        self.get_native().set_css(id, rule)
+    def set_css(self, css_id, rule):
+        """Set a CSS Rule on window"""
+        self.get_native().set_css(css_id, rule)
 
     def get_align(self):
+        """Get alignment requested"""
         return (self.align_x, self.align_y)
+
+    def get_boxes(self):
+        """Return a bounding box of this window"""
+        return [
+            # pylint: disable=E1101
+            cairo.RectangleInt(
+                x=0, y=0, width=self.width_limit, height=self.height_limit
+            )
+        ]

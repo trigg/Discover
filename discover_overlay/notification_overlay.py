@@ -13,6 +13,7 @@
 """Notification window for text"""
 import logging
 import json
+import cairo
 import gi
 from .overlay import get_h_align, get_v_align, HorzAlign, VertAlign
 from .notification import Notification
@@ -27,7 +28,7 @@ log = logging.getLogger(__name__)
 class NotificationOverlayWindow(Gtk.Box):
     """Overlay window for notifications"""
 
-    def __init__(self, discover, piggyback=None):
+    def __init__(self, discover):
         Gtk.Box.__init__(self)
         self.discover = discover
 
@@ -93,10 +94,6 @@ class NotificationOverlayWindow(Gtk.Box):
         self.align_y = VertAlign.TOP
         self.show()
 
-    def set_blank(self):
-        """Set to no data and redraw"""
-        # TODO Consider losing this as everything should time out correctly
-
     def add_notification_message(self, data):
         """Add new message to dataset"""
         if "data" in data:
@@ -126,6 +123,7 @@ class NotificationOverlayWindow(Gtk.Box):
         self.set_css("font", "* { font: %s; }" % (font_string_to_css_font_string(font)))
 
     def set_icon_padding(self, padding):
+        """Config option: Set space between icon and title/body"""
         self.icon_pad = padding
         self.update_all()
 
@@ -149,7 +147,6 @@ class NotificationOverlayWindow(Gtk.Box):
     def set_text_time(self, timer):
         """Config option: Duration that a message will be visible for, in seconds"""
         self.text_time = timer
-        self.timer_after_draw = timer
 
     def set_limit_width(self, limit):
         """Config option: Word wrap limit, in window-space pixels"""
@@ -202,16 +199,19 @@ class NotificationOverlayWindow(Gtk.Box):
             self.add_notification_message(test)
 
     def set_text_align(self, text_align):
+        """Config option: Set text justification"""
         self.text_align = text_align
         self.update_all()
 
     def update_all(self):
+        """Call update on all children"""
         child = self.get_first_child()
         while child:
             child.update()
             child = child.get_next_sibling()
 
     def set_config(self, config):
+        """Read in config section and set self and children accordingly"""
         font = config.get("font", fallback=None)
         self.align_x = get_h_align(config.get("align_x", "right"))
         self.align_y = get_v_align(config.get("align_y", "top"))
@@ -235,8 +235,24 @@ class NotificationOverlayWindow(Gtk.Box):
         if font:
             self.set_font(font)
 
-    def set_css(self, id, rule):
-        self.get_native().set_css(id, rule)
+    def set_css(self, css_id, rule):
+        """Add or replace custom css rules"""
+        self.get_native().set_css(css_id, rule)
 
     def get_align(self):
+        """Get the alignment of this overlay. Used by amalgamation mode"""
         return (self.align_x, self.align_y)
+
+    def get_boxes(self):
+        """Return a list of cairo.RectangleInt which are the bounding boxes of widgets in this view"""
+        boxes = []
+        child = self.get_first_child()
+        while child:
+            box = child.get_allocation()
+            # pylint: disable=E1101
+            region = cairo.RectangleInt(
+                x=box.x, y=box.y, width=box.width, height=box.height
+            )
+            boxes.append(region)
+            child = child.get_next_sibling()
+        return boxes

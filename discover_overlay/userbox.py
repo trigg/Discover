@@ -11,96 +11,43 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """A Gtk Box with direction"""
+import gettext
 import logging
 import gi
+import importlib_resources
 from .image_getter import get_surface
-from .overlay import Direction
+from .layout import UserBoxLayout
+from .connection_state import ConnectionState
 
 gi.require_version("Gtk", "4.0")
 
 
-from gi.repository import Gtk, GLib, Gdk
+from gi.repository import Gtk, GLib
 
 log = logging.getLogger(__name__)
-
-
-class UserBoxLayout(Gtk.LayoutManager):
-
-    def do_allocate(self, widget, width, height, _baseline):
-        direction = Direction(widget.overlay.text_side)
-        asize = widget.overlay.avatar_size
-        img_alloc = Gdk.Rectangle()
-        lbl_alloc = Gdk.Rectangle()
-
-        img_alloc.width = img_alloc.height = asize
-        if direction == Direction.LTR:
-            img_alloc.y = height / 2 - int(asize / 2)
-            img_alloc.x = lbl_alloc.y = 0
-            lbl_alloc.x = asize
-            lbl_alloc.height = height
-            lbl_alloc.width = width - asize
-        elif direction == Direction.RTL:
-            img_alloc.y = height / 2 - int(asize / 2)
-            lbl_alloc.x = lbl_alloc.y = 0
-            lbl_alloc.height = height
-            lbl_alloc.width = img_alloc.x = width - asize
-        elif direction == Direction.TTB:
-            img_alloc.x = width / 2 - int(asize / 2)
-            img_alloc.y = lbl_alloc.x = 0
-            lbl_alloc.y = asize
-            lbl_alloc.width = width
-            lbl_alloc.height = height - asize
-        else:
-            img_alloc.x = width / 2 - int(asize / 2)
-            img_alloc.y = lbl_alloc.height = height - asize
-            lbl_alloc.x = lbl_alloc.y = 0
-            lbl_alloc.width = width
-
-        tx = widget.overlay.text_x_align
-        if tx == "left":
-            widget.label.set_halign(Gtk.Align.START)
-        elif tx == "middle":
-            widget.label.set_halign(Gtk.Align.CENTER)
-        else:
-            widget.label.set_halign(Gtk.Align.END)
-        ty = widget.overlay.text_y_align
-        if ty == "top":
-            widget.label.set_valign(Gtk.Align.START)
-        elif ty == "middle":
-            widget.label.set_valign(Gtk.Align.CENTER)
-        else:
-            widget.label.set_valign(Gtk.Align.END)
-
-        widget.image.size_allocate(img_alloc, -1)
-        widget.label.size_allocate(lbl_alloc, -1)
-        widget.mute.size_allocate(img_alloc, -1)
-        widget.deaf.size_allocate(img_alloc, -1)
-
-    def do_measure(self, widget, orientation, for_size):
-        direction = Direction(widget.overlay.text_side)
-
-        im_m = widget.image.measure(orientation, for_size)
-        lb_m = widget.label.measure(orientation, for_size)
-
-        if (
-            orientation == Gtk.Orientation.VERTICAL
-            and (direction == Direction.TTB or direction == Direction.BTT)
-        ) or (
-            orientation == Gtk.Orientation.HORIZONTAL
-            and (direction == Direction.LTR or direction == Direction.RTL)
-        ):
-            return (im_m[0] + lb_m[0], im_m[1] + lb_m[1], -1, -1)
-        else:
-            return (max(im_m[0], lb_m[0]), max(im_m[1], lb_m[1]), -1, -1)
+with importlib_resources.as_file(
+    importlib_resources.files("discover_overlay") / "locales"
+) as path:
+    t = gettext.translation(
+        "default",
+        path,
+        fallback=True,
+    )
+    _ = t.gettext
 
 
 class UserBox(Gtk.Box):
+    """A GtkBox with information about the user it is displaying"""
+
     def __init__(self, overlay, userid):
         super().__init__()
         self.overlay = overlay
         self.userid = userid
 
         self.add_css_class("user")
+
+        self.is_in_chat = False
+        self.talking = False
 
         self.image = Gtk.Image()
         self.label = Gtk.Label()
@@ -131,26 +78,49 @@ class UserBox(Gtk.Box):
 
         self.pixbuf = None
         self.pixbuf_requested = False
+        self.previous_avatar_url = None
         self.name = ""
 
         self.grace_timeout = None
 
         self.set_layout_manager(UserBoxLayout())
+        self.update_image()
 
-    def update_label(self, user):
+    def update_user_data(self, userblob):
+        """Set internals based on most recent object from connector. Avoid flickering/reflow where possible"""
+        name = userblob["username"]
+        if "nick" in userblob:
+            name = userblob["nick"]
+        if self.name != name:
+            self.name = name
+            self.update_label()
+
+        # These are set by server, from multiple sources.
+        if "mute" in userblob:
+            self.set_mute(userblob["mute"])
+        if "deaf" in userblob:
+            self.set_deaf(userblob["deaf"])
+
+        url = f"https://cdn.discordapp.com/avatars/{userblob['id']}/{userblob['avatar']}.png"
+
+        if not self.pixbuf_requested and url != self.previous_avatar_url:
+            get_surface(self.recv_avatar, url, userblob["id"], self.get_display())
+            self.pixbuf_requested = True
+
+    def update_label(self):
+        """Update the label widget, assuming config has changed"""
         if self.overlay.icon_only:
             self.label.hide()
             return
         self.label.show()
 
-        if len(user["friendlyname"]) < self.overlay.nick_length:
-            self.label.set_text(user["friendlyname"])
+        if len(self.name) < self.overlay.nick_length:
+            self.label.set_text(self.name)
         else:
-            self.label.set_text(
-                user["friendlyname"][: (self.overlay.nick_length - 1)] + "\u2026"
-            )
+            self.label.set_text(self.name[: (self.overlay.nick_length - 1)] + "\u2026")
 
-    def update_image(self, user):
+    def update_image(self):
+        """Update the image widget, assuming config has changed"""
         if self.overlay.deafpix:
             self.deaf.set_from_pixbuf(self.overlay.deafpix)
         if self.overlay.mutepix:
@@ -160,18 +130,6 @@ class UserBox(Gtk.Box):
             self.image.hide()
             return
         self.image.show()
-        # Ensure pixbuf for avatar
-        if (
-            self.pixbuf is None
-            and not self.pixbuf_requested
-            and self.overlay.avatar_size > 0
-            and user["avatar"]
-        ):
-            url = (
-                f"https://cdn.discordapp.com/avatars/{user['id']}/{user['avatar']}.png"
-            )
-            get_surface(self.recv_avatar, url, user["id"], self.get_display())
-            self.pixbuf_requested = True
 
         if self.pixbuf:
             self.image.set_from_pixbuf(self.pixbuf)
@@ -204,10 +162,11 @@ class UserBox(Gtk.Box):
 
     def set_talking(self, talking):
         """Called by connector when user starts or stops talking"""
+        self.talking = talking
         if self.grace_timeout:
             GLib.source_remove(self.grace_timeout)
+            self.grace_timeout = None
         if talking:
-            self.show()
             self.add_css_class("talking")
         else:
             self.remove_css_class("talking")
@@ -215,123 +174,166 @@ class UserBox(Gtk.Box):
                 grace = self.overlay.only_speaking_grace_period
                 if grace > 0:
                     self.grace_timeout = GLib.timeout_add_seconds(grace, self.grace_cb)
-                else:
-                    self.hide()
+        self.set_shown()
+
+    def user_left(self):
+        """This user has left the room"""
+        self.is_in_chat = False
+        self.set_shown()
+
+    def user_join(self):
+        """This user has joined the room"""
+        self.is_in_chat = True
+        self.set_shown()
+
+    def set_shown(self):
+        """Set widget to shown based on information available"""
+        if self.should_show():
+            self.show()
+            return
+        self.hide()
+
+    def should_show(self):
+        """Should this widget be shown"""
+        return self.is_user_visible()
+
+    def is_user_visible(self):
+        """Is this a user and visible."""
+        if self.grace_timeout:
+            return True  # We're awaiting a timeout, keep showing
+        if self.overlay.only_speaking and not self.talking:
+            return False
+        if self.is_in_chat:
+            return True
+        return False
 
     def grace_cb(self):
-        self.hide()
+        """Called X seconds after user stops talking. Remove callback ID and hide self if needed"""
+        self.grace_timeout = None
+        self.set_shown()
+        return False  # Do not repeat
 
 
 class UserBoxConnection(UserBox):
+    """A User-like box to show the connection state before users in voice overlay"""
+
     def __init__(self, overlay):
-        super().__init__(overlay, None)
         self.show_always = False
         self.show_disconnected = True
-        self.last = "None"
-        self.pix_none = "network-cellular-signal-none"
-        self.pix_ok = "network-cellular-signal-ok"
-        self.pix_good = "network-cellular-signal-good"
-        self.pix_excellent = "network-cellular-signal-excellent"
+        self.last = ConnectionState.NO_DISCORD
+        super().__init__(overlay, None)
 
     def set_show_always(self, show):
+        """Config option: Show this widget always. Overrides disconnected config option"""
         self.show_always = show
 
     def set_show_only_disconnected(self, show):
+        """Config option: Show this widget only when connection to local discord is lost, or discord is not connected to a room"""
         self.show_disconnected = show
 
     def get_image_name(self):
+        """Lookup pixbuf for given connection string"""
         level = self.last
-        if (
-            level == "DISCONNECTED"
-            or level == "NO_ROUTE"
-            or level == "VOICE_DISCONNECTED"
-        ):
-            return self.pix_none
-        elif (
-            level == "ICE_CHECKING"
-            or level == "AWAITING_ENDPOINT"
-            or level == "AUTHENTICATING"
-        ):
-            return self.pix_ok
-        elif level == "CONNECTING" or level == "VOICE_CONNECTING":
-            return self.pix_good
-        elif level == "CONNECTED" or level == "VOICE_CONNECTED":
-            return self.pix_excellent
+        if level == ConnectionState.NO_DISCORD:
+            return "network-wired-disconnected"
+        if level == ConnectionState.DISCORD_INVALID:
+            return "dialog-error"
+        elif level == ConnectionState.NO_VOICE_CHAT:
+            return "network-cellular-signal-ok"
+        elif level == ConnectionState.VOICE_CHAT_NOT_CONNECTED:
+            return "network-wired-disconnected"
+        elif level == ConnectionState.CONNECTED:
+            return "network-cellular-signal-excellent"
         else:
             return ""
 
-    def set_connection(self, level):
-        if not level:
-            self.hide()
-            return
-        if level == self.last:
-            return
-
-        self.last = level
-        if self.should_show():
-            self.show()
+    def get_label_text(self):
+        """Lookup text string for state. Intentionally verbose to force i18n"""
+        level = self.last
+        if level == ConnectionState.NO_DISCORD:
+            return _("NO DISCORD")
+        elif level == ConnectionState.DISCORD_INVALID:
+            return _("DISCORD INVALID")
+        elif level == ConnectionState.NO_VOICE_CHAT:
+            return _("NO VOICE CHAT")
+        elif level == ConnectionState.VOICE_CHAT_NOT_CONNECTED:
+            return _("VOICE CHAT NOT CONNECTED")
+        elif level == ConnectionState.CONNECTED:
+            return _("CONNECTED")
         else:
-            self.hide()
+            return _("ERROR")
+
+    def set_connection(self, level):
+        """Set connection string. Updates image and label"""
+        self.last = level
         self.image.set_from_icon_name(self.get_image_name())
-        self.update_label(None)
+        self.update_label()
+        self.update_image()
+        self.set_shown()
+        self.get_native().set_visibility()
 
     def should_show(self):
         """Returns True if this should show in overlay, False otherwise"""
+        if self.last == ConnectionState.DISCORD_INVALID:
+            return True
         if self.show_always:
             return True
         elif self.show_disconnected and (
-            self.last != "CONNECTED" and self.last != "VOICE_CONNECTED"
+            self.last == ConnectionState.NO_DISCORD
+            or self.last == ConnectionState.VOICE_CHAT_NOT_CONNECTED
         ):
             return True
         return False
 
-    def update_image(self, user):
+    def update_image(self):
         """Updates the image, assuming there is changed config or info"""
         if not self.overlay.show_avatar:
             self.image.hide()
             return
         self.image.show()
+        self.image.set_from_icon_name(self.get_image_name())
 
-    def update_label(self, user):
+    def update_label(self):
         """Updates the label, assuming there is changed config or info"""
-        if self.should_show():
-            self.show()
-        else:
-            self.hide()
+        self.set_shown()
         if self.overlay.icon_only:
             self.label.hide()
             return
         self.label.show()
-        if len(self.last) < self.overlay.nick_length:
-            self.label.set_text(self.last)
+        label_text = self.get_label_text()
+        if len(label_text) < self.overlay.nick_length:
+            self.label.set_text(label_text)
         else:
-            self.label.set_text(self.last[: (self.overlay.nick_length - 1)] + "\u2026")
+            self.label.set_text(label_text[: (self.overlay.nick_length - 1)] + "\u2026")
 
-    def blank(self):
-        self.pixbuf = None
-        self.hide()
+    def is_user_visible(self):
+        return False
 
 
 class UserBoxTitle(UserBox):
+    """A Widget to show user icon, name, mute & deaf state"""
+
     def __init__(self, overlay):
         super().__init__(overlay, None)
-        self.show_title = False
+        self.show_title = True
         self.last = ""
 
+    def set_show(self, show):
+        """Config option: if this should be shown"""
+        self.show_title = show
+
     def set_label(self, label):
+        """Sets the channel title"""
         self.last = label
-        if not label:
-            self.hide()
-            return
-        if self.show_title:
-            self.show()
         if self.overlay.icon_only:
             self.label.hide()
         else:
             self.label.show()
-        self.label.set_text(label)
+        self.update_label()
+        self.set_shown()
 
     def set_image(self, image):
+        """Sets the channel image"""
         if self.show_title:
             self.show()
         if self.overlay.show_avatar:
@@ -340,31 +342,24 @@ class UserBoxTitle(UserBox):
         self.image.set_from_pixbuf(self.pixbuf)
 
     def blank(self):
+        """Blanks image and hides self"""
         self.pixbuf = None
-        self.hide()
-
-    def set_show(self, show):
-        self.show_title = show
-        if show:
-            self.show()
-        else:
-            self.hide()
+        self.last = None
+        self.set_shown()
 
     def should_show(self):
+        """If this widget should be shown"""
         return self.show_title and self.last
 
-    def update_image(self, user):
+    def update_image(self):
         if not self.overlay.show_avatar:
             self.image.hide()
             return
         self.image.show()
         self.image.set_from_pixbuf(self.pixbuf)
 
-    def update_label(self, user):
-        if self.should_show():
-            self.show()
-        else:
-            self.hide()
+    def update_label(self):
+        self.set_shown()
         if self.overlay.icon_only:
             self.label.hide()
             return
@@ -376,3 +371,6 @@ class UserBoxTitle(UserBox):
                 self.label.set_text(
                     self.last[: (self.overlay.nick_length - 1)] + "\u2026"
                 )
+
+    def is_user_visible(self):
+        return False

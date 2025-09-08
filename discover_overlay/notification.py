@@ -15,98 +15,12 @@ import logging
 import gi
 from .image_getter import get_surface
 from .overlay import HorzAlign
+from .layout import NotificationLayout
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, GLib, Pango
+from gi.repository import Gtk, GLib, Pango
 
 log = logging.getLogger(__name__)
-
-
-class NotificationLayout(Gtk.LayoutManager):
-
-    def do_allocate(self, widget, width, height, _baseline):
-        asize = widget.overlay.icon_size
-        padding = widget.overlay.padding
-        i_padding = widget.overlay.icon_pad
-        if not widget.overlay.show_icon:
-            asize = 0
-            i_padding = 0
-        if not widget.image:
-            asize = 0
-            i_padding = 0
-        img_alloc = Gdk.Rectangle()
-        lbl_alloc = Gdk.Rectangle()
-        ttl_alloc = Gdk.Rectangle()
-        img_alloc.x = lbl_alloc.x = ttl_alloc.x = padding
-        img_alloc.y = lbl_alloc.y = ttl_alloc.y = padding
-        width = width - (padding * 2)
-        height = height - (padding * 2)
-
-        text_width = width - (asize + i_padding)
-
-        [t_min, _t_nat, _t_bl, _t_nat_bl] = widget.title.measure(
-            Gtk.Orientation.VERTICAL, text_width
-        )
-        [l_min, _l_nat, _l_bl, _l_nat_bl] = widget.message.measure(
-            Gtk.Orientation.VERTICAL, text_width
-        )
-        split = t_min
-        if height < t_min + l_min:
-            log.error("height %s : %s %s", height, t_min, l_min)
-        split = (height) * ((t_min) / (t_min + l_min))
-
-        img_alloc.width = asize
-        img_alloc.height = asize
-
-        lbl_alloc.height = height - split
-        ttl_alloc.height = split
-        lbl_alloc.y += split
-
-        lbl_alloc.width = ttl_alloc.width = text_width
-
-        if widget.overlay.icon_left:
-            ttl_alloc.x += asize + i_padding
-            lbl_alloc.x += asize + i_padding
-        else:
-            img_alloc.x += text_width + i_padding
-
-        if widget.image:
-            widget.image.size_allocate(img_alloc, -1)
-        widget.title.size_allocate(ttl_alloc, -1)
-        widget.message.size_allocate(lbl_alloc, -1)
-
-    def do_measure(self, widget, orientation, for_size):
-        asize = widget.overlay.icon_size
-        padding = widget.overlay.padding
-        i_padding = widget.overlay.icon_pad
-        if not widget.overlay.show_icon:
-            asize = 0
-            i_padding = 0
-        im_m = [0, 0, 0, 0]
-        if not widget.image:
-            asize = 0
-            i_padding = 0
-        else:
-            im_m = [asize, asize, 0, 0]
-        for_size = for_size - (padding * 2) - i_padding
-        if orientation == Gtk.Orientation.VERTICAL:
-            lb_m = widget.message.measure(orientation, for_size - asize)
-            tt_m = widget.title.measure(orientation, for_size - asize)
-            return (
-                max(im_m[0], lb_m[0] + tt_m[0]) + (padding * 2),
-                max(im_m[1], lb_m[1] + tt_m[1]) + (padding * 2),
-                -1,
-                -1,
-            )
-        else:
-            lb_m = widget.message.measure(orientation, for_size)
-            tt_m = widget.title.measure(orientation, for_size)
-            return (
-                im_m[0] + max(lb_m[0], tt_m[0]) + (padding * 2) + i_padding,
-                im_m[1] + max(lb_m[1], tt_m[1]) + (padding * 2) + i_padding,
-                -1,
-                -1,
-            )
 
 
 class Notification(Gtk.Box):
@@ -145,7 +59,7 @@ class Notification(Gtk.Box):
         self.message.show()
         if image:
             if not isinstance(image, str):
-                image = "%s%s" % (image[0], image[1])
+                image = f"{image[0]}{image[1]}"
             log.info(image)
             get_surface(self.recv_avatar, image, "channel", self.get_display())
 

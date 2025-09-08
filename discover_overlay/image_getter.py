@@ -112,8 +112,7 @@ class SurfaceGetter:
         errors = []
         icon = None
         content = None
-        log.info("Opening local file : %s", self.url)
-        if "/" in self.url or "." in self.url or "~" in self.url:  # URL is a filename
+        if "/" in self.url or "." in self.url or "~" in self.url:
             # It's a filename for sure
             if self.url.startswith("/") or self.url.startswith("~"):
                 # Single path
@@ -183,8 +182,10 @@ class SurfaceGetter:
             log.error(error)
 
 
-def get_surface(func, identifier, ava, display, recolor=[1.0, 1.0, 1.0, 1.0]):
+def get_surface(func, identifier, ava, display, recolor=None):
     """Download to Pixbuf"""
+    if not recolor:
+        recolor = [1.0, 1.0, 1.0, 1.0]
     image_getter = SurfaceGetter(func, identifier, ava, display, recolor)
     if identifier.startswith("http"):
         thread = threading.Thread(target=image_getter.get_url)
