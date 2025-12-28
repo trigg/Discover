@@ -127,6 +127,9 @@ class Discover:
         if "--refresh-guilds" in data:
             if self.connection:
                 self.connection.req_guilds()
+        if "--leave" in data or "-l" in data:
+            if self.connection:
+                self.connection.change_voice_room(None)
         pattern = re.compile("--moveto=([0-9]+)")
         if any((match := pattern.match(x)) for x in data):
             if self.connection:
@@ -484,6 +487,7 @@ def help_function():
         print("      --toggle-deaf           ", _("Toggle deaf"))
         print("      --moveto=XX        ",
               _("Move the user into voice room, by Room ID"))
+        print("      --leave            ", _("Leave the current voice channel"))
         print("      --minimized        ",
               _("If tray icon is enabled, start with only tray icon and no configuration window"))
         print("")
@@ -495,6 +499,7 @@ Actions = {
     "--hide", "--show",
     "--mute", "--unmute", "--toggle-mute",
     "--deaf", "--undeaf", "--toggle-deaf",
+    "-l", "--leave",
     "--refresh-guilds",
 }
 Controls = {
