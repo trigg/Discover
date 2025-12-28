@@ -1,4 +1,5 @@
 # Discover
+
 Yet another Discord overlay for Linux written in Python using GTK3.
 
 > **Note:**  
@@ -32,57 +33,68 @@ You can start the overlay by running
 This will close out any already running discover overlay for this user.
 
 ### Close the overlay
+
 `discover-overlay --close` or `discover-overlay -x`
 
 This closes the process running the overlay. Any control commands sent afterwards will have no effect until the overlay is started again.
 
 ### Open configuration window
+
 `discover-overlay --configure` or `discover-overlay -c`
 
 ### Show version information
+
 `discover-overlay --version` or `discover-overlay -V`
 
 Prints the installed Discover Overlay version and exits.
 
 ### Log debug to file
+
 `discover-overlay --debug` or `discover-overlay -d`
 
 This will redirect all debug output to  
 `~/.config/discover-overlay/output.txt`
 
 ### Hide the currently shown overlays
+
 `discover-overlay --hide`
 
 This will not stop the process running the overlay. Control commands sent afterwards continue working as expected, and `--show` is much quicker than restarting the overlay.
 
 ### Show the overlays
+
 `discover-overlay --show`
 
 If the process running the overlay has stopped or crashed, this will do nothing.
 
 ### Mute yourself in voice chat
+
 `discover-overlay --mute`
 
 ### Unmute yourself in voice chat
+
 `discover-overlay --unmute`
 
 ### Deafen yourself in voice chat
+
 `discover-overlay --deaf`
 
 ### Undeafen yourself in voice chat
+
 `discover-overlay --undeaf`
 
 ### Attempt to leave the current voice channel (WIP)
+
 `discover-overlay --leave` or `discover-overlay -l`
 
-> **Note:** This feature is still under development and may not work reliably yet.
-
 ### Attempt to join voice channel by room ID
+
 `discover-overlay --moveto=X`
 
 Using a Room ID from Discord to replace `X`, this will attempt to join the voice channel.
 
 ### Populate the channel RPC file with a list of guilds
+
 `discover-overlay --refresh-guilds`
 
 Requests a list of guilds. Once collected, it will write them to  
@@ -90,6 +102,7 @@ Requests a list of guilds. Once collected, it will write them to
 as a JSON object.
 
 ### Populate the channel RPC file with a list of channels from a guild
+
 `discover-overlay --guild-request=X`
 
 Using a Server ID from Discord to replace `X`, this will request a list of channels (text & voice) from the given guild. Once collected, it will write them to  
@@ -97,6 +110,7 @@ Using a Server ID from Discord to replace `X`, this will request a list of chann
 as a JSON object.
 
 ### Force SteamOS compatibility mode
+
 `discover-overlay --steamos`
 
 Forces the overlay to start as if it was launched in a Gamescope & SteamOS session. Intended for testing against Gamescope while still nested in a generic desktop environment.
@@ -122,26 +136,32 @@ flatpak install io.github.trigg.discover_overlay
 ```
 
 ### Stable
+
 ```bash
 python3 -m pipx install discover-overlay
 ```
 
 ### Latest Testing
+
 ```bash
 git clone https://github.com/trigg/Discover.git
 cd Discover
 python3 -m pipx install .
 ```
 
+After this, you can run it with `~/.local/bin/discover-overlay`
+
 ### Externally Packaged
 
 Note that while we list links to other locations to download, the version provided is unknown and often untested by us. Report bugs in these implementations to their respective project, not here.
 
 #### Arch AUR
+
 [Stable](https://aur.archlinux.org/packages/discover-overlay/)
 [Latest](https://aur.archlinux.org/packages/discover-overlay-git/)
 
 #### Fedora
+
 https://copr.fedorainfracloud.org/coprs/mavit/discover-overlay/
 
 ```bash
@@ -150,6 +170,7 @@ sudo yum install discover-overlay
 ```
 
 #### Gentoo
+
 https://gpo.zugaina.org/net-voip/discover-overlay
 
 ```bash
@@ -169,31 +190,37 @@ A compositor is strongly advised, but compatibility exists for X11 sessions with
 It is advised to install `python-gobject` from your system package manager.
 
 ### Debian / Ubuntu
+
 ```bash
 apt install python3-gi python3-gi-cairo libappindicator3-dev
 ```
 
 With Wayland support:
+
 ```bash
 apt install gtk-layer-shell libgtk-layer-shell-dev
 ```
 
 ### Arch
+
 ```bash
 pacman -S python-gobject libappindicator-gtk3
 ```
 
 With Wayland support:
+
 ```bash
 pacman -S gtk-layer-shell
 ```
 
 ### Fedora
+
 ```bash
 dnf install python3-pip python3-gobject gtk3-devel python3-cairo python-devel python-gobject python-gobject-devel
 ```
 
 With Wayland support:
+
 ```bash
 dnf install gtk-layer-shell
 ```
