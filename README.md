@@ -4,7 +4,13 @@ Yet another Discord overlay for Linux written in Python using GTK3.
 > **Note:**  
 > Command-line control no longer requires the `--rpc` flag.  
 > Any control command (mute, deaf, moveto, etc.) will automatically communicate with a running Discover instance.
+## Changelog
 
+- Removed the requirement to use the `--rpc` flag for command-line changes. Control commands like mute, deafen, moveto, etc. now auto write to the RPC file when there is a running instance.
+- Added a `--version` / `-V` command to print the installed Discover Overlay version and exit.
+- Fixed help (`--help` / `-h`) behavior so it no longer terminates or interferes with an existing running instance.
+- Fixed GTK dark mode by correcting the dark theme property assignment.
+  
 Discover-Overlay is a GTK3 overlay written in Python3. It can be configured to show who is currently talking on discord or it can be set to display text and images from a preconfigured channel. It is fully customisable and can be configured to display anywhere on the screen. We fully support X11 and wlroots based environments. We felt the need to make this project due to the shortcomings in support on Linux by the official discord client.
 
 Considerably lighter on system resources and less hack-and-slash included than discord-overlay.
