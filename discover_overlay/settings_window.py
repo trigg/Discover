@@ -325,11 +325,13 @@ class MainSettingsWindow():
                     self.channel_ids = []
                     g.remove_all()
                     c.remove_all()
-                    for guild in data['guild'].values():
+                    guilds = sorted(data['guild'].values(), key=lambda x: x['name'].lower())
+                    for guild in guilds:
                         g.append_text(guild['name'])
                         self.guild_ids.append(guild['id'])
                         if guild['id'] == self.current_guild and 'channels' in guild:
-                            for channel in guild['channels']:
+                            channels = sorted(guild['channels'], key=lambda x: x['name'].lower())
+                            for channel in channels:
                                 c.append_text(channel['name'])
                                 self.channel_ids.append(channel['id'])
         except FileNotFoundError:
