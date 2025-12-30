@@ -72,7 +72,7 @@ class Discover:
             settings = Gtk.Settings.get_default()
             if settings:
                 settings.set_property(
-                    "gtk-application-prefer-dark-theme", True)
+                    "gtk-application-prefer-dark-theme", Gtk.true)
 
         self.create_gui()
 
@@ -99,7 +99,6 @@ class Discover:
         """
         if "--close" in data or "-x" in data:
             self.exit()
-            return
         if "--steamos" in data or "-s" in data:
             self.steamos = True
         if "--hide" in data:
@@ -138,6 +137,7 @@ class Discover:
         if any((match := guild_pattern.match(x)) for x in data):
             if self.connection:
                 self.connection.request_text_rooms_for_guild(match.group(1))
+
     def exit(self):
         os.kill(os.getpid(), signal.SIGTERM)
 
@@ -461,7 +461,7 @@ class Discover:
         if deaf is not None:
             GLib.idle_add(self.connection.set_deaf, deaf)
 
-def help_function():
+def show_help():
         print(_("Usage") + ": discover-overlay [OPTIONS]... ")
         print(_("Show an X11 or wlroots overlay with information"))
         print(_("from Discord client"))
@@ -475,10 +475,6 @@ def help_function():
         print("  -V, --version          ", _("Show version information"))
         print("      --hide             ", _("Hide overlay"))
         print("      --show             ", _("Show overlay"))
-        '''
-        print("      --rpc              ",
-              _("Send command, not start new instance."))
-        '''
         print("      --mute             ", _("Set own user to mute"))
         print("      --unmute           ", _("Set unmuted"))
         print("      --toggle-mute           ", _("Toggle muted"))
@@ -491,31 +487,35 @@ def help_function():
         print("      --minimized        ",
               _("If tray icon is enabled, start with only tray icon and no configuration window"))
         print("")
-        print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))   
-def version_function():
+        print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
+
+def show_version():
         print(pkg_resources.get_distribution('discover_overlay').version)
-Actions = {
-    "-x", "--close",
-    "--hide", "--show",
-    "--mute", "--unmute", "--toggle-mute",
-    "--deaf", "--undeaf", "--toggle-deaf",
-    "-l", "--leave",
-    "--refresh-guilds",
-}
-Controls = {
-    "--moveto=",
-    "--guild-request=",
-}
+
 def is_a_controller(argv):
+
+    actions = {
+        "-x", "--close",
+        "--hide", "--show",
+        "--mute", "--unmute", "--toggle-mute",
+        "--deaf", "--undeaf", "--toggle-deaf",
+        "-l", "--leave",
+        "--refresh-guilds",
+    }
+    controls = {
+        "--moveto=",
+        "--guild-request=",
+    }
     for arg in argv:
         # Match the actions (i.e --mute, --deafen)
-        if arg in Actions:
+        if arg in actions:
             return True
         # Match the controls (i.e --moveto=123456789 and --guild-request=987654321)
-        for control in Controls:
+        for control in controls:
             if arg.startswith(control):
                 return True
     return False
+
 def entrypoint():
     """
     Entry Point.
@@ -531,29 +531,28 @@ def entrypoint():
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     if "--help" in sys.argv or "-h" in sys.argv:
-        help_function()
+        show_help()
         return
     if "--version" in sys.argv or "-V" in sys.argv:
-        version_function()
+        show_version()
         return
     # Find Config directory
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
-    
+
     # Find RPC, Channel info, config and debug files
     rpc_file = os.path.join(config_dir, "discover_overlay.rpc")
     channel_file = os.path.join(config_dir, "channels.rpc")
     config_file = os.path.join(config_dir, "config.ini")
     debug_file = os.path.join(config_dir, "output.txt")
-    # 1) configure window runs locally
+
     if "-c" in sys.argv or "--configure" in sys.argv:
         _settings = MainSettingsWindow(config_file, rpc_file, channel_file, sys.argv[1:])
         Gtk.main()
         return
 
-    # 2) controller mode sends RPC then exits
-    if is_a_controller(sys.argv[1:]):
-        line = " ".join(arg for arg in sys.argv[1:] if arg != "--rpc").strip()
+    if is_a_controller(sys.argv):
+        line = " ".join(arg for arg in sys.argv[1:]).strip()
         with open(rpc_file, "w", encoding="utf-8") as f:
             f.write(line)
         return
@@ -567,18 +566,21 @@ def entrypoint():
     else:
         logging.basicConfig(format=log_format)
     log.info("Starting Discover Overlay: %s",
-         pkg_resources.get_distribution('discover_overlay').version)
+             pkg_resources.get_distribution('discover_overlay').version)
 
     # Hedge against the bet gamescope ships with some WAYLAND_DISPLAY
     # Compatibility and we're not ready yet
     if 'GAMESCOPE_WAYLAND_DISPLAY' in os.environ:
         os.unsetenv("WAYLAND_DISPLAY")
-    # errors
+
+    
+    # Catch any errors and log them
     try:
         with open(rpc_file, "w", encoding="utf-8") as tfile:
             tfile.write("--close")
-
-        Discover(rpc_file, config_file, channel_file, debug_file, sys.argv[1:])
+        # Show the overlay
+        Discover(rpc_file, config_file, channel_file,
+                 debug_file, sys.argv[1:])
 
     except Exception as ex:  # pylint: disable=broad-except
         log.error(ex)
