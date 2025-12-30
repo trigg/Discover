@@ -13,7 +13,7 @@
 """A class to assist auto-start"""
 import os
 import logging
-import shutil
+
 try:
     from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 except ModuleNotFoundError:
@@ -30,14 +30,17 @@ class Autostart:
         if not app_name.endswith(".desktop"):
             app_name = f"{app_name}.desktop"
         self.app_name = app_name
-        self.auto_locations = [os.path.join(
-            xdg_config_home, 'autostart/'), '/etc/xdg/autostart/']
-        self.desktop_locations = [os.path.join(
-            xdg_data_home, 'applications/'), '/usr/share/applications/']
+        self.auto_locations = [
+            os.path.join(xdg_config_home, "autostart/"),
+            "/etc/xdg/autostart/",
+        ]
+        self.desktop_locations = [
+            os.path.join(xdg_data_home, "applications/"),
+            "/usr/share/applications/",
+        ]
         self.auto = self.find_auto()
         self.desktop = self.find_desktop()
-        log.info("Autostart info : desktop %s auto %s",
-                 self.desktop, self.auto)
+        log.info("Autostart info : desktop %s auto %s", self.desktop, self.auto)
 
     def find_auto(self):
         """Check all known locations for auto-started apps"""
@@ -59,7 +62,7 @@ class Autostart:
         """Set or Unset auto-start state"""
         if enable and not self.auto:
             # Enable
-            directory = os.path.join(xdg_config_home, 'autostart')
+            directory = os.path.join(xdg_config_home, "autostart")
             self.auto = os.path.join(directory, self.app_name)
             os.makedirs(directory, exist_ok=True)
             os.symlink(self.desktop, self.auto)
@@ -71,41 +74,3 @@ class Autostart:
     def is_auto(self):
         """Check if it's already set to auto-start"""
         return True if self.auto else False
-
-
-class BazziteAutostart:
-    """A class to assist auto-start"""
-
-    def __init__(self):
-        self.auto = False
-        with open("/etc/default/discover-overlay", encoding="utf-8") as f:
-            content = f.readlines()
-            for line in content:
-                if line.startswith("AUTO_LAUNCH_DISCOVER_OVERLAY="):
-                    self.auto = int(line.split("=")[1]) > 0
-        log.info("Bazzite Autostart info : %s",
-                 self.auto)
-
-    def set_autostart(self, enable):
-        """Set or Unset auto-start state"""
-        if enable and not self.auto:
-            self.change_file("1")
-        elif not enable and self.auto:
-            self.change_file("0")
-        self.auto = enable
-
-    def change_file(self, value):
-        """Alter bazzite config via pkexec and sed"""
-        root = ''
-        if shutil.which('pkexec'):
-            root = 'pkexec'
-        else:
-            log.error("No ability to request root privs. Cancel")
-            return
-        command = f" sed -i 's/AUTO_LAUNCH_DISCOVER_OVERLAY=./AUTO_LAUNCH_DISCOVER_OVERLAY={value}/g' /etc/default/discover-overlay"
-        command_with_permissions = root + command
-        os.system(command_with_permissions)
-
-    def is_auto(self):
-        """Check if it's already set to auto-start"""
-        return self.auto
