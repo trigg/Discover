@@ -342,18 +342,15 @@ class Settings(Gtk.Application):
                     self.channel_ids = []
                     g.remove_all()
                     c.remove_all()
-                    for guild in data["guild"].values():
-                        g.append_text(guild["name"])
-                        self.guild_ids.append(guild["id"])
-                        if guild["id"] == self.current_guild and "channels" in guild:
-                            for channel in guild["channels"]:
-                                log.info(
-                                    "Channel : %s   Guild : %s",
-                                    channel["name"],
-                                    guild["name"],
-                                )
-                                c.append_text(channel["name"])
-                                self.channel_ids.append(channel["id"])
+                    guilds = sorted(data['guild'].values(), key=lambda x: x['name'].lower())
+                    for guild in guilds:
+                        g.append_text(guild['name'])
+                        self.guild_ids.append(guild['id'])
+                        if guild['id'] == self.current_guild and 'channels' in guild:
+                            channels = sorted(guild['channels'], key=lambda x: x['name'].lower())
+                            for channel in channels:
+                                c.append_text(channel['name'])
+                                self.channel_ids.append(channel['id'])
         except FileNotFoundError:
             log.error("Could not open channels file")
 

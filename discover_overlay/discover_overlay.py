@@ -121,40 +121,6 @@ class Discover:
         """
         Read in arg list from command or RPC and act accordingly
         """
-        if "--help" in data or "-h" in data:
-            print(_("Usage") + ": discover-overlay [OPTIONS]... ")
-            print(_("Show an X11 or wlroots overlay with information"))
-            print(_("from Discord client"))
-            print("")
-            print("  -c, --configure        ", _("Open configuration window"))
-            print("  -x, --close            ", _("Close currently running instance"))
-            print("  -v, --debug            ", _("Verbose output for aid in debugging"))
-            print("  -h, --help             ", _("This screen"))
-            print("      --hide             ", _("Hide overlay"))
-            print("      --show             ", _("Show overlay"))
-            print(
-                "      --rpc              ", _("Send command, not start new instance.")
-            )
-            print("      --mute             ", _("Set own user to mute"))
-            print("      --unmute           ", _("Set unmuted"))
-            print("      --toggle-mute           ", _("Toggle muted"))
-            print("      --deaf             ", _("Set own user to deafened"))
-            print("      --undeaf           ", _("Unset user deafened state"))
-            print("      --toggle-deaf           ", _("Toggle deaf"))
-            print(
-                "      --moveto=XX        ",
-                _("Move the user into voice room, by Room ID"),
-            )
-            print(
-                "      --minimized        ",
-                _(
-                    "If tray icon is enabled, start with only tray icon and no configuration window"
-                ),
-            )
-            print("")
-            print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
-            if normal_close:
-                sys.exit(0)
         if "--close" in data or "-x" in data:
             self.exit()
         if "--steamos" in data or "-s" in data:
@@ -184,6 +150,9 @@ class Discover:
         if "--refresh-guilds" in data:
             if self.connection:
                 self.connection.req_guilds()
+        if "--leave" in data or "-l" in data:
+            if self.connection:
+                self.connection.change_voice_room(None)
         pattern = re.compile("--moveto=([0-9]+)")
         if any((match := pattern.match(x)) for x in data):
             if self.connection:
@@ -334,6 +303,60 @@ class Discover:
         if deaf is not None:
             GLib.idle_add(self.connection.set_deaf, deaf)
 
+def show_help():
+        print(_("Usage") + ": discover-overlay [OPTIONS]... ")
+        print(_("Show an X11 or wlroots overlay with information"))
+        print(_("from Discord client"))
+        print("")
+        print("  -c, --configure        ", _("Open configuration window"))
+        print("  -x, --close            ",
+              _("Close currently running instance"))
+        print("  -v, --debug            ",
+                  _("Verbose output for aid in debugging"))
+        print("  -h, --help             ", _("This screen"))
+        print("  -V, --version          ", _("Show version information"))
+        print("      --hide             ", _("Hide overlay"))
+        print("      --show             ", _("Show overlay"))
+        print("      --mute             ", _("Set own user to mute"))
+        print("      --unmute           ", _("Set unmuted"))
+        print("      --toggle-mute           ", _("Toggle muted"))
+        print("      --deaf             ", _("Set own user to deafened"))
+        print("      --undeaf           ", _("Unset user deafened state"))
+        print("      --toggle-deaf           ", _("Toggle deaf"))
+        print("      --moveto=XX        ",
+              _("Move the user into voice room, by Room ID"))
+        print("      --leave            ", _("Leave the current voice channel"))
+        print("      --minimized        ",
+              _("If tray icon is enabled, start with only tray icon and no configuration window"))
+        print("")
+        print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
+
+def show_version():
+        print(pkg_resources.get_distribution('discover_overlay').version)
+
+def is_a_controller(argv):
+
+    actions = {
+        "-x", "--close",
+        "--hide", "--show",
+        "--mute", "--unmute", "--toggle-mute",
+        "--deaf", "--undeaf", "--toggle-deaf",
+        "-l", "--leave",
+        "--refresh-guilds",
+    }
+    controls = {
+        "--moveto=",
+        "--guild-request=",
+    }
+    for arg in argv:
+        # Match the actions (i.e --mute, --deafen)
+        if arg in actions:
+            return True
+        # Match the controls (i.e --moveto=123456789 and --guild-request=987654321)
+        for control in controls:
+            if arg.startswith(control):
+                return True
+    return False
 
 def entrypoint():
     """
@@ -349,6 +372,12 @@ def entrypoint():
     """
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+    if "--help" in sys.argv or "-h" in sys.argv:
+        show_help()
+        return
+    if "--version" in sys.argv or "-V" in sys.argv:
+        show_version()
+        return
     # Find Config directory
     config_dir = os.path.join(xdg_config_home, "discover_overlay")
     os.makedirs(config_dir, exist_ok=True)
@@ -358,6 +387,27 @@ def entrypoint():
     channel_file = os.path.join(config_dir, "channels.rpc")
     config_file = os.path.join(config_dir, "config.ini")
     debug_file = os.path.join(config_dir, "output.txt")
+
+    if "-c" in sys.argv or "--configure" in sys.argv:
+        # Show config window
+        # pylint: disable=E1101
+        app = Settings(
+            "io.github.trigg.discover_overlay",
+            Gio.ApplicationFlags.FLAGS_NONE,
+            config_file,
+            rpc_file,
+            channel_file,
+            sys.argv[1:],
+        )
+        app.connect("activate", app.start)
+        app.run()
+        return
+
+    if is_a_controller(sys.argv):
+        line = " ".join(arg for arg in sys.argv[1:]).strip()
+        with open(rpc_file, "w", encoding="utf-8") as f:
+            f.write(line)
+        return
 
     # Prepare logger
     logging.getLogger().setLevel(logging.INFO)
@@ -380,37 +430,13 @@ def entrypoint():
 
     # Catch any errors and log them
     try:
-        if "--rpc" in sys.argv:
-            # Send command to overlay
-            line = ""
-            for arg in sys.argv[1:]:
-                line = f"{line} {arg}"
-            with open(rpc_file, "w", encoding="utf-8") as tfile:
-                tfile.write(line)
-                log.warning("Sent RPC command")
-        else:
-            if "-c" in sys.argv or "--configure" in sys.argv:
-                # Show config window
-                # pylint: disable=E1101
-                app = Settings(
-                    "io.github.trigg.discover_overlay",
-                    Gio.ApplicationFlags.FLAGS_NONE,
-                    config_file,
-                    rpc_file,
-                    channel_file,
-                    sys.argv[1:],
-                )
-                app.connect("activate", app.start)
-                app.run()
-            else:
-                # Tell any other running overlay to close
-                with open(rpc_file, "w", encoding="utf-8") as tfile:
-                    tfile.write("--close")
-                # Show the overlay
-                Discover(rpc_file, config_file, channel_file, debug_file, sys.argv[1:])
-        return
-    # pylint: disable=W0718
-    except Exception as ex:
+        with open(rpc_file, "w", encoding="utf-8") as tfile:
+            tfile.write("--close")
+        # Show the overlay
+        Discover(rpc_file, config_file, channel_file,
+                 debug_file, sys.argv[1:])
+
+    except Exception as ex:  # pylint: disable=broad-except
         log.error(ex)
         log.error(traceback.format_exc())
         sys.exit(1)
