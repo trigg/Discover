@@ -27,7 +27,11 @@ This will close out any already running discover overlay for this user
 #### Close the overlay
 `discover-overlay --close` or `discover-overlay -x`
 
-This closes the process running the overlay, hence any `--rpc` commands sent afterwards will do nothing
+This closes the process running the overlay. Any control commands sent afterwards will do nothing
+
+#### Show version
+
+`discover-overlay --version` or `discover-overlay --V`
 
 #### Open configuration window
 `discover-overlay --configure` or `discover-overlay -c`
@@ -38,40 +42,43 @@ This closes the process running the overlay, hence any `--rpc` commands sent aft
 This will redirect all debug to the file `~/.config/discover-overlay/output.txt`
 
 #### Hide the currently shown overlays
-`discover-overlay --rpc --hide`
+`discover-overlay --hide`
 
-This will not stop the process running the overlay. This means the `--rpc` commands sent afterwards continue working as expected, and the `--show` is much quicker than starting the overlay from the start.
+This will not stop the process running the overlay. This means the control commands sent afterwards continue working as expected, and the `--show` is much quicker than starting the overlay from the start.
 
 #### Show the overlays 
-`discover-overlay --rpc --show`
+`discover-overlay --show`
 
 Note that if the process running the overlay has stopped or crashed then this will do nothing
 
 #### Mute yourself in voice chat
-`discover-overlay --rpc --mute`
+`discover-overlay --mute`
 
 #### Unmute yourself in voice chat
-`discover-overlay --rpc --unmute`
+`discover-overlay --unmute`
 
 #### Deafen yourself in voice chat
-`discover-overlay --rpc --deaf`
+`discover-overlay --deaf`
 
 #### Undeafen yourself in voice chat
-`discover-overlay --rpc --undeaf`
+`discover-overlay --undeaf`
 
+### Attempt to leave the current voice channel
+
+`discover-overlay --leave` or `discover-overlay -l`
 #### Attempt to join voice channel by room ID
-`discover-overlay --rpc --moveto=X` 
+`discover-overlay --moveto=X` 
 
 Using a Room ID from Discord to replace `X`, this will attempt to join the voice channel.
 
 #### Populate the channel RPC file with a list of guilds
-`discover-overlay --rpc --refresh-guilds`
+`discover-overlay --refresh-guilds`
 Requests a list of guilds. Once collected, it will write them to 
 `~/.config/discover-overlay/channels.rpc`
 as a JSON object
 
 #### Populate the channel RPC file with a list of channels from a guild
-`discover-overlay --rpc --guild-request=X`
+`discover-overlay --guild-request=X`
 Using a Server ID from Discord to replace `X`, this will request a list of channels (text & voice) from the given guild. Once collected, it will write them to
 `~/.config/discover-overlay/channels.rpc`
 as a JSON object.
