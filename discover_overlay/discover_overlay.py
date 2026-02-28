@@ -490,7 +490,7 @@ def show_help():
         print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
 
 def show_version():
-        print(pkg_resources.get_distribution('discover_overlay').version)
+        print(metadata.version('discover_overlay'))
 
 def is_a_controller(argv):
 

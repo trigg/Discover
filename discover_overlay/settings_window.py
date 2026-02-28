@@ -19,7 +19,7 @@ import os
 import json
 from configparser import ConfigParser
 import gi
-from importlib import resources
+from importlib import resources,metadata
 from .autostart import Autostart, BazziteAutostart
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
@@ -94,8 +94,8 @@ class MainSettingsWindow():
 
         self.loading_config = False
 
-        builder = Gtk.Builder.new_from_file(pkg_resources.resource_filename(
-            'discover_overlay', 'glade/settings.glade'))
+        builder = Gtk.Builder.new_from_file(str(resources.files(
+            'discover_overlay').joinpath('glade/settings.glade')))
         window = builder.get_object("settings_window")
         window.connect("destroy", self.close_window)
         window.connect("delete-event", self.close_window)
@@ -124,7 +124,7 @@ class MainSettingsWindow():
             "%s%s (%s)%s%s\n\n%s %s %s %s%s\n\n\n\n\n\n" % (
                 "<span size=\"larger\">",
                 _("Welcome to Discover Overlay"),
-                pkg_resources.get_distribution('discover_overlay').version,
+                metadata.version('discover_overlay'),
                 "</span>\n\n",
                 _("Discover-Overlay is a GTK3 overlay written in Python3."
                    " It can be configured to show who is currently talking"
