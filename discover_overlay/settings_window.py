@@ -19,7 +19,7 @@ import os
 import json
 from configparser import ConfigParser
 import gi
-import pkg_resources
+from importlib import resources
 from .autostart import Autostart, BazziteAutostart
 from .draggable_window import DraggableWindow
 from .draggable_window_wayland import DraggableWindowWayland
@@ -30,7 +30,7 @@ from gi.repository import Gtk, Gdk, Gio  # nopep8
 
 log = logging.getLogger(__name__)
 t = gettext.translation(
-    'default', pkg_resources.resource_filename('discover_overlay', 'locales'), fallback=True)
+    'default', resources.files('discover_overlay').joinpath('locales'), fallback=True)
 _ = t.gettext
 
 
