@@ -886,47 +886,47 @@ class Settings(Gtk.Application):
     def voice_toggle_test_content(self, button):
         self.config_set("main", "show_dummy", f"{button.get_active()}")
 
-    def voice_talking_foreground_changed(self, button):
+    def voice_talking_foreground_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "fg_hi_col", json.dumps(colour))
 
-    def voice_talking_background_changed(self, button):
+    def voice_talking_background_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "hi_col", json.dumps(colour))
 
-    def voice_talking_border_changed(self, button):
+    def voice_talking_border_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "tk_col", json.dumps(colour))
 
-    def voice_idle_foreground_changed(self, button):
+    def voice_idle_foreground_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "fg_col", json.dumps(colour))
 
-    def voice_idle_background_changed(self, button):
+    def voice_idle_background_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "bg_col", json.dumps(colour))
 
-    def voice_idle_border_changed(self, button):
+    def voice_idle_border_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "bo_col", json.dumps(colour))
 
-    def voice_mute_foreground_changed(self, button):
+    def voice_mute_foreground_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "mt_col", json.dumps(colour))
 
-    def voice_mute_background_changed(self, button):
+    def voice_mute_background_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "mt_bg_col", json.dumps(colour))
 
-    def voice_avatar_background_changed(self, button):
+    def voice_avatar_background_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("main", "avatar_bg_col", json.dumps(colour))
@@ -1028,12 +1028,12 @@ class Settings(Gtk.Application):
     def text_font_changed(self, button):
         self.config_set("text", "font", button.get_font())
 
-    def text_colour_changed(self, button):
+    def text_colour_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("text", "fg_col", json.dumps(colour))
 
-    def text_background_colour_changed(self, button):
+    def text_background_colour_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("text", "bg_col", json.dumps(colour))
@@ -1083,12 +1083,12 @@ class Settings(Gtk.Application):
     def notification_font_changed(self, button):
         self.config_set("notification", "font", button.get_font())
 
-    def notification_text_colour_changed(self, button):
+    def notification_text_colour_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("notification", "fg_col", json.dumps(colour))
 
-    def notification_background_colour_changed(self, button):
+    def notification_background_colour_changed(self, button, _param=None):
         colour = button.get_rgba()
         colour = [colour.red, colour.green, colour.blue, colour.alpha]
         self.config_set("notification", "bg_col", json.dumps(colour))
