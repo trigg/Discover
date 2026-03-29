@@ -594,6 +594,10 @@ class VoiceOverlayWindow(Gtk.Box):
 
         self.update_all()
 
+        for child in self:
+            if isinstance(child, UserBox):
+                child.queue_resize()
+
     def set_css(self, css_id, rule):
         """Add or replace CSS Rule"""
         self.get_root().set_css(css_id, rule)
