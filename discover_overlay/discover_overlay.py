@@ -22,12 +22,12 @@ import signal
 import importlib_resources
 from configparser import ConfigParser
 from ctypes import CDLL
-from ._version import __version__
 
 CDLL("libgtk4-layer-shell.so")
 
 import gi
 
+from ._version import __version__
 from .overlay import OverlayWindow
 from .settings_window import Settings
 from .voice_overlay import VoiceOverlayWindow
