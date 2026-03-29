@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overlay window for text"""
+
 import logging
 import gi
 import cairo
@@ -45,7 +46,12 @@ class TextOverlayWindow(Gtk.Box):
         self.height_limit = 300
         self.align_x = HorzAlign.RIGHT
         self.align_y = VertAlign.BOTTOM
+        self.enabled = False
         self.show()
+
+    def set_enabled(self, enabled):
+        """Set if text overlay should be enabled"""
+        self.enabled = enabled
 
     def set_blank(self):
         """Set contents blank and redraw"""
@@ -58,6 +64,8 @@ class TextOverlayWindow(Gtk.Box):
 
     def new_line(self, message):
         """Add a new message to text overlay. Does not sanity check the data"""
+        if not self.enabled:
+            return
         message = Message(self, message)
         if not message.skip:
             self.append(message)
@@ -104,6 +112,7 @@ class TextOverlayWindow(Gtk.Box):
 
     def set_config(self, config):
         """Set self and children from config"""
+        self.set_enabled(config.getboolean("enabled", fallback=False))
         channel = config.get("channel", fallback="0")
         guild = config.get("guild", fallback="0")
         self.discover.connection.set_text_channel(channel, guild)
