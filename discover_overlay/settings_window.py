@@ -737,7 +737,12 @@ class Settings(Gtk.Application):
     def make_colour(self, col):
         """Create a Gdk Color from a col tuple"""
         col = json.loads(col)
-        return Gdk.RGBA(col[0], col[1], col[2], col[3])
+        rgba = Gdk.RGBA()
+        rgba.red = col[0]
+        rgba.green = col[1]
+        rgba.blue = col[2]
+        rgba.alpha = col[3]
+        return rgba
 
     def parse_guild_ids(self, guild_ids_str):
         """Parse the guild_ids from a str and return them in a list"""
@@ -954,7 +959,7 @@ class Settings(Gtk.Application):
         self.config_set("main", "border_width", f"{int(button.get_value())}")
 
     def voice_avatar_circle_changed(self, button):
-        self.config_set("main", "square_avatar", f"{ not button.get_active()}")
+        self.config_set("main", "square_avatar", f"{not button.get_active()}")
 
     def voice_show_title_changed(self, button):
         self.config_set("main", "show_title", f"{button.get_active()}")
