@@ -362,10 +362,10 @@ class VoiceOverlayWindow(Gtk.Box):
 
         drop_shadow_normal = ""
         drop_shadow_talking = ""
-        for i in range(-width, width + 1):
-            for j in range(-width, width + 1):
-                drop_shadow_talking += f" drop-shadow({i}px {j}px 0 {talk_col})"
-                drop_shadow_normal += f" drop-shadow({i}px {j}px 0 {col})"
+        for j in range(0, width+1):
+            drop_shadow_talking += f" drop-shadow(0px 0px {width}px {talk_col})"
+            drop_shadow_normal += f" drop-shadow(0px 0px {width}px {col})"
+            # Pile up extra filters to darken the effect... This is such a stupid idea
 
         self.set_css(
             "talking-border",
@@ -480,7 +480,7 @@ class VoiceOverlayWindow(Gtk.Box):
         self.set_css(
             "mute-background",
             f"""
-            .usermute, .userdeaf 
+            .usermute, .userdeaf
             {{
                 filter: drop-shadow(-3px -3px {m_bg_col})
                   drop-shadow(3px -3px {m_bg_col})

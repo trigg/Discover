@@ -23,7 +23,7 @@ from configparser import ConfigParser
 import gi
 from .autostart import Autostart
 from .overlay import get_h_align, get_v_align
-from _version import __version__
+from ._version import __version__
 
 gi.require_version("Gtk", "4.0")
 

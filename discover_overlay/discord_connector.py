@@ -293,7 +293,7 @@ class DiscordConnector:
                     self.discover.voice_overlay.set_blank()
                 else:
                     # Remove this user from overlay
-                    self.discover.voice_overlay.del_user(thisuser)
+                    self.discover.voice_overlay.del_user(j["data"]["user"])
             elif j["evt"] == "SPEAKING_START":
                 self.discover.voice_overlay.set_talking(j["data"]["user_id"], True)
             elif j["evt"] == "SPEAKING_STOP":
@@ -474,6 +474,7 @@ class DiscordConnector:
         if self.socket_watch:
             GLib.source_remove(self.socket_watch)
             self.socket_watch = None
+        self.set_state(ConnectionState.NO_DISCORD)
         self.websocket = None
         self.blank_overlays()
         self.current_voice = "0"

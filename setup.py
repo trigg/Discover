@@ -1,4 +1,7 @@
 from setuptools import setup, find_namespace_packages
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'discover_overlay'))
 from _version import __version__
 
 
@@ -49,7 +52,7 @@ setup(
         "setuptools",
         "pulsectl-asyncio",
         "importlib_resources",
-        "cairo",
+        "pycairo",
         "ewmh",
         "pillow",
     ],

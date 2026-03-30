@@ -92,6 +92,7 @@ class OverlayWindow(Gtk.Window):
         # this process hanging if it happens
         self.connect("destroy", self.window_exited)
         self.connect("map", self.mapped)
+        #self.get_display().get_property("composited").connect("changed", self.set_untouchable)
 
     def mapped(self, _a=None):
         """Called when window is shown"""

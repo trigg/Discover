@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666659 8.4666669"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="discover-overlay-default.svg"
+   inkscape:export-filename="/home/voidbtw/Documents/Pictures/discover_icons/Discover/discover-overlay-default.png"
+   inkscape:export-xdpi="768.00006"
+   inkscape:export-ydpi="768.00006"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     units="px"
+     inkscape:zoom="1"
+     inkscape:cx="-141.5"
+     inkscape:cy="-27"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid869"
+       empspacing="1" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#fee75c;fill-opacity:1;stroke:none;stroke-width:0.343368;stroke-linecap:round;stroke-linejoin:round"
+       id="rect899"
+       width="8.4666662"
+       height="8.4666662"
+       x="0"
+       y="0" />
+    <path
+       d="M 6.0594824,4.8678253 A 0.71420035,0.71420035 0 0 1 6.7740003,5.5820256 V 5.8735489 A 0.87329968,0.87329968 0 0 1 6.6110901,6.381333 C 6.120137,7.0682228 5.3182892,7.4083333 4.232222,7.4083333 c -1.0867024,0 -1.8879152,-0.340428 -2.3775981,-1.027953 A 0.87329968,0.87329968 0 0 1 1.6926665,5.8738665 V 5.581708 A 0.71420035,0.71420035 0 0 1 2.4068668,4.8671901 H 6.0591649 Z M 4.232222,1.0583333 a 1.5878176,1.5878176 0 1 1 0,3.1756352 1.5878176,1.5878176 0 0 1 0,-3.1756352 z"
+       fill="#212121"
+       id="path860"
+       style="fill:#201c00;fill-opacity:1;stroke-width:0.317563" />
+  </g>
+</svg>

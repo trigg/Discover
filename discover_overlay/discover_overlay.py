@@ -22,7 +22,7 @@ import signal
 import importlib_resources
 from configparser import ConfigParser
 from ctypes import CDLL
-from _version import __version__
+from ._version import __version__
 
 CDLL("libgtk4-layer-shell.so")
 
