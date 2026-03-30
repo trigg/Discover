@@ -356,33 +356,30 @@ class VoiceOverlayWindow(Gtk.Box):
     def set_borders(self):
         """Update all border CSS rules based on config"""
         width = self.border_width
+        half = width / 2
         col = col_to_css(self.border_col)
         talk_col = col_to_css(self.talk_col)
         rounded = "border-radius: 50%;" if self.rounded_avatar else ""
-
-        drop_shadow_normal = ""
-        drop_shadow_talking = ""
-        for j in range(0, width+1):
-            drop_shadow_talking += f" drop-shadow(0px 0px {width}px {talk_col})"
-            drop_shadow_normal += f" drop-shadow(0px 0px {width}px {col})"
-            # Pile up extra filters to darken the effect... This is such a stupid idea
-
         self.set_css(
             "talking-border",
             f"""
-            .talking.user
+            .talking .usericon
             {{
-              filter: {drop_shadow_talking};
+              outline: {width}px solid {talk_col};
+              outline-offset: -{half}px;
+              {rounded}
             }}
-            .user
+            .usericon
             {{
-              filter: {drop_shadow_normal};
+              outline: {width}px solid {col};
+              outline-offset: -{half}px;
+              {rounded}
             }}
             .usericon, .usermute, .userdeaf
             {{
                 {rounded}
             }}
-            .container {{ padding: {width*2}px; }}
+            .container {{ padding: {width}px; }}
             """,
         )
 
