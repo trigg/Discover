@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Collection of LayoutManagers used throughout"""
+
 import logging
 from enum import Enum
 import gi
@@ -288,7 +289,7 @@ class UserBoxLayout(Gtk.LayoutManager):
         else:
             widget.label.set_valign(Gtk.Align.END)
 
-        widget.image.size_allocate(img_alloc, -1)
+        widget.image_wrapper.size_allocate(img_alloc, -1)
         widget.label.size_allocate(lbl_alloc, -1)
         widget.mute.size_allocate(img_alloc, -1)
         widget.deaf.size_allocate(img_alloc, -1)

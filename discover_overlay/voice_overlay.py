@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overlay window for voice"""
+
 import random
 import gettext
 import logging
@@ -298,7 +299,6 @@ class VoiceOverlayWindow(Gtk.Box):
         now = perf_counter()
         time_percent = (now - self.fade_start) / self.inactive_fade_time
         if time_percent >= 1.0:
-
             fade_opacity = self.fade_out_limit
             self.fadeout_timeout = None
             self.set_css("fade-out", ".container { opacity: %2.2f;}" % (fade_opacity))
@@ -375,9 +375,9 @@ class VoiceOverlayWindow(Gtk.Box):
               outline-offset: -{half}px;
               {rounded}
             }}
-            .usericon, .usermute, .userdeaf
+            .usericon-image, .usermute, .userdeaf
             {{
-                {rounded}
+              {rounded}
             }}
             .container {{ padding: {width}px; }}
             """,
@@ -562,7 +562,7 @@ class VoiceOverlayWindow(Gtk.Box):
 
         self.set_css(
             "icon_transparency",
-            ".usericon { opacity: %2.2f; }"
+            ".usericon-image { opacity: %2.2f; }"
             % (config.getfloat("icon_transparency", fallback=1.0)),
         )
 
