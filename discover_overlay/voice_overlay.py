@@ -30,7 +30,8 @@ from gi.repository import Pango, PangoCairo, GLib  # nopep8
 
 log = logging.getLogger(__name__)
 
-t = gettext.translation(https://github.com/Super-Pizza/Discover/blob/master/discover_overlay/voice_overlay.py
+t = gettext.translation(
+    'default', resources.files('discover_overlay').joinpath('locales'), fallback=True)
 _ = t.gettext
 
 
