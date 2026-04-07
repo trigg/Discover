@@ -21,7 +21,7 @@ import json
 import signal
 from configparser import ConfigParser
 import gi
-import pkg_resources
+from importlib import resources,metadata
 
 from .settings_window import MainSettingsWindow
 from .voice_overlay import VoiceOverlayWindow
@@ -41,7 +41,7 @@ except ModuleNotFoundError:
 
 log = logging.getLogger(__name__)
 t = gettext.translation(
-    'default', pkg_resources.resource_filename('discover_overlay', 'locales'), fallback=True)
+    'default', resources.files('discover_overlay').joinpath('locales'), fallback=True)
 _ = t.gettext
 
 
@@ -490,7 +490,7 @@ def show_help():
         print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
 
 def show_version():
-        print(pkg_resources.get_distribution('discover_overlay').version)
+        print(metadata.version('discover_overlay'))
 
 def is_a_controller(argv):
 
@@ -566,7 +566,7 @@ def entrypoint():
     else:
         logging.basicConfig(format=log_format)
     log.info("Starting Discover Overlay: %s",
-             pkg_resources.get_distribution('discover_overlay').version)
+             metadata.version('discover_overlay'))
 
     # Hedge against the bet gamescope ships with some WAYLAND_DISPLAY
     # Compatibility and we're not ready yet

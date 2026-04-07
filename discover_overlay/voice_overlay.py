@@ -19,7 +19,7 @@ import sys
 import locale
 from time import perf_counter
 import cairo
-import pkg_resources
+from importlib import resources
 from .overlay import OverlayWindow
 from .image_getter import get_surface, draw_img_to_rect, draw_img_to_mask
 # pylint: disable=wrong-import-order
@@ -31,7 +31,7 @@ from gi.repository import Pango, PangoCairo, GLib  # nopep8
 log = logging.getLogger(__name__)
 
 t = gettext.translation(
-    'default', pkg_resources.resource_filename('discover_overlay', 'locales'), fallback=True)
+    'default', resources.files('discover_overlay').joinpath('locales'), fallback=True)
 _ = t.gettext
 
 
