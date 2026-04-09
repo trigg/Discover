@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Notification window for text"""
+
 import logging
 import json
 import cairo
@@ -92,10 +93,17 @@ class NotificationOverlayWindow(Gtk.Box):
         self.text_align = "left"
         self.align_x = HorzAlign.RIGHT
         self.align_y = VertAlign.TOP
+        self.enabled = False
         self.show()
+
+    def set_enabled(self, enabled):
+        """Set if notifications should be enabled"""
+        self.enabled = enabled
 
     def add_notification_message(self, data):
         """Add new message to dataset"""
+        if not self.enabled:
+            return
         if "data" in data:
             data = data["data"]
         if "body" in data or "title" in data:
@@ -201,6 +209,7 @@ class NotificationOverlayWindow(Gtk.Box):
 
     def set_config(self, config):
         """Read in config section and set self and children accordingly"""
+        self.set_enabled(config.getboolean("enabled", fallback=False))
         font = config.get("font", fallback=None)
         self.align_x = get_h_align(config.get("align_x", "right"))
         self.align_y = get_v_align(config.get("align_y", "top"))

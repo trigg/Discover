@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """A Gtk Box with direction"""
+
 import gettext
 import logging
 import gi
@@ -55,9 +56,14 @@ class UserBox(Gtk.Box):
         self.deaf = Gtk.Image()
 
         self.image.set_overflow(Gtk.Overflow.HIDDEN)
+        self.image.add_css_class("usericon-image")
 
-        self.image.add_css_class("usericon")
+        self.image_wrapper = Gtk.Box()
+        self.image_wrapper.add_css_class("usericon")
+        self.image_wrapper.append(self.image)
+
         self.label.add_css_class("userlabel")
+
         self.mute.add_css_class("usermute")
         self.deaf.add_css_class("userdeaf")
 
@@ -69,7 +75,7 @@ class UserBox(Gtk.Box):
         self.deaf.set_valign(Gtk.Align.CENTER)
 
         self.append(self.label)
-        self.append(self.image)
+        self.append(self.image_wrapper)
         self.append(self.mute)
         self.append(self.deaf)
 

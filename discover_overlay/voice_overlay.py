@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Overlay window for voice"""
+
 import random
 import gettext
 import logging
@@ -61,6 +62,7 @@ class VoiceOverlayWindow(Gtk.Box):
         self.use_dummy = False
         self.dummy_count = 10
         self.border_width = 2
+        self.text_border = True
         self.only_speaking_grace_period = 0
         self.text_side = 3
         self.rounded_avatar = True
@@ -298,7 +300,6 @@ class VoiceOverlayWindow(Gtk.Box):
         now = perf_counter()
         time_percent = (now - self.fade_start) / self.inactive_fade_time
         if time_percent >= 1.0:
-
             fade_opacity = self.fade_out_limit
             self.fadeout_timeout = None
             self.set_css("fade-out", ".container { opacity: %2.2f;}" % (fade_opacity))
@@ -356,33 +357,43 @@ class VoiceOverlayWindow(Gtk.Box):
     def set_borders(self):
         """Update all border CSS rules based on config"""
         width = self.border_width
+        half = width / 2
         col = col_to_css(self.border_col)
         talk_col = col_to_css(self.talk_col)
         rounded = "border-radius: 50%;" if self.rounded_avatar else ""
-
-        drop_shadow_normal = ""
-        drop_shadow_talking = ""
-        for j in range(0, width+1):
-            drop_shadow_talking += f" drop-shadow(0px 0px {width}px {talk_col})"
-            drop_shadow_normal += f" drop-shadow(0px 0px {width}px {col})"
-            # Pile up extra filters to darken the effect... This is such a stupid idea
-
+        text_border = ""
+        if self.text_border:
+            text_border = f"""
+            .userlabel
+            {{
+              outline: {width}px solid {col};
+            }}
+            .talking .userlabel
+            {{
+              outline: {width}px solid {talk_col};
+            }}
+            """
         self.set_css(
             "talking-border",
             f"""
-            .talking.user
+            .talking .usericon
             {{
-              filter: {drop_shadow_talking};
+              outline: {width}px solid {talk_col};
+              outline-offset: -{half}px;
+              {rounded}
             }}
-            .user
+            .usericon
             {{
-              filter: {drop_shadow_normal};
+              outline: {width}px solid {col};
+              outline-offset: -{half}px;
+              {rounded}
             }}
-            .usericon, .usermute, .userdeaf
+            .usericon-image, .usermute, .userdeaf
             {{
-                {rounded}
+              {rounded}
             }}
-            .container {{ padding: {width*2}px; }}
+            .container {{ padding: {width}px; }}
+            {text_border}
             """,
         )
 
@@ -560,12 +571,13 @@ class VoiceOverlayWindow(Gtk.Box):
             config.getboolean("show_disconnected", fallback=True)
         )
         self.border_width = config.getint("border_width", fallback=2)
+        self.text_border = config.getboolean("text_border", fallback=True)
 
         self.show_avatar = config.getboolean("show_avatar", fallback=True)
 
         self.set_css(
             "icon_transparency",
-            ".usericon { opacity: %2.2f; }"
+            ".usericon-image { opacity: %2.2f; }"
             % (config.getfloat("icon_transparency", fallback=1.0)),
         )
 
@@ -593,6 +605,10 @@ class VoiceOverlayWindow(Gtk.Box):
         )
 
         self.update_all()
+
+        for child in self:
+            if isinstance(child, UserBox):
+                child.queue_resize()
 
     def set_css(self, css_id, rule):
         """Add or replace CSS Rule"""

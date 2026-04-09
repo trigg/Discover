@@ -11,6 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Collection of LayoutManagers used throughout"""
+
 import logging
 from enum import Enum
 import gi
@@ -273,13 +274,23 @@ class UserBoxLayout(Gtk.LayoutManager):
             lbl_alloc.x = lbl_alloc.y = 0
             lbl_alloc.width = width
 
-        tx = widget.overlay.text_x_align
-        if tx == "left":
+        # i hope this isn't needed anymore
+        # tx = widget.overlay.text_x_align
+        # if tx == "left":
+        #     widget.label.set_halign(Gtk.Align.START)
+        # elif tx == "middle":
+        #     widget.label.set_halign(Gtk.Align.CENTER)
+        # else:
+        #     widget.label.set_halign(Gtk.Align.END)
+        if direction == Direction.LTR:
             widget.label.set_halign(Gtk.Align.START)
-        elif tx == "middle":
+        elif direction == Direction.TTB:
+            widget.label.set_halign(Gtk.Align.CENTER)
+        elif direction == Direction.BTT:
             widget.label.set_halign(Gtk.Align.CENTER)
         else:
             widget.label.set_halign(Gtk.Align.END)
+
         ty = widget.overlay.text_y_align
         if ty == "top":
             widget.label.set_valign(Gtk.Align.START)
@@ -288,7 +299,7 @@ class UserBoxLayout(Gtk.LayoutManager):
         else:
             widget.label.set_valign(Gtk.Align.END)
 
-        widget.image.size_allocate(img_alloc, -1)
+        widget.image_wrapper.size_allocate(img_alloc, -1)
         widget.label.size_allocate(lbl_alloc, -1)
         widget.mute.size_allocate(img_alloc, -1)
         widget.deaf.size_allocate(img_alloc, -1)

@@ -400,11 +400,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_talking_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_foreground_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_talking_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">1</property>
@@ -412,11 +419,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_talking_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_background_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_talking_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">1</property>
@@ -424,11 +438,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_talking_border</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_talking_border_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_talking_border_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">1</property>
@@ -436,11 +457,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_idle_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_foreground_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_idle_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">2</property>
@@ -448,11 +476,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_idle_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_background_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_idle_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">2</property>
@@ -460,11 +495,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_idle_border</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_idle_border_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_idle_border_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
                       <property name="row">2</property>
@@ -472,11 +514,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_mute_foreground</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_mute_foreground_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_mute_foreground_changed" swapped="no" />
                     <layout>
                       <property name="column">3</property>
                       <property name="row">3</property>
@@ -484,11 +533,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_mute_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_mute_background_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_mute_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">3</property>
@@ -496,11 +552,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">voice_avatar_background</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="voice_avatar_background_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="voice_avatar_background_changed" swapped="no" />
                     <layout>
                       <property name="column">4</property>
                       <property name="row">4</property>
@@ -642,7 +705,7 @@
                     <signal name="changed" handler="voice_text_side_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">11</property>
+                      <property name="row">12</property>
                     </layout>
                   </object>
                 </child>
@@ -653,7 +716,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">11</property>
+                      <property name="row">12</property>
                     </layout>
                   </object>
                 </child>
@@ -1136,12 +1199,34 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">voice_text_border_label</property>
+                    <property name="label" translatable="1">Border around text</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">4</property>
+                      <property name="row">5</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton">
+                    <property name="name">voice_text_border</property>
+                    <property name="focusable">1</property>
+                    <signal name="toggled" handler="voice_text_border_changed" swapped="no" />
+                    <layout>
+                      <property name="column">5</property>
+                      <property name="row">5</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">voice_border_width_label</property>
                     <property name="label" translatable="1">Border width</property>
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">5</property>
+                      <property name="row">6</property>
                     </layout>
                   </object>
                 </child>
@@ -1155,7 +1240,7 @@
                     <signal name="value-changed" handler="voice_border_width_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">5</property>
+                      <property name="row">6</property>
                     </layout>
                   </object>
                 </child>
@@ -1166,7 +1251,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">6</property>
+                      <property name="row">7</property>
                     </layout>
                   </object>
                 </child>
@@ -1179,7 +1264,7 @@
                     <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">6</property>
+                      <property name="row">7</property>
                     </layout>
                   </object>
                 </child>
@@ -1192,7 +1277,7 @@
                     <signal name="clicked" handler="voice_reset_all" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">12</property>
+                      <property name="row">14</property>
                     </layout>
                   </object>
                 </child>
@@ -1203,7 +1288,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">7</property>
+                      <property name="row">8</property>
                     </layout>
                   </object>
                 </child>
@@ -1214,7 +1299,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">8</property>
+                      <property name="row">9</property>
                     </layout>
                   </object>
                 </child>
@@ -1225,7 +1310,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">9</property>
+                      <property name="row">10</property>
                     </layout>
                   </object>
                 </child>
@@ -1236,7 +1321,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">10</property>
+                      <property name="row">11</property>
                     </layout>
                   </object>
                 </child>
@@ -1247,7 +1332,7 @@
                     <signal name="toggled" handler="inactive_fade_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">7</property>
+                      <property name="row">8</property>
                     </layout>
                   </object>
                 </child>
@@ -1262,7 +1347,7 @@
                       swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">8</property>
+                      <property name="row">9</property>
                     </layout>
                   </object>
                 </child>
@@ -1275,7 +1360,7 @@
                     <signal name="value-changed" handler="inactive_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">9</property>
+                      <property name="row">10</property>
                     </layout>
                   </object>
                 </child>
@@ -1288,7 +1373,7 @@
                     <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">10</property>
+                      <property name="row">11</property>
                     </layout>
                   </object>
                 </child>
@@ -1429,11 +1514,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">text_background_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="text_background_colour_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="text_background_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">8</property>
@@ -1452,11 +1544,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">text_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="text_colour_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="text_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">7</property>
@@ -1858,11 +1957,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">notification_text_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="notification_text_colour_changed" swapped="no" />
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="notification_text_colour_changed" swapped="no" />
                     <layout>
                       <property name="column">1</property>
                       <property name="row">5</property>
@@ -1870,11 +1976,18 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkColorButton">
+                  <object class="GtkColorDialogButton">
                     <property name="name">notification_background_colour</property>
                     <property name="focusable">1</property>
                     <property name="receives-default">1</property>
-                    <signal name="color-set" handler="notification_background_colour_changed"
+                    <property name="dialog">
+                      <object class="GtkColorDialog">
+                        <property name="title">Select Color</property>
+                        <property name="modal">1</property>
+                        <property name="with-alpha">1</property>
+                      </object>
+                    </property>
+                    <signal name="notify::rgba" handler="notification_background_colour_changed"
                       swapped="no" />
                     <layout>
                       <property name="column">1</property>
