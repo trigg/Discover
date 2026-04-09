@@ -274,13 +274,23 @@ class UserBoxLayout(Gtk.LayoutManager):
             lbl_alloc.x = lbl_alloc.y = 0
             lbl_alloc.width = width
 
-        tx = widget.overlay.text_x_align
-        if tx == "left":
+        # i hope this isn't needed anymore
+        # tx = widget.overlay.text_x_align
+        # if tx == "left":
+        #     widget.label.set_halign(Gtk.Align.START)
+        # elif tx == "middle":
+        #     widget.label.set_halign(Gtk.Align.CENTER)
+        # else:
+        #     widget.label.set_halign(Gtk.Align.END)
+        if direction == Direction.LTR:
             widget.label.set_halign(Gtk.Align.START)
-        elif tx == "middle":
+        elif direction == Direction.TTB:
+            widget.label.set_halign(Gtk.Align.CENTER)
+        elif direction == Direction.BTT:
             widget.label.set_halign(Gtk.Align.CENTER)
         else:
             widget.label.set_halign(Gtk.Align.END)
+
         ty = widget.overlay.text_y_align
         if ty == "top":
             widget.label.set_valign(Gtk.Align.START)

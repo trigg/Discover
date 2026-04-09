@@ -705,7 +705,7 @@
                     <signal name="changed" handler="voice_text_side_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">11</property>
+                      <property name="row">12</property>
                     </layout>
                   </object>
                 </child>
@@ -716,7 +716,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">11</property>
+                      <property name="row">12</property>
                     </layout>
                   </object>
                 </child>
@@ -1199,12 +1199,34 @@
                 </child>
                 <child>
                   <object class="GtkLabel">
+                    <property name="name">voice_text_border_label</property>
+                    <property name="label" translatable="1">Border around text</property>
+                    <property name="xalign">0</property>
+                    <layout>
+                      <property name="column">4</property>
+                      <property name="row">5</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton">
+                    <property name="name">voice_text_border</property>
+                    <property name="focusable">1</property>
+                    <signal name="toggled" handler="voice_text_border_changed" swapped="no" />
+                    <layout>
+                      <property name="column">5</property>
+                      <property name="row">5</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
                     <property name="name">voice_border_width_label</property>
                     <property name="label" translatable="1">Border width</property>
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">5</property>
+                      <property name="row">6</property>
                     </layout>
                   </object>
                 </child>
@@ -1218,7 +1240,7 @@
                     <signal name="value-changed" handler="voice_border_width_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">5</property>
+                      <property name="row">6</property>
                     </layout>
                   </object>
                 </child>
@@ -1229,7 +1251,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">6</property>
+                      <property name="row">7</property>
                     </layout>
                   </object>
                 </child>
@@ -1242,7 +1264,7 @@
                     <signal name="value-changed" handler="voice_icon_spacing_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">6</property>
+                      <property name="row">7</property>
                     </layout>
                   </object>
                 </child>
@@ -1255,7 +1277,7 @@
                     <signal name="clicked" handler="voice_reset_all" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">12</property>
+                      <property name="row">14</property>
                     </layout>
                   </object>
                 </child>
@@ -1266,7 +1288,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">7</property>
+                      <property name="row">8</property>
                     </layout>
                   </object>
                 </child>
@@ -1277,7 +1299,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">8</property>
+                      <property name="row">9</property>
                     </layout>
                   </object>
                 </child>
@@ -1288,7 +1310,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">9</property>
+                      <property name="row">10</property>
                     </layout>
                   </object>
                 </child>
@@ -1299,7 +1321,7 @@
                     <property name="xalign">0</property>
                     <layout>
                       <property name="column">4</property>
-                      <property name="row">10</property>
+                      <property name="row">11</property>
                     </layout>
                   </object>
                 </child>
@@ -1310,7 +1332,7 @@
                     <signal name="toggled" handler="inactive_fade_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">7</property>
+                      <property name="row">8</property>
                     </layout>
                   </object>
                 </child>
@@ -1325,7 +1347,7 @@
                       swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">8</property>
+                      <property name="row">9</property>
                     </layout>
                   </object>
                 </child>
@@ -1338,7 +1360,7 @@
                     <signal name="value-changed" handler="inactive_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">9</property>
+                      <property name="row">10</property>
                     </layout>
                   </object>
                 </child>
@@ -1351,7 +1373,7 @@
                     <signal name="value-changed" handler="inactive_fade_time_changed" swapped="no" />
                     <layout>
                       <property name="column">5</property>
-                      <property name="row">10</property>
+                      <property name="row">11</property>
                     </layout>
                   </object>
                 </child>

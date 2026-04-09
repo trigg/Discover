@@ -62,6 +62,7 @@ class VoiceOverlayWindow(Gtk.Box):
         self.use_dummy = False
         self.dummy_count = 10
         self.border_width = 2
+        self.text_border = True
         self.only_speaking_grace_period = 0
         self.text_side = 3
         self.rounded_avatar = True
@@ -360,6 +361,18 @@ class VoiceOverlayWindow(Gtk.Box):
         col = col_to_css(self.border_col)
         talk_col = col_to_css(self.talk_col)
         rounded = "border-radius: 50%;" if self.rounded_avatar else ""
+        text_border = ""
+        if self.text_border:
+            text_border = f"""
+            .userlabel
+            {{
+              outline: {width}px solid {col};
+            }}
+            .talking .userlabel
+            {{
+              outline: {width}px solid {talk_col};
+            }}
+            """
         self.set_css(
             "talking-border",
             f"""
@@ -380,6 +393,7 @@ class VoiceOverlayWindow(Gtk.Box):
               {rounded}
             }}
             .container {{ padding: {width}px; }}
+            {text_border}
             """,
         )
 
@@ -557,6 +571,7 @@ class VoiceOverlayWindow(Gtk.Box):
             config.getboolean("show_disconnected", fallback=True)
         )
         self.border_width = config.getint("border_width", fallback=2)
+        self.text_border = config.getboolean("text_border", fallback=True)
 
         self.show_avatar = config.getboolean("show_avatar", fallback=True)
 

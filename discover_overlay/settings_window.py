@@ -533,6 +533,10 @@ class Settings(Gtk.Application):
             config.getint("main", "order", fallback=0)
         )
 
+        self.widget["voice_text_border"].set_active(
+            config.getboolean("main", "text_border", fallback=True)
+        )
+
         self.widget["voice_border_width"].set_value(
             config.getint("main", "border_width", fallback=2)
         )
@@ -954,6 +958,9 @@ class Settings(Gtk.Application):
 
     def voice_order_avatars_by_changed(self, button):
         self.config_set("main", "order", f"{button.get_active()}")
+
+    def voice_text_border_changed(self, button):
+        self.config_set("main", "text_border", f"{button.get_active()}")
 
     def voice_border_width_changed(self, button):
         self.config_set("main", "border_width", f"{int(button.get_value())}")
