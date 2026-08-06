@@ -1,8 +1,17 @@
 from setuptools import setup, find_namespace_packages
-import sys
+import re
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), 'discover_overlay'))
-from _version import __version__
+
+
+def get_version():
+    version_file = os.path.join(
+        os.path.dirname(__file__), "discover_overlay", "_version.py"
+    )
+    with open(version_file, "r", encoding="utf-8") as f:
+        match = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", f.read())
+        if match:
+            return match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
 def readme():
@@ -13,12 +22,14 @@ setup(
     name="discover-overlay",
     author="trigg",
     author_email="",
-    version=__version__,
+    version=get_version(),
     description="Voice chat overlay",
     long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/trigg/Discover",
-    packages=find_namespace_packages(),
+    packages=find_namespace_packages(
+        exclude=["build*", "dist*", "tests*", "*.egg-info"]
+    ),
     include_package_data=True,
     data_files=[
         (

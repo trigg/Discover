@@ -63,6 +63,9 @@ class TextOverlayWindow(Gtk.Box):
             self.append(message)
         self.get_root().set_visibility()
 
+    def update_message(self, msgid, message=None):
+        pass  # TODO update
+
     def set_text_time(self, timer):
         """Config option: Time before messages disappear from overlay"""
         if self.text_time != timer:
@@ -104,10 +107,6 @@ class TextOverlayWindow(Gtk.Box):
 
     def set_config(self, config):
         """Set self and children from config"""
-        channel = config.get("channel", fallback="0")
-        guild = config.get("guild", fallback="0")
-        self.discover.connection.set_text_channel(channel, guild)
-
         font = config.get("font", fallback=None)
 
         self.set_css(

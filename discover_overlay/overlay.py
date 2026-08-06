@@ -30,7 +30,7 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("GdkWayland", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 
-from gi.repository import Gtk, GLib, GdkX11, GdkWayland, Gtk4LayerShell
+from gi.repository import Gtk, GLib, GdkX11, GdkWayland, Gtk4LayerShell, Graphene, Gdk
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +92,27 @@ class OverlayWindow(Gtk.Window):
         # this process hanging if it happens
         self.connect("destroy", self.window_exited)
         self.connect("map", self.mapped)
-        #self.get_display().get_property("composited").connect("changed", self.set_untouchable)
+        # TODO Is there any place we meaningfully lose compositing mid-use?
+        # self.get_display().get_property("composited").connect("changed", self.set_untouchable)
+
+    # pylint: disable=arguments-differ
+    def do_snapshot(self, snapshot: Gtk.Snapshot) -> None:
+        visible_children = 0
+        child = self.get_first_child()
+        while child:
+            if child.get_visible():
+                visible_children += 1
+            child = child.get_next_sibling()
+
+        if visible_children == 0:
+            rect = Graphene.Rect()
+            rect.init(0, 0, self.get_width(), self.get_height())
+
+            transparent_color = Gdk.RGBA(0.0, 0.0, 0.0, 0.0)
+
+            snapshot.append_color(transparent_color, rect)
+        else:
+            Gtk.Box.do_snapshot(self, snapshot)
 
     def mapped(self, _a=None):
         """Called when window is shown"""
@@ -102,7 +122,6 @@ class OverlayWindow(Gtk.Window):
         self.set_untouchable()
         self.force_location()
         self.get_root().set_visibility()
-
 
     def remove_css(self, cssid):
         """Removes a CSS Rule by id"""
@@ -360,6 +379,12 @@ class OverlayWindow(Gtk.Window):
         if not isinstance(align, HorzAlign):
             log.error("Unable to set Align X %s", align)
             return
+        if align == HorzAlign.MIDDLE:
+            self.set_halign(Gtk.Align.CENTER)
+        elif align == HorzAlign.RIGHT:
+            self.set_halign(Gtk.Align.END)
+        elif align == HorzAlign.LEFT:
+            self.set_halign(Gtk.Align.START)
 
         self.horzalign = align
         self.force_location()
@@ -371,7 +396,12 @@ class OverlayWindow(Gtk.Window):
         if not isinstance(align, VertAlign):
             log.error("Unable to set Align Y %s", align)
             return
-
+        if align == VertAlign.MIDDLE:
+            self.set_valign(Gtk.Align.CENTER)
+        elif align == VertAlign.BOTTOM:
+            self.set_valign(Gtk.Align.END)
+        elif align == VertAlign.TOP:
+            self.set_valign(Gtk.Align.START)
         self.vertalign = align
         self.force_location()
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-xgettext -d base --no-location -o discover_overlay/locales/base.pot discover_overlay/*.py discover_overlay/glade/settings.glade
+xgettext -d base --no-location -o discover_overlay/locales/base.pot discover_overlay/*.py discover_overlay/glade/settings.xml
 sed -i 's/charset=CHARSET/charset=UTF-8/g' discover_overlay/locales/base.pot
 
 # Update all .po files with new keys

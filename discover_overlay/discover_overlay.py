@@ -19,10 +19,12 @@ import re
 import traceback
 import logging
 import signal
+import json
 import importlib_resources
 from configparser import ConfigParser
 from ctypes import CDLL
 from ._version import __version__
+from .rpc import DataclassEncoder
 
 CDLL("libgtk4-layer-shell.so")
 
@@ -98,24 +100,144 @@ class Discover:
 
         self.create_gui()
 
-        self.connection = DiscordConnector(self)
-
-        self.connection.connect()
         self.audio_assist = DiscoverAudioAssist(self)
 
-        rpc_file_gio = Gio.File.new_for_path(rpc_file)
-        monitor = rpc_file_gio.monitor_file(0, None)
-        monitor.connect("changed", self.rpc_changed)
+        self.connector = DiscordConnector()
+        self.connector.connect(
+            "access-token-verified",
+            lambda emitter, token: self.config_set("cache", "access_token", token),
+        )
 
-        config_file = Gio.File.new_for_path(config_file)
-        monitor_config = config_file.monitor_file(0, None)
-        monitor_config.connect("changed", self.config_changed)
+        self.connector.connect(
+            "channel-data-updated",
+            lambda emitter, chan, guild: self.write_channel_cache(chan, guild),
+        )
+
+        self.connector.connect(
+            "connection-state-changed",
+            lambda emitter, state: GLib.idle_add(
+                self.voice_overlay.set_connection_status, state
+            ),
+        )
+
+        self.connector.connect(
+            "voice-channel-title-changed",
+            lambda emitter, title: GLib.idle_add(
+                self.voice_overlay.set_channel_title, title
+            ),
+        )
+
+        self.connector.connect(
+            "voice-channel-icon-changed",
+            lambda emitter, icon: GLib.idle_add(
+                self.voice_overlay.set_channel_icon, icon
+            ),
+        )
+
+        self.connector.connect(
+            "user-updated",
+            lambda emitter, user: GLib.idle_add(self.voice_overlay.update_user, user),
+        )
+
+        self.connector.connect(
+            "user-speaking-changed",
+            lambda emitter, uid, status: GLib.idle_add(
+                self.voice_overlay.set_talking, uid, status
+            ),
+        )
+
+        self.connector.connect(
+            "user-deleted",
+            lambda emitter, user: GLib.idle_add(self.voice_overlay.del_user, user),
+        )
+
+        self.connector.connect(
+            "voice-blanked",
+            lambda emitter: GLib.idle_add(self.voice_overlay.set_blank),
+        )
+
+        self.connector.connect(
+            "text-message-received",
+            lambda emitter, msg: GLib.idle_add(self.text_overlay.new_line, msg),
+        )
+
+        self.connector.connect(
+            "text-message-updated",
+            lambda emitter, mid, msg: GLib.idle_add(
+                self.text_overlay.update_message, mid, msg
+            ),
+        )
+
+        self.connector.connect(
+            "text-message-deleted",
+            lambda emitter, mid: GLib.idle_add(self.text_overlay.update_message, mid),
+        )
+
+        self.connector.connect(
+            "text-cleared",
+            lambda emitter: GLib.idle_add(self.text_overlay.set_blank),
+        )
+
+        self.connector.connect(
+            "overlays-blanked",
+            lambda emitter: GLib.idle_add(self.voice_overlay.set_blank),
+        )
+        self.connector.connect(
+            "overlays-blanked",
+            lambda emitter: GLib.idle_add(self.text_overlay.set_blank),
+        )
+        self.connector.connect(
+            "notification-received",
+            lambda emitter: GLib.idle_add(
+                self.notification_overlay.add_notification_message
+            ),
+        )
+        self.connector.connect(
+            "audio-devices-changed",
+            lambda emitter, sinks, sources: GLib.idle_add(
+                self.audio_assist.set_devices, sinks, sources
+            ),
+        )
+
+        self.connector.connect_socket()
+
+        self._config_basename = os.path.basename(config_file)
+        self._rpc_basename = os.path.basename(rpc_file)
+
+        config_dir_path = os.path.dirname(os.path.abspath(config_file))
+        config_dir_gio = Gio.File.new_for_path(config_dir_path)
+
+        self.dir_monitor = config_dir_gio.monitor_directory(0, None)
+        self.dir_monitor.connect("changed", self.on_directory_changed)
 
         self.config_changed()
 
         # pylint: disable=E1120
         while len(Gtk.Window.get_toplevels()) > 0:
             GLib.MainContext.iteration(GLib.MainContext.default(), True)
+
+    def on_directory_changed(self, monitor, file, other_file, event_type):
+        """
+        Callback on a file in our config directory being changed.
+        """
+        if file is None:
+            return
+
+        changed_filename = file.get_basename()
+
+        if changed_filename == self._config_basename:
+            if event_type in (
+                Gio.FileMonitorEvent.CHANGES_DONE_HINT,
+                Gio.FileMonitorEvent.CREATED,
+            ):
+                self.config_changed(monitor, file, other_file, event_type)
+
+        elif changed_filename == self._rpc_basename:
+            if event_type in (
+                Gio.FileMonitorEvent.CHANGES_DONE_HINT,
+                Gio.FileMonitorEvent.CREATED,
+            ):
+                self.rpc_changed(monitor, file, other_file, event_type)
 
     def do_args(self, data, normal_close):
         """
@@ -221,6 +343,10 @@ class Discover:
             self.text_overlay_window.set_hidden(hidden)
         self.text_overlay.set_config(text_section)
 
+        channel = text_section.get("channel", fallback="0")
+        guild = text_section.get("guild", fallback="0")
+        self.connector.set_text_channel(channel, guild)
+
         # Set Notification overlay options
         if not config.has_section("notification"):
             config["notification"] = {}
@@ -293,6 +419,22 @@ class Discover:
         """
         sys.exit()
 
+    def write_channel_cache(self, channels_map, guilds_map):
+        """
+        Output our channels to cache in our config dir
+        """
+        if not hasattr(self, "channel_file") or not self.channel_file:
+            log.warning("channel file does not exist")
+            return
+
+        try:
+            payload = {"channels": channels_map, "guild": guilds_map}
+
+            with open(self.channel_file, "w", encoding="utf-8") as f:
+                f.write(json.dumps(payload, cls=DataclassEncoder))
+        except IOError as e:
+            log.error(f"Failed: {e}")
+
     def set_mute_async(self, mute):
         """Set mute status from another thread"""
         if mute is not None:
@@ -303,45 +445,62 @@ class Discover:
         if deaf is not None:
             GLib.idle_add(self.connection.set_deaf, deaf)
 
+
 def show_help():
-        print(_("Usage") + ": discover-overlay [OPTIONS]... ")
-        print(_("Show an X11 or wlroots overlay with information"))
-        print(_("from Discord client"))
-        print("")
-        print("  -c, --configure        ", _("Open configuration window"))
-        print("  -x, --close            ",
-              _("Close currently running instance"))
-        print("  -v, --debug            ",
-                  _("Verbose output for aid in debugging"))
-        print("  -h, --help             ", _("This screen"))
-        print("  -V, --version          ", _("Show version information"))
-        print("      --hide             ", _("Hide overlay"))
-        print("      --show             ", _("Show overlay"))
-        print("      --mute             ", _("Set own user to mute"))
-        print("      --unmute           ", _("Set unmuted"))
-        print("      --toggle-mute           ", _("Toggle muted"))
-        print("      --deaf             ", _("Set own user to deafened"))
-        print("      --undeaf           ", _("Unset user deafened state"))
-        print("      --toggle-deaf           ", _("Toggle deaf"))
-        print("      --moveto=XX        ",
-              _("Move the user into voice room, by Room ID"))
-        print("      --leave            ", _("Leave the current voice channel"))
-        print("      --minimized        ",
-              _("If tray icon is enabled, start with only tray icon and no configuration window"))
-        print("")
-        print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
+    """
+    show --help output
+    """
+    print(_("Usage") + ": discover-overlay [OPTIONS]... ")
+    print(_("Show an X11 or wlroots overlay with information"))
+    print(_("from Discord client"))
+    print("")
+    print("  -c, --configure        ", _("Open configuration window"))
+    print("  -x, --close            ", _("Close currently running instance"))
+    print("  -v, --debug            ", _("Verbose output for aid in debugging"))
+    print("  -h, --help             ", _("This screen"))
+    print("  -V, --version          ", _("Show version information"))
+    print("      --hide             ", _("Hide overlay"))
+    print("      --show             ", _("Show overlay"))
+    print("      --mute             ", _("Set own user to mute"))
+    print("      --unmute           ", _("Set unmuted"))
+    print("      --toggle-mute           ", _("Toggle muted"))
+    print("      --deaf             ", _("Set own user to deafened"))
+    print("      --undeaf           ", _("Unset user deafened state"))
+    print("      --toggle-deaf           ", _("Toggle deaf"))
+    print("      --moveto=XX        ", _("Move the user into voice room, by Room ID"))
+    print("      --leave            ", _("Leave the current voice channel"))
+    print(
+        "      --minimized        ",
+        _(
+            "If tray icon is enabled, start with only tray icon and no configuration window"
+        ),
+    )
+    print("")
+    print(_("For gamescope compatibility ensure ENV has 'GDK_BACKEND=x11'"))
+
 
 def show_version():
-        print(pkg_resources.get_distribution('discover_overlay').version)
+    """
+    Show --version output
+    """
+    print(__version__)
+
 
 def is_a_controller(argv):
 
     actions = {
-        "-x", "--close",
-        "--hide", "--show",
-        "--mute", "--unmute", "--toggle-mute",
-        "--deaf", "--undeaf", "--toggle-deaf",
-        "-l", "--leave",
+        "-x",
+        "--close",
+        "--hide",
+        "--show",
+        "--mute",
+        "--unmute",
+        "--toggle-mute",
+        "--deaf",
+        "--undeaf",
+        "--toggle-deaf",
+        "-l",
+        "--leave",
         "--refresh-guilds",
     }
     controls = {
@@ -357,6 +516,7 @@ def is_a_controller(argv):
             if arg.startswith(control):
                 return True
     return False
+
 
 def entrypoint():
     """
@@ -433,8 +593,7 @@ def entrypoint():
         with open(rpc_file, "w", encoding="utf-8") as tfile:
             tfile.write("--close")
         # Show the overlay
-        Discover(rpc_file, config_file, channel_file,
-                 debug_file, sys.argv[1:])
+        Discover(rpc_file, config_file, channel_file, debug_file, sys.argv[1:])
 
     except Exception as ex:  # pylint: disable=broad-except
         log.error(ex)

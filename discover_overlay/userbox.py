@@ -18,6 +18,7 @@ import importlib_resources
 from .image_getter import get_surface
 from .layout import UserBoxLayout
 from .connection_state import ConnectionState
+from .rpc import RPCUser
 
 gi.require_version("Gtk", "4.0")
 
@@ -86,25 +87,22 @@ class UserBox(Gtk.Box):
         self.set_layout_manager(UserBoxLayout())
         self.update_image()
 
-    def update_user_data(self, userblob):
+    def update_user_data(self, userblob: RPCUser):
         """Set internals based on most recent object from connector. Avoid flickering/reflow where possible"""
-        name = userblob["username"]
-        if "nick" in userblob:
-            name = userblob["nick"]
+        name = userblob.username
+        if userblob.nick is not None:
+            name = userblob.nick
         if self.name != name:
             self.name = name
             self.update_label()
 
-        # These are set by server, from multiple sources.
-        if "mute" in userblob:
-            self.set_mute(userblob["mute"])
-        if "deaf" in userblob:
-            self.set_deaf(userblob["deaf"])
+        self.set_mute(userblob.mute)
+        self.set_deaf(userblob.deaf)
 
-        url = f"https://cdn.discordapp.com/avatars/{userblob['id']}/{userblob['avatar']}.png"
+        url = f"https://cdn.discordapp.com/avatars/{userblob.id}/{userblob.avatar}.png"
 
         if not self.pixbuf_requested and url != self.previous_avatar_url:
-            get_surface(self.recv_avatar, url, userblob["id"], self.get_display())
+            get_surface(self.recv_avatar, url, userblob.id, self.get_display())
             self.pixbuf_requested = True
 
     def update_label(self):
@@ -263,7 +261,7 @@ class UserBoxConnection(UserBox):
         else:
             return _("ERROR")
 
-    def set_connection(self, level):
+    def set_connection(self, level: ConnectionState):
         """Set connection string. Updates image and label"""
         self.last = level
         self.image.set_from_icon_name(self.get_image_name())

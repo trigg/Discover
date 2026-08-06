@@ -23,7 +23,18 @@ from .layout import get_h_align, get_v_align, HorzAlign, VertAlign
 from .image_getter import get_surface
 from .css_helper import font_string_to_css_font_string, col_to_css
 from .userbox import UserBox, UserBoxConnection, UserBoxTitle
+from .connection_state import ConnectionState
 import gi
+from .rpc import (
+    validate,
+    ValidationError,
+    RPCCmd,
+    RPCEvent,
+    RPCFrame,
+    RPCChannelData,
+    ChannelType,
+    RPCUser,
+)
 
 gi.require_version("Gtk", "4.0")
 
@@ -47,7 +58,8 @@ class VoiceOverlayWindow(Gtk.Box):
     def __init__(self, discover):
         Gtk.Box.__init__(self)
         self.discover = discover
-
+        # Enforce a minimal size to avoid artifacting in some DEs
+        self.set_size_request(1, 1)
         # Config initial values
         self.text_x_align = "middle"
         self.text_y_align = "middle"
@@ -168,6 +180,7 @@ class VoiceOverlayWindow(Gtk.Box):
             child.update_label()
             child.update_image()
             child = child.get_next_sibling()
+        self.queue_resize()
 
     def update_all_images(self):
         """Update each child widgets image, assuming changed config"""
@@ -182,11 +195,13 @@ class VoiceOverlayWindow(Gtk.Box):
         while child:
             child.update_label()
             child = child.get_next_sibling()
+        self.queue_resize()
 
-    def create_user_widget(self, user):
+    def create_user_widget(self, user: RPCUser):
         """Create a widget for the user"""
-        userbox = UserBox(self, user["id"])
+        userbox = UserBox(self, user.id)
         self.append(userbox)
+        self.queue_resize()
         return userbox
 
     def get_user_widget(self, userid):
@@ -198,7 +213,7 @@ class VoiceOverlayWindow(Gtk.Box):
             child = child.get_next_sibling()
         return None
 
-    def set_align_x(self, align):
+    def set_align_x(self, align: HorzAlign):
         """Set layout of self based on user preference"""
         self.align_x = align
         if align == HorzAlign.LEFT:
@@ -208,7 +223,7 @@ class VoiceOverlayWindow(Gtk.Box):
         else:
             self.set_halign(Gtk.Align.END)
 
-    def set_align_y(self, align):
+    def set_align_y(self, align: VertAlign):
         """Set layout of self based on user preference"""
         self.align_y = align
         if align == VertAlign.TOP:
@@ -222,18 +237,18 @@ class VoiceOverlayWindow(Gtk.Box):
         """Get alignment requested"""
         return (self.align_x, self.align_y)
 
-    def update_user(self, user):
+    def update_user(self, user: RPCUser):
         """Find users widget and update details in it"""
-        widget = self.get_user_widget(user["id"])
+        widget = self.get_user_widget(user.id)
         if not widget:
             widget = self.create_user_widget(user)
         widget.update_user_data(user)
         widget.user_join()
         self.get_root().set_visibility()
 
-    def del_user(self, user):
+    def del_user(self, user: RPCUser):
         """Hide user"""
-        widget = self.get_user_widget(user["id"])
+        widget = self.get_user_widget(user.id)
         if widget:
             widget.user_left()
         self.get_root().set_visibility()
@@ -362,10 +377,11 @@ class VoiceOverlayWindow(Gtk.Box):
 
         drop_shadow_normal = ""
         drop_shadow_talking = ""
-        for j in range(0, width+1):
+        for j in range(0, width + 1):
             drop_shadow_talking += f" drop-shadow(0px 0px {width}px {talk_col})"
             drop_shadow_normal += f" drop-shadow(0px 0px {width}px {col})"
             # Pile up extra filters to darken the effect... This is such a stupid idea
+            # Oh but it works. Okay then.
 
         self.set_css(
             "talking-border",
@@ -397,19 +413,19 @@ class VoiceOverlayWindow(Gtk.Box):
         else:
             get_surface(self.recv_avatar, url, "channel", self.get_display())
 
-    def set_connection_status(self, connection):
+    def set_connection_status(self, connection: ConnectionState):
         """Set if discord has a clean connection to server"""
         self.connection.set_connection(connection)
 
-    def sort_list(self, in_list):
+    def sort_list(self, in_list: list[RPCUser]):
         """Take a userlist and sort it according to config option"""
         if self.order == 1:  # ID Sort
-            in_list.sort(key=lambda x: x["id"])
+            in_list.sort(key=lambda x: x.id)
         elif self.order == 2:  # Spoken sort
-            in_list.sort(key=lambda x: x["lastspoken"], reverse=True)
-            in_list.sort(key=lambda x: x["speaking"], reverse=True)
+            in_list.sort(key=lambda x: x.lastspoken, reverse=True)
+            in_list.sort(key=lambda x: x.speaking, reverse=True)
         else:  # Name sort
-            in_list.sort(key=lambda x: locale.strxfrm(x["friendlyname"]))
+            in_list.sort(key=lambda x: locale.strxfrm(x.friendlyname))
         return in_list
 
     def should_show(self):

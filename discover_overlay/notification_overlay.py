@@ -148,10 +148,7 @@ class NotificationOverlayWindow(Gtk.Box):
 
     def set_limit_width(self, limit):
         """Config option: Word wrap limit, in window-space pixels"""
-        child = self.get_first_child()
-        while child:
-            child.set_size_request(1, 1)
-            child = child.get_next_sibling()
+        self.set_size_request(limit, 1)
 
     def set_fg(self, fg_col):
         """Config option: Set default text colour"""

@@ -28,30 +28,109 @@ import calendar
 import websocket
 import requests
 from .connection_state import ConnectionState
+import os
+import signal
+from .rpc import validate, ValidationError, RPCCmd, RPCEvent, ChannelType
 
-from gi.repository import GLib
+
+from gi.repository import GObject, GLib
 
 log = logging.getLogger(__name__)
 
 
-class DiscordConnector:
+class DiscordConnector(GObject.Object):
     """
     The connector for discord.
     Connects in as if it was Streamkit for OBS or Xsplit and
     communicates to get voice & text info to display
     """
 
-    def __init__(self, discover):
-        self.discover = discover
+    __gsignals__ = {
+        "status-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "voice-channel-selected": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str, str, str),
+        ),  # channel_id, name, guild_id
+        "voice-blanked": (GObject.SignalFlags.RUN_LAST, None, ()),
+        "text-message-received": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),
+        "text-message-updated": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str, GObject.TYPE_PYOBJECT),
+        ),  # msg_id, payload
+        "text-message-deleted": (GObject.SignalFlags.RUN_LAST, None, (str,)),  # msg_id
+        "user-updated": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),  # user
+        "user-deleted": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),  # user
+        "user-speaking-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str, bool),
+        ),  # user_id, is_speaking
+        "notification-received": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),
+        "audio-devices-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str, str),
+        ),  # sink_name, source_name
+        "access-token-verified": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str,),
+        ),  # token
+        "voice-channel-title-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str,),
+        ),  # name
+        "voice-channel-icon-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (str,),
+        ),  # icon_url
+        "text-cleared": (GObject.SignalFlags.RUN_LAST, None, ()),  # None
+        "channel-data-updated": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT),
+        ),  # channels dict, guilds dict
+        "overlays-blanked": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (),
+        ),
+        "connection-state-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),  # ConnectionState
+    }
+
+    def __init__(self, token=None, port=6463):
+        GObject.Object.__init__(self)
         self.websocket = None
-        self.access_token = discover.config().get(
-            "cache", "access_token", fallback=None
-        )
+        self.access_token = token
         self.oauth_token = "207646673902501888"
 
         self.guilds = {}
         self.channels = {}
-        self.user = {}
+        self.user = None
         self.current_guild = "0"
         self.current_voice = "0"
         self.current_text = "0"
@@ -60,6 +139,7 @@ class DiscordConnector:
         self.last_rate_limit_send = 0
         self.muted = False
         self.deafened = False
+        self.port = port
 
         self.socket_watch = None
 
@@ -112,7 +192,7 @@ class DiscordConnector:
             log.error("No access token in json response")
             log.error(response.text)
             log.error("The user most likely denied permission for this app")
-            self.discover.exit()
+            exit()
 
     def set_channel(self, channel, guild, need_req=True):
         """
@@ -124,13 +204,13 @@ class DiscordConnector:
                 self.unsub_voice_channel(self.current_voice)
             self.current_voice = "0"
             self.current_guild = "0"
-            self.discover.voice_overlay.set_blank()
+            self.emit("voice-blanked")
             return
         if channel != self.current_voice:
             self.set_state(ConnectionState.VOICE_CHAT_NOT_CONNECTED)
             if self.current_voice != "0":
                 self.unsub_voice_channel(self.current_voice)
-            self.discover.voice_overlay.set_blank()
+            self.emit("voice-blanked")
             self.sub_voice_channel(channel)
             self.current_voice = channel
             self.current_guild = guild
@@ -178,28 +258,28 @@ class DiscordConnector:
         if "author_color" in message:
             colour = message["author_color"]
 
-        self.discover.text_overlay.new_line(
-            {
-                "id": message["id"],
-                "content": self.get_message_from_message(message),
-                "nick": username,
-                "nick_col": colour,
-                "time": epoch_time,
-                "attach": self.get_attachment_from_message(message),
-            }
-        )
+        payload = {
+            "id": message["id"],
+            "content": self.get_message_from_message(message),
+            "nick": username,
+            "nick_col": colour,
+            "time": epoch_time,
+            "attach": self.get_attachment_from_message(message),
+        }
+
+        self.emit("text-message-received", payload)
 
     def update_text(self, message_in):
         """
         Update a line of text
         """
-        self.discover.text_overlay.update_message(message_in["id"], message_in)
+        self.emit("text-message-updated", message_in["id"], message_in)
 
     def delete_text(self, message_in):
         """
         Delete a line of text
         """
-        self.discover.text_overlay.update_message(message_in["id"])
+        self.emit("text-message-deleted", message_in["id"])
 
     def get_message_from_message(self, message):
         """
@@ -232,79 +312,66 @@ class DiscordConnector:
         """
         Recieve websocket message super-function
         """
-        j = json.loads(message)
-        if j["cmd"] == "AUTHORIZE":
-            if "data" in j and "code" in j["data"]:
-                self.get_access_token_stage2(j["data"]["code"])
+
+        try:
+            validated = validate(message)
+        except ValidationError as error:
+            log.error(f"Dropped unknown packet: {error}")
+            log.error(f"{message}")
+            return
+        cmd = validated.cmd
+        evt = validated.evt
+        nonce = validated.nonce
+        data = validated.data
+
+        if cmd == RPCCmd.AUTHORIZE:
+            if data.code:
+                self.get_access_token_stage2(data.code)
             else:
                 log.error("Authorization rejected")
-                self.discover.exit()
+                self.exit()
             return
-        elif j["cmd"] == "DISPATCH":
-            if j["evt"] == "READY":
+        elif cmd == RPCCmd.DISPATCH:
+            if evt == RPCEvent.READY:
                 self.req_auth()
-            elif j["evt"] == "VOICE_STATE_UPDATE":
-                thisuser = j["data"]["user"]
-                nick = j["data"]["nick"]
-                thisuser["nick"] = nick
-                mute = (
-                    j["data"]["voice_state"]["mute"]
-                    or j["data"]["voice_state"]["self_mute"]
-                    or j["data"]["voice_state"]["suppress"]
-                )
-                deaf = (
-                    j["data"]["voice_state"]["deaf"]
-                    or j["data"]["voice_state"]["self_deaf"]
-                )
-                if "mute" not in thisuser or thisuser["mute"] != mute:
-                    thisuser["mute"] = mute
-                    self.discover.voice_overlay.set_mute(thisuser["id"], mute)
-                if "deaf" not in thisuser or thisuser["deaf"] != deaf:
-                    thisuser["deaf"] = deaf
-                    self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
-                self.discover.voice_overlay.update_user(thisuser)
-            elif j["evt"] == "VOICE_STATE_CREATE":
-                thisuser = j["data"]["user"]
-                nick = j["data"]["nick"]
-                thisuser["nick"] = nick
-                mute = (
-                    j["data"]["voice_state"]["mute"]
-                    or j["data"]["voice_state"]["self_mute"]
-                    or j["data"]["voice_state"]["suppress"]
-                )
-                deaf = (
-                    j["data"]["voice_state"]["deaf"]
-                    or j["data"]["voice_state"]["self_deaf"]
-                )
-                if "mute" not in thisuser or thisuser["mute"] != mute:
-                    thisuser["mute"] = mute
-                    self.discover.voice_overlay.set_mute(thisuser["id"], mute)
-                if "deaf" not in thisuser or thisuser["deaf"] != deaf:
-                    thisuser["deaf"] = deaf
-                    self.discover.voice_overlay.set_deaf(thisuser["id"], deaf)
+            elif evt == RPCEvent.VOICE_STATE_UPDATE:
+                thisuser = data.user
+                nick = data.nick
+                thisuser.nick = nick
+                thisuser.mute = data.voice_state.is_muted()
+                thisuser.deaf = data.voice_state.is_deaf()
+                self.emit("user-updated", thisuser)
+            elif evt == RPCEvent.VOICE_STATE_CREATE:
+                thisuser = data.user
+                nick = data.nick
+                thisuser.nick = nick
+                thisuser.mute = data.voice_state.is_muted()
+                thisuser.deaf = data.voice_state.is_deaf()
                 # We've joined a room... but where?
-                if j["data"]["user"]["id"] == self.user["id"]:
+                log.error(self.user)
+                if data.user.id == self.user.id:
                     self.find_user()
-                self.discover.voice_overlay.update_user(thisuser)
-            elif j["evt"] == "VOICE_STATE_DELETE":
-                if j["data"]["user"]["id"] == self.user["id"]:
+
+                self.emit("user-updated", thisuser)
+            elif evt == RPCEvent.VOICE_STATE_DELETE:
+                if data.user.id == self.user.id:
                     # We've left the room, empty overlay and ask where we are now
                     self.find_user()
-                    self.discover.voice_overlay.set_blank()
+                    self.emit("voice-blanked")
                 else:
                     # Remove this user from overlay
-                    self.discover.voice_overlay.del_user(j["data"]["user"])
-            elif j["evt"] == "SPEAKING_START":
-                self.discover.voice_overlay.set_talking(j["data"]["user_id"], True)
-            elif j["evt"] == "SPEAKING_STOP":
-                self.discover.voice_overlay.set_talking(j["data"]["user_id"], False)
-            elif j["evt"] == "VOICE_CHANNEL_SELECT":
-                if j["data"]["channel_id"]:
-                    self.set_channel(j["data"]["channel_id"], j["data"]["guild_id"])
+                    self.emit("user-deleted", data.user)
+            elif evt == RPCEvent.SPEAKING_START:
+                self.emit("user-speaking-changed", data.user_id, True)
+            elif evt == RPCEvent.SPEAKING_STOP:
+                self.emit("user-speaking-changed", data.user_id, False)
+            elif evt == RPCEvent.VOICE_CHANNEL_SELECT:
+                if data.channel_id:
+                    self.set_channel(data.channel_id, data.guild_id)
                 else:
                     self.set_channel(None, None)
-            elif j["evt"] == "VOICE_CONNECTION_STATUS":
-                state = j["data"]["state"]
+            elif evt == RPCEvent.VOICE_CONNECTION_STATUS:
+                state = data.state
                 if (
                     state == "NO_ROUTE"
                     or state == "VOICE_DISCONNECTED"
@@ -317,139 +384,135 @@ class DiscordConnector:
                     self.set_state(ConnectionState.VOICE_CHAT_NOT_CONNECTED)
                 elif state == "CONNECTED" or state == "VOICE_CONNECTED":
                     self.set_state(ConnectionState.CONNECTED)
-            elif j["evt"] == "MESSAGE_CREATE":
-                if self.current_text == j["data"]["channel_id"]:
-                    self.add_text(j["data"]["message"])
-            elif j["evt"] == "MESSAGE_UPDATE":
-                if self.current_text == j["data"]["channel_id"]:
-                    self.update_text(j["data"]["message"])
-            elif j["evt"] == "MESSAGE_DELETE":
-                if self.current_text == j["data"]["channel_id"]:
-                    self.delete_text(j["data"]["message"])
-            elif j["evt"] == "CHANNEL_CREATE":
+            elif evt == RPCEvent.MESSAGE_CREATE:
+                if self.current_text == data.channel_id:
+                    self.add_text(data.message)
+            elif evt == RPCEvent.MESSAGE_UPDATE:
+                if self.current_text == data.channel_id:
+                    self.update_text(data.message)
+            elif evt == RPCEvent.MESSAGE_DELETE:
+                if self.current_text == data.channel_id:
+                    self.delete_text(data.message)
+            elif evt == RPCEvent.CHANNEL_CREATE:
                 # We haven't been told what guild this is in
-                self.req_channel_details(j["data"]["id"], "new")
-            elif j["evt"] == "NOTIFICATION_CREATE":
-                self.discover.notification_overlay.add_notification_message(j)
-            elif j["evt"] == "VOICE_SETTINGS_UPDATE":
-                source = j["data"]["input"]["device_id"]
-                sink = j["data"]["output"]["device_id"]
+                self.req_channel_details(data.id, "new")
+            elif evt == RPCEvent.NOTIFICATION_CREATE:
+                self.emit("notification-received", data)
+            elif evt == RPCEvent.VOICE_SETTINGS_UPDATE:
+                source = data.input.device_id
+                sink = data.output.device_id
                 if sink == "default":
-                    for available_sink in j["data"]["output"]["available_devices"]:
-                        if available_sink["id"] == "default":
-                            sink = available_sink["name"][9:]
+                    for available_sink in data.output.available_devices:
+                        if available_sink.id == "default":
+                            sink = available_sink.name[9:]
                 if source == "default":
-                    for available_source in j["data"]["input"]["available_devices"]:
-                        if available_source["id"] == "default":
-                            source = available_source["name"][9:]
-                self.discover.audio_assist.set_devices(sink, source)
-
+                    for available_source in data.input.available_devices:
+                        if available_source.id == "default":
+                            source = available_source.name[9:]
+                self.emit("audio-devices-changed", sink, source)
             else:
-                log.warning(j)
+                log.warning(data)
             return
-        elif j["cmd"] == "AUTHENTICATE":
+        elif cmd == RPCCmd.AUTHENTICATE:
             self.set_state(ConnectionState.NO_VOICE_CHAT)
 
-            if j["evt"] == "ERROR":
+            if evt == RPCEvent.ERROR:
                 self.access_token = None
                 self.get_access_token_stage1()
                 return
             else:
-                self.discover.config_set("cache", "access_token", self.access_token)
+                self.emit("access-token-verified", self.access_token)
                 self.req_guilds()
-                self.user = j["data"]["user"]
+                log.error(data.user)
+                self.user = data.user
                 log.info("Successfully connected to a Discord client")
                 self.authed = True
                 self.on_connected()
                 return
-        elif j["cmd"] == "GET_GUILDS":
-            for guild in j["data"]["guilds"]:
-                self.guilds[guild["id"]] = guild
+        elif cmd == RPCCmd.GET_GUILDS:
+            for guild in data.guilds:
+                self.guilds[guild.id] = guild
                 self.dump_channel_data()
             return
-        elif j["cmd"] == "GET_GUILD":
+        elif cmd == RPCCmd.GET_GUILD:
             # We currently only get here because of a "CHANNEL_CREATE" event.
             # Stupidly long winded way around
-            if j["data"]:
-                guild = j["data"]
+            if data:
+                guild = data
             self.dump_channel_data()
 
             return
-        elif j["cmd"] == "GET_CHANNELS":
-            if j["evt"] == "ERROR":
-                log.error("%s", j["data"]["message"])
+        elif cmd == RPCCmd.GET_CHANNELS:
+            if evt == RPCEvent.ERROR:
+                log.error("%s", data.messages)
                 return
-            self.guilds[j["nonce"]]["channels"] = j["data"]["channels"]
-            for channel in j["data"]["channels"]:
-                channel["guild_id"] = j["nonce"]
-                channel["guild_name"] = self.guilds[j["nonce"]]["name"]
-                self.channels[channel["id"]] = channel
-                if channel["type"] == 2:
-                    self.req_channel_details(channel["id"])
+            self.guilds[nonce].channels = data.channels
+            for channel in data.channels:
+                channel.guild_id = nonce
+                channel.guild_name = self.guilds[nonce].name
+                self.channels[channel.id] = channel
+                if channel.type == 2:
+                    self.req_channel_details(channel.id)
             self.dump_channel_data()
             return
-        elif j["cmd"] == "SUBSCRIBE":
-            # Only log errors
-            if j["evt"]:
-                log.warning(j)
+        elif cmd == RPCCmd.SUBSCRIBE:
             return
-        elif j["cmd"] == "UNSUBSCRIBE":
+        elif cmd == RPCCmd.UNSUBSCRIBE:
             return
-        elif j["cmd"] == "GET_SELECTED_VOICE_CHANNEL":
-            if "data" in j and j["data"] and "id" in j["data"]:
-                self.set_channel(j["data"]["id"], j["data"]["guild_id"])
-                self.discover.voice_overlay.set_channel_title(j["data"]["name"])
+        elif cmd == RPCCmd.GET_SELECTED_VOICE_CHANNEL:
+            if data is not None and data.id is not None:
+                self.set_channel(data.id, data.guild_id)
+
+                self.emit("voice-channel-title-changed", data.name)
+
                 if (
                     self.current_guild in self.guilds
-                    and "icon_url" in self.guilds[self.current_guild]
+                    and self.guilds[self.current_guild].icon_url is not None
                 ):
-                    self.discover.voice_overlay.set_channel_icon(
-                        self.guilds[self.current_guild]["icon_url"]
+                    self.emit(
+                        "voice-channel-icon-changed",
+                        self.guilds[self.current_guild].icon_url,
                     )
                 else:
-                    self.discover.voice_overlay.set_channel_icon(None)
-                for u in j["data"]["voice_states"]:
-                    thisuser = u["user"]
-                    nick = u["nick"]
-                    thisuser["nick"] = nick
-                    mute = (
-                        u["voice_state"]["mute"]
-                        or u["voice_state"]["self_mute"]
-                        or u["voice_state"]["suppress"]
-                    )
-                    deaf = u["voice_state"]["deaf"] or u["voice_state"]["self_deaf"]
-                    thisuser["mute"] = mute
-                    thisuser["deaf"] = deaf
-                    self.discover.voice_overlay.update_user(thisuser)
+                    self.emit("voice-channel-icon-changed", None)
+
+                for u in data.voice_states:
+                    thisuser = u.user
+                    nick = u.nick
+                    thisuser.nick = nick
+
+                    thisuser.mute = u.voice_state.is_muted()
+                    thisuser.deaf = u.voice_state.is_deaf()
+
+                    self.emit("user-updated", thisuser)
             return
-        elif j["cmd"] == "GET_CHANNEL":
-            if j["evt"] == "ERROR":
+        elif cmd == RPCCmd.GET_CHANNEL:
+            if evt == RPCEvent.ERROR:
                 log.info("Could not get room")
                 return
-            if j["nonce"] == "new":
-                self.req_channels(j["data"]["guild_id"])
-            if j["data"]["type"] == 0:  # Text channel
-                if self.current_text == j["data"]["id"]:
-                    self.discover.text_overlay.set_blank()
-                    for message in j["data"]["messages"]:
+            if nonce == "new":
+                self.req_channels(data.guild_id)
+            if data.type == ChannelType.GUILD_TEXT:
+                if self.current_text == data.id:
+                    self.emit("text-cleared")
+                    for message in data.messages:
                         self.add_text(message)
 
             return
-        elif j["cmd"] == "SELECT_VOICE_CHANNEL":
+        elif cmd == RPCCmd.SELECT_VOICE_CHANNEL:
             return
-        elif j["cmd"] == "SET_VOICE_SETTINGS":
+        elif cmd == RPCCmd.SET_VOICE_SETTINGS:
             # Keep this for toggling mute from RPC
-            self.muted = j["data"]["mute"]
-            self.deafened = j["data"]["deaf"]
+            self.muted = data.mute
+            self.deafened = data.deaf
             return
-        elif j["cmd"] == "GET_VOICE_SETTINGS":
+        elif cmd == RPCCmd.GET_VOICE_SETTINGS:
             return
-        log.warning(j)
+        log.warning(message)
 
     def dump_channel_data(self):
         """Write all channel data out to file"""
-        with open(self.discover.channel_file, "w", encoding="utf-8") as f:
-            f.write(json.dumps({"channels": self.channels, "guild": self.guilds}))
+        self.emit("channel-data-updated", self.channels, self.guilds)
 
     def on_connected(self):
         """
@@ -682,11 +745,8 @@ class DiscordConnector:
         return continue_rate_limit
 
     def blank_overlays(self):
-        """Clear information from overlays"""
-        self.discover.voice_overlay.set_blank()
-        if self.discover.text_overlay:
-            self.discover.text_overlay.set_blank()
-        return
+        """Send all overlays a blank"""
+        self.emit("overlays-blanked")
 
     def start_listening_text(self, channel):
         """
@@ -723,7 +783,7 @@ class DiscordConnector:
         if self.reconnect_cb is None:
             log.info("Scheduled a reconnect in %s seconds", self.reconnect_time)
             self.reconnect_cb = GLib.timeout_add_seconds(
-                self.reconnect_time, self.connect
+                self.reconnect_time, self.connect_socket
             )
             self.reconnect_time += 5
             if self.reconnect_time > 60:
@@ -731,7 +791,7 @@ class DiscordConnector:
         else:
             log.error("Reconnect already scheduled")
 
-    def connect(self):
+    def connect_socket(self):
         """
         Attempt to connect to websocket
 
@@ -747,7 +807,7 @@ class DiscordConnector:
             self.reconnect_cb = None
         try:
             self.websocket = websocket.create_connection(
-                f"ws://127.0.0.1:6463/?v=1&client_id={self.oauth_token}",
+                f"ws://127.0.0.1:{self.port}/?v=1&client_id={self.oauth_token}",
                 origin="http://localhost:3000",
                 timeout=0.2,
             )
@@ -797,12 +857,18 @@ class DiscordConnector:
         return True
 
     def set_state(self, state):
-        """Passes state of play to voice overlay for user feedback"""
-        if (  # This state remains until a successful connection
+        """Update state and emit"""
+        # Do not overwrite a "Modded Discord" message with a disconnected state
+        # This allows user to correctly see the reason we have no info to show
+        if (
             state == ConnectionState.NO_DISCORD
             and self.state == ConnectionState.DISCORD_INVALID
         ):
             return
         if self.state != state:
             self.state = state
-            self.discover.voice_overlay.set_connection_status(state)
+            self.emit("connection-state-changed", state)
+
+    def exit(self):
+        """Kills self, works from threads"""
+        os.kill(os.getpid(), signal.SIGTERM)
