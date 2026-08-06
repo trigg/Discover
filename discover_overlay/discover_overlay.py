@@ -74,7 +74,7 @@ class Discover:
         self.ind = None
         self.tray = None
         self.steamos = False
-        self.connection = None
+        self.connector = None
         self.show_settings_delay = False
         self.settings = None
 
@@ -252,37 +252,37 @@ class Discover:
         if "--show" in data:
             self.config_set("general", "hideoverlay", "False")
         if "--mute" in data:
-            if self.connection:
-                self.connection.set_mute(True)
+            if self.connector:
+                self.connector.set_mute(True)
         if "--unmute" in data:
-            if self.connection:
-                self.connection.set_mute(False)
+            if self.connector:
+                self.connector.set_mute(False)
         if "--deaf" in data:
-            if self.connection:
-                self.connection.set_deaf(True)
+            if self.connector:
+                self.connector.set_deaf(True)
         if "--undeaf" in data:
-            if self.connection:
-                self.connection.set_deaf(False)
+            if self.connector:
+                self.connector.set_deaf(False)
         if "--toggle-mute" in data:
-            if self.connection:
-                self.connection.set_mute(not self.connection.muted)
+            if self.connector:
+                self.connector.set_mute(not self.connector.muted)
         if "--toggle-deaf" in data:
-            if self.connection:
-                self.connection.set_deaf(not self.connection.deafened)
+            if self.connector:
+                self.connector.set_deaf(not self.connector.deafened)
         if "--refresh-guilds" in data:
-            if self.connection:
-                self.connection.req_guilds()
+            if self.connector:
+                self.connector.req_guilds()
         if "--leave" in data or "-l" in data:
-            if self.connection:
-                self.connection.change_voice_room(None)
+            if self.connector:
+                self.connector.change_voice_room(None)
         pattern = re.compile("--moveto=([0-9]+)")
         if any((match := pattern.match(x)) for x in data):
-            if self.connection:
-                self.connection.change_voice_room(match.group(1))
+            if self.connector:
+                self.connector.change_voice_room(match.group(1))
         guild_pattern = re.compile("--guild-request=([0-9]+)")
         if any((match := guild_pattern.match(x)) for x in data):
-            if self.connection:
-                self.connection.request_text_rooms_for_guild(match.group(1))
+            if self.connector:
+                self.connector.request_text_rooms_for_guild(match.group(1))
 
     def exit(self):
         """Kills self, works from threads"""
@@ -438,12 +438,12 @@ class Discover:
     def set_mute_async(self, mute):
         """Set mute status from another thread"""
         if mute is not None:
-            GLib.idle_add(self.connection.set_mute, mute)
+            GLib.idle_add(self.connector.set_mute, mute)
 
     def set_deaf_async(self, deaf):
         """Set deaf status from another thread"""
         if deaf is not None:
-            GLib.idle_add(self.connection.set_deaf, deaf)
+            GLib.idle_add(self.connector.set_deaf, deaf)
 
 
 def show_help():
