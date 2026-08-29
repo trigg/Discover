@@ -117,6 +117,12 @@ class OverlayWindow(Gtk.Window):
                                          | Gdk.EventMask.ENTER_NOTIFY_MASK)
         self.connect("enter-notify-event", self.mouseover)
         self.connect("leave-notify-event", self.mouseout)
+        # The input shape lives on the GdkWindow, so it is discarded whenever
+        # that window is recreated (outputs removed and re-added, layer surface
+        # rebuilt). Re-apply it on realize/map rather than relying on any one
+        # event, so the overlay can never come back input-opaque.
+        self.connect("realize", self.shape_on_realize)
+        self.connect("map-event", self.shape_on_map)
         self.mouse_over_timer = None
 
         # It shouldn't be possible, but let's not leave
@@ -253,6 +259,46 @@ class OverlayWindow(Gtk.Window):
         surface_ctx.paint()
         reg = Gdk.cairo_region_create_from_surface(surface)
         self.input_shape_combine_region(reg)
+
+    def reapply_input_shape(self):
+        """
+        Re-apply the input region.
+
+        The input shape is a property of the underlying GdkWindow. When outputs
+        are removed and re-added (screen power-off, monitor hotplug) the layer
+        surface and its GdkWindow are destroyed and recreated, and the shape is
+        lost. A window with no input shape captures *all* pointer input, so an
+        overlay-layer window spanning the desktop then swallows every click
+        while keyboard input still works.
+
+        Default to fully click-through, which is always safe; when hiding on
+        mouseover the next draw restores the content-shaped region.
+        """
+        if not self.get_window():
+            return
+        self.set_untouchable()
+        if self.hide_on_mouseover:
+            self.set_needs_redraw()
+
+    def shape_on_realize(self, _w=None):
+        """Restore the input shape when a new GdkWindow is created."""
+        GLib.idle_add(self.reapply_input_shape_deferred)
+
+    def shape_on_map(self, _w=None, _e=None):
+        """Restore the input shape when the window is (re)mapped."""
+        GLib.idle_add(self.reapply_input_shape_deferred)
+        return False
+
+    def reapply_input_shape_deferred(self):
+        """
+        Re-apply the input shape once GTK has settled.
+
+        Surface recreation after an output change is asynchronous, so a shape
+        applied immediately can be set on a window that is then replaced. Run
+        again on idle to cover that case.
+        """
+        self.reapply_input_shape()
+        return False
 
     def set_hide_on_mouseover(self, hide):
         """Set if the overlay should hide when mouse moves over it"""
@@ -472,8 +518,16 @@ class OverlayWindow(Gtk.Window):
         self.redraw()
 
     def screen_changed(self, _screen=None):
-        """Callback to set monitor to display on"""
+        """
+        Callback for monitors-changed / size-changed.
+
+        Force the update: this always passes the current plug name, so an
+        unforced set_monitor() would compare it against itself, take the
+        unchanged path and do nothing at all.
+        """
         self.set_monitor(self.monitor)
+        self.reapply_input_shape()
+        GLib.idle_add(self.reapply_input_shape_deferred)
 
     def mouseover(self, _a=None, _b=None):
         """Callback when mouseover occurs, hides overlay"""
