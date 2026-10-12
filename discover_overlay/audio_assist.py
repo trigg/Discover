@@ -37,6 +37,7 @@ class DiscoverAudioAssist:
         # send messages for every little PA/PW signal
         self.last_set_mute = None
         self.last_set_deaf = None
+        self.resync_mute = False
 
     def set_enabled(self, enabled):
         """Enable or Disable the functioning of this class"""
@@ -98,8 +99,8 @@ class DiscoverAudioAssist:
         if deaf != self.last_set_deaf:
             self.last_set_deaf = deaf
             self.discover.set_deaf_async(deaf)
-            self.last_set_mute = None
             # At this point mute is undefined state
+            self.resync_mute = not deaf
 
         # Setting mute/unmute while deafened will unset deafened
         # deafened implies muted
@@ -113,9 +114,10 @@ class DiscoverAudioAssist:
                 elif source.mute == 0:
                     mute = False
 
-        if mute != self.last_set_mute:
+        if mute != self.last_set_mute or (self.resync_mute and mute):
             self.last_set_mute = mute
             self.discover.set_mute_async(mute)
+        self.resync_mute = False
 
     async def handle_events(self, pulse, ev):
         """ `Sink` and `Source` events are fired for changes to output and inputs
